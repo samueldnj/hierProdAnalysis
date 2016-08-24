@@ -9,6 +9,12 @@
 # Date: 24 August, 2016
 # 
 # Sourcing scripts:
-# 	
-# 
+# 	simulation.R
+#
+# Estimator executables (ADMB):
+#		productionSS
+#		productionMS
+#
+# Control file
+#		coastWide.ctl
 # --------------------------------------------------------------------------
