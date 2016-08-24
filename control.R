@@ -1,0 +1,14 @@
+# --------------------------------------------------------------------------
+# control.R
+# 
+# Control script for the coastwide (single stock) simulation-estimation
+# experiments comparing single species and multi-species assessment
+# models.
+# 
+# Author: Samuel Johnson
+# Date: 24 August, 2016
+# 
+# Sourcing scripts:
+# 	
+# 
+# --------------------------------------------------------------------------
