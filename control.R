@@ -18,3 +18,6 @@
 # Control file
 #		coastWide.ctl
 # --------------------------------------------------------------------------
+
+## Okay, let's start by sourcing the other scripts
+source ("simulation.R")
