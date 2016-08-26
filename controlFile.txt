@@ -1,0 +1,86 @@
+### Control file for coastWide simulation-estimation multispecies model ###
+
+### Simulator controls ###
+## Number of stocks 
+## NOTE: must match length of non-trivial vectors and rows of non-trivial
+## arrays below
+# nS
+3
+
+## Simulation length
+# nT
+40
+
+## Leading parameter values for multispecies OM
+# msy
+20 100 1000
+
+# Fmsy
+0.3 0.25 0.2
+
+# q
+1 0.1 0.12
+
+## Process error sd
+## Multispecies environmental error (needs covariance structure over time)
+# sigma
+0.1
+
+## Single species interaction (needs covariance over species, and better variable name )
+# Sigma
+0.7 0 0
+0 0.7 0
+0 0 0.7
+
+## Observation error sd
+# tau
+0.8 0.7 0.7
+
+## Fishing Mortality (should provide a full time series...)
+# F_mult
+0.5 2 1
+0.5 2 1
+0.5 2 1
+
+# tFpeak
+20 20 20
+
+### Estimator controls ###
+## Initial values for parameters and hyperparameters not included above ##
+## Hyperparameters ##
+## lnq prior MS
+# m.logq.MS
+-2.3
+
+# ln.sd.logq.MS
+100
+
+## lnMSY prior (mean set to true value)
+# sMSY
+50 10 100
+
+## FMSY normal prior (mean set to true value)
+# sFMSY
+1.5 0.02 0.02
+
+## sigma prior (inverse gamma)
+# alpha.sigma
+5 0.4 0.4
+
+# beta.sigma
+0.5 0.04 0.04
+
+## tau prior (inverse gamma)
+# alpha.tau
+5 0.4 0.4
+
+# beta.tau
+0.5 0.04 0.04
+
+## Controls on fitting process ##
+# fitTrials
+2
+
+## increment to leading pars if fitting fails
+# fitFactor
+0.1
