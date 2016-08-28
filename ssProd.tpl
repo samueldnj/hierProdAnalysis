@@ -223,7 +223,7 @@ FUNCTION mcDumpOut
 REPORT_SECTION
   // Output estimates and derived variables for comparison to true
   // values in sim-est experiments
-  report << "## Production Model Results" << endl;
+  report << "## Single Species Production Model Results" << endl;
   report << "## Parameter estimates " << endl;
   report << "# MSY" << endl;
   report << MSY << endl;
