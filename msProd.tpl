@@ -218,13 +218,16 @@ FUNCTION mcDumpOut
     // Output the parameters needed for performance testing of SA method.
     mcoutpar << "BMSY MSY FMSY q sigma2 tau2 FnT_bar BnT dep_bar" << endl;
   
-    // Output the parameter values for this replicate
-    mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat);
-    mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
-    mcoutpar << column(Bt_bar,nT) <<" "<< dep_bar << endl;
+    for ( int s=1;s<=nS;s++)
+    {
+      // Output the parameter values for this replicate
+      mcoutpar << BMSY(s) << " " << MSY(s) <<" "<< FMSY(s) <<" "<< mfexp(lnqhat(s));
+      mcoutpar <<" "<< sigma2hat(s) <<" "<< tau2hat(s) <<" " << FnT_bar(s) <<" ";
+      mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) << endl;
 
-    // Output the biomass estimates for this MC evaluation
-    mcoutbio << Bt_bar << endl;
+      // Output the biomass estimates for this MC evaluation
+      mcoutbio << Bt_bar(s) << endl;
+    }
 
     mcHeader = 1;
   }
@@ -233,13 +236,16 @@ FUNCTION mcDumpOut
     // Condition on "good" starting values
     if( pospen==0 )
     {
-      // Output the parameter values for this replicate
-      mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat); 
-      mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
-      mcoutpar << column(Bt_bar,nT) <<" "<< dep_bar << endl;
+      for ( int s=1;s<=nS;s++)
+      {
+        // Output the parameter values for this replicate
+        mcoutpar << BMSY(s) << " " << MSY(s) <<" "<< FMSY(s) <<" "<< mfexp(lnqhat(s));
+        mcoutpar <<" "<< sigma2hat(s) <<" "<< tau2hat(s) <<" " << FnT_bar(s) <<" ";
+        mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) << endl;
 
-      // Output the biomass estimates for this MC evaluation
-      mcoutbio << Bt_bar << endl;
+        // Output the biomass estimates for this MC evaluation
+        mcoutbio << Bt_bar(s) << endl;
+      }
     }
   }
 
@@ -339,7 +345,7 @@ GLOBALS_SECTION
   
   int mcHeader=0;
   int mcTrials=0;
-  ofstream mcoutpar("mcoutSSpar.dat");
-  ofstream mcoutbio("mcoutSSbio.dat");
+  ofstream mcoutpar("msProdParMC.dat");
+  ofstream mcoutbio("msProdBioMC.dat");
 
 

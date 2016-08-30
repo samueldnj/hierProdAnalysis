@@ -314,7 +314,7 @@ GLOBALS_SECTION
   
   int mcHeader=0;
   int mcTrials=0;
-  ofstream mcoutpar("mcoutSSpar.dat");
-  ofstream mcoutbio("mcoutSSbio.dat");
+  ofstream mcoutpar("ssProdParMC.dat");
+  ofstream mcoutbio("ssProdBioMC.dat");
 
 
