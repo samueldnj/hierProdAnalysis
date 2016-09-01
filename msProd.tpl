@@ -40,16 +40,16 @@ PARAMETER_SECTION
   init_matrix epst(1,nS,1,nT,3);     // uncorrelated - cholesky factor to be added
   
   // Fixed parameters and hyperparameters
-  init_vector mMSY(1,nS,-1);      // MSY prior mean (species spec)
-  init_vector sMSY(1,nS,-1);      // MSY prior SD (species spec)
-  init_vector mFMSY(1,nS,-1);     // lnFMSY prior mean (species spec)
-  init_vector sFMSY(1,nS,-1);     // lnFMSY priod sd (species spec)
-  init_number alphaSigma(-1);     // sigma prior shape (shared)
-  init_number betaSigma(-1);      // sigma prior scale (shared)
-  init_number alphaTau(-1);       // tau prior shape (shared)
-  init_number betaTau(-1);        // tau prior scale (shared)
-  init_number mlnq(-1);           // logq prior mean (shared)
-  init_number slnq(-1);           // logq prior sd (shared)
+  init_vector mMSY(1,nS,-1);        // MSY prior mean (species spec)
+  init_vector sMSY(1,nS,-1);        // MSY prior SD (species spec)
+  init_vector mFMSY(1,nS,-1);       // lnFMSY prior mean (species spec)
+  init_vector sFMSY(1,nS,-1);       // lnFMSY priod sd (species spec)
+  init_vector alphaSigma(1,nS,-1);  // sigma prior shape (shared)
+  init_vector betaSigma(1,nS,-1);   // sigma prior scale (shared)
+  init_vector alphaTau(1,nS,-1);    // tau prior shape (shared)
+  init_vector betaTau(1,nS,-1);     // tau prior scale (shared)
+  init_number mlnq(-1);             // logq prior mean (shared)
+  init_number slnq(-1);             // logq prior sd (shared)
 
   //objective function value
   objective_function_value f;
@@ -205,9 +205,9 @@ FUNCTION calcPriors
   // Then FMSY
   prior += elem_div(pow ( FMSY - mFMSY, 2 ), pow(sFMSY,2)) / 2.;
   // Now sigma2hat prior
-  prior += (alphaSigma + 1) * log(sigma2hat) + betaSigma / sigma2hat;
+  prior += elem_prod((alphaSigma+1),log(sigma2hat))+elem_div(betaSigma,sigma2hat);
   // tau2hat prior
-  prior += (alphaTau + 1) * log(tau2hat) + betaTau / tau2hat;
+  prior += elem_prod((alphaTau+1),log(tau2hat))+elem_div(betaTau,tau2hat);
   // lnq prior
   prior += pow( lnqhat - mlnq, 2 ) / slnq / slnq / 2;
 

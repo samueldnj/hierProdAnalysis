@@ -36,7 +36,7 @@ PARAMETER_SECTION
   init_number lnFMSY(2);          // intrinsic rate of growth - log scale
   
   // process error deviations
-  init_bounded_dev_vector epst(1,nT,-5.,5.,3);
+  init_bounded_dev_vector epst(1,nT,-5.,5.,1);
   
   // Fixed parameters and hyperparameters
   init_number mMSY(-1);           // MSY prior mean
