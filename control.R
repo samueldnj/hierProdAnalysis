@@ -55,12 +55,13 @@ ssRep <- list()
 for (s in 1:ctlList$nS ) 
 {
 	cat ( "Fitting species ", s, "\n", sep = "")
-	ssRep[[s]] <- callProcADMB ( dat = datPar$ssDat[[s]], par = datPar$ssPar[[s]],
-																fitTrials = 10, activeFileRoot = "ssProd" )
+	ssRep[[s]] <- callProcADMB ( 	dat = datPar$ssDat[[s]], par = datPar$ssPar[[s]],
+																lab=s, fitTrials = 10, activeFileRoot = "ssProd",
+																mcTrials = 20000, mcSave = 10, maxfn = 10000)
 }
 cat ( "Fitting ", ctlList$nS," species simultaneously.\n", sep = "")
-msRep <- callProcADMB ( dat = datPar$msDat, par = datPar$msPar, 
-												fitTrials = 10,
-												activeFileRoot = "msProd" )
+msRep <- callProcADMB ( dat = datPar$msDat, par = datPar$msPar,
+												fitTrials = 10, activeFileRoot = "msProd",
+												mcTrials = 20000, mcSave = 10, maxfn = 10000 )
 
 

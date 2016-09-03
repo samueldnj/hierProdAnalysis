@@ -13,7 +13,7 @@
 
 ## Leading parameter values for multispecies OM
 # msy
-20 40 80
+20 40 100
 
 # Fmsy
 0.3 0.25 0.2
@@ -28,9 +28,9 @@
 
 ## Single species covariance mtx (needs correlation over species, and better variable name )
 # Sigma
-0.3 0.2 0
-0.2 0.3 0.2
-0 0.2 0.3
+0.3 0.2 0.2 
+0.2 0.3 0.2 
+0.2 0.2 0.3 
 
 ## Observation error sd
 # tau
@@ -38,7 +38,7 @@
 
 ## Fishing Mortality (should provide a full time series... or not)
 # F_mult
-0 1.5 0.9
+0 1 0.5
 
 # tFpeak
 20
@@ -77,8 +77,4 @@
 
 ## Controls on fitting process ##
 # fitTrials
-2
-
-## increment to leading pars if fitting fails
-# fitFactor
-0.1
+10

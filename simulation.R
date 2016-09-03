@@ -138,7 +138,6 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
     # make par list
     ssPar[[s]] <- list (  lnMSY       = log(omList$msy[s]),
                           lnFmsy      = log(omList$Fmsy[s]),
-                          epst        = omList$epst[s,]+omList$zetat[s,],
                           mMSY        = omList$msy[s],
                           sMSY        = 3*omList$msy[s],
                           mFmsy       = omList$Fmsy[s],
@@ -148,7 +147,8 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                           alpha.tau   = ctl$alpha.tau[s],
                           beta.tau    = ctl$beta.tau[s],
                           mlnq        = log(omList$q[s]),
-                          slnq        = log(3) )
+                          slnq        = log(3),
+                          epst        = omList$epst[s,]+omList$zetat[s,] )
 
   }
   # now make dat and par lists for the MS model
@@ -159,7 +159,6 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   dumm  = 999 )
   msPar <- list ( lnMSY       = log(omList$msy),
                   lnFmsy      = log(omList$Fmsy),
-                  epst        = omList$epst+omList$zetat,
                   mMSY        = omList$msy,
                   sMSY        = 3*omList$msy,
                   mFmsy       = omList$Fmsy,
@@ -169,7 +168,8 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   alpha.tau   = ctl$alpha.tau,
                   beta.tau    = ctl$beta.tau,
                   mlnq        = mean(log(omList$q)),
-                  slnq        = log(3) )
+                  slnq        = log(3),
+                  epst        = omList$epst+omList$zetat )
 
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar, 
@@ -178,27 +178,47 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
   return(outlist)
 }
 
-# callSSprodADMB()
-# Function that calls the ADMB ssProd estimator for a given stock.
+# callProcADMB()
+# Function that calls an ADMB estimator for a given set of
+# dat and par list objects.
 # inputs:   dat=list object containing .dat file contents in order
 #           par=list object containing .pin file contents in order
+#           lab=character vector label for use in output file names
 #           fitTrials=number of times to modify pin before giving up
 #           activeFileRoot=name of ADMB model being called
+#           mcTrials=number of MCMC trials to perform
+#           mcSave=thinning value for MCMC trials
 # ouputs:   rep=list object containing the rep file contents
-# usage:    fitting a replicate model run
-callProcADMB <- function (  dat = ssDat[[1]], par = ssPar[[1]], 
-                            fitTrials = 3, activeFileRoot="ssProd" )
+#           mcPar=data.frame of MCMC parameter distributions
+#           mcBio=data.frame of MCMC biomass distributions
+#           localMin=Logical indicating if local minimum was found
+#           hessPosDef=logical indicating if MCMC was possible
+# usage:    fitting a replicate model run to given data
+callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL, 
+                            fitTrials = 3, activeFileRoot="ssProd",
+                            mcTrials = 1, mcSave = 1, maxfn = 1000 )
 { 
-  # Set the active filename root paste with extensions
-  datFile <- paste ( activeFileRoot, ".dat", sep = "")
-  pinFile <- paste ( activeFileRoot, ".pin", sep = "")
-  repFile <- paste ( activeFileRoot, ".rep", sep = "")
+  # Set the active filename root, paste with label and extensions
+  datFile   <- paste ( activeFileRoot,lab,".dat", sep = "")
+  pinFile   <- paste ( activeFileRoot,lab,".pin", sep = "")
+
+  # No label on admb output files
+  repFile   <- paste ( activeFileRoot,".rep", sep = "")
+  mcParFile <- paste ( activeFileRoot,"ParMC.dat", sep = "")
+  mcBioFile <- paste ( activeFileRoot,"BioMC.dat", sep = "")
+
+  # Backup par and bio MC output for failed MCMC runs
+  mcParBackup <- paste (activeFileRoot,lab,"ParMC.bak", sep = "")
+  mcBioBackup <- paste (activeFileRoot,lab,"BioMC.bak", sep = "")
+
 
   # Set path, exec and paste together command call
   path <- getwd()
   exec <- file.path(path,activeFileRoot)
-  mleCall <- paste (  exec, " -ainp ", pinFile, " -ind ", datFile, 
-                      " -maxfn 5000", sep = "" )
+  procCall <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+                            " -mcmc ", mcTrials, " -maxfn ", maxfn,
+                            " -mcsave ", mcSave, sep = "" )
+  mcEval <- paste ( exec, " -mceval", sep = "" )
 
   # Pull out lnMSY for use later
   lnMSY <- par$lnMSY 
@@ -212,45 +232,78 @@ callProcADMB <- function (  dat = ssDat[[1]], par = ssPar[[1]],
 
   for ( i in 0:fitTrials )
   {
-    fit <- TRUE
-    # Write to pin file
-    # Increment lnMSY if needed
+    hessPosDef <- TRUE
+    localMin <- TRUE
+    # increment lnMSY and decrease prior sd if needed
     par$lnMSY <- lnMSY + log ( i + 1 )
     par$sMSY <- sMSY / (i + 1)
+    # Write to pin file 
     cat ( "## ", activeFileRoot, " initial parameter file, created ", 
           format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
           sep = "", file = pinFile, append = FALSE )
     lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
               activeFile=pinFile )
 
-    # Now run the model and read in rep
-    system ( command = mleCall, wait =TRUE, ignore.stdout = TRUE )
+    # Now run the model and read in rep and MCMC files
+    system ( command = procCall, wait =TRUE, ignore.stdout = TRUE )
+    system ( command = mcEval, wait =TRUE, ignore.stdout = TRUE )
+
     rep <- lisread ( repFile )
+    mcPar <- try ( read.table ( mcParFile, header = TRUE) )
+    mcBio <- try ( read.table (mcBioFile) )
+    # if (activeFileRoot == "msProd") browser()
 
     # Check if that the exit code is correct in the rep file
-    # Increment starting lnMSY value to hopefully get convergence
-    if ((rep$iExit != 1 | rep$maxGrad > 1e-4) & i < fitTrials)
+    if ((rep$iExit != 1 | rep$maxGrad > 1e-4) )
     {
-      cat ( activeFileRoot, " failed to fit with given .pin file, repeating ",
-            i+1, "th time.\n", sep = "")
-      fit <- FALSE
+      localMin <- FALSE
+      if (i < fitTrials)
+      {
+        cat ( activeFileRoot, 
+              " failed to find local min with given .pin file, repeating ",
+              i+1, "th time.\n", sep = "")
+      }
     }
-    if ( fit )
+    if ( class (mcPar) == "try-error" | class (mcBio) == "try-error" )
+    {
+      hessPosDef <- FALSE 
+      if (i < fitTrials)
+      {
+        cat ( activeFileRoot, 
+              " has non-positive definite hessian with given .pin file, repeating ",
+              i+1, "th time.\n", sep = "")
+      }
+    }
+    if ( localMin & hessPosDef )
+    # if (hessPosDef) 
       break
   }
-  if ( (rep$iExit != 1 | rep$maxGrad > 1e-4) )
+  if ( !localMin | !hessPosDef )
   {
-    fit <- FALSE
-    cat(  "\nModel did not fit in ", fitTrials, 
+    if ( !hessPosDef )
+    {
+      mcPar <- read.table (mcParBackup, header = TRUE )
+      mcBio <- read.table (mcBioBackup)
+    }
+    cat(  "\nModel had trouble fitting in ", i, 
           " trials with given pin and dat file.\n",
-          "Copying bad pin and dat for forensics.\n" )  
+          "Copying bad pin and dat for forensics.\n" )
     # Save the *.pin and *.dat files for forensics.
-    badPinFile <- file.path( getwd(),paste( activeFileRoot,Sys.time(),".pin", sep="" ) )
+    badPinFile <- file.path(  getwd(),"badfits",
+                              paste( activeFileRoot,lab,Sys.time(),".pin", sep="" ) )
     file.copy( pinFile, badPinFile, overwrite=TRUE )
-    badDatFile <- file.path( getwd(),paste( activeFileRoot,Sys.time(),".dat", sep="" ) )
+    badDatFile <- file.path(  getwd(),"badfits",
+                              paste( activeFileRoot,lab,Sys.time(),".dat", sep="" ) )
     file.copy( datFile, badDatFile, overwrite=TRUE )
+  } else { 
+    # copy Par and Bio MCMC output for later (rep too??)
+    file.copy( mcParFile, mcParBackup, overwrite = TRUE )
+    file.copy( mcBioFile, mcBioBackup, overwrite = TRUE )
   }
-  rep
+
+  out <- list ( rep = rep, mcPar = mcPar, mcBio = mcBio,
+                localMin = localMin, hessPosDef = hessPosDef )
+  out
 }
 
 # logProdModel()

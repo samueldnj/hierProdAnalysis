@@ -48,7 +48,7 @@ PARAMETER_SECTION
   init_number slnq(-1);           // log q prior sd
 
   // process error deviations
-  init_bounded_dev_vector epst(1,nT,-5.,5.,1);
+  random_effects_bounded_vector epst(1,nT,-2.,2.,2);
 
   //objective function value
   objective_function_value f;
@@ -96,12 +96,16 @@ PROCEDURE_SECTION
 
   // Run state dynamics function
   stateDynamics();
+  cout << "SD done" << endl;
   // apply observation model, compute conditional value for lnq
   obsModel();
+  cout << "obs model done" << endl;
   // Compute likelihood for dynamics
   calcLikelihoods();
+  cout << "Like done" << endl;
   // Compute priors
   calcPriors();
+  cout << "Priors done" << endl;
 
   // Output MCMC data if running mcmc trials
   if(mceval_phase())
@@ -118,9 +122,13 @@ PROCEDURE_SECTION
 FUNCTION stateDynamics
   // exponentiate leading parameters
   FMSY = mfexp ( lnFMSY );         // optimal fishing mortality
+  cout << "lnFMSY = " << lnFMSY << endl;
   MSY = mfexp ( lnMSY );           // MSY
+  cout << "lnMSY = " << lnMSY << endl;
   BMSY = MSY / FMSY;               // optimal biomass
 
+
+  cout << "epst = " << epst << endl;
   // reinitialise penalisers
   fpen = 0.; pospen = 0.;
   
@@ -135,12 +143,14 @@ FUNCTION stateDynamics
     // Run state dynamics equation, add process error
     Bt_bar(t+1) = ( Bt_bar(t) + 
                     2. * FMSY * Bt_bar(t) * (1 - Bt_bar(t)/BMSY/2.0 ) - 
-                    katch(t) ) * exp ( epst(t+1) );
+                    katch(t) ) * mfexp ( epst(t+1) );
     Bt_bar(t+1) = posfun ( Bt_bar(t+1), 10e-1, pospen );
     
     // Increment function penaliser variable
     fpen += 10000. * pospen;
   }
+
+  cout << "Bt_bar = " << Bt_bar << endl;
 
   // compute derived performance values
   //FnT_bar = katch ( nT - 1 ) / FMSY;   // comparison of F
@@ -154,6 +164,7 @@ FUNCTION obsModel
 
   // Compute predicted index of abundance
   It_bar = mfexp(lnqhat) * Bt_bar;
+  cout << "lnqhat = " << lnqhat << endl;
 
   // Compute the sum of squares
   SSRobs = norm2 ( log ( It ) - log ( It_bar ) );
@@ -208,7 +219,7 @@ FUNCTION mcDumpOut
   else
   {
     // Condition on "good" starting values
-    if( pospen==0 )
+    if( value(pospen)==0 )
     {
       // Output the parameter values for this replicate
       mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat); 

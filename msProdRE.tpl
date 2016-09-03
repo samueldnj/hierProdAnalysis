@@ -16,8 +16,9 @@
 DATA_SECTION
   // Control parameters for data
   init_int nT;                        // number of time iterations
-  init_vector katch(1,nT);            // catch in kg
-  init_vector It(1,nT);               // indices of abundance
+  init_int nS;                        // number of species
+  init_matrix katch(1,nS,1,nT);       // catch in kg
+  init_matrix It(1,nS,1,nT);          // indices of abundance
  
   // dummy variable to check data read
   init_int dumm;                      // dummy variable
@@ -32,59 +33,59 @@ DATA_SECTION
 
 PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
-  init_number lnMSY(1);           // carrying capacity - log scale
-  init_number lnFMSY(2);          // intrinsic rate of growth - log scale
+  init_vector lnMSY(1,nS,1);         // msy - log scale
+  init_vector lnFMSY(1,nS,2);        // Umsy - log scale
 
   // Fixed parameters and hyperparameters
-  init_number mMSY(-1);           // MSY prior mean
-  init_number sMSY(-1);           // MSY prior SD
-  init_number mFMSY(-1);          // lnFMSY prior mean
-  init_number sFMSY(-1);          // lnFMSY priod sd
-  init_number alphaSigma(-1);     // sigma prior mean
-  init_number betaSigma(-1);      // sigma prior sd
-  init_number alphaTau(-1);       // sigma prior mean
-  init_number betaTau(-1);        // sigma prior sd
-  init_number mlnq(-1);           // log q prior mean
-  init_number slnq(-1);           // log q prior sd
+  init_vector mMSY(1,nS,-1);        // MSY prior mean (species spec)
+  init_vector sMSY(1,nS,-1);        // MSY prior SD (species spec)
+  init_vector mFMSY(1,nS,-1);       // lnFMSY prior mean (species spec)
+  init_vector sFMSY(1,nS,-1);       // lnFMSY priod sd (species spec)
+  init_vector alphaSigma(1,nS,-1);  // sigma prior shape (shared)
+  init_vector betaSigma(1,nS,-1);   // sigma prior scale (shared)
+  init_vector alphaTau(1,nS,-1);    // tau prior shape (shared)
+  init_vector betaTau(1,nS,-1);     // tau prior scale (shared)
+  init_number mlnq(-1);             // logq prior mean (shared)
+  init_number slnq(-1);             // logq prior sd (shared)
 
   // process error deviations
-  init_bounded_dev_vector epst(1,nT,-5.,5.,1);
+  random_effects_matrix epst(1,nS,1,nT,3); // uncorrelated - cholesky factor to be added
 
   //objective function value
   objective_function_value f;
 
   // back-transformed parameters
-  number MSY;         
-  number FMSY;
+  vector MSY(1,nS);        
+  vector FMSY(1,nS);
   
   // variables to hold concentrated parameters
-  sdreport_number lnqhat;
-  number sigma2hat;
-  number tau2hat;
+  sdreport_vector lnqhat(1,nS);
+  vector sigma2hat(1,nS);
+  vector tau2hat(1,nS);
 
   //penalizer
   number fpen;               // penalty to obj function for bad dynamics
   number pospen;             // penalty to add to fpen if biomass dips
   
   // vectors to hold predicted biomass and index values
-  vector Bt_bar(1,nT);        // predicted biomass
-  vector It_bar(1,nT);        // predicted IoA
+  matrix Bt_bar(1,nS,1,nT);        // predicted biomass
+  matrix It_bar(1,nS,1,nT);        // predicted IoA
 
   // variables to hold derived values
-  number BMSY;        // Biomass at MSY
-  number FnT_bar;     // estimated fishing mortality 
-  number dep_bar;     // depletion estimate
+  vector BMSY(1,nS);        // Biomass at MSY
+  vector FnT_bar(1,nS);     // estimated fishing mortality 
+  vector dep_bar(1,nS);     // depletion estimate
 
   // likelihood quantities
-  number obsNLL;      // NLL for observation error
-  number procNLL;     // NLL for process error
-  number nll;         // total nll (sum of above)   
+  vector obsNLL(1,nS);      // NLL for observation error
+  vector procNLL(1,nS);     // NLL for process error
+  vector nll(1,nS);         // total nll (sum of above)   
 
   // Prior quantities
-  number prior;         // total prior log density
+  vector prior(1,nS);         // total prior log density
   
-  // Variables to hold concentration quantities
-  number SSRobs;    // sum of squared resids of obs error
+  // Variables to hold quantities used for concentration of parameters
+  vector SSRobs(1,nS);    // sum of squared resids of obs error
 
 
 PROCEDURE_SECTION
@@ -96,12 +97,22 @@ PROCEDURE_SECTION
 
   // Run state dynamics function
   stateDynamics();
+  // cout << "State Dynamic complete" << endl;
   // apply observation model, compute conditional value for lnq
   obsModel();
+  // cout << "Observation model complete" << endl;
   // Compute likelihood for dynamics
   calcLikelihoods();
+  // cout << "Likelihood computation complete" << endl;
+  // cout << "nll = " << nll << endl;
   // Compute priors
   calcPriors();
+  // cout << "Prior computation complete" << endl;
+  // cout << "prior = " << prior << endl;
+
+  // cout << "lnMSY = " << lnMSY << endl;
+  // cout << "lnFMSY = " << lnFMSY << endl;
+  // cout << "epst = " << epst << endl;
 
   // Output MCMC data if running mcmc trials
   if(mceval_phase())
@@ -110,37 +121,45 @@ PROCEDURE_SECTION
   }
 
   // compute objective function value
-  f = nll;      // Likelihood and proc error pen
-  f += prior;   // priors
-  f += fpen;    // function value penalties
+  f = sum(nll);       // Likelihood and proc error pen
+  f += sum(prior);    // sum species spec priors
+  f += fpen;          // positive function value penalties
 
 // State dynamics subroutine
 FUNCTION stateDynamics
   // exponentiate leading parameters
   FMSY = mfexp ( lnFMSY );         // optimal fishing mortality
   MSY = mfexp ( lnMSY );           // MSY
-  BMSY = MSY / FMSY;               // optimal biomass
+  BMSY = elem_div( MSY, FMSY);     // optimal biomass
 
   // reinitialise penalisers
   fpen = 0.; pospen = 0.;
   
   // Run a loop for population dynamics of each stock
   // Assume stocks are at equilibrium initially ( B1 = B0e^delta1 )
-  Bt_bar(1) = ( 2. * BMSY ) * mfexp(epst(1));
-  
-  // loop over time periods to build dynamic model for t > 1
-  for(int t=1; t<nT; t++)
+  for (int s=1;s<=nS;s++)
   {
-    pospen = 0.;
-    // Run state dynamics equation, add process error
-    Bt_bar(t+1) = ( Bt_bar(t) + 
-                    2. * FMSY * Bt_bar(t) * (1 - Bt_bar(t)/BMSY/2.0 ) - 
-                    katch(t) ) * exp ( epst(t+1) );
-    Bt_bar(t+1) = posfun ( Bt_bar(t+1), 10e-1, pospen );
-    
-    // Increment function penaliser variable
-    fpen += 10000. * pospen;
+    // cout << "In State Dynamics looping over species" << endl;
+    // cout << "Species " << s << endl;
+    Bt_bar(s,1) = ( 2. * BMSY(s) ) * mfexp(epst(s,1));
+    // loop over time periods to build dynamic model for t > 1
+    for(int t=1; t<nT; t++)
+    {
+      pospen = 0.;
+      // Run state dynamics equation, add process error
+      Bt_bar(s,t+1) = ( Bt_bar(s,t) + 
+                      2. * FMSY(s) * Bt_bar(s,t) * (1 - Bt_bar(s,t)/BMSY(s)/2.0 ) - 
+                      katch(s,t) ) * exp ( epst(s,t+1) );
+      Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
+      
+      // Increment function penaliser variable
+      fpen += 10000. * pospen;
+    }
+    // cout << "Bt_bar = " << Bt_bar << endl;
   }
+  
+  
+  
 
   // compute derived performance values
   //FnT_bar = katch ( nT - 1 ) / FMSY;   // comparison of F
@@ -148,16 +167,17 @@ FUNCTION stateDynamics
   
 // function to compute predicted observations and residuals
 FUNCTION obsModel
+  for ( int s=1;s<=nS;s++)
+  {
+    // Compute conditional estimate of lnq_hat
+    lnqhat(s) = sum ( log ( It(s) ) - log ( Bt_bar(s) ) ) / nT ;
 
-  // Compute conditional estimate of lnq_hat
-  lnqhat = sum ( log ( It ) - log ( Bt_bar ) ) / nT ;
+    // Compute predicted index of abundance
+    It_bar(s) = mfexp(lnqhat(s)) * Bt_bar(s);
 
-  // Compute predicted index of abundance
-  It_bar = mfexp(lnqhat) * Bt_bar;
-
-  // Compute the sum of squares
-  SSRobs = norm2 ( log ( It ) - log ( It_bar ) );
-
+    // Compute the sum of squares
+    SSRobs(s) = norm2 ( log ( It(s) ) - log ( It_bar(s) ) );
+  }
 // Subroutine to compute negative log likelihoods
 FUNCTION calcLikelihoods
   // Initialise NLL variables
@@ -167,9 +187,12 @@ FUNCTION calcLikelihoods
   // compute observation model likelihood
   obsNLL = 0.5*nT*log(SSRobs);
   // Compute proc error conditional variance
-  sigma2hat = norm2(epst)/nT;
-  procNLL = 0.5*nT*log(norm2(epst));
-
+  for ( int s=1;s<=nS;s++)
+  {
+    sigma2hat(s) = norm2(epst(s))/nT;
+    procNLL(s) = 0.5*nT*log(norm2(epst(s)));
+  
+  }
   // sum likelihoods
   nll = obsNLL + procNLL;
 
@@ -178,13 +201,13 @@ FUNCTION calcPriors
   // Initialise prior var
   prior = 0.;
   // First, MSY
-  prior = pow ( MSY - mMSY, 2 ) / sMSY / sMSY / 2.;
+  prior = elem_div(pow ( MSY - mMSY, 2 ), pow(sMSY,2)) / 2.;
   // Then FMSY
-  prior += pow ( FMSY - mFMSY, 2 ) / sFMSY / sFMSY / 2.;
+  prior += elem_div(pow ( FMSY - mFMSY, 2 ), pow(sFMSY,2)) / 2.;
   // Now sigma2hat prior
-  prior += (alphaSigma + 1) * log(sigma2hat) + betaSigma / sigma2hat;
+  prior += elem_prod((alphaSigma+1),log(sigma2hat))+elem_div(betaSigma,sigma2hat);
   // tau2hat prior
-  prior += (alphaTau + 1) * log(tau2hat) + betaTau / tau2hat;
+  prior += elem_prod((alphaTau+1),log(tau2hat))+elem_div(betaTau,tau2hat);
   // lnq prior
   prior += pow( lnqhat - mlnq, 2 ) / slnq / slnq / 2;
 
@@ -195,28 +218,34 @@ FUNCTION mcDumpOut
     // Output the parameters needed for performance testing of SA method.
     mcoutpar << "BMSY MSY FMSY q sigma2 tau2 FnT_bar BnT dep_bar" << endl;
   
-    // Output the parameter values for this replicate
-    mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat);
-    mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
-    mcoutpar << Bt_bar(nT) <<" "<< dep_bar << endl;
+    for ( int s=1;s<=nS;s++)
+    {
+      // Output the parameter values for this replicate
+      mcoutpar << BMSY(s) << " " << MSY(s) <<" "<< FMSY(s) <<" "<< mfexp(lnqhat(s));
+      mcoutpar <<" "<< sigma2hat(s) <<" "<< tau2hat(s) <<" " << FnT_bar(s) <<" ";
+      mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) << endl;
 
-    // Output the biomass estimates for this MC evaluation
-    mcoutbio << Bt_bar << endl;
+      // Output the biomass estimates for this MC evaluation
+      mcoutbio << Bt_bar(s) << endl;
+    }
 
     mcHeader = 1;
   }
   else
   {
     // Condition on "good" starting values
-    if( pospen==0 )
+    if( value(pospen)==0 )
     {
-      // Output the parameter values for this replicate
-      mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat); 
-      mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
-      mcoutpar << Bt_bar(nT) <<" "<< dep_bar << endl;
+      for ( int s=1;s<=nS;s++)
+      {
+        // Output the parameter values for this replicate
+        mcoutpar << BMSY(s) << " " << MSY(s) <<" "<< FMSY(s) <<" "<< mfexp(lnqhat(s));
+        mcoutpar <<" "<< sigma2hat(s) <<" "<< tau2hat(s) <<" " << FnT_bar(s) <<" ";
+        mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) << endl;
 
-      // Output the biomass estimates for this MC evaluation
-      mcoutbio << Bt_bar << endl;
+        // Output the biomass estimates for this MC evaluation
+        mcoutbio << Bt_bar(s) << endl;
+      }
     }
   }
 
@@ -245,7 +274,7 @@ REPORT_SECTION
   report << "# D" << endl;
   report << dep_bar << endl;
   report << "# lastCt" << endl;
-  report << katch(nT) << endl;
+  report << column(katch,nT) << endl;
   report << "# Bt" << endl;
   report << Bt_bar << endl;
   report << "# Ut" << endl;
@@ -280,6 +309,8 @@ REPORT_SECTION
   report << "## Data" << endl;
   report << "# nT" << endl;
   report << nT << endl;
+  report << "# nS" << endl;
+  report << nS << endl;
   report << "# Ct" << endl;
   report << katch << endl;
   report << "# It" << endl;
@@ -314,7 +345,7 @@ GLOBALS_SECTION
   
   int mcHeader=0;
   int mcTrials=0;
-  ofstream mcoutpar("ssProdParMC.dat");
-  ofstream mcoutbio("ssProdBioMC.dat");
+  ofstream mcoutpar("msProdParMC.dat");
+  ofstream mcoutbio("msProdBioMC.dat");
 
 

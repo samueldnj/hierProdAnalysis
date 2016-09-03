@@ -35,10 +35,7 @@ PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
   init_vector lnMSY(1,nS,1);         // msy - log scale
   init_vector lnFMSY(1,nS,2);        // Umsy - log scale
-  
-  // process error deviations
-  init_matrix epst(1,nS,1,nT,3);     // uncorrelated - cholesky factor to be added
-  
+
   // Fixed parameters and hyperparameters
   init_vector mMSY(1,nS,-1);        // MSY prior mean (species spec)
   init_vector sMSY(1,nS,-1);        // MSY prior SD (species spec)
@@ -50,6 +47,9 @@ PARAMETER_SECTION
   init_vector betaTau(1,nS,-1);     // tau prior scale (shared)
   init_number mlnq(-1);             // logq prior mean (shared)
   init_number slnq(-1);             // logq prior sd (shared)
+
+  // process error deviations
+  init_matrix epst(1,nS,1,nT,3);     // uncorrelated - cholesky factor to be added
 
   //objective function value
   objective_function_value f;
@@ -150,10 +150,10 @@ FUNCTION stateDynamics
       Bt_bar(s,t+1) = ( Bt_bar(s,t) + 
                       2. * FMSY(s) * Bt_bar(s,t) * (1 - Bt_bar(s,t)/BMSY(s)/2.0 ) - 
                       katch(s,t) ) * exp ( epst(s,t+1) );
-      Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-3, pospen );
+      Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
       
       // Increment function penaliser variable
-      fpen += 100. * pospen;
+      fpen += 10000. * pospen;
     }
     // cout << "Bt_bar = " << Bt_bar << endl;
   }
