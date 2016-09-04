@@ -34,7 +34,7 @@
 
 ## Observation error sd
 # tau
-0.5 0.5 0.5
+0.2 0.2 0.2
 
 ## Fishing Mortality (should provide a full time series... or not)
 # F_mult

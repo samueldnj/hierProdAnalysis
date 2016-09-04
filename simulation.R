@@ -7,6 +7,10 @@
 # Author: Samuel Johnson
 # Date: 24 August, 2016
 # 
+# TODO: Start compressing the model fits in seedFit(), we can collapse 
+# the ss fits into basically the same structure as the ms fits, though
+# this should be done **last**, once a par structure is set
+# 
 # --------------------------------------------------------------------------
 
 # opModel()
@@ -178,6 +182,8 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
   return(outlist)
 }
 
+
+
 # callProcADMB()
 # Function that calls an ADMB estimator for a given set of
 # dat and par list objects.
@@ -305,6 +311,48 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
                 localMin = localMin, hessPosDef = hessPosDef )
   out
 }
+
+# seedFit()
+# seedFit takes a given seed value and control list, and
+# returns a full run of the simulation-estimation procedure using
+# the supplied seed values and the control list parameters
+# inputs:   seed=integer value provided to the rng
+#           ctl=control-list set in controlFile.txt
+# ouputs:   om=list of operating model quantities
+#           ssFit=nS-list of ss model outputs
+#           msFit=list of ms model outputs
+# usage:    to be lapplied over seed values as part of a monte-carlo trial
+seedFit <- function ( seed = 1, ctl = ctlList )
+{
+  # Run operating model to generate data
+  om <- opModel ( control = ctl, seed = seed )
+
+  # Create data objects for EMs
+  datPar <- makeDataLists ( om, ctlList)
+
+  # Call EMs
+  ssFit <- list()
+  for (s in 1:ctlList$nS ) 
+  {
+    cat ( "Fitting species ", s, "\n", sep = "")
+    ssFit[[s]] <- callProcADMB (  dat = datPar$ssDat[[s]], par = datPar$ssPar[[s]],
+                                  lab=s, fitTrials = 10, activeFileRoot = "ssProd",
+                                  mcTrials = 20000, mcSave = 10, maxfn = 10000)
+  }
+  cat ( "Fitting ", ctlList$nS," species simultaneously.\n", sep = "")
+  msFit <- callProcADMB ( dat = datPar$msDat, par = datPar$msPar,
+                          fitTrials = 10, activeFileRoot = "msProd",
+                          mcTrials = 20000, mcSave = 10, maxfn = 10000 )
+
+  # Return fits
+  out <- list ( ctl = ctl,
+                om = om,
+                ssFit = ssFit,
+                msFit = msFit )
+  out
+}
+
+
 
 # logProdModel()
 # Function to simulate a logistic based surplus production model,

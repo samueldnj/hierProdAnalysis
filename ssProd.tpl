@@ -10,6 +10,7 @@
 // 
 // ToDo:  1. logit transformations for bounding pars?
 //        2. Hope the motherfucker fits.
+//        3. Input estimation phases for each par group
 //       
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 
