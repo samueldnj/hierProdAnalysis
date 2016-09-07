@@ -4,15 +4,18 @@
 # Script that contains tool functions for the coastwide multispecies 
 # simulation-estimation procedure.
 # 
-# Author: Samuel Johnson
+# Author: Samuel D N Johnson
 # Date: 24 August, 2016
 #
 #
 #	List of tools:
 #		lisread()			Function that reads ADMB style files as a list object
+#   writeADMB()   Function that writes ADMB dat/pin files from list objects
+#   saveSim()     Function that saves the output from a simulation run
 # 
 # --------------------------------------------------------------------------
 
+# saveSim <- function ()
 
 
 # lisread()

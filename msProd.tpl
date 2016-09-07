@@ -49,7 +49,7 @@ PARAMETER_SECTION
   init_number slnq(-1);             // logq prior sd (shared)
 
   // process error deviations
-  init_matrix epst(1,nS,1,nT,3);     // uncorrelated - cholesky factor to be added
+  init_matrix epst(1,nS,1,nT,1);     // uncorrelated - cholesky factor to be added
 
   //objective function value
   objective_function_value f;
@@ -153,7 +153,7 @@ FUNCTION stateDynamics
       Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
       
       // Increment function penaliser variable
-      fpen += 100. * pospen;
+      fpen += 1000. * pospen;
     }
     // cout << "Bt_bar = " << Bt_bar << endl;
   }

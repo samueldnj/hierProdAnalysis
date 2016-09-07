@@ -2,16 +2,16 @@
 
 ### simEst Controls ###
 # nReps
-10
+3
 
 # rSeed
-100
+1
 
 # mcTrials
-1000
+100
 
 # fitTrials
-10
+3
 
 ### OM controls ###
 ## Number of stocks 

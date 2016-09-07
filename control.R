@@ -5,12 +5,14 @@
 # experiments comparing single species and multi-species assessment
 # models.
 # 
-# Author: Samuel Johnson
+# Author: Samuel D N Johnson
 # Date: 24 August, 2016
 # 
 # Sourcing scripts:
 # 	simulation.R
 # 	tools.R
+#   stats.R
+#   plots.R
 #
 # Estimator executables (ADMB):
 #		ssProd
@@ -41,4 +43,5 @@ ctlList <- lisread ( "controlFile.txt" )
 
 # Test simEstProc
 blob <- simEstProc ( ctl = ctlList, quiet = TRUE )
+
 
