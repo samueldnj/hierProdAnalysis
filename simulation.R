@@ -43,7 +43,7 @@ opModel <- function (control = ctlList, seed = 1)
   om <- list (  Bt    = matrix (NA,nrow=nS, ncol=nT ),
                 Ct    = matrix (NA,nrow=nS, ncol=nT ),
                 Ft    = matrix (NA,nrow=nS, ncol=nT ),
-                # Ut    = matrix (NA,nrow=nS, ncol=nT ),
+                ItTrue= matrix (NA,nrow=nS, ncol=nT ),
                 epst  = matrix (NA,nrow=nS, ncol=nT ),
                 zetat = matrix (NA,nrow=nS, ncol=nT ),
                 deltat= matrix (NA,nrow=nS, ncol=nT ),
@@ -103,7 +103,7 @@ opModel <- function (control = ctlList, seed = 1)
     om$Bt[s,]     <- bio$Bt
     om$Ct[s,]     <- bio$Ct
     om$Ft[s,]     <- bio$Ft
-    # om$Ut[s,]     <- bio$Ut
+    om$ItTrue[s,] <- control$q[s]*bio$Bt
     om$It[s,]     <- obs$It
     om$epst[s,]   <- bio$epst
     om$zetat[s,]  <- bio$zetat
@@ -240,9 +240,9 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
   {
     hessPosDef <- TRUE
     localMin <- TRUE
-    # increment lnMSY and decrease prior sd if needed
-    par$lnMSY <- lnMSY + log ( i + 1 )
-    par$sMSY <- sMSY / (i + 1)
+    # decrease prior sd if needed
+    par$lnMSY <- lnMSY * (fitTrials + i)/fitTrials
+    par$sMSY <- sMSY * fitTrials / (fitTrials + i )
     # Write to pin file 
     cat ( "## ", activeFileRoot, " initial parameter file, created ", 
           format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
@@ -291,8 +291,8 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
       mcPar <- read.table (mcParBackup, header = TRUE )
       mcBio <- read.table (mcBioBackup)
     }
-    cat(  "\nModel had trouble fitting in ", i, 
-          " trials with given pin and dat file.\n",
+    cat(  "\n", activeFileRoot, "model had trouble fitting in", i, 
+          "trials with given pin and dat file.\n",
           "Copying bad pin and dat for forensics.\n" )
     # Save the *.pin and *.dat files for forensics.
     badPinFile <- file.path(  getwd(),"badfits",
@@ -322,7 +322,7 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
 #           ssFit=nS-list of ss model outputs
 #           msFit=list of ms model outputs
 # usage:    to be lapplied over seed values as part of a monte-carlo trial
-seedFit <- function ( seed = 1, ctl = ctlList )
+seedFit <- function ( seed = 1, ctl, quiet = FALSE )
 {
   # Run operating model to generate data
   om <- opModel ( control = ctl, seed = seed )
@@ -334,22 +334,192 @@ seedFit <- function ( seed = 1, ctl = ctlList )
   ssFit <- list()
   for (s in 1:ctlList$nS ) 
   {
-    cat ( "Fitting species ", s, "\n", sep = "")
-    ssFit[[s]] <- callProcADMB (  dat = datPar$ssDat[[s]], par = datPar$ssPar[[s]],
-                                  lab=s, fitTrials = 10, activeFileRoot = "ssProd",
-                                  mcTrials = 20000, mcSave = 10, maxfn = 10000)
+    if (!quiet) cat ( "Fitting species ", s, " of ", ctl$nS, "\n", sep = "")
+    ssFit[[s]] <- callProcADMB (  dat = datPar$ssDat[[s]], 
+                                  par = datPar$ssPar[[s]],
+                                  lab=s, fitTrials = ctl$fitTrials, 
+                                  activeFileRoot = "ssProd",
+                                  mcTrials = ctl$mcTrials, 
+                                  mcSave = 1, maxfn = 10000)
   }
-  cat ( "Fitting ", ctlList$nS," species simultaneously.\n", sep = "")
+  if (!quiet) cat ( "Fitting ", ctlList$nS," species hierarchically.\n", 
+                    sep = "")
   msFit <- callProcADMB ( dat = datPar$msDat, par = datPar$msPar,
-                          fitTrials = 10, activeFileRoot = "msProd",
-                          mcTrials = 20000, mcSave = 10, maxfn = 10000 )
+                          fitTrials = ctl$fitTrials, 
+                          activeFileRoot = "msProd",
+                          mcTrials = ctl$mcTrials, 
+                          mcSave = 1, maxfn = 10000 )
 
+  cat ("Completed replicate ", seed - ctl$rSeed, " of ", ctl$nReps, ".\n", sep = "")
   # Return fits
-  out <- list ( ctl = ctl,
-                om = om,
+  out <- list ( om = om,
                 ssFit = ssFit,
                 msFit = msFit )
   out
+}
+
+# # SimplifyMultList()
+# # This function takes a list where each entry is a different sublist
+# # of array objects, each sublist having identical structure, and collapses
+# # the sublists into a single list of higher rank array objects.
+# # inputs:   list=multi-list containing identically structured sublists
+# # outputs:  list=collapsed multi-list
+# # usage:    inside seedFit to to make saving to blob in simEstProc easier
+# simplifyMultList <- function ( list )
+# {
+#   # First, create a copy of the list objects to return
+#   colList <- list[[1]]
+#   for ( name in names(colList))
+#   { tmpList <- list() 
+#     for (k in 1:length(list) )
+#     { # Create a temporary list to hold
+#       tmpList[[k]] <- list[[k]][name]
+#     }
+#   }
+# } 
+
+# simEstProc()
+# This function runs the entire sim-est procedure, taking inputs from
+# the control list and returning a list object containing all operating
+# model and assessment model output. Somewhat inspired by .mgmtProc()
+# in mseR
+# inputs:   ctl=control list containing settings
+#           parallel=logical switch to turn on parallel processing
+# outputs:  blob=list object containing all sim-est details for every rep
+# usage:    inside a run function wrapper  
+simEstProc <- function ( ctl, quiet = TRUE )
+{
+  # Recover simulation controls from the control list
+  nReps <- ctl$nReps
+  nS    <- ctl$nS
+  nT    <- ctl$nT
+  rSeed <- ctl$rSeed
+
+  # Create list object to store all simulated values
+  om <- list (  Bt    = array (NA,dim = c(nReps,nS,nT) ),
+                Ct    = array (NA,dim = c(nReps,nS,nT) ),
+                Ft    = array (NA,dim = c(nReps,nS,nT) ),
+                epst  = array (NA,dim = c(nReps,nS,nT) ),
+                zetat = array (NA,dim = c(nReps,nS,nT) ),
+                deltat= array (NA,dim = c(nReps,nS,nT) ),
+                It    = array (NA,dim = c(nReps,nS,nT) ),
+                ItTrue= array (NA,dim = c(nReps,nS,nT) ),
+                dep   = matrix(NA,nrow = nReps, ncol = nS)
+              )
+                # sigma = numeric(length = nReps),
+                # Sigma = numeric(length = nReps),
+                # tau   = numeric(length = nReps),
+                # q     = numeric(length = nReps),
+                # nT    = numeric(length = nReps),
+                # nS    = numeric(length = nReps),
+                # msy   = numeric(length = nReps),
+                # Fmsy  = numeric(length = nReps) )
+
+  # Now create a list object to ss and ms assessment model outputs
+  am <- list ( ss=NULL, ms=NULL)
+
+  # single species
+  am$ss <- list ( msy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                  Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  q     = matrix ( NA, nrow = nReps, ncol = nS ),
+                  sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
+                  tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  dep   = matrix ( NA, nrow = nReps, ncol = nS ),
+                  epst  = array (NA, dim = c(nReps,nS,nT)),
+                  Bt    = array (NA, dim = c(nReps,nS,nT)),
+                  Ft    = array (NA, dim = c(nReps,nS,nT)),
+                  mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  slnq  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  mcPar = vector ( mode = "list", length = nS),
+                  mcBio = vector ( mode = "list", length = nS) )
+
+  # multispecies (coastwide)
+  am$ms <- list ( msy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                  Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  q     = matrix ( NA, nrow = nReps, ncol = nS ),
+                  sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
+                  tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  dep   = matrix ( NA, nrow = nReps, ncol = nS ),
+                  epst  = array (NA, dim = c(nReps,nS,nT)),
+                  Bt    = array (NA, dim = c(nReps,nS,nT)),
+                  Ft    = array (NA, dim = c(nReps,nS,nT)),
+                  mlnq  = vector ( "numeric", length=nReps ),
+                  slnq  = vector ( "numeric", length=nReps),
+                  mcPar = vector ( mode = "list", length = nS),
+                  mcBio = vector ( mode = "list", length = nS) )
+
+  # The BLOOOOOOBBBBBB
+  blob <- list ( ctl = ctl, om = om, am = am)
+
+  # Now create a vector of seed values, able to be lapplied over
+  seeds <- rSeed + 1:nReps
+
+  simEst <- lapply ( X = seeds, FUN = seedFit, ctl = blob$ctl,
+                     quiet = quiet )
+
+  cat ( "Finished fitting ", nReps, " replicates.\n",
+        "Now saving output.", sep = "" )
+
+  for ( i in 1:length(simEst) )
+  {
+    # Save om values
+    blob$om$Bt[i,,]         <- simEst[[i]]$om$Bt
+    blob$om$Ct[i,,]         <- simEst[[i]]$om$Ct
+    blob$om$epst[i,,]       <- simEst[[i]]$om$epst
+    blob$om$Ft[i,,]         <- simEst[[i]]$om$Ft
+    blob$om$zetat[i,,]      <- simEst[[i]]$om$zetat
+    blob$om$deltat[i,,]     <- simEst[[i]]$om$Bt
+    blob$om$It[i,,]         <- simEst[[i]]$om$It
+    blob$om$ItTrue[i,,]     <- simEst[[i]]$om$ItTrue
+    blob$om$dep[i,]          <- simEst[[i]]$om$dep
+
+    # Save AM results
+    # Loop over single species
+    for ( s in 1:nS )
+    {
+      blob$am$ss$msy[i,s]     <- simEst[[i]]$ssFit[[s]]$rep$MSY
+      blob$am$ss$Fmsy[i,s]    <- simEst[[i]]$ssFit[[s]]$rep$FMSY
+      blob$am$ss$Bmsy[i,s]    <- simEst[[i]]$ssFit[[s]]$rep$BMSY
+      blob$am$ss$q[i,s]       <- simEst[[i]]$ssFit[[s]]$rep$q
+      blob$am$ss$sigma2[i,s]  <- simEst[[i]]$ssFit[[s]]$rep$sigma2
+      blob$am$ss$tau2[i,s]    <- simEst[[i]]$ssFit[[s]]$rep$tau2
+      blob$am$ss$dep[i,s]     <- simEst[[i]]$ssFit[[s]]$rep$D
+      blob$am$ss$epst[i,s,]   <- simEst[[i]]$ssFit[[s]]$rep$epst
+      blob$am$ss$Bt[i,s,]     <- simEst[[i]]$ssFit[[s]]$rep$Bt
+      blob$am$ss$Ft[i,s,]     <- simEst[[i]]$ssFit[[s]]$rep$Ft
+      blob$am$ss$mlnq[i,s]    <- simEst[[i]]$ssFit[[s]]$rep$mlnq
+      blob$am$ss$slnq[i,s]    <- simEst[[i]]$ssFit[[s]]$rep$slnq
+      blob$am$ss$mcPar[[i]]   <- simEst[[i]]$ssFit[[s]]$mcPar
+      blob$am$ss$mcBio[[i]]   <- simEst[[i]]$ssFit[[s]]$mcBio
+    }
+    # Now multispecies
+    blob$am$ms$msy[i,] <- simEst[[i]]$msFit$rep$MSY
+    blob$am$ms$Fmsy[i,] <- simEst[[i]]$msFit$rep$FMSY
+    blob$am$ms$Bmsy[i,] <- simEst[[i]]$msFit$rep$BMSY
+    blob$am$ms$q[i,] <- simEst[[i]]$msFit$rep$q
+    blob$am$ms$sigma2[i,] <- simEst[[i]]$msFit$rep$sigma2
+    blob$am$ms$tau2[i,] <- simEst[[i]]$msFit$rep$tau2
+    blob$am$ms$dep[i,] <- simEst[[i]]$msFit$rep$D
+    blob$am$ms$epst[i,,] <- simEst[[i]]$msFit$rep$epst
+    blob$am$ms$Bt[i,,] <- simEst[[i]]$msFit$rep$Bt
+    blob$am$ms$Ft[i,,] <- simEst[[i]]$msFit$rep$Ft
+    blob$am$ms$mlnq[i] <- simEst[[i]]$msFit$rep$mlnq
+    blob$am$ms$slnq[i] <- simEst[[i]]$msFit$rep$slnq
+
+    # Split up mcPar and mcBio for the ms model
+    for ( s in 1:nS )
+    {
+      idx <- seq ( from = s, to = nS*ctl$mcTrials, by = nS)
+      blob$am$ms$mcPar[[i]]   <- simEst[[i]]$msFit$mcPar[idx,]
+      blob$am$ms$mcBio[[i]]   <- simEst[[i]]$msFit$mcBio[idx,]
+    }
+
+
+  }
+
+  blob
 }
 
 
@@ -405,7 +575,11 @@ logProdModel <- function ( msy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
                   	2. * Fmsy * Bt [ t-1 ] * 
                   	( 1. - Bt [ t-1 ] / Bmsy / 2. ) -  # recruitment
                   	Ct [ t-1 ]                         # Catch
-                  ) * exp ( epst [ t ] - sigma2 / 2. +
+                  )
+    ## THIS IS BOGUS ##
+    Bt[t] <- max(Bt[t], 1e-1)
+
+    Bt[t] <- Bt[t] * exp ( epst [ t ] - sigma2 / 2. +
                             zetat[ t ] - Sigma2 / 2. ) # Process error
 }  # End loop for biomass
   # Generate catch for nT

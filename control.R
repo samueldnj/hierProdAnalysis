@@ -39,6 +39,6 @@ source ( "tools.R" )
 # Now read in control file
 ctlList <- lisread ( "controlFile.txt" )
 
-rep <- seedFit ( seed = 1, ctl = ctlList )
-
+# Test simEstProc
+blob <- simEstProc ( ctl = ctlList, quiet = TRUE )
 

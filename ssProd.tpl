@@ -140,7 +140,7 @@ FUNCTION stateDynamics
     Bt_bar(t+1) = posfun ( Bt_bar(t+1), 10e-1, pospen );
     
     // Increment function penaliser variable
-    fpen += 10000. * pospen;
+    fpen += 1000. * pospen;
   }
 
   // compute derived performance values

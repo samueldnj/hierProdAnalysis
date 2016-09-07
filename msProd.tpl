@@ -153,7 +153,7 @@ FUNCTION stateDynamics
       Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
       
       // Increment function penaliser variable
-      fpen += 10000. * pospen;
+      fpen += 100. * pospen;
     }
     // cout << "Bt_bar = " << Bt_bar << endl;
   }

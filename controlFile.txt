@@ -1,5 +1,18 @@
 ### Control file for coastWide simulation-estimation multispecies model ###
 
+### simEst Controls ###
+# nReps
+10
+
+# rSeed
+100
+
+# mcTrials
+1000
+
+# fitTrials
+10
+
 ### OM controls ###
 ## Number of stocks 
 ## NOTE: must match length of non-trivial vectors and rows of non-trivial
@@ -75,6 +88,3 @@
 # beta.tau
 0.75 0.75 0.75
 
-## Controls on fitting process ##
-# fitTrials
-10
