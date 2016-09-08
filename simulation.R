@@ -140,9 +140,9 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
     ssPar[[s]] <- list (  lnMSY       = log(omList$msy[s]),
                           lnFmsy      = log(omList$Fmsy[s]),
                           mMSY        = omList$msy[s],
-                          sMSY        = 3*omList$msy[s],
+                          sMSY        = ctl$sMSYmult[s]*omList$msy[s],
                           mFmsy       = omList$Fmsy[s],
-                          sFmsy       = 3*omList$Fmsy[s],
+                          sFmsy       = ctl$sFMSYmult[s]*omList$Fmsy[s],
                           alpha.sigma = ctl$alpha.sigma[s],
                           beta.sigma  = ctl$beta.sigma[s],
                           alpha.tau   = ctl$alpha.tau[s],
@@ -161,9 +161,9 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
   msPar <- list ( lnMSY       = log(omList$msy),
                   lnFmsy      = log(omList$Fmsy),
                   mMSY        = omList$msy,
-                  sMSY        = 3*omList$msy,
+                  sMSY        = ctl$sMSYmult*omList$msy,
                   mFmsy       = omList$Fmsy,
-                  sFmsy       = 3*omList$Fmsy,
+                  sFmsy       = ctl$sMSYmult*omList$Fmsy,
                   alpha.sigma = ctl$alpha.sigma,
                   beta.sigma  = ctl$beta.sigma,
                   alpha.tau   = ctl$alpha.tau,
@@ -221,7 +221,8 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
   procCall <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
                             " -mcmc ", mcTrials, " -maxfn ", maxfn,
                             " -mcsave ", mcSave, sep = "" )
-  mcEval <- paste ( exec, " -mceval", sep = "" )
+  mcEval <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+                    " -mceval", sep = "" )
 
   # Pull out lnMSY and sMSY for use in refitting procedure later
   lnMSY <- par$lnMSY 
@@ -254,7 +255,6 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
     rep <- lisread ( repFile )
     mcPar <- try ( read.table ( mcParFile, header = TRUE) )
     mcBio <- try ( read.table (mcBioFile) )
-    # if (activeFileRoot == "msProd") browser()
 
     # Check if that the exit code is correct in the rep file
     if ((rep$iExit != 1 | rep$maxGrad > 1e-4) )
@@ -338,7 +338,7 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
                                   lab=s, fitTrials = ctl$fitTrials, 
                                   activeFileRoot = "ssProd",
                                   mcTrials = ctl$mcTrials, 
-                                  mcSave = 1, maxfn = 30000)
+                                  mcSave = 1, maxfn = 5000)
   }
   if (!quiet) cat ( "Fitting ", ctlList$nS," species hierarchically.\n", 
                     sep = "")
@@ -346,7 +346,7 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
                           fitTrials = ctl$fitTrials, 
                           activeFileRoot = "msProd",
                           mcTrials = ctl$mcTrials, 
-                          mcSave = 1, maxfn = 30000 )
+                          mcSave = 1, maxfn = 5000 )
 
   cat ("Completed replicate ", seed - ctl$rSeed, " of ", ctl$nReps, ".\n", sep = "")
   # Return fits
@@ -512,9 +512,10 @@ simEstProc <- function ( ctl, quiet = TRUE )
     # Split up mcPar and mcBio for the ms model
     for ( s in 1:nS )
     {
-      idx <- seq ( from = s, to = nS*ctl$mcTrials, by = nS)
-      blob$am$ms$mcPar[[i]][[s]]  <- simEst[[i]]$msFit$mcPar[idx,]
-      blob$am$ms$mcBio[[i]][[s]]  <- simEst[[i]]$msFit$mcBio[idx,]
+      parIdx <- seq ( from = s, to = nrow(simEst[[i]]$msFit$mcPar), by = nS)
+      bioIdx <- seq ( from = s, to = nrow(simEst[[i]]$msFit$mcBio), by = nS)
+      blob$am$ms$mcPar[[i]][[s]]  <- simEst[[i]]$msFit$mcPar[parIdx,]
+      blob$am$ms$mcBio[[i]][[s]]  <- simEst[[i]]$msFit$mcBio[bioIdx,]
     }
     blob$am$ms$locmin[i]          <- simEst[[i]]$msFit$localMin
     blob$am$ms$hesspd[i]          <- simEst[[i]]$msFit$hessPosDef

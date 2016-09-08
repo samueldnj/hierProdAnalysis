@@ -149,11 +149,11 @@ FUNCTION stateDynamics
       // Run state dynamics equation, add process error
       Bt_bar(s,t+1) = ( Bt_bar(s,t) + 
                       2. * FMSY(s) * Bt_bar(s,t) * (1 - Bt_bar(s,t)/BMSY(s)/2.0 ) - 
-                      katch(s,t) ) * exp ( epst(s,t+1) );
+                      katch(s,t) ) * mfexp ( epst(s,t+1) );
       Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
       
       // Increment function penaliser variable
-      fpen += 1000. * pospen;
+      fpen += 100. * pospen;
     }
     // cout << "Bt_bar = " << Bt_bar << endl;
   }

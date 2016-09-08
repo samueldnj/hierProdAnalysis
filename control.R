@@ -37,6 +37,7 @@ rm (list = ls())
 ## Okay, let's start by sourcing the other scripts
 source ( "simulation.R" )
 source ( "tools.R" )
+source ( "stats.R" )
 
 # Now read in control file
 ctlList <- lisread ( "controlFile.txt" )
@@ -44,4 +45,5 @@ ctlList <- lisread ( "controlFile.txt" )
 # Test simEstProc
 blob <- simEstProc ( ctl = ctlList, quiet = TRUE )
 
+blob <- makeRelErrorDists ( blob )
 

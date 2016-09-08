@@ -2,13 +2,13 @@
 
 ### simEst Controls ###
 # nReps
-3
+100
 
 # rSeed
-1
+0
 
 # mcTrials
-100
+5000
 
 # fitTrials
 3
@@ -59,20 +59,13 @@
 ### EM controls ###
 ## Initial values for parameters and hyperparameters not included above ##
 ## Hyperparameters ##
-## lnq prior MS
-# m.logq.MS
--2.3
-
-# ln.sd.logq.MS
-100
-
 ## lnMSY prior (mean set to true value)
-# sMSY
-50 10 100
+# sMSYmult
+3 3 3
 
 ## FMSY normal prior (mean set to true value)
-# sFMSY
-1.5 0.02 0.02
+# sFMSYmult
+3 3 3
 
 ## sigma prior (inverse gamma)
 # alpha.sigma

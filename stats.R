@@ -16,21 +16,73 @@
 # inputs:   blob=list object output of simEstProc
 # ouputs:   blob=list object with error distributions appended
 # usage:    to create output that is saved for later analysis
-makeErrorDists <- function ( blob )
+makeRelErrorDists <- function ( blob )
 {
-  nReps <- blob$ctl$nReps
-  # recover om and am
-  om <- blob$om
-  ss <- blob$am$ss
-  ms <- blob$am$ms
-  # First get the replicate numbers for succesful fits in BOTH models
+  # recover control list, OM and AMs
+  ctl <- blob$ctl
+  om  <- blob$om
+  ss  <- blob$am$ss
+  ms  <- blob$am$ms
+
+  nReps <- ctl$nReps
+  nS    <- ctl$nS
+  nT    <- ctl$nT
+
+  # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
   ssHess <- ss$hesspd
   ssHess <- as.logical(apply ( X = ssHess, FUN = prod, MARGIN = 1 ) )
   msHess <- ms$hesspd
   ssSuccessful <- which ( ssHess )
   msSuccessful <- which ( msHess )
   success <- intersect ( ssSuccessful, msSuccessful )
-  fail <- (1:nReps)[-success]
+  failure <- (1:nReps)[-success]
   
-  browser()
+  # Create a list to hold error values
+  err <- list ( 
+                msy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
+                tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
+                q     = matrix ( NA, nrow = nReps, ncol = nS ),
+                mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
+                slnq  = matrix ( NA, nrow = nReps, ncol = nS ),
+                dep   = matrix ( NA, nrow = nReps, ncol = nS ),
+                BnT   = matrix ( NA, nrow = nReps, ncol = nS )
+              )
+# append error lists to blob
+ss$err.mle <- err
+ms$err.mle <- err
+
+# Fill in ss MLE relative errors
+ss$err.mle$msy      <- t( (t(ss$msy) - ctl$msy)/ctl$msy)
+ss$err.mle$Fmsy     <- t( (t(ss$Fmsy) - ctl$Fmsy)/ctl$Fmsy)
+ss$err.mle$sigma2   <- (ss$sigma2 - ctl$sigma^2)/ctl$sigma^2
+ss$err.mle$tau2     <- t( (t(ss$tau2) - (ctl$tau)^2)/(ctl$tau)^2) 
+ss$err.mle$q        <- t( (t(ss$q) - ctl$q)/ ctl$q )
+ss$err.mle$mlnq     <- t( t(ss$mlnq) - mean(log(ctl$q))) 
+# ss$err.mle$slnq   <- t( t(ss$mlnq) - mean(log(ctl$q))) 
+ss$err.mle$dep      <- (ss$dep - om$dep)/om$dep
+ss$err.mle$BnT      <- (ss$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT]
+
+# Now fill in ms MLE relative errors
+ms$err.mle$msy      <- t( (t(ms$msy) - ctl$msy)/ctl$msy)
+ms$err.mle$Fmsy     <- t( (t(ms$Fmsy) - ctl$Fmsy)/ctl$Fmsy)
+ms$err.mle$sigma2   <- (ms$sigma2 - ctl$sigma^2)/ctl$sigma^2
+ms$err.mle$tau2     <- t( (t(ms$tau2) - (ctl$tau)^2)/(ctl$tau)^2) 
+ms$err.mle$q        <- t( (t(ms$q) - ctl$q)/ ctl$q )
+ms$err.mle$mlnq     <- t( t(ms$mlnq) - mean(log(ctl$q))) 
+# ms$err.mle$slnq   <- t( t(ms$mlnq) - mean(log(ctl$q))) 
+ms$err.mle$dep      <- (ms$dep - om$dep)/om$dep
+ms$err.mle$BnT      <- (ms$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT]
+
+# Append these to blob
+blob$am$ms <- ss
+blob$am$ms <- ms
+
+# Now save the good replicates
+blob$goodReps <- success
+
+blob
 }
+
+
