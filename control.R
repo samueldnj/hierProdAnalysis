@@ -47,3 +47,5 @@ blob <- simEstProc ( ctl = ctlList, quiet = TRUE )
 
 blob <- makeRelErrorDists ( blob )
 
+saveSim(blob)
+

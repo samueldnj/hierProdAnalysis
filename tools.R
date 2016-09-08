@@ -15,7 +15,23 @@
 # 
 # --------------------------------------------------------------------------
 
-# saveSim <- function ()
+saveSim <- function(blob, folder=NULL)
+{
+  # First, if a folder name isn't nominated, create a default sim folder
+  if ( is.null(folder) )
+  {
+    stamp <- paste( format(Sys.time(),format="%d%m%Y%H%M%S" ),sep="" )
+    folder <- paste ( "sim_",stamp, sep = "" )
+  }
+  # Now paste together the path to the folder and create it
+  path <- file.path (getwd(),"project",folder)
+  dir.create ( path )
+  cat( "\nMSG (saveSim) Created simulation folder ",folder,"in project.\n" )
+  rDataFile <- paste ( folder, ".RData", sep = "" )
+  dataFilePath <- file.path ( path, rDataFile )
+  save ( blob, file = dataFilePath )
+  cat( "\nMSG (saveSim) Saved ",rDataFile,"in project/",folder,"/.\n" )
+}
 
 
 # lisread()

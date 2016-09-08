@@ -2,13 +2,13 @@
 
 ### simEst Controls ###
 # nReps
-100
+3
 
 # rSeed
 0
 
 # mcTrials
-5000
+1000
 
 # fitTrials
 3

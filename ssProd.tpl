@@ -145,7 +145,7 @@ FUNCTION stateDynamics
 
   // compute derived performance values
   //FnT_bar = katch ( nT - 1 ) / FMSY;   // comparison of F
-  //dep_bar = Bt_bar ( nT ) / BMSY / 2;     // depletion estimate
+  dep_bar = Bt_bar ( nT ) / BMSY / 2;     // depletion estimate
   
 // function to compute predicted observations and residuals
 FUNCTION obsModel
