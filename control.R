@@ -38,14 +38,5 @@ rm (list = ls())
 source ( "simulation.R" )
 source ( "tools.R" )
 source ( "stats.R" )
-
-# Now read in control file
-ctlList <- lisread ( "controlFile.txt" )
-
-# Test simEstProc
-blob <- simEstProc ( ctl = ctlList, quiet = TRUE )
-
-blob <- makeRelErrorDists ( blob )
-
-saveSim(blob)
+source ( "plots.R" )
 

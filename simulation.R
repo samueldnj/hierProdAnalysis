@@ -10,6 +10,40 @@
 # 
 # --------------------------------------------------------------------------
 
+# runSimEst()
+# Wrapper function to run the entire sim-est procedure for a given set of
+# control parameters, calculate errors and save results to a (given) folder
+# inputs:   ctlFile=character with the name/path of the control file
+#           folder=optional character name of output folder 
+#                   ie saves to ./project/folder
+# ouputs:   NULL
+# usage:    from the console to run the procedure
+runSimEst <- function ( ctlFile = "controlFile.txt", folder=NULL )
+{ 
+  # read in control file
+  controlList <- lisread ( ctlFile )
+  # Run simEst Procedure
+  blob <- simEstProc( ctl = controlList, quiet = TRUE )
+  # Make error distributions
+  blob <- makeRelErrorDists ( blob )
+  
+  # save output to project folder
+  # First, if a folder name isn't nominated, create a default sim folder
+  if ( is.null(folder) )
+  {
+    stamp <- paste( format(Sys.time(),format="%d%m%Y%H%M%S" ),sep="" )
+    folder <- paste ( "sim_",stamp, sep = "" )
+  }
+  # Now paste together the path to the folder and create it
+  path <- file.path (getwd(),"project",folder)
+  dir.create ( path )
+  cat( "\nMSG (saveSim) Created simulation folder ",folder,"in project.\n" )
+  # Save blob
+  saveSim(blob=blob, folder=folder, path = path)
+  # Copy control file to folder for posterity
+  file.copy(from=ctlFile,to=file.path(path,ctlFile))
+}
+
 # opModel()
 # The operating model takes control list parameters and simulates biological 
 # and observational data for each species, creating an om list object that 
@@ -326,11 +360,11 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
   om <- opModel ( control = ctl, seed = seed )
 
   # Create data objects for EMs
-  datPar <- makeDataLists ( om, ctlList)
+  datPar <- makeDataLists ( om, ctl)
 
   # Call EMs
   ssFit <- list()
-  for (s in 1:ctlList$nS ) 
+  for (s in 1:ctl$nS ) 
   {
     if (!quiet) cat ( "Fitting species ", s, " of ", ctl$nS, "\n", sep = "")
     ssFit[[s]] <- callProcADMB (  dat = datPar$ssDat[[s]], 
@@ -340,7 +374,7 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
                                   mcTrials = ctl$mcTrials, 
                                   mcSave = 1, maxfn = 5000)
   }
-  if (!quiet) cat ( "Fitting ", ctlList$nS," species hierarchically.\n", 
+  if (!quiet) cat ( "Fitting ", ctl$nS," species hierarchically.\n", 
                     sep = "")
   msFit <- callProcADMB ( dat = datPar$msDat, par = datPar$msPar,
                           fitTrials = ctl$fitTrials, 

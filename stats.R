@@ -54,29 +54,29 @@ ss$err.mle <- err
 ms$err.mle <- err
 
 # Fill in ss MLE relative errors
-ss$err.mle$msy      <- t( (t(ss$msy) - ctl$msy)/ctl$msy)
-ss$err.mle$Fmsy     <- t( (t(ss$Fmsy) - ctl$Fmsy)/ctl$Fmsy)
-ss$err.mle$sigma2   <- (ss$sigma2 - ctl$sigma^2)/ctl$sigma^2
-ss$err.mle$tau2     <- t( (t(ss$tau2) - (ctl$tau)^2)/(ctl$tau)^2) 
-ss$err.mle$q        <- t( (t(ss$q) - ctl$q)/ ctl$q )
-ss$err.mle$mlnq     <- t( t(ss$mlnq) - mean(log(ctl$q))) 
+ss$err.mle$msy      <- t( (t(ss$msy) - ctl$msy)/ctl$msy)[success,]
+ss$err.mle$Fmsy     <- t( (t(ss$Fmsy) - ctl$Fmsy)/ctl$Fmsy)[success,]
+ss$err.mle$sigma2   <- ((ss$sigma2 - ctl$sigma^2)/ctl$sigma^2)[success,]
+ss$err.mle$tau2     <- t( (t(ss$tau2) - (ctl$tau)^2)/(ctl$tau)^2)[success,]
+ss$err.mle$q        <- t( (t(ss$q) - ctl$q)/ ctl$q )[success,]
+ss$err.mle$mlnq     <- t( t(ss$mlnq) - mean(log(ctl$q)))[success,]
 # ss$err.mle$slnq   <- t( t(ss$mlnq) - mean(log(ctl$q))) 
-ss$err.mle$dep      <- (ss$dep - om$dep)/om$dep
-ss$err.mle$BnT      <- (ss$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT]
+ss$err.mle$dep      <- ((ss$dep - om$dep)/om$dep)[success,]
+ss$err.mle$BnT      <- ((ss$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT])[success,]
 
 # Now fill in ms MLE relative errors
-ms$err.mle$msy      <- t( (t(ms$msy) - ctl$msy)/ctl$msy)
-ms$err.mle$Fmsy     <- t( (t(ms$Fmsy) - ctl$Fmsy)/ctl$Fmsy)
-ms$err.mle$sigma2   <- (ms$sigma2 - ctl$sigma^2)/ctl$sigma^2
-ms$err.mle$tau2     <- t( (t(ms$tau2) - (ctl$tau)^2)/(ctl$tau)^2) 
-ms$err.mle$q        <- t( (t(ms$q) - ctl$q)/ ctl$q )
-ms$err.mle$mlnq     <- t( t(ms$mlnq) - mean(log(ctl$q))) 
+ms$err.mle$msy      <- t( (t(ms$msy) - ctl$msy)/ctl$msy)[success,]
+ms$err.mle$Fmsy     <- t( (t(ms$Fmsy) - ctl$Fmsy)/ctl$Fmsy)[success,]
+ms$err.mle$sigma2   <- ((ms$sigma2 - ctl$sigma^2)/ctl$sigma^2)[success,]
+ms$err.mle$tau2     <- t( (t(ms$tau2) - (ctl$tau)^2)/(ctl$tau)^2)[success,]
+ms$err.mle$q        <- t( (t(ms$q) - ctl$q)/ ctl$q )[success,]
+ms$err.mle$mlnq     <- as.matrix(t( t(ms$mlnq) - mean(log(ctl$q)))[success,])
 # ms$err.mle$slnq   <- t( t(ms$mlnq) - mean(log(ctl$q))) 
-ms$err.mle$dep      <- (ms$dep - om$dep)/om$dep
-ms$err.mle$BnT      <- (ms$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT]
+ms$err.mle$dep      <- ((ms$dep - om$dep)/om$dep)[success,]
+ms$err.mle$BnT      <- ((ms$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT])[success,]
 
 # Append these to blob
-blob$am$ms <- ss
+blob$am$ss <- ss
 blob$am$ms <- ms
 
 # Now save the good replicates
