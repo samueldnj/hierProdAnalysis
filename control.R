@@ -26,9 +26,6 @@
 # 			3.  Estimate covariance in REs? Can we use ADMB-RE? Cholesky
 # 							decomp is useful here...
 # 			4.	Code TMB models (probably a separate script)
-# 			6. 	Tools to save single sets (control list settings) in project
-# 					subfolder, blob style
-# 			7. 	Plots!!!
 # --------------------------------------------------------------------------
 
 # Clean up

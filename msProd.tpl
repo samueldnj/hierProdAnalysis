@@ -33,12 +33,12 @@ DATA_SECTION
 
 PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
-  init_vector lnMSY(1,nS,1);         // msy - log scale
+  init_vector lnBMSY(1,nS,1);         // Bmsy - log scale
   init_vector lnFMSY(1,nS,2);        // Umsy - log scale
 
   // Fixed parameters and hyperparameters
-  init_vector mMSY(1,nS,-1);        // MSY prior mean (species spec)
-  init_vector sMSY(1,nS,-1);        // MSY prior SD (species spec)
+  init_vector mBMSY(1,nS,-1);        // MSY prior mean (species spec)
+  init_vector sBMSY(1,nS,-1);        // MSY prior SD (species spec)
   init_vector mFMSY(1,nS,-1);       // lnFMSY prior mean (species spec)
   init_vector sFMSY(1,nS,-1);       // lnFMSY priod sd (species spec)
   init_vector alphaSigma(1,nS,-1);  // sigma prior shape (shared)
@@ -55,7 +55,7 @@ PARAMETER_SECTION
   objective_function_value f;
 
   // back-transformed parameters
-  vector MSY(1,nS);        
+  vector BMSY(1,nS);        
   vector FMSY(1,nS);
   
   // variables to hold concentrated parameters
@@ -72,7 +72,7 @@ PARAMETER_SECTION
   matrix It_bar(1,nS,1,nT);        // predicted IoA
 
   // variables to hold derived values
-  vector BMSY(1,nS);        // Biomass at MSY
+  vector MSY(1,nS);        // Biomass at MSY
   vector FnT_bar(1,nS);     // estimated fishing mortality 
   vector dep_bar(1,nS);     // depletion estimate
 
@@ -129,8 +129,8 @@ PROCEDURE_SECTION
 FUNCTION stateDynamics
   // exponentiate leading parameters
   FMSY = mfexp ( lnFMSY );         // optimal fishing mortality
-  MSY = mfexp ( lnMSY );           // MSY
-  BMSY = elem_div( MSY, FMSY);     // optimal biomass
+  BMSY = mfexp ( lnBMSY );           // MSY
+  MSY = elem_prod( BMSY, FMSY);     // optimal biomass
 
   // reinitialise penalisers
   fpen = 0.; pospen = 0.;
@@ -153,7 +153,7 @@ FUNCTION stateDynamics
       Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
       
       // Increment function penaliser variable
-      fpen += 100. * pospen;
+      fpen += 1000. * pospen;
     }
     // cout << "Bt_bar = " << Bt_bar << endl;
   }
@@ -201,7 +201,7 @@ FUNCTION calcPriors
   // Initialise prior var
   prior = 0.;
   // First, MSY
-  prior = elem_div(pow ( MSY - mMSY, 2 ), pow(sMSY,2)) / 2.;
+  prior = elem_div(pow ( BMSY - mBMSY, 2 ), pow(sBMSY,2)) / 2.;
   // Then FMSY
   prior += elem_div(pow ( FMSY - mFMSY, 2 ), pow(sFMSY,2)) / 2.;
   // Now sigma2hat prior
@@ -254,8 +254,8 @@ REPORT_SECTION
   // values in sim-est experiments
   report << "## Single Species Production Model Results" << endl;
   report << "## Parameter estimates " << endl;
-  report << "# MSY" << endl;
-  report << MSY << endl;
+  report << "# BMSY" << endl;
+  report << BMSY << endl;
   report << "# FMSY" << endl;
   report << FMSY << endl;
   report << "# epst" << endl;
@@ -263,8 +263,8 @@ REPORT_SECTION
   report << endl;
   
   report << "## Derived variables" << endl;
-  report << "# BMSY" << endl;
-  report << BMSY << endl;
+  report << "# MSY" << endl;
+  report << MSY << endl;
   report <<"# q" << endl;
   report << mfexp(lnqhat) <<endl;
   report << "# sigma2" << endl;
@@ -284,10 +284,10 @@ REPORT_SECTION
   report << endl;
 
   report << "## Priors" << endl;
-  report << "# mMSY" << endl;  
-  report << mMSY << endl;
-  report << "# sMSY" << endl;  
-  report << sMSY << endl;
+  report << "# mBMSY" << endl;  
+  report << mBMSY << endl;
+  report << "# sBMSY" << endl;  
+  report << sBMSY << endl;
   report << "# mFMSY" << endl;  
   report << mFMSY << endl;
   report << "# sdFMSY" << endl;  

@@ -87,7 +87,7 @@ plotReps <- function ( rep = 1, sim = 1, folder = NULL )
 }
 
 plotSimPerf <- function ( sim = 1, folder = NULL, 
-                          pars = c("msy","Fmsy","q","dep","BnT","sigma2","tau2"))
+                          pars = c("Bmsy","Fmsy","q","dep","BnT","sigma2","tau2"))
 {
   # First, if a folder name isn't nominated, use sim number
   # to find the folder name
@@ -155,8 +155,10 @@ plotSimPerf <- function ( sim = 1, folder = NULL,
 
     # Plot main dotchart
     plotTitle <- paste ( "Species ", s, sep = "")
-    if ( s == 1) dotchart ( x = t(med), xlim = c(-1,1),main=plotTitle)
-    else dotchart ( x = t(med), xlim = c(-1,1), labels = "", main = plotTitle )
+    if ( s == 1) dotchart ( x = t(med), xlim = c(-1,1),main=plotTitle,
+                            pch = 16)
+    else dotchart ( x = t(med), xlim = c(-1,1), labels = "", main = plotTitle,
+                    pch = 16)
     
 
     # Now add segments
@@ -167,6 +169,8 @@ plotSimPerf <- function ( sim = 1, folder = NULL,
       segments( q025[pars[parIdx],"ss"],plotY,q975[pars[parIdx],"ss"],plotY,lty=1,col="grey60", lwd=2)  
       segments( q025[pars[parIdx],"ms"],plotY-1,q975[pars[parIdx],"ms"],plotY-1,lty=1,col="grey60", lwd=2)  
     }
+
+    abline ( v = 0, lty = 3, lwd = 0.5 )
 
   } 
   title <- paste("Relative error distributions, nReps = ", length(blob$goodReps))

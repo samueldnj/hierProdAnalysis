@@ -33,12 +33,12 @@ DATA_SECTION
 
 PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
-  init_number lnMSY(1);           // carrying capacity - log scale
+  init_number lnBMSY(1);          // carrying capacity - log scale
   init_number lnFMSY(2);          // intrinsic rate of growth - log scale
 
   // Fixed parameters and hyperparameters
-  init_number mMSY(-1);           // MSY prior mean
-  init_number sMSY(-1);           // MSY prior SD
+  init_number mBMSY(-1);           // MSY prior mean
+  init_number sBMSY(-1);           // MSY prior SD
   init_number mFMSY(-1);          // lnFMSY prior mean
   init_number sFMSY(-1);          // lnFMSY priod sd
   init_number alphaSigma(-1);     // sigma prior mean
@@ -55,7 +55,7 @@ PARAMETER_SECTION
   objective_function_value f;
 
   // back-transformed parameters
-  number MSY;         
+  number BMSY;         
   number FMSY;
   
   // variables to hold concentrated parameters
@@ -72,7 +72,6 @@ PARAMETER_SECTION
   vector It_bar(1,nT);        // predicted IoA
 
   // variables to hold derived values
-  number BMSY;        // Biomass at MSY
   number FnT_bar;     // estimated fishing mortality 
   number dep_bar;     // depletion estimate
 
@@ -119,8 +118,7 @@ PROCEDURE_SECTION
 FUNCTION stateDynamics
   // exponentiate leading parameters
   FMSY = mfexp ( lnFMSY );         // optimal fishing mortality
-  MSY = mfexp ( lnMSY );           // MSY
-  BMSY = MSY / FMSY;               // optimal biomass
+  BMSY = mfexp ( lnBMSY );           // optimal Biomass
 
   // reinitialise penalisers
   fpen = 0.; pospen = 0.;
@@ -135,12 +133,12 @@ FUNCTION stateDynamics
     pospen = 0.;
     // Run state dynamics equation, add process error
     Bt_bar(t+1) = ( Bt_bar(t) + 
-                    2. * FMSY * Bt_bar(t) * (1 - Bt_bar(t)/BMSY/2.0 ) - 
+                    2. * FMSY * Bt_bar(t) * (1 - Bt_bar(t)/BMSY/2. ) - 
                     katch(t) ) * exp ( epst(t+1) );
     Bt_bar(t+1) = posfun ( Bt_bar(t+1), 10e-1, pospen );
     
     // Increment function penaliser variable
-    fpen += 100. * pospen;
+    fpen += 1000. * pospen;
   }
 
   // compute derived performance values
@@ -179,7 +177,7 @@ FUNCTION calcPriors
   // Initialise prior var
   prior = 0.;
   // First, MSY
-  prior = pow ( MSY - mMSY, 2 ) / sMSY / sMSY / 2.;
+  prior = pow ( BMSY - mBMSY, 2 ) / sBMSY / sBMSY / 2.;
   // Then FMSY
   prior += pow ( FMSY - mFMSY, 2 ) / sFMSY / sFMSY / 2.;
   // Now sigma2hat prior
@@ -197,7 +195,7 @@ FUNCTION mcDumpOut
     mcoutpar << "BMSY MSY FMSY q sigma2 tau2 FnT_bar BnT dep_bar" << endl;
   
     // Output the parameter values for this replicate
-    mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat);
+    mcoutpar << BMSY << " " << BMSY*FMSY <<" "<< FMSY <<" "<< mfexp(lnqhat);
     mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
     mcoutpar << Bt_bar(nT) <<" "<< dep_bar << endl;
 
@@ -212,7 +210,7 @@ FUNCTION mcDumpOut
     if( pospen==0 )
     {
       // Output the parameter values for this replicate
-      mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat); 
+      mcoutpar << BMSY << " " << BMSY*FMSY <<" "<< FMSY <<" "<< mfexp(lnqhat); 
       mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
       mcoutpar << Bt_bar(nT) <<" "<< dep_bar << endl;
 
@@ -226,8 +224,8 @@ REPORT_SECTION
   // values in sim-est experiments
   report << "## Single Species Production Model Results" << endl;
   report << "## Parameter estimates " << endl;
-  report << "# MSY" << endl;
-  report << MSY << endl;
+  report << "# BMSY" << endl;
+  report << BMSY << endl;
   report << "# FMSY" << endl;
   report << FMSY << endl;
   report << "# epst" << endl;
@@ -235,8 +233,8 @@ REPORT_SECTION
   report << endl;
   
   report << "## Derived variables" << endl;
-  report << "# BMSY" << endl;
-  report << BMSY << endl;
+  report << "# MSY" << endl;
+  report << BMSY * FMSY << endl;
   report <<"# q" << endl;
   report << mfexp(lnqhat) <<endl;
   report << "# sigma2" << endl;
@@ -256,10 +254,10 @@ REPORT_SECTION
   report << endl;
 
   report << "## Priors" << endl;
-  report << "# mMSY" << endl;  
-  report << mMSY << endl;
-  report << "# sMSY" << endl;  
-  report << sMSY << endl;
+  report << "# mBMSY" << endl;  
+  report << mBMSY << endl;
+  report << "# sBMSY" << endl;  
+  report << sBMSY << endl;
   report << "# mFMSY" << endl;  
   report << mFMSY << endl;
   report << "# sdFMSY" << endl;  

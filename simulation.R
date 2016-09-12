@@ -86,7 +86,7 @@ opModel <- function (control = ctlList, seed = 1)
                 q     = control$q,
                 nT    = nT,
                 nS    = nS,
-                msy   = control$msy,
+                Bmsy  = control$Bmsy,
                 Fmsy  = control$Fmsy )
 
   # Now create epst and zetat vectors using the proc error components
@@ -124,7 +124,7 @@ opModel <- function (control = ctlList, seed = 1)
   # and observational data
   for ( s in 1:nS )
   {
-    bio <- logProdModel ( msy = control$msy[s], Fmsy = control$Fmsy[s],
+    bio <- logProdModel ( Bmsy = control$Bmsy[s], Fmsy = control$Fmsy[s],
                           nT = nT, Ft = Fst[s,], 
                           epst = epst[s,], sigma = sigma, 
                           zetat = zetat[s,], Sigma = diag(Sigma)[1] )
@@ -171,10 +171,10 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                           It      = omList$It[s,],
                           dumm    = 999 )
     # make par list
-    ssPar[[s]] <- list (  lnMSY       = log(omList$msy[s]),
+    ssPar[[s]] <- list (  lnBMSY      = log(omList$Bmsy[s]),
                           lnFmsy      = log(omList$Fmsy[s]),
-                          mMSY        = omList$msy[s],
-                          sMSY        = ctl$sMSYmult[s]*omList$msy[s],
+                          mBMSY       = omList$Bmsy[s],
+                          sBMSY       = ctl$sBMSYmult[s]*omList$Bmsy[s],
                           mFmsy       = omList$Fmsy[s],
                           sFmsy       = ctl$sFMSYmult[s]*omList$Fmsy[s],
                           alpha.sigma = ctl$alpha.sigma[s],
@@ -192,12 +192,12 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   Ct    = omList$Ct,
                   It    = omList$It,
                   dumm  = 999 )
-  msPar <- list ( lnMSY       = log(omList$msy),
+  msPar <- list ( lnBMSY      = log(omList$Bmsy),
                   lnFmsy      = log(omList$Fmsy),
-                  mMSY        = omList$msy,
-                  sMSY        = ctl$sMSYmult*omList$msy,
+                  mBMSY       = omList$Bmsy,
+                  sBMSY       = ctl$sBMSYmult*omList$Bmsy,
                   mFmsy       = omList$Fmsy,
-                  sFmsy       = ctl$sMSYmult*omList$Fmsy,
+                  sFmsy       = ctl$sFMSYmult*omList$Fmsy,
                   alpha.sigma = ctl$alpha.sigma,
                   beta.sigma  = ctl$beta.sigma,
                   alpha.tau   = ctl$alpha.tau,
@@ -205,14 +205,12 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   mlnq        = mean(log(omList$q)),
                   slnq        = log(3),
                   epst        = omList$epst+omList$zetat )
-
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar, 
                     msDat = msDat, 
                     msPar = msPar )
   return(outlist)
 }
-
 
 
 # callProcADMB()
@@ -250,17 +248,17 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
 
 
   # Set path, exec and paste together command call
-  path <- getwd()
-  exec <- file.path(path,activeFileRoot)
-  procCall <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+  path      <- getwd()
+  exec      <- file.path(path,activeFileRoot)
+  procCall  <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
                             " -mcmc ", mcTrials, " -maxfn ", maxfn,
                             " -mcsave ", mcSave, sep = "" )
-  mcEval <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+  mcEval    <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
                     " -mceval", sep = "" )
 
   # Pull out lnMSY and sMSY for use in refitting procedure later
-  lnMSY <- par$lnMSY 
-  sMSY <- par$sMSY
+  lnBMSY   <- par$lnBMSY 
+  sBMSY    <- par$sBMSY
   # Write out the dat file
   cat ( "## ", activeFileRoot, " data file, created ", 
         format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
@@ -272,9 +270,9 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
   {
     hessPosDef <- TRUE
     localMin <- TRUE
-    # decrease prior sd if needed
-    par$lnMSY <- lnMSY * (fitTrials + i)/fitTrials
-    par$sMSY <- sMSY * (fitTrials - i + 1)  / (fitTrials)
+    # Increment lnBMSY and tighten sBMSY
+    par$lnBMSY <- lnBMSY + log ( i + 1)
+    par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
     # Write to pin file 
     cat ( "## ", activeFileRoot, " initial parameter file, created ", 
           format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
@@ -431,9 +429,9 @@ simEstProc <- function ( ctl, quiet = TRUE )
   am <- list ( ss=NULL, ms=NULL)
 
   # single species
-  am$ss <- list ( msy   = matrix ( NA, nrow = nReps, ncol = nS ),
-                  Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+  am$ss <- list ( Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                   Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  msy   = matrix ( NA, nrow = nReps, ncol = nS ),
                   q     = matrix ( NA, nrow = nReps, ncol = nS ),
                   sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
                   tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -458,9 +456,9 @@ simEstProc <- function ( ctl, quiet = TRUE )
   
 
   # multispecies (coastwide)
-  am$ms <- list ( msy   = matrix ( NA, nrow = nReps, ncol = nS ),
-                  Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+  am$ms <- list ( Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                   Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                  msy   = matrix ( NA, nrow = nReps, ncol = nS ),
                   q     = matrix ( NA, nrow = nReps, ncol = nS ),
                   sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
                   tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -513,9 +511,9 @@ simEstProc <- function ( ctl, quiet = TRUE )
     # Loop over single species
     for ( s in 1:nS )
     {
-      blob$am$ss$msy[i,s]         <- simEst[[i]]$ssFit[[s]]$rep$MSY
-      blob$am$ss$Fmsy[i,s]        <- simEst[[i]]$ssFit[[s]]$rep$FMSY
       blob$am$ss$Bmsy[i,s]        <- simEst[[i]]$ssFit[[s]]$rep$BMSY
+      blob$am$ss$Fmsy[i,s]        <- simEst[[i]]$ssFit[[s]]$rep$FMSY
+      blob$am$ss$msy[i,s]         <- simEst[[i]]$ssFit[[s]]$rep$MSY
       blob$am$ss$q[i,s]           <- simEst[[i]]$ssFit[[s]]$rep$q
       blob$am$ss$sigma2[i,s]      <- simEst[[i]]$ssFit[[s]]$rep$sigma2
       blob$am$ss$tau2[i,s]        <- simEst[[i]]$ssFit[[s]]$rep$tau2
@@ -531,9 +529,9 @@ simEstProc <- function ( ctl, quiet = TRUE )
       blob$am$ss$hesspd[i,s]      <- simEst[[i]]$ssFit[[s]]$hessPosDef
     }
     # Now multispecies
-    blob$am$ms$msy[i,]            <- simEst[[i]]$msFit$rep$MSY
-    blob$am$ms$Fmsy[i,]           <- simEst[[i]]$msFit$rep$FMSY
     blob$am$ms$Bmsy[i,]           <- simEst[[i]]$msFit$rep$BMSY
+    blob$am$ms$Fmsy[i,]           <- simEst[[i]]$msFit$rep$FMSY
+    blob$am$ms$msy[i,]            <- simEst[[i]]$msFit$rep$MSY
     blob$am$ms$q[i,]              <- simEst[[i]]$msFit$rep$q
     blob$am$ms$sigma2[i,]         <- simEst[[i]]$msFit$rep$sigma2
     blob$am$ms$tau2[i,]           <- simEst[[i]]$msFit$rep$tau2
@@ -571,7 +569,7 @@ simEstProc <- function ( ctl, quiet = TRUE )
 # outputs:    Bt=nT-vector of modeled biomass; Ct=nT-vector of catch
 # 						Ut=vector of exploitation rates; 
 # usage:      Bexp(eps) = indices of abundance for estimation w/ logN errors eps
-logProdModel <- function ( msy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
+logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
                            epst = rnorm ( n = nT ), sigma = 0.2, 
                            zetat = rep(0,nT), Sigma = 0 )
 {
@@ -596,9 +594,6 @@ logProdModel <- function ( msy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
   {
   	Ct <- numeric ( length = nT )
   }
-
-  # Compute BMSY
-  Bmsy <- msy / Fmsy
 
   # Populate the vector, with a special case for t = 1
   Bt [ 1 ] <- 2 * Bmsy * exp ( (epst[1] - sigma2 / 2.) + (zetat[1] - Sigma2/2.) )

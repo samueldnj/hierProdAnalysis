@@ -25,8 +25,8 @@
 40
 
 ## Leading parameter values for multispecies OM
-# msy
-20 40 100
+# Bmsy
+200 400 800
 
 # Fmsy
 0.3 0.25 0.2
@@ -47,7 +47,7 @@
 
 ## Observation error sd
 # tau
-0.8 0.5 0.2
+0.2 0.2 0.2
 
 ## Fishing Mortality (should provide a full time series... or not)
 # F_mult
@@ -60,7 +60,7 @@
 ## Initial values for parameters and hyperparameters not included above ##
 ## Hyperparameters ##
 ## lnMSY prior (mean set to true value)
-# sMSYmult
+# sBMSYmult
 3 3 3
 
 ## FMSY normal prior (mean set to true value)

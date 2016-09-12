@@ -39,7 +39,7 @@ makeRelErrorDists <- function ( blob )
   
   # Create a list to hold error values
   err <- list ( 
-                msy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -54,7 +54,7 @@ ss$err.mle <- err
 ms$err.mle <- err
 
 # Fill in ss MLE relative errors
-ss$err.mle$msy      <- t( (t(ss$msy) - ctl$msy)/ctl$msy)[success,]
+ss$err.mle$Bmsy     <- t( (t(ss$Bmsy) - ctl$Bmsy)/ctl$Bmsy)[success,]
 ss$err.mle$Fmsy     <- t( (t(ss$Fmsy) - ctl$Fmsy)/ctl$Fmsy)[success,]
 ss$err.mle$sigma2   <- ((ss$sigma2 - ctl$sigma^2)/ctl$sigma^2)[success,]
 ss$err.mle$tau2     <- t( (t(ss$tau2) - (ctl$tau)^2)/(ctl$tau)^2)[success,]
@@ -65,7 +65,7 @@ ss$err.mle$dep      <- ((ss$dep - om$dep)/om$dep)[success,]
 ss$err.mle$BnT      <- ((ss$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT])[success,]
 
 # Now fill in ms MLE relative errors
-ms$err.mle$msy      <- t( (t(ms$msy) - ctl$msy)/ctl$msy)[success,]
+ms$err.mle$Bmsy     <- t( (t(ms$Bmsy) - ctl$Bmsy)/ctl$Bmsy)[success,]
 ms$err.mle$Fmsy     <- t( (t(ms$Fmsy) - ctl$Fmsy)/ctl$Fmsy)[success,]
 ms$err.mle$sigma2   <- ((ms$sigma2 - ctl$sigma^2)/ctl$sigma^2)[success,]
 ms$err.mle$tau2     <- t( (t(ms$tau2) - (ctl$tau)^2)/(ctl$tau)^2)[success,]
