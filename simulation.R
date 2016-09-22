@@ -7,7 +7,6 @@
 # Author: Samuel Johnson
 # Date: 24 August, 2016
 # 
-# 
 # --------------------------------------------------------------------------
 
 # runSimEst()
@@ -43,6 +42,7 @@ runSimEst <- function ( ctlFile = "controlFile.txt", folder=NULL )
   # Copy control file to folder for posterity
   file.copy(from=ctlFile,to=file.path(path,ctlFile))
 }
+
 
 # opModel()
 # The operating model takes control list parameters and simulates biological 
@@ -90,15 +90,11 @@ opModel <- function (control = ctlList, seed = 1)
                 Fmsy  = control$Fmsy )
 
   # Now create epst and zetat vectors using the proc error components
-  #### No (auto) correlation yet ####
-  epst      <- matrix(rnorm ( n = nS*nT ), nrow = nS, ncol = nT)
+  epst      <- fillRanWalk( z=rnorm(n = nT), s=control$sigma,
+                            rho=control$rho )
   zetat     <- matrix(rnorm ( n = nS*nT ), nrow = nS, ncol = nT)
+  zetat     <- genCorrDevs(zetat, Mcorr=control$msCorr,Sigma=control$Sigma)
 
-  ## Here, we (will) generate the (auto) correlated standard normal
-  ## deviations for epst and zetat, then pass them to the 
-  ## production model, where they're scaled and bias is removed
-  ## Do we need a fillRanWalk approach??? Parametric auto-corr?
-  
   # standard normal deviations for obs error (uncorrelated)
   deltat    <- matrix(rnorm ( n = nS*nT ), nrow = nS, ncol = nT) 
 
@@ -126,8 +122,8 @@ opModel <- function (control = ctlList, seed = 1)
   {
     bio <- logProdModel ( Bmsy = control$Bmsy[s], Fmsy = control$Fmsy[s],
                           nT = nT, Ft = Fst[s,], 
-                          epst = epst[s,], sigma = sigma, 
-                          zetat = zetat[s,], Sigma = diag(Sigma)[1] )
+                          epst = epst,
+                          zetat = zetat[s,] )
     obs <- obsModel ( Bt = bio $ Bt, q = control$q[s], nT = nT,
                       deltat = deltat[s,], tau = tau[s] )
 
@@ -557,32 +553,24 @@ simEstProc <- function ( ctl, quiet = TRUE )
 }
 
 
-
 # logProdModel()
 # Function to simulate a logistic based surplus production model,
-# assuming that population is initially at equilibrium (2*Bmsy).
+# assuming that population is initially at equilibrium (2*Bmsy) modified
+# by a proc error.
 # inputs:     msy=maximum sustainable yield; Fmsy=fishing mortality for MSY
 #             nT=length of simulation; Ct=nT-vector of catch (opt)
 # 						Ft=nT-vector of fishing mortality (opt)
-#             epst=nT-vector of proc errors (could be RW, or IID)
-#             sigma = process error sd (uncorr)
+#             epst=nT-vector of env (AR(1)) logN proc errors (bias corrected) 
+#             zetat=nT-vector of logN proc errors (correlated among species)
 # outputs:    Bt=nT-vector of modeled biomass; Ct=nT-vector of catch
 # 						Ut=vector of exploitation rates; 
 # usage:      Bexp(eps) = indices of abundance for estimation w/ logN errors eps
 logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
-                           epst = rnorm ( n = nT ), sigma = 0.2, 
-                           zetat = rep(0,nT), Sigma = 0 )
+                           epst = exp(rnorm ( n = nT )-0.5), 
+                           zetat = exp(rep(0,nT)) )
 {
   # First, initialise a vector to hold biomass
   Bt <- numeric ( length = nT )
-
-  # Multiply errors by variance
-  epst <- epst * sigma
-  zetat <- zetat * Sigma
-
-  # Compute bias correction
-  sigma2 <- sigma * sigma
-  Sigma2 <- Sigma * Sigma
 
   if ( is.null ( Ft ) & is.null ( Ct ) ) 
   {
@@ -596,7 +584,7 @@ logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
   }
 
   # Populate the vector, with a special case for t = 1
-  Bt [ 1 ] <- 2 * Bmsy * exp ( (epst[1] - sigma2 / 2.) + (zetat[1] - Sigma2/2.) )
+  Bt [ 1 ] <- 2 * Bmsy * epst[1] * zetat[1]
 
   # Loop over remaining years
   for ( t in 2:nT )
@@ -610,8 +598,7 @@ logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
     ## THIS IS BOGUS ##
     Bt[t] <- max(Bt[t], 1e-1)
 
-    Bt[t] <- Bt[t] * exp ( epst [ t ] - sigma2 / 2. +
-                            zetat[ t ] - Sigma2 / 2. ) # Process error
+    Bt[t] <- Bt[t]*epst[t]*zetat[t] # Process error
 }  # End loop for biomass
   # Generate catch for nT
   Ct[nT] <- Ft[nT] * Bt[nT]
@@ -625,15 +612,11 @@ logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
   outList $ Bt <- Bt
   outList $ Ct <- Ct
   outList $ Ft <- Ft
-  # outList $ Ut <- Ut
   outList $ epst <- epst
   outList $ zetat <- zetat
   outList $ dep <- dep
   return ( outList )
 }
-
-# Why keep the observation model separate???? 
-# Right now just for modularity.
 
 # obsModel()
 # A function which creates observations (indices of biomass) from
@@ -653,44 +636,65 @@ obsModel <- function ( 	Bt, q = 0.05, nT = length (Bt),
 }
 
 
-#### DEPRECATED, now callProcADMB works for both SS and MS models ####
-# callMSprodADMB() 
-# Function that calls the ADMB ssProd estimator for a given stock.
-# inputs:   dat=list object containing .dat file contents in order
-#           par=list object containing .pin file contents in order
-# ouputs:   rep=list object containing the rep file contents
-# usage:    fitting a replicate model run
-callMSProdADMB <- function (  dat = msDat, par = msPar,
-                              fitTrials = 3 )
-{ 
-  # Set the active filename root
-  activeFileRoot <- "msProd"
-  datFile <- paste ( activeFileRoot, ".dat", sep = "")
-  pinFile <- paste ( activeFileRoot, ".pin", sep = "")
+# fillRanWalk()
+# A function that will return a bias corrected log-normal AR(1) random 
+# process when given a set of deviations (assumed to be standard normal, 
+# but not necessarily), uncorr. standard deviation and an autocorrelation 
+# factor
+# inputs:   z=vector of standard normal deviations; sd=uncorrelated sd
+#           rho=autocorrelation factor
+# outputs:  zcorr=vector of autocorrelated log-normal deviations
+# usage:    to provide auto-correlated process errors
+fillRanWalk <- function ( z=rnorm(10), s = 1, rho = 0, c=0, normScale=FALSE )
+{
+  # initialise output vector
+  zcorr <- numeric ( length ( z ) )
 
-  # Write out the dat file
-  cat ( "## Single Species Production Model data file, created ", 
-        format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
-        sep = "", file = datFile, append = FALSE )
-  lapply (  X = seq_along(dat), FUN = writeADMB, x = dat, 
-            activeFile=datFile )
+  # scale z by the uncorrelated standard dev
+  z <- z * s
 
-  # Write to pin file
-  pinFile <- paste ( activeFileRoot, ".pin", sep = "" )
-  cat ( "## Single Species Production Model pin file, created ", 
-        format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
-        sep = "", file = pinFile, append = FALSE )
-  lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
-            activeFile=pinFile )
+  # Create correlated variance term
+  s2 <- s * s
+  s2corr <- s2 / (1 - rho * rho )
 
-  # Now run the model
-  path <- getwd()
-  exec <- file.path(path,"msProd")
-  mleCall <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
-                        " -maxfn 5000", sep = "" )
-  system ( command = mleCall, wait =TRUE, ignore.stdout = TRUE )
+  # loop to populate auto-correlated vector
+  zcorr[1] <- c + z[1]
+  for ( t in 2:length(z) )
+  {
+    zcorr[t] <- c + rho * zcorr[t-1] + z[t]
+  }
 
-  repFile <- paste ( activeFileRoot, ".rep", sep = "" )
-  msRep <- lisread ( repFile )
-  msRep
+  if (normScale) return (zcorr)
+
+  # Make log-normal
+  zcorr <-  exp ( zcorr - s2corr/2 )
+  zcorr
+}
+
+# genCorrDevs()
+# Function that creates sequences of deviations correlated across 
+# populations (p) given a correlation matrix, vector of standard deviations 
+# for each population and a matrix of uncorrelated standard normals.
+# inputs:   z=nxp matrix of uncorrelated standard normals
+#           Mcorr=pxp positive-definite correlation mtx
+#           Sigma=p-vector of standard deviations
+# outputs:  zcorr=nxp matrix of correlated standard normals
+# usage:    providing correlations in error across groups/populations
+genCorrDevs <- function ( z = matrix(rnorm(30),nrow=3 ),
+                          Mcorr = diag(c(1,1,1)), Sigma = c(1,1,1),
+                          normScale=FALSE )
+{
+  # Find the Cholesky factor of the correlation matrix
+  # cov <- diag(Sigma) %*% Mcorr %*% diag(Sigma)
+  Mchol <- chol ( Mcorr )
+
+  # create correlated random normals (chol returns UT matrix, so transpose)
+  zcorr <- t(Mchol) %*% z
+
+  # Scale by Sigma
+  Sigma <- diag ( Sigma )
+  zcorr <- Sigma %*% zcorr
+  if ( normScale ) return(zcorr)
+  zcorr <- exp (zCorr - t(Sigma*Sigma)/2 )
+  zcorr
 }

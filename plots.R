@@ -25,7 +25,9 @@ plotReps <- function ( rep = 1, sim = 1, folder = NULL )
   if (is.null(folder))
   {
     # List directories in project folder, remove "." from list
-    simList <- list.dirs (path="./project",full.names = FALSE)[-1]
+    dirList <- list.dirs (path="./project",full.names = FALSE,
+                          recursive=FALSE)
+    simList <- dirList[grep(pattern="sim",x=dirList)]
     folder <- simList[sim]
   }
   # Load the nominated blob
@@ -58,7 +60,7 @@ plotReps <- function ( rep = 1, sim = 1, folder = NULL )
   for ( s in 1:nS )
   {
     if ( s == 1 ) yLab <- "Biomass (t)" else yLab <- ""
-    maxBt <- max ( omBt[s,], ssBt[s,], msBt[s,])
+    maxBt <- 1.05*max ( omBt[s,], ssBt[s,], msBt[s,],It[s,]/ssq[s],It[s,]/msq[s])
     plot    ( x = 1:nT, y = omBt[s,], col = "red", lwd = 2, type = "l", 
               ylim = c(0,maxBt), ylab = yLab, las = 1, xlab = "" ,
               main = paste("Species ", s, sep = "") )
@@ -87,14 +89,16 @@ plotReps <- function ( rep = 1, sim = 1, folder = NULL )
 }
 
 plotSimPerf <- function ( sim = 1, folder = NULL, 
-                          pars = c("Bmsy","Fmsy","q","dep","BnT","sigma2","tau2"))
+                          pars = c("Bmsy","Fmsy","q","dep","BnT"))
 {
   # First, if a folder name isn't nominated, use sim number
   # to find the folder name
   if (is.null(folder))
   {
     # List directories in project folder, remove "." from list
-    simList <- list.dirs (path="./project",full.names = FALSE)[-1]
+    dirList <- list.dirs (path="./project",full.names = FALSE,
+                          recursive=FALSE)
+    simList <- dirList[grep(pattern="sim",x=dirList)]
     folder <- simList[sim]
   }
   # Load the nominated blob
@@ -121,6 +125,7 @@ plotSimPerf <- function ( sim = 1, folder = NULL,
   msQuant <- lapply ( X = seq_along(msRE), FUN = quantWrap, x=msRE, 
                       MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
 
+
   # get names of parameters
   ssPars <- names ( ssRE )
   msPars <- names ( msRE )
@@ -139,8 +144,8 @@ plotSimPerf <- function ( sim = 1, folder = NULL,
   {
     for (par in 1:length(pars))
     {
-      quantiles[s,,par,2] <- ssQuant[pars[par]][[1]][s,]
-      quantiles[s,,par,1] <- msQuant[pars[par]][[1]][s,]
+      quantiles[s,,par,1] <- ssQuant[pars[par]][[1]][s,]
+      quantiles[s,,par,2] <- msQuant[pars[par]][[1]][s,]
     }
   }
   
@@ -155,19 +160,19 @@ plotSimPerf <- function ( sim = 1, folder = NULL,
 
     # Plot main dotchart
     plotTitle <- paste ( "Species ", s, sep = "")
-    if ( s == 1) dotchart ( x = t(med), xlim = c(-1,1),main=plotTitle,
+    if ( s == 1) dotchart ( x = t(med), xlim = c(-1.5,1.5
+      ),main=plotTitle,
                             pch = 16)
-    else dotchart ( x = t(med), xlim = c(-1,1), labels = "", main = plotTitle,
+    else dotchart ( x = t(med), xlim = c(-1.5,1.5), main = plotTitle,
                     pch = 16)
     
-
     # Now add segments
     for ( par in length(pars):1)
     {
       parIdx <- length(pars) - par + 1
       plotY <- 2 * par + 2 * (par-1)
-      segments( q025[pars[parIdx],"ss"],plotY,q975[pars[parIdx],"ss"],plotY,lty=1,col="grey60", lwd=2)  
-      segments( q025[pars[parIdx],"ms"],plotY-1,q975[pars[parIdx],"ms"],plotY-1,lty=1,col="grey60", lwd=2)  
+      segments( q025[pars[parIdx],"ss"],plotY-1,q975[pars[parIdx],"ss"],plotY-1,lty=1,col="grey60", lwd=2)  
+      segments( q025[pars[parIdx],"ms"],plotY,q975[pars[parIdx],"ms"],plotY,lty=1,col="grey60", lwd=2)  
     }
 
     abline ( v = 0, lty = 3, lwd = 0.5 )

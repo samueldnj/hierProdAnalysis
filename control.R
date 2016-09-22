@@ -26,6 +26,8 @@
 # 			3.  Estimate covariance in REs? Can we use ADMB-RE? Cholesky
 # 							decomp is useful here...
 # 			4.	Code TMB models (probably a separate script)
+#       5.  Missing values in msProd and ssProd
+#       6.  
 # --------------------------------------------------------------------------
 
 # Clean up

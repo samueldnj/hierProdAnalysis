@@ -34,11 +34,11 @@ DATA_SECTION
 PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
   init_vector lnBMSY(1,nS,1);         // Bmsy - log scale
-  init_vector lnFMSY(1,nS,2);        // Umsy - log scale
+  init_vector lnFMSY(1,nS,2);         // Umsy - log scale
 
   // Fixed parameters and hyperparameters
-  init_vector mBMSY(1,nS,-1);        // MSY prior mean (species spec)
-  init_vector sBMSY(1,nS,-1);        // MSY prior SD (species spec)
+  init_vector mBMSY(1,nS,-1);       // MSY prior mean (species spec)
+  init_vector sBMSY(1,nS,-1);       // MSY prior SD (species spec)
   init_vector mFMSY(1,nS,-1);       // lnFMSY prior mean (species spec)
   init_vector sFMSY(1,nS,-1);       // lnFMSY priod sd (species spec)
   init_vector alphaSigma(1,nS,-1);  // sigma prior shape (shared)
@@ -49,7 +49,7 @@ PARAMETER_SECTION
   init_number slnq(-1);             // logq prior sd (shared)
 
   // process error deviations
-  init_matrix epst(1,nS,1,nT,1);     // uncorrelated - cholesky factor to be added
+  init_matrix epst(1,nS,1,nT,1);    // uncorrelated - cholesky factor to be added
 
   //objective function value
   objective_function_value f;
@@ -72,7 +72,7 @@ PARAMETER_SECTION
   matrix It_bar(1,nS,1,nT);        // predicted IoA
 
   // variables to hold derived values
-  vector MSY(1,nS);        // Biomass at MSY
+  vector MSY(1,nS);         // Biomass at MSY
   vector FnT_bar(1,nS);     // estimated fishing mortality 
   vector dep_bar(1,nS);     // depletion estimate
 
@@ -158,11 +158,7 @@ FUNCTION stateDynamics
     // cout << "Bt_bar = " << Bt_bar << endl;
   }
   
-  
-  
-
-  // compute derived performance values
-  //FnT_bar = katch ( nT - 1 ) / FMSY;   // comparison of F
+  // compute derived management quantities
   dep_bar = elem_div(column(Bt_bar, nT ) ,BMSY) / 2;     // depletion estimate
   
 // function to compute predicted observations and residuals
@@ -175,7 +171,7 @@ FUNCTION obsModel
     // Compute predicted index of abundance
     It_bar(s) = mfexp(lnqhat(s)) * Bt_bar(s);
 
-    // Compute the sum of squares
+    // Compute the sum of squared residuals
     SSRobs(s) = norm2 ( log ( It(s) ) - log ( It_bar(s) ) );
   }
 // Subroutine to compute negative log likelihoods
