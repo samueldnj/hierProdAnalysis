@@ -23,6 +23,9 @@ DATA_SECTION
   // dummy variable to check data read
   init_int dumm;                      // dummy variable
   
+  // Constant for number of free pars in chol matx
+  int cEntries;
+
   // Procedure to exit if not all data is read correctly
   LOC_CALCS
     if(dumm!=999)
@@ -30,6 +33,7 @@ DATA_SECTION
       cout<<"Error reading data.\n Fix it!! \n dumm = " << dumm << endl;
       ad_exit(1);
     }
+    cEntries=nS*(nS-1)/2;
 
 PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
@@ -41,6 +45,8 @@ PARAMETER_SECTION
   init_vector sBMSY(1,nS,-1);       // MSY prior SD (species spec)
   init_vector mFMSY(1,nS,-1);       // lnFMSY prior mean (species spec)
   init_vector sFMSY(1,nS,-1);       // lnFMSY priod sd (species spec)
+  init_number alpha_sigmaMS(-1);    // sigma prior shape (shared)
+  init_number beta_sigmaMS(-1);     // sigma prior scale (shared)
   init_vector alphaSigma(1,nS,-1);  // sigma prior shape (shared)
   init_vector betaSigma(1,nS,-1);   // sigma prior scale (shared)
   init_vector alphaTau(1,nS,-1);    // tau prior shape (shared)
@@ -49,14 +55,13 @@ PARAMETER_SECTION
   init_number slnq(-1);             // logq prior sd (shared)
 
   // process error deviations
-  init_bounded_dev_vector epst(1,nT,-5.,5.,1); // auto-regressive proc error
-  init_matrix zetat(1,nS,1,nT,1);       // correlated across species
+  init_bounded_dev_vector epst(1,nT,-5.,5.,2); // auto-regressive proc error
+  init_matrix zetat(1,nS,1,nT,4);       // correlated across species
 
   // Covariance parameters
-  init_number logit_rho(-1);                    // auto-regression factor
-  number qEntries
-  !! qEntries = (nS-1)*nS/2
-  init_vector logit_q(1,qEntries,-1);        // Initialise cholesky entry vector
+  init_bounded_number rho(0,1,2);              // auto-regression factor
+  init_bounded_vector c(1,cEntries,-1,1,3);
+  //init_vector logit_c(1,cEntries,3);     // Initialise cholesky entry vector
   matrix chol(1,nS,1,nS);                 // Matrix to hold cholesky factor
 
   //objective function value
@@ -65,8 +70,7 @@ PARAMETER_SECTION
   // back-transformed parameters
   vector BMSY(1,nS);        
   vector FMSY(1,nS);
-  number rho;
-  vector q(1,nS)
+  //number rho;
   
   // variables to hold concentrated parameters
   sdreport_vector lnqhat(1,nS);
@@ -108,7 +112,7 @@ PROCEDURE_SECTION
   f = 0.;
 
   // initialise derived variables
-  lnqhat = 0.; sigma2hat = 0.; tau2hat = 0.;
+  lnqhat = 0.; sigma2hat = 0.; tau2hat = 0.; Sigma2hat = 0.;
 
 
   // Run state dynamics function
@@ -137,9 +141,9 @@ PROCEDURE_SECTION
   }
 
   // compute objective function value
-  f = sum(nll);       // Likelihood and proc error pen
-  f += sum(prior);    // sum species spec priors
-  f += fpen;          // positive function value penalties
+  f = sum(nll) + envNLL;  // Likelihood and proc error pen
+  f += sum(prior);        // sum species spec priors
+  f += fpen;              // positive function value penalties
 
 // State dynamics subroutine
 FUNCTION stateDynamics
@@ -147,19 +151,18 @@ FUNCTION stateDynamics
   FMSY = mfexp ( lnFMSY );         // optimal fishing mortality
   BMSY = mfexp ( lnBMSY );           // MSY
   MSY = elem_prod( BMSY, FMSY);     // optimal biomass
-  rho = exp(logit_rho) / (1 + exp(logit_rho));
-  q = ((exp(logit_q) / (1 + exp(logit_q))) - 0.5)*2.
+  //rho = mfexp(logit_rho) / (1 + mfexp(logit_rho));
+  //c = (elem_div(mfexp(logit_c), (1 + mfexp(logit_c)))-0.5)*2.;
 
   // Compute cholesky factor of correlation matrix
-  int k=1;
   chol(1,1) = 1.;
+  int k=1;
   for (int i=2;i<=nS;i++)
   {
     chol(i,i)=1.;
     for(int j=1;j<=i-1;j++)
     {
-      chol(i,j)=q(k)
-      k+=1
+      chol(i,j)=c(k++);
     }
     chol(i)(1,i) /= norm(chol(i)(1,i));
   }
@@ -168,12 +171,12 @@ FUNCTION stateDynamics
   epstCorr(1) = epst(1);
   for(int t=1;t<nT;t++)
   {
-    epstCorr(t+1) = rho*epstCorr(t) + eps(t+1)
+    epstCorr(t+1) = rho*epstCorr(t) + epst(t+1);
   }
 
   // Compute correlated zetat values
   zetatCorr = chol * zetat;
-
+  
   // reinitialise penalisers
   fpen = 0.; pospen = 0.;
   
@@ -181,9 +184,7 @@ FUNCTION stateDynamics
   // Assume stocks are at equilibrium initially ( B1 = B0e^delta1 )
   for (int s=1;s<=nS;s++)
   {
-    // cout << "In State Dynamics looping over species" << endl;
-    // cout << "Species " << s << endl;
-    Bt_bar(s,1) = ( 2. * BMSY(s) ) * mfexp(epst(1)+zetat(s,1));
+    Bt_bar(s,1) = ( 2. * BMSY(s) ) * mfexp(epstCorr(1)+zetatCorr(s,1));
     // loop over time periods to build dynamic model for t > 1
     for(int t=1; t<nT; t++)
     {
@@ -191,13 +192,12 @@ FUNCTION stateDynamics
       // Run state dynamics equation, add process error
       Bt_bar(s,t+1) = ( Bt_bar(s,t) + 
                       2. * FMSY(s) * Bt_bar(s,t) * (1 - Bt_bar(s,t)/BMSY(s)/2.0 ) - 
-                      katch(s,t) ) * mfexp ( epst(t+1)+zetat(s,t+1) );
+                      katch(s,t) ) * mfexp ( epstCorr(t+1)+zetatCorr(s,t+1) );
       Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
       
       // Increment function penaliser variable
       fpen += 1000. * pospen;
     }
-    // cout << "Bt_bar = " << Bt_bar << endl;
   }
   
   // compute derived management quantities
@@ -224,16 +224,17 @@ FUNCTION calcLikelihoods
   tau2hat = SSRobs/nT;
   // compute observation model likelihood
   obsNLL = 0.5*nT*log(SSRobs);
-  // Compute proc error conditional variance
+  // Compute proc error conditional variance, and proc error likelihood
   for ( int s=1;s<=nS;s++)
   {
-    Sigma2hat(s) = norm2(zetat(s))/nT;
-    procNLL(s) = (nT)*log(norm2(zetat(s)))/2.;
+    Sigma2hat(s) = norm2(zetatCorr(s))/nT;
+    procNLL(s) = (nT)*log(norm2(zetatCorr(s)))/2.;
   }
+  // Compute environmental error conditional variance and likelihood
   sigma2hat = norm2(epst)/nT;
-  envNLL = 0.5*nT*log(norm2(epst));
+  envNLL = 0.5*nT*log(norm2(epstCorr));
   // sum likelihoods
-  nll = obsNLL + procNLL + envNLL;
+  nll = obsNLL + procNLL;
 
 // Subroutine to compute prior densities to add to posterior
 FUNCTION calcPriors
@@ -245,6 +246,8 @@ FUNCTION calcPriors
   prior += elem_div(pow ( FMSY - mFMSY, 2 ), pow(sFMSY,2)) / 2.;
   // Now Sigma2hat prior
   prior += elem_prod((alphaSigma+1),log(Sigma2hat))+elem_div(betaSigma,Sigma2hat);
+  // sigma2hat prior
+  prior += (alpha_sigmaMS+1)*log(sigma2hat) + beta_sigmaMS/sigma2hat;
   // tau2hat prior
   prior += elem_prod((alphaTau+1),log(tau2hat))+elem_div(betaTau,tau2hat);
   // lnq prior
@@ -262,7 +265,7 @@ FUNCTION mcDumpOut
       // Output the parameter values for this replicate
       mcoutpar << BMSY(s) << " " << MSY(s) <<" "<< FMSY(s) <<" "<< mfexp(lnqhat(s));
       mcoutpar <<" "<< Sigma2hat(s) <<" "<< tau2hat(s) <<" " << FnT_bar(s) <<" ";
-      mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) << sigma2hat << endl;
+      mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) << " " << sigma2hat << endl;
 
       // Output the biomass estimates for this MC evaluation
       mcoutbio << Bt_bar(s) << endl;
@@ -279,8 +282,8 @@ FUNCTION mcDumpOut
       {
         // Output the parameter values for this replicate
         mcoutpar << BMSY(s) << " " << MSY(s) <<" "<< FMSY(s) <<" "<< mfexp(lnqhat(s));
-        mcoutpar <<" "<< sigma2hat(s) <<" "<< tau2hat(s) <<" " << FnT_bar(s) <<" ";
-        mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) <<  sigma2hat << endl;
+        mcoutpar <<" "<< Sigma2hat(s) <<" "<< tau2hat(s) <<" " << FnT_bar(s) <<" ";
+        mcoutpar << Bt_bar(s,nT) <<" "<< dep_bar(s) << " " <<  sigma2hat << endl;
 
         // Output the biomass estimates for this MC evaluation
         mcoutbio << Bt_bar(s) << endl;
@@ -299,6 +302,12 @@ REPORT_SECTION
   report << FMSY << endl;
   report << "# epst" << endl;
   report << epst << endl;
+  report << "# zetat" << endl;
+  report << zetat << endl;
+  report << "# c" << endl;
+  report << c << endl;
+  report << "# rho" << endl;
+  report << rho << endl;
   report << endl;
   
   report << "## Derived variables" << endl;
@@ -322,7 +331,14 @@ REPORT_SECTION
   report << elem_div(katch,Bt_bar) << endl;
   report << "# Ft" << endl;
   report << -1. * log(1 - elem_div(katch,Bt_bar) ) << endl;
+  report << "# epstCorr" << endl;
+  report << epstCorr << endl;
+  report << "# zetatCorr" << endl;
+  report << zetatCorr << endl;
+  report << "# chol" << endl;
+  report << chol << endl;
   report << endl;
+
 
   report << "## Priors" << endl;
   report << "# mBMSY" << endl;  
@@ -333,6 +349,10 @@ REPORT_SECTION
   report << mFMSY << endl;
   report << "# sdFMSY" << endl;  
   report << sFMSY << endl;
+  report << "# alpha.sigma" << endl;
+  report << alpha_sigmaMS << endl;
+  report << "# beta.sigma" << endl;
+  report << beta_sigmaMS << endl;
   report << "# alphaSigma" << endl;
   report << alphaSigma << endl;
   report << "# betaSigma" << endl;
@@ -361,6 +381,8 @@ REPORT_SECTION
   report << "## Minimization properties" << endl;
   report << "# total_likelihood" << endl;
   report << nll << endl;
+  report << "# Env_err_lik" << endl;
+  report << envNLL << endl;
   report << "# total_priors" << endl;
   report << prior << endl;
   report << "# objFun" << endl;
@@ -386,7 +408,7 @@ GLOBALS_SECTION
   
   int mcHeader=0;
   int mcTrials=0;
-  ofstream mcoutpar("msProdParMC.dat");
-  ofstream mcoutbio("msProdBioMC.dat");
+  ofstream mcoutpar("msProdCVParMC.dat");
+  ofstream mcoutbio("msProdCVBioMC.dat");
 
 

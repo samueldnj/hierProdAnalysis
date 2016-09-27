@@ -1,7 +1,7 @@
 ### Control file for coastWide simulation-estimation multispecies model ###
 ### simEst Controls ###
 # nReps
-10
+3
 
 # rSeed
 0
@@ -10,7 +10,7 @@
 1
 
 # fitTrials
-10
+3
 
 ### OM controls ###
 ## Number of stocks 
@@ -66,7 +66,7 @@
 ### EM controls ###
 ## Initial values for parameters and hyperparameters not included above ##
 ## Hyperparameters ##
-## lnMSY prior (mean set to true value)
+## lnBMSY prior (mean set to true value)
 # sBMSYmult
 3 3 3
 
@@ -74,12 +74,20 @@
 # sFMSYmult
 3 3 3
 
-## sigma prior (inverse gamma)
-# alpha.sigma
-2 2 2
+## sigma prior (inverse gamma) multispecies AR(1) env proc error
+# alpha.sigma 
+2
 
 # beta.sigma
+0.3
+
+## Sigma prior (inverse gamma) (single species correlated proc error)
+# alpha.Sigma
+2 2 2
+
+# beta.Sigma
 0.3 0.3 0.3
+
 
 ## tau prior (inverse gamma)
 # alpha.tau

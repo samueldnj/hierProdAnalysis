@@ -52,7 +52,7 @@ PARAMETER_SECTION
   init_bounded_dev_vector epst(1,nT,-5.,5.,1);
 
   // autocorrelation factor
-  init_number rho(-1);                // AR(1) factor
+  init_bounded_number rho(0,0.99,3);         // AR(1) factor logit scale
 
   //objective function value
   objective_function_value f;
@@ -176,8 +176,8 @@ FUNCTION calcLikelihoods
   // compute observation model likelihood
   obsNLL = 0.5*nT*log(SSRobs);
   // Compute proc error conditional variance
-  sigma2hat = norm2(epst)/nT;
-  procNLL = 0.5*nT*log(norm2(epst));
+  sigma2hat = norm2(epstCorr)/nT;
+  procNLL = 0.5*nT*log(norm2(epstCorr));
 
   // sum likelihoods
   nll = obsNLL + procNLL;
@@ -327,7 +327,7 @@ GLOBALS_SECTION
   
   int mcHeader=0;
   int mcTrials=0;
-  ofstream mcoutpar("ssProdParMC.dat");
-  ofstream mcoutbio("ssProdBioMC.dat");
+  ofstream mcoutpar("ssProdCVParMC.dat");
+  ofstream mcoutbio("ssProdCVBioMC.dat");
 
 
