@@ -179,7 +179,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                           beta.tau    = ctl$beta.tau[s],
                           mlnq        = log(omList$q[s]),
                           slnq        = log(3),
-                          epst        = omList$epst[s,]+omList$zetat[s,] )
+                          epst        = log(omList$epst[s,]+omList$zetat[s,]) )
 
   }
   # now make dat and par lists for the MS model
@@ -200,7 +200,8 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   beta.tau    = ctl$beta.tau,
                   mlnq        = mean(log(omList$q)),
                   slnq        = log(3),
-                  epst        = omList$epst+omList$zetat )
+                  epst        = log(omList$epst)
+                  zetat       = log(omList$zetat) )
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar, 
                     msDat = msDat, 
@@ -690,11 +691,14 @@ genCorrDevs <- function ( z = matrix(rnorm(30),nrow=3 ),
 
   # create correlated random normals (chol returns UT matrix, so transpose)
   zcorr <- t(Mchol) %*% z
-
   # Scale by Sigma
   Sigma <- diag ( Sigma )
   zcorr <- Sigma %*% zcorr
   if ( normScale ) return(zcorr)
-  zcorr <- exp (zCorr - t(Sigma*Sigma)/2 )
+  for ( k in 1:ncol(zcorr))
+  {
+    zcorr[,k] <- zcorr[,k] - diag(Sigma*Sigma)/2 
+  }
+  zcorr <- exp(zcorr)
   zcorr
 }
