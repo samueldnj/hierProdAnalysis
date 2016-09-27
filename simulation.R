@@ -180,7 +180,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                           mlnq        = log(omList$q[s]),
                           slnq        = log(3),
                           epst        = log(omList$epst+omList$zetat[s,]),
-                          logitrho    = log(ctl$rho/(1-ctl$rho)) )
+                          rho         = ctl$rho )
 
   }
   # now make dat and par lists for the MS model
@@ -205,8 +205,8 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   slnq        = log(3),
                   epst        = log(omList$epst),
                   zetat       = log(omList$zetat),
-                  logitrho    = log(ctl$rho/(1-ctl$rho)),
-                  logitc      = rep(0,(nS*(nS-1)/2)) )
+                  rho         = ctl$rho,
+                  c           = rep(0,(nS*(nS-1)/2)) )
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar, 
                     msDat = msDat, 
@@ -233,7 +233,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
 # usage:    fitting a replicate model run to given data
 callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL, 
                             fitTrials = 3, activeFileRoot="ssProd",
-                            mcTrials = 1, mcSave = 1, maxfn = 1000 )
+                            mcTrials = 1, mcSave = 1, maxfn = 10000 )
 { 
   # Set the active filename root, paste with label and extensions
   datFile   <- paste ( activeFileRoot,lab,".dat", sep = "")
@@ -384,7 +384,7 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
                                   lab=s, fitTrials = ctl$fitTrials, 
                                   activeFileRoot = "ssProdCV",
                                   mcTrials = ctl$mcTrials, 
-                                  mcSave = 1, maxfn = 5000)
+                                  mcSave = 1, maxfn = ctl$maxfn)
   }
   if (!quiet) cat ( "Fitting ", ctl$nS," species hierarchically.\n", 
                     sep = "")
@@ -392,7 +392,7 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
                           fitTrials = ctl$fitTrials, 
                           activeFileRoot = "msProdCV",
                           mcTrials = ctl$mcTrials, 
-                          mcSave = 1, maxfn = 5000 )
+                          mcSave = 1, maxfn = ctl$maxfn )
 
   cat ("Completed replicate ", seed - ctl$rSeed, " of ", ctl$nReps, ".\n", sep = "")
   # Return fits
@@ -451,6 +451,7 @@ simEstProc <- function ( ctl, quiet = TRUE )
                   tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
                   dep   = matrix ( NA, nrow = nReps, ncol = nS ),
                   epst  = array (NA, dim = c(nReps,nS,nT)),
+                  rho   = matrix ( NA, nrow = nReps, ncol = nS),
                   Bt    = array (NA, dim = c(nReps,nS,nT)),
                   Ft    = array (NA, dim = c(nReps,nS,nT)),
                   mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -478,9 +479,11 @@ simEstProc <- function ( ctl, quiet = TRUE )
                   tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
                   dep   = matrix ( NA, nrow = nReps, ncol = nS ),
                   epst  = matrix ( NA, nrow = nReps, ncol = nT ),
-                  zetat = array  ( NA, dim = c(nReps,nS,nT)),
-                  Bt    = array  ( NA, dim = c(nReps,nS,nT)),
-                  Ft    = array  ( NA, dim = c(nReps,nS,nT)),
+                  zetat = array  ( NA, dim = c(nReps,nS,nT) ),
+                  rho   = vector ( "numeric",length = nReps ),
+                  chol  = array  ( NA, dim = c(nReps,nS,nS) ),
+                  Bt    = array  ( NA, dim = c(nReps,nS,nT) ),
+                  Ft    = array  ( NA, dim = c(nReps,nS,nT) ),
                   mlnq  = vector ( "numeric", length=nReps),
                   slnq  = vector ( "numeric", length=nReps),
                   mcPar = vector ( mode = "list", length = nReps),
@@ -534,6 +537,7 @@ simEstProc <- function ( ctl, quiet = TRUE )
       blob$am$ss$tau2[i,s]        <- simEst[[i]]$ssFit[[s]]$fitrep$tau2
       blob$am$ss$dep[i,s]         <- simEst[[i]]$ssFit[[s]]$fitrep$D
       blob$am$ss$epst[i,s,]       <- simEst[[i]]$ssFit[[s]]$fitrep$epst
+      blob$am$ss$rho[i,s]         <- simEst[[i]]$ssFit[[s]]$fitrep$rho
       blob$am$ss$Bt[i,s,]         <- simEst[[i]]$ssFit[[s]]$fitrep$Bt
       blob$am$ss$Ft[i,s,]         <- simEst[[i]]$ssFit[[s]]$fitrep$Ft
       blob$am$ss$mlnq[i,s]        <- simEst[[i]]$ssFit[[s]]$fitrep$mlnq
@@ -553,6 +557,8 @@ simEstProc <- function ( ctl, quiet = TRUE )
     blob$am$ms$dep[i,]            <- simEst[[i]]$msFit$fitrep$D
     blob$am$ms$epst[i,]           <- simEst[[i]]$msFit$fitrep$epst
     blob$am$ms$zetat[i,,]         <- simEst[[i]]$msFit$fitrep$zetat
+    blob$am$ms$rho[i]             <- simEst[[i]]$msFit$fitrep$rho
+    blob$am$ms$chol[i,,]          <- simEst[[i]]$msFit$fitrep$chol
     blob$am$ms$Bt[i,,]            <- simEst[[i]]$msFit$fitrep$Bt
     blob$am$ms$Ft[i,,]            <- simEst[[i]]$msFit$fitrep$Ft
     blob$am$ms$mlnq[i]            <- simEst[[i]]$msFit$fitrep$mlnq

@@ -4,13 +4,16 @@
 3
 
 # rSeed
-0
+101
 
 # mcTrials
 1
 
 # fitTrials
 3
+
+# maxfn
+10000
 
 ### OM controls ###
 ## Number of stocks 
@@ -54,7 +57,7 @@
 
 ## Observation error sd
 # tau
-0.2 0.2 0.2
+0.3 0.3 0.3
 
 ## Fishing Mortality (should provide a full time series... or not)
 # F_mult
