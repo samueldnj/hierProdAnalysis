@@ -90,10 +90,10 @@ opModel <- function (control = ctlList, seed = 1)
                 Fmsy  = control$Fmsy )
 
   # Now create epst and zetat vectors using the proc error components
-  epst      <- fillRanWalk( z=rnorm(n = nT), s=control$sigma,
+  epst      <- fillRanWalk( z=rnorm(n = nT), s=sigma,
                             rho=control$rho )
   zetat     <- matrix(rnorm ( n = nS*nT ), nrow = nS, ncol = nT)
-  zetat     <- genCorrDevs(zetat, Mcorr=control$msCorr,Sigma=control$Sigma)
+  zetat     <- genCorrDevs(zetat, Mcorr=control$msCorr,Sigma=Sigma)
 
   # standard normal deviations for obs error (uncorrelated)
   deltat    <- matrix(rnorm ( n = nS*nT ), nrow = nS, ncol = nT) 
@@ -302,6 +302,7 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
         par$lnBmsy <- lnBmsy + log ( i + 1)
         par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
       }
+      next
     }
     if ( class (mcPar) == "try-error" | class (mcBio) == "try-error" )
     {

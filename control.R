@@ -21,11 +21,7 @@
 # Control file
 #		controlFile.txt
 #
-# ToDo: 2. 	simulate a covariance structure for epst and zetat (should we 
-# 					just combine these?)
-# 			3.  Estimate covariance in REs? Can we use ADMB-RE? Cholesky
-# 							decomp is useful here...
-# 			4.	Code TMB models (probably a separate script)
+# ToDo: 4.	Code TMB models (probably a separate script)
 #       5.  Missing values in msProd and ssProd
 #       6.  
 # --------------------------------------------------------------------------

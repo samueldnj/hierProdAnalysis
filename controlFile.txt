@@ -4,16 +4,16 @@
 3
 
 # rSeed
-101
+100
 
 # mcTrials
-1
+10
 
 # fitTrials
 3
 
 # maxfn
-10000
+100000
 
 ### OM controls ###
 ## Number of stocks 
@@ -31,25 +31,25 @@
 200 400 800
 
 # Fmsy
-0.3 0.25 0.2
+0.2 0.2 0.2
 
 # q
-0.8 1 1.2
+1 1 1
 
 ## Random models ##
 ## Environmental process error (applied to all species)
 # sigma
-0.2
+0.1
 
 # rho (auto-correlation in env proc error)
-0.3
+0.
 
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.5 -0.5 
-0.5 1 -0.25 
--0.5 -0.25 1
+1 0 0 
+0 1 0 
+0 0 1
 
 ## MS proc error sd
 # Sigma
@@ -57,7 +57,7 @@
 
 ## Observation error sd
 # tau
-0.3 0.3 0.3
+0.2 0.2 0.2
 
 ## Fishing Mortality (should provide a full time series... or not)
 # F_mult

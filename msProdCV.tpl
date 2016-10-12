@@ -1,15 +1,15 @@
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
-// ssProd.tpl
+// msProdCV.tpl
 // 
-// Single species surplus production model with logistic stock-recruit function
+// Multi species surplus production model with logistic stock-recruit function,
+// detects covariance among multiple species.
 // 
 // Author: Samuel Johnson
 // Date: August 25, 2014                    
-// Purpose: To fit a single species production model to commercial catch
+// Purpose: To fit a multi-species RH production model to commercial catch
 // and survey CPUE data.
 // 
-// ToDo:  1. logit transformations for bounding pars?
-//        2. Hope the motherfucker fits.
+// ToDo:  1. Missing data handling
 //       
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 
@@ -113,7 +113,7 @@ PROCEDURE_SECTION
 
   // initialise derived variables
   lnqhat = 0.; sigma2hat = 0.; tau2hat = 0.; Sigma2hat = 0.;
-
+  chol = 0.; 
 
   // Run state dynamics function
   stateDynamics();
@@ -151,8 +151,9 @@ FUNCTION stateDynamics
   FMSY = mfexp ( lnFMSY );         // optimal fishing mortality
   BMSY = mfexp ( lnBMSY );           // MSY
   MSY = elem_prod( BMSY, FMSY);     // optimal biomass
-  //rho = mfexp(logit_rho) / (1 + mfexp(logit_rho));
-  //c = (elem_div(mfexp(logit_c), (1 + mfexp(logit_c)))-0.5)*2.;
+
+  // initialise variables
+  Bt_bar = 0.; chol = 0.; epstCorr = 0.; zetatCorr = 0.;
 
   // Compute cholesky factor of correlation matrix
   chol(1,1) = 1.;
@@ -219,7 +220,7 @@ FUNCTION obsModel
 // Subroutine to compute negative log likelihoods
 FUNCTION calcLikelihoods
   // Initialise NLL variables
-  obsNLL = 0.; procNLL = 0.; nll = 0.;
+  obsNLL = 0.; procNLL = 0.; nll = 0.; envNLL=0.;
   // Compute observation error conditional variance
   tau2hat = SSRobs/nT;
   // compute observation model likelihood

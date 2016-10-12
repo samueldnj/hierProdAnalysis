@@ -10,13 +10,21 @@ install:
 	make ADMB
 	make dirs
 
-
+# Run ADMB to set up executables
 ADMB:
 	$(ADMB) msProdCV.tpl
 	$(ADMB) ssProdCV.tpl
 
+# Create directories to hold project files and forensics
 dirs:
 	mkdir $(PROJECT)
 	mkdir $(FORENSICS)
 
-# clean:
+# Dry run of cleaning the directory down to the git index. Will show files to be
+# deleted
+clean:
+	git clean -fdn
+
+# Real version of directory cleaner
+cleanReal:
+	git clean -fd
