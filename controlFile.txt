@@ -16,7 +16,7 @@
 5
 
 # maxfn
-10000
+1000
 
 ### OM controls ###
 ## Number of stocks 

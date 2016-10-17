@@ -31,13 +31,14 @@ DATA_SECTION
     }
 
 PARAMETER_SECTION
-  //parameters to estimate (mostly on log scale - found in pin file)
-  init_number lnMSY(1);           // carrying capacity - log scale
-  init_number lnFMSY(2);          // intrinsic rate of growth - log scale
+  // Leading pop dynamics pars (mostly on log scale - found in pin file)
+  init_bounded_number lnBMSY(0,20,1);            // carrying capacity - log scale
+  init_bounded_number lnFMSY(-5,0,-2);            // intrinsic rate of growth - log scale
+  init_number lnq(-3);              // catchability
 
-  // Fixed parameters and hyperparameters
-  init_number mMSY(-1);           // MSY prior mean
-  init_number sMSY(-1);           // MSY prior SD
+  // Hyperparameters for prior distributions
+  init_number mBMSY(-1);           // MSY prior mean
+  init_number sBMSY(-1);           // MSY prior SD
   init_number mFMSY(-1);          // lnFMSY prior mean
   init_number sFMSY(-1);          // lnFMSY priod sd
   init_number alphaSigma(-1);     // sigma prior mean
@@ -47,19 +48,27 @@ PARAMETER_SECTION
   init_number mlnq(-1);           // log q prior mean
   init_number slnq(-1);           // log q prior sd
 
-  // process error deviations
-  random_effects_bounded_vector epst(1,nT,-2.,2.,2);
+  // error stuff
+  init_number lntau2(-2);
+  init_number lnsigma2(-2);                          // process error sd log scale
+  init_bounded_number rho(0,0.99,-3);                // AR(1) factor
+  init_bounded_vector u(1,nT,-3.,3.,-2);              // standard normal deviations
+
 
   //objective function value
   objective_function_value f;
 
   // back-transformed parameters
-  number MSY;         
-  number FMSY;
+  number q;
+  number sigma2; number sigma;
+  number tau2; number tau;
+
+  // vector for proc error deviations
+  vector epst(1,nT);        // uncorrelated
+  vector epstCorr(1,nT);    // AR(1)
   
   // variables to hold concentrated parameters
   sdreport_number lnqhat;
-  number sigma2hat;
   number tau2hat;
 
   //penalizer
@@ -72,6 +81,7 @@ PARAMETER_SECTION
 
   // variables to hold derived values
   number BMSY;        // Biomass at MSY
+  number FMSY;
   number FnT_bar;     // estimated fishing mortality 
   number dep_bar;     // depletion estimate
 
@@ -92,11 +102,14 @@ PROCEDURE_SECTION
   f = 0.;
 
   // initialise derived variables
-  lnqhat = 0.; sigma2hat = 0.; tau2hat = 0.;
+  //lnqhat = 0.; tau2hat = 0.;
+  q = mfexp(lnq);
+  tau2 = mfexp(lntau2); tau=sqrt(tau2);
+  sigma2 = mfexp(lnsigma2); sigma=sqrt(sigma2);
 
   // Run state dynamics function
   stateDynamics();
-  cout << "SD done" << endl;
+  cout << "Pop Dynamics done" << endl;
   // apply observation model, compute conditional value for lnq
   obsModel();
   cout << "obs model done" << endl;
@@ -121,33 +134,39 @@ PROCEDURE_SECTION
 // State dynamics subroutine
 FUNCTION stateDynamics
   // exponentiate leading parameters
-  FMSY = mfexp ( lnFMSY );         // optimal fishing mortality
   cout << "lnFMSY = " << lnFMSY << endl;
-  MSY = mfexp ( lnMSY );           // MSY
-  cout << "lnMSY = " << lnMSY << endl;
-  BMSY = MSY / FMSY;               // optimal biomass
+  FMSY = mfexp ( lnFMSY );     // optimal fishing mortality
+  cout << "lnBMSY = " << lnBMSY << endl;
+  BMSY = mfexp ( lnBMSY );            // MSY
+  
 
-
-  cout << "epst = " << epst << endl;
   // reinitialise penalisers
   fpen = 0.; pospen = 0.;
+
+  // start filling in epstCorr
+  epst = sigma*u;
+  cout << "u = " << u << endl;
+  cout << "sigma = " << sigma << endl;
+  cout << "epst = " << epst << endl;
+  epstCorr(1) = epst(1);
   
   // Run a loop for population dynamics of each stock
   // Assume stocks are at equilibrium initially ( B1 = B0e^delta1 )
-  Bt_bar(1) = ( 2. * BMSY ) * mfexp(epst(1));
+  Bt_bar(1) = ( 2. * BMSY ) * mfexp(epstCorr(1));
   
   // loop over time periods to build dynamic model for t > 1
   for(int t=1; t<nT; t++)
   {
     pospen = 0.;
+    epstCorr(t+1) = rho*epstCorr(t) + epst(t+1);
     // Run state dynamics equation, add process error
     Bt_bar(t+1) = ( Bt_bar(t) + 
                     2. * FMSY * Bt_bar(t) * (1 - Bt_bar(t)/BMSY/2.0 ) - 
-                    katch(t) ) * mfexp ( epst(t+1) );
+                    katch(t) ) * mfexp ( epstCorr(t+1) );
     Bt_bar(t+1) = posfun ( Bt_bar(t+1), 10e-1, pospen );
     
     // Increment function penaliser variable
-    fpen += 10000. * pospen;
+    fpen += 1000. * pospen;
   }
 
   cout << "Bt_bar = " << Bt_bar << endl;
@@ -160,11 +179,11 @@ FUNCTION stateDynamics
 FUNCTION obsModel
 
   // Compute conditional estimate of lnq_hat
-  lnqhat = sum ( log ( It ) - log ( Bt_bar ) ) / nT ;
+  //lnqhat = sum ( log ( It ) - log ( Bt_bar ) ) / nT ;
 
   // Compute predicted index of abundance
-  It_bar = mfexp(lnqhat) * Bt_bar;
-  cout << "lnqhat = " << lnqhat << endl;
+  It_bar = q * Bt_bar;
+  //cout << "lnqhat = " << lnqhat << endl;
 
   // Compute the sum of squares
   SSRobs = norm2 ( log ( It ) - log ( It_bar ) );
@@ -174,12 +193,12 @@ FUNCTION calcLikelihoods
   // Initialise NLL variables
   obsNLL = 0.; procNLL = 0.; nll = 0.;
   // Compute observation error conditional variance
-  tau2hat = SSRobs/nT;
+  //tau2hat = SSRobs/nT;
+  //cout << "tau2hat = " << tau2hat << endl;
   // compute observation model likelihood
-  obsNLL = 0.5*nT*log(SSRobs);
+  obsNLL = 0.5*nT*log(tau2) + 0.5*SSRobs/tau2;
   // Compute proc error conditional variance
-  sigma2hat = norm2(epst)/nT;
-  procNLL = 0.5*nT*log(norm2(epst));
+  procNLL =  0.5*norm2(epst)/sigma2 + 0.5*nT*log(sigma2);
 
   // sum likelihoods
   nll = obsNLL + procNLL;
@@ -189,11 +208,11 @@ FUNCTION calcPriors
   // Initialise prior var
   prior = 0.;
   // First, MSY
-  prior = pow ( MSY - mMSY, 2 ) / sMSY / sMSY / 2.;
+  prior = pow ( mfexp(lnBMSY) - mBMSY, 2 ) / sBMSY / sBMSY / 2.;
   // Then FMSY
-  prior += pow ( FMSY - mFMSY, 2 ) / sFMSY / sFMSY / 2.;
-  // Now sigma2hat prior
-  prior += (alphaSigma + 1) * log(sigma2hat) + betaSigma / sigma2hat;
+  prior += pow ( mfexp(lnFMSY) - mFMSY, 2 ) / sFMSY / sFMSY / 2.;
+  // Now sigma2 prior
+  prior += (alphaSigma + 1) * log(sigma*sigma) + betaSigma/sigma/sigma;
   // tau2hat prior
   prior += (alphaTau + 1) * log(tau2hat) + betaTau / tau2hat;
   // lnq prior
@@ -204,11 +223,11 @@ FUNCTION mcDumpOut
   if( mcHeader == 0 )
   {
     // Output the parameters needed for performance testing of SA method.
-    mcoutpar << "BMSY MSY FMSY q sigma2 tau2 FnT_bar BnT dep_bar" << endl;
+    mcoutpar << "BMSY FMSY q sigma2 tau2 FnT_bar BnT dep_bar" << endl;
   
     // Output the parameter values for this replicate
-    mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat);
-    mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
+    mcoutpar << mfexp(lnBMSY) << " " << mfexp(lnFMSY) <<" "<< mfexp(lnqhat);
+    mcoutpar <<" "<< sigma*sigma <<" "<< tau2hat <<" " << FnT_bar <<" ";
     mcoutpar << Bt_bar(nT) <<" "<< dep_bar << endl;
 
     // Output the biomass estimates for this MC evaluation
@@ -222,8 +241,8 @@ FUNCTION mcDumpOut
     if( value(pospen)==0 )
     {
       // Output the parameter values for this replicate
-      mcoutpar << BMSY << " " << MSY <<" "<< FMSY <<" "<< mfexp(lnqhat); 
-      mcoutpar <<" "<< sigma2hat <<" "<< tau2hat <<" " << FnT_bar <<" ";
+      mcoutpar << mfexp(lnBMSY) <<" "<< mfexp(lnFMSY) <<" "<< mfexp(lnqhat); 
+      mcoutpar <<" "<< sigma*sigma <<" "<< tau2hat <<" " << FnT_bar <<" ";
       mcoutpar << Bt_bar(nT) <<" "<< dep_bar << endl;
 
       // Output the biomass estimates for this MC evaluation
@@ -236,21 +255,25 @@ REPORT_SECTION
   // values in sim-est experiments
   report << "## Single Species Production Model Results" << endl;
   report << "## Parameter estimates " << endl;
-  report << "# MSY" << endl;
-  report << MSY << endl;
+  report << "# BMSY" << endl;
+  report << mfexp(lnBMSY) << endl;
   report << "# FMSY" << endl;
-  report << FMSY << endl;
-  report << "# epst" << endl;
-  report << epst << endl;
+  report << mfexp(lnFMSY) << endl;
+  report << "# u" << endl;
+  report << u << endl;
+  report << "# sigma2" << endl;
+  report << sigma*sigma << endl;
+  report << "# rho" << endl;
+  report << rho << endl;
   report << endl;
   
   report << "## Derived variables" << endl;
-  report << "# BMSY" << endl;
-  report << BMSY << endl;
+  report << "# epst" << endl;
+  report << epst << endl;
+  report << "# epstCorr" << endl;
+  report << epstCorr << endl;
   report <<"# q" << endl;
   report << mfexp(lnqhat) <<endl;
-  report << "# sigma2" << endl;
-  report << sigma2hat << endl;
   report << "# tau2" << endl;
   report << tau2hat << endl;
   report << "# D" << endl;
@@ -266,10 +289,10 @@ REPORT_SECTION
   report << endl;
 
   report << "## Priors" << endl;
-  report << "# mMSY" << endl;  
-  report << mMSY << endl;
-  report << "# sMSY" << endl;  
-  report << sMSY << endl;
+  report << "# mBMSY" << endl;  
+  report << mBMSY << endl;
+  report << "# sBMSY" << endl;  
+  report << sBMSY << endl;
   report << "# mFMSY" << endl;  
   report << mFMSY << endl;
   report << "# sdFMSY" << endl;  

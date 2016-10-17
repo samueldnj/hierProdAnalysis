@@ -295,15 +295,32 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
     mcBio   <- try ( read.table (mcBioFile) )
 
     # Check if that the exit code is correct in the rep file
-    if ((fitrep$iExit != 1 | fitrep$maxGrad > 1e-4) )
+    if (fitrep$iExit == 3 )
     {
       localMin <- FALSE
       hessPosDef <- FALSE
       if (i < fitTrials)
       {
         cat ( activeFileRoot, 
-              " failed to converge with given .pin file, repeating ",
-              i+1, "th time.\n", sep = "")
+              " reached max iteration,\n repeat i = ",
+              i+1, ".\n", sep = "")
+        # Increment lnBMSY and tighten sBMSY
+        maxfn <- 5*maxfn
+        procCall  <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+                            " -mcmc ", mcTrials, " -maxfn ", maxfn,
+                            " -mcsave ", mcSave, sep = "" )
+      }
+      next
+    }
+    if ( fitrep$maxGrad > 1e-4 )
+    {
+      localMin <- FALSE
+      hessPosDef <- FALSE
+      if (i < fitTrials)
+      {
+        cat ( activeFileRoot, 
+              " didn't find local min,\n repeat i = ",
+              i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
         par$lnBmsy <- lnBmsy + log ( i + 1)
         par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
@@ -316,19 +333,10 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
       if (i < fitTrials)
       {
         cat ( activeFileRoot, 
-              " has non-positive definite hessian with given .pin file, repeating ",
-              i+1, "th time.\n", sep = "")
+              " has NPD hessian,\n repeat i = ",
+              i+1, ".\n", sep = "")
         # Use local min as initial parameters for the next try
-        par$lnBmsy    <- log(fitrep$BMSY)
-        par$lnFmsy    <- log(fitrep$FMSY)
-        par$epst      <- fitrep$epst
-        par$rho       <- fitrep$rho
-        # Update ms pars if using ms model (a little PaSp)
-        if ( !is.null(fitrep$zetat))
-        {
-          par$zetat     <- fitrep$zetat
-          par$c         <- fitrep$c
-        }
+        procCall <- procCall2
       }
     }
     if ( localMin & hessPosDef )
