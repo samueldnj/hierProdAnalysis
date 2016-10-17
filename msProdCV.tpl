@@ -51,16 +51,16 @@ PARAMETER_SECTION
   init_vector betaSigma(1,nS,-1);   // sigma prior scale (shared)
   init_vector alphaTau(1,nS,-1);    // tau prior shape (shared)
   init_vector betaTau(1,nS,-1);     // tau prior scale (shared)
-  init_number mlnq(-1);             // logq prior mean (shared)
-  init_number slnq(-1);             // logq prior sd (shared)
+  init_number mlnq(3);             // logq prior mean (shared)
+  init_number slnq(-3);             // logq prior sd (shared)
 
   // process error deviations
   init_bounded_dev_vector epst(1,nT,-5.,5.,2); // auto-regressive proc error
-  init_matrix zetat(1,nS,1,nT,4);       // correlated across species
+  init_matrix zetat(1,nS,1,nT,2);       // correlated across species
 
   // Covariance parameters
   init_bounded_number rho(0,1,2);              // auto-regression factor
-  init_bounded_vector c(1,cEntries,-1,1,3);
+  init_bounded_vector c(1,cEntries,-1,1,2);
   //init_vector logit_c(1,cEntries,3);     // Initialise cholesky entry vector
   matrix chol(1,nS,1,nS);                 // Matrix to hold cholesky factor
 

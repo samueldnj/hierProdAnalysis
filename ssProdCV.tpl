@@ -52,7 +52,7 @@ PARAMETER_SECTION
   init_bounded_dev_vector epst(1,nT,-5.,5.,1);
 
   // autocorrelation factor
-  init_bounded_number rho(0,0.99,3);         // AR(1) factor logit scale
+  init_bounded_number rho(0,0.99,3);         // AR(1) factor
 
   //objective function value
   objective_function_value f;
