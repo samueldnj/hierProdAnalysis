@@ -19,6 +19,14 @@ DATA_SECTION
   init_int nT;                        // number of time iterations
   init_vector katch(1,nT);            // catch in kg
   init_vector It(1,nT);               // indices of abundance
+
+  // Estimation phases
+  init_int phz_Bmsy;            // Bmsy - scale
+  init_int phz_Fmsy;            // Fmsy - rate
+  init_int phz_mlnq;          // q prior mean
+  init_int phz_slnq;          // q prior sd
+  init_int phz_dev;             // proc error deviations
+  init_int phz_AR;              // AR(1) factor
  
   // dummy variable to check data read
   init_int dumm;                      // dummy variable
@@ -33,8 +41,8 @@ DATA_SECTION
 
 PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
-  init_number lnBMSY(1);          // carrying capacity - log scale
-  init_number lnFMSY(2);          // intrinsic rate of growth - log scale
+  init_number lnBMSY(phz_Bmsy);          // carrying capacity - log scale
+  init_number lnFMSY(phz_Fmsy);          // intrinsic rate of growth - log scale
 
   // Fixed parameters and hyperparameters
   init_number mBMSY(-1);              // MSY prior mean
@@ -45,14 +53,14 @@ PARAMETER_SECTION
   init_number betaSigma(-1);          // sigma prior sd
   init_number alphaTau(-1);           // sigma prior mean
   init_number betaTau(-1);            // sigma prior sd
-  init_number mlnq(-1);               // log q prior mean
-  init_number slnq(-1);               // log q prior sd
+  init_number mlnq(phz_mlnq);               // log q prior mean
+  init_number slnq(phz_slnq);               // log q prior sd
 
   // process error deviations
-  init_bounded_dev_vector epst(1,nT,-5.,5.,1);
+  init_bounded_dev_vector epst(1,nT,-5.,5.,phz_dev);
 
   // autocorrelation factor
-  init_bounded_number rho(0,0.99,3);         // AR(1) factor
+  init_bounded_number rho(0,0.99,phz_AR);         // AR(1) factor
 
   //objective function value
   objective_function_value f;

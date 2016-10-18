@@ -151,21 +151,27 @@ opModel <- function (control = ctlList, seed = 1)
 #           ssPar=nS-list of single species init. par lists
 makeDataLists <- function ( omList = om, ctl = ctlList )
 {
-  # Needs to create 3 SS dat and par lists, and 1 MS dat and par list.
+  # Needs to create nS SS dat and par lists, and 1 MS dat and par list.
   # First, SS:
   # Recover number of species
   nS <- omList $ nS
   # Make dat and par lists
   ssDat <- vector ( mode = "list", length = nS )
   ssPar <- vector ( mode = "list", length = nS )
-  ssRep <- vector ( mode = "list", length = nS )
+  # loop over species
   for (s in 1:nS )
   {
     # Make dat list
-    ssDat[[s]] <- list (  nT      = omList$nT,
-                          Ct      = omList$Ct[s,],
-                          It      = omList$It[s,],
-                          dumm    = 999 )
+    ssDat[[s]] <- list (  nT          = omList$nT,
+                          Ct          = omList$Ct[s,],
+                          It          = omList$It[s,],
+                          phz.Bmsy    = ctl$phz.Bmsy,
+                          phz.Fmsy    = ctl$phz.Fmsy,
+                          phz.mlnq    = ctl$phz.mlnq,
+                          phz.slnq    = ctl$phz.slnq,
+                          phz.dev     = ctl$phz.dev,
+                          phz.AR      = ctl$phz.AR,
+                          dumm        =  999 )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(omList$Bmsy[s]),
                           lnFmsy      = log(omList$Fmsy[s]),
@@ -184,11 +190,18 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
 
   }
   # now make dat and par lists for the MS model
-  msDat <- list ( nT    = omList$nT,
-                  nS    = omList$nS,
-                  Ct    = omList$Ct,
-                  It    = omList$It,
-                  dumm  = 999 )
+  msDat <- list ( nT          = omList$nT,
+                  nS          = omList$nS,
+                  Ct          = omList$Ct,
+                  It          = omList$It,
+                  phz.Bmsy    = ctl$phz.Bmsy,
+                  phz.Fmsy    = ctl$phz.Fmsy,
+                  phz.mlnq    = ctl$phz.mlnq,
+                  phz.slnq    = ctl$phz.slnq,
+                  phz.dev     = ctl$phz.dev,
+                  phz.AR      = ctl$phz.AR,
+                  phz.chol    = ctl$phz.chol,
+                  dumm        = 999 )
   msPar <- list ( lnBmsy      = log(omList$Bmsy),
                   lnFmsy      = log(omList$Fmsy),
                   mBMSY       = omList$Bmsy,
@@ -207,6 +220,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   zetat       = log(omList$zetat),
                   rho         = ctl$rho,
                   c           = rep(0,(nS*(nS-1)/2)) )
+  # return list of dat and pin objects for running estimators
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar, 
                     msDat = msDat, 

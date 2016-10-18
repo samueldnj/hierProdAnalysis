@@ -19,6 +19,15 @@ DATA_SECTION
   init_int nS;                        // number of species
   init_matrix katch(1,nS,1,nT);       // catch in kg
   init_matrix It(1,nS,1,nT);          // indices of abundance
+
+  // Estimation phases
+  init_int phz_Bmsy;
+  init_int phz_Fmsy;
+  init_int phz_mlnq;
+  init_int phz_slnq;
+  init_int phz_dev;
+  init_int phz_AR;
+  init_int phz_chol;
  
   // dummy variable to check data read
   init_int dumm;                      // dummy variable
@@ -36,11 +45,11 @@ DATA_SECTION
     cEntries=nS*(nS-1)/2;
 
 PARAMETER_SECTION
-  //parameters to estimate (mostly on log scale - found in pin file)
-  init_vector lnBMSY(1,nS,1);         // Bmsy - log scale
-  init_vector lnFMSY(1,nS,2);         // Umsy - log scale
+  // parameters to estimate (mostly on log scale - found in pin file)
+  init_vector lnBMSY(1,nS,phz_Bmsy);         // Bmsy - log scale
+  init_vector lnFMSY(1,nS,phz_Fmsy);         // Umsy - log scale
 
-  // Fixed parameters and hyperparameters
+  // Prior hyperparameters
   init_vector mBMSY(1,nS,-1);       // MSY prior mean (species spec)
   init_vector sBMSY(1,nS,-1);       // MSY prior SD (species spec)
   init_vector mFMSY(1,nS,-1);       // lnFMSY prior mean (species spec)
@@ -51,18 +60,17 @@ PARAMETER_SECTION
   init_vector betaSigma(1,nS,-1);   // sigma prior scale (shared)
   init_vector alphaTau(1,nS,-1);    // tau prior shape (shared)
   init_vector betaTau(1,nS,-1);     // tau prior scale (shared)
-  init_number mlnq(3);             // logq prior mean (shared)
-  init_number slnq(-3);             // logq prior sd (shared)
+  init_number mlnq(phz_mlnq);       // logq prior mean (shared)
+  init_number slnq(phz_slnq);       // logq prior sd (shared)
 
   // process error deviations
-  init_bounded_dev_vector epst(1,nT,-5.,5.,2); // auto-regressive proc error
-  init_matrix zetat(1,nS,1,nT,2);       // correlated across species
+  init_bounded_dev_vector epst(1,nT,-5.,5.,phz_dev);  // environmental proc error
+  init_matrix zetat(1,nS,1,nT,phz_dev);               // species-specific proc error
 
   // Covariance parameters
-  init_bounded_number rho(0,1,2);              // auto-regression factor
-  init_bounded_vector c(1,cEntries,-1,1,2);
-  //init_vector logit_c(1,cEntries,3);     // Initialise cholesky entry vector
-  matrix chol(1,nS,1,nS);                 // Matrix to hold cholesky factor
+  init_bounded_number rho(0,1,phz_AR);              // auto-regression factor
+  init_bounded_vector c(1,cEntries,-1,1,phz_chol);
+  matrix chol(1,nS,1,nS);                           // Matrix to hold cholesky factor
 
   //objective function value
   objective_function_value f;
@@ -155,7 +163,7 @@ FUNCTION stateDynamics
   // initialise variables
   Bt_bar = 0.; chol = 0.; epstCorr = 0.; zetatCorr = 0.;
 
-  // Compute cholesky factor of correlation matrix
+  // Create cholesky factor of correlation mtx
   chol(1,1) = 1.;
   int k=1;
   for (int i=2;i<=nS;i++)

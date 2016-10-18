@@ -78,6 +78,14 @@
 ### EM controls ###
 ## Initial values for parameters and hyperparameters not included above ##
 ## Hyperparameters ##
+## Bmsy estimation phase
+# phz.Bmsy
+1
+
+## Fmsy estimation phase
+# phz.Fmsy
+2
+
 ## lnBMSY prior (mean set to true value)
 # sBMSYmult
 3 3 3
@@ -100,7 +108,6 @@
 # beta.Sigma
 0.6 0.6 0.6
 
-
 ## tau prior (inverse gamma)
 # alpha.tau
 2 2 2
@@ -108,3 +115,20 @@
 # beta.tau
 0.6 0.6 0.6
 
+## Catchability prior (estimation phases (phz))
+# phz.mlnq
+3
+
+# phz.slnq
+-3
+
+## Proc error deviations
+# phz.dev
+1
+
+## Correlation
+# phz.AR
+3
+
+# phz.chol
+3
