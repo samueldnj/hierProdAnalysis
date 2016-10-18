@@ -507,10 +507,14 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
 simEstProc <- function ( ctl, quiet = TRUE )
 {
   # Recover simulation controls from the control list
-  nReps <- ctl$nReps
-  nS    <- ctl$nS
-  nT    <- ctl$nT
-  rSeed <- ctl$rSeed
+  nReps   <- ctl$nReps
+  nS      <- ctl$nS
+  nT      <- ctl$nT
+  rSeed   <- ctl$rSeed
+  nMCMC   <- ctl$mcTrials
+  nMCparSS<- ctl$nMCparSS
+  nMCparMS<- ctl$nMCparMS
+  mcQuant <- ctl$mcQuant
 
   # Create list object to store all simulated values
   om <- list (  Bt    = array (NA,dim = c(nReps,nS,nT) ),
@@ -549,19 +553,10 @@ simEstProc <- function ( ctl, quiet = TRUE )
                   Ft    = array (NA, dim = c(nReps,nS,nT)),
                   mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
                   slnq  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  mcPar = vector ( mode = "list", length = nReps),
-                  mcBio = vector ( mode = "list", length = nReps),
+                  mcPar = array ( NA, dim = c(nReps,nS,nMCMC,nMCparSS)),
+                  mcBio = array ( NA, dim=c(nReps,nS,nMCMC,nT)),
                   locmin= matrix ( NA, nrow = nReps, ncol = nS),
                   hesspd= matrix ( NA, nrow = nReps, ncol = nS) )
-
-  # make a sublist in the mcPar and mcBio lists, for each species
-  # Change to a 4d array later, once the # of par estimates is settled
-  for ( i in 1:nReps)
-  {
-    am$ss$mcPar[[i]]     <- vector(mode = "list", length = nS)
-    am$ss$mcBio[[i]]     <- vector(mode = "list", length = nS)  
-  }
-  
 
   # multispecies (coastwide)
   am$ms <- list ( Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -579,19 +574,11 @@ simEstProc <- function ( ctl, quiet = TRUE )
                   Ft    = array  ( NA, dim = c(nReps,nS,nT) ),
                   mlnq  = vector ( "numeric", length=nReps),
                   slnq  = vector ( "numeric", length=nReps),
-                  mcPar = vector ( mode = "list", length = nReps),
-                  mcBio = vector ( mode = "list", length = nReps),
+                  mcPar = array ( NA, dim = c(nReps,nS,nMCMC,nMCparMS)),
+                  mcBio = array ( NA, dim=c(nReps,nS,nMCMC,nT)),
                   locmin= vector ( mode = "logical", length = nReps),
                   hesspd= vector ( mode = "logical", length = nReps) )
 
-  # make a sublist in the mcPar and mcBio lists, for each species
-  # Change to a 4d array later, once the # of par estimates is settled
-  for (i in 1:nReps)
-  {
-    am$ss$mcPar[[i]]     <- vector(mode = "list", length = nS)
-    am$ss$mcBio[[i]]     <- vector(mode = "list", length = nS)  
-  }
-  
 
   # The BLOOOOOOBBBBBB
   blob <- list ( ctl = ctl, om = om, am = am)
@@ -599,74 +586,94 @@ simEstProc <- function ( ctl, quiet = TRUE )
   # Now create a vector of seed values, able to be lapplied over
   seeds <- rSeed + 1:nReps
 
-  simEst <- lapply ( X = seeds, FUN = seedFit, ctl = blob$ctl,
-                     quiet = quiet )
+  # simEst <- lapply ( X = seeds, FUN = seedFit, ctl = blob$ctl,
+  #                    quiet = quiet )
 
-  cat ( "Finished fitting ", nReps, " replicates.\n",
-        "Now saving output.", sep = "" )
+  cat ( "Fitting ", nReps, " replicates.\n", sep = "" )
 
-  for ( i in 1:length(simEst) )
+
+  for ( i in 1:length(seeds) )
   {
+    # Run sim-est procedure
+    simEst <- seedFit ( seed = seeds[i], ctl = blob$ctl, quiet = quiet)
+
     # Save OM values
-    blob$om$Bt[i,,]         <- simEst[[i]]$om$Bt
-    blob$om$Ct[i,,]         <- simEst[[i]]$om$Ct
-    blob$om$epst[i,,]       <- simEst[[i]]$om$epst
-    blob$om$Ft[i,,]         <- simEst[[i]]$om$Ft
-    blob$om$zetat[i,,]      <- simEst[[i]]$om$zetat
-    blob$om$deltat[i,,]     <- simEst[[i]]$om$Bt
-    blob$om$It[i,,]         <- simEst[[i]]$om$It
-    blob$om$ItTrue[i,,]     <- simEst[[i]]$om$ItTrue
-    blob$om$dep[i,]         <- simEst[[i]]$om$dep
+    blob$om$Bt[i,,]         <- simEst$om$Bt
+    blob$om$Ct[i,,]         <- simEst$om$Ct
+    blob$om$epst[i,,]       <- simEst$om$epst
+    blob$om$Ft[i,,]         <- simEst$om$Ft
+    blob$om$zetat[i,,]      <- simEst$om$zetat
+    blob$om$deltat[i,,]     <- simEst$om$Bt
+    blob$om$It[i,,]         <- simEst$om$It
+    blob$om$ItTrue[i,,]     <- simEst$om$ItTrue
+    blob$om$dep[i,]         <- simEst$om$dep
 
     # Save AM results
     # Loop over single species
     for ( s in 1:nS )
     {
-      blob$am$ss$Bmsy[i,s]        <- simEst[[i]]$ssFit[[s]]$fitrep$BMSY
-      blob$am$ss$Fmsy[i,s]        <- simEst[[i]]$ssFit[[s]]$fitrep$FMSY
-      blob$am$ss$msy[i,s]         <- simEst[[i]]$ssFit[[s]]$fitrep$MSY
-      blob$am$ss$q[i,s]           <- simEst[[i]]$ssFit[[s]]$fitrep$q
-      blob$am$ss$sigma2[i,s]      <- simEst[[i]]$ssFit[[s]]$fitrep$sigma2
-      blob$am$ss$tau2[i,s]        <- simEst[[i]]$ssFit[[s]]$fitrep$tau2
-      blob$am$ss$dep[i,s]         <- simEst[[i]]$ssFit[[s]]$fitrep$D
-      blob$am$ss$epst[i,s,]       <- simEst[[i]]$ssFit[[s]]$fitrep$epst
-      blob$am$ss$rho[i,s]         <- simEst[[i]]$ssFit[[s]]$fitrep$rho
-      blob$am$ss$Bt[i,s,]         <- simEst[[i]]$ssFit[[s]]$fitrep$Bt
-      blob$am$ss$Ft[i,s,]         <- simEst[[i]]$ssFit[[s]]$fitrep$Ft
-      blob$am$ss$mlnq[i,s]        <- simEst[[i]]$ssFit[[s]]$fitrep$mlnq
-      blob$am$ss$slnq[i,s]        <- simEst[[i]]$ssFit[[s]]$fitrep$slnq
-      blob$am$ss$mcPar[[i]][[s]]  <- simEst[[i]]$ssFit[[s]]$mcPar
-      blob$am$ss$mcBio[[i]][[s]]  <- simEst[[i]]$ssFit[[s]]$mcBio
-      blob$am$ss$locmin[i,s]      <- simEst[[i]]$ssFit[[s]]$localMin
-      blob$am$ss$hesspd[i,s]      <- simEst[[i]]$ssFit[[s]]$hessPosDef
+      blob$am$ss$Bmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$BMSY
+      blob$am$ss$Fmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$FMSY
+      blob$am$ss$msy[i,s]         <- simEst$ssFit[[s]]$fitrep$MSY
+      blob$am$ss$q[i,s]           <- simEst$ssFit[[s]]$fitrep$q
+      blob$am$ss$sigma2[i,s]      <- simEst$ssFit[[s]]$fitrep$sigma2
+      blob$am$ss$tau2[i,s]        <- simEst$ssFit[[s]]$fitrep$tau2
+      blob$am$ss$dep[i,s]         <- simEst$ssFit[[s]]$fitrep$D
+      blob$am$ss$epst[i,s,]       <- simEst$ssFit[[s]]$fitrep$epst
+      blob$am$ss$rho[i,s]         <- simEst$ssFit[[s]]$fitrep$rho
+      blob$am$ss$Bt[i,s,]         <- simEst$ssFit[[s]]$fitrep$Bt
+      blob$am$ss$Ft[i,s,]         <- simEst$ssFit[[s]]$fitrep$Ft
+      blob$am$ss$mlnq[i,s]        <- simEst$ssFit[[s]]$fitrep$mlnq
+      blob$am$ss$slnq[i,s]        <- simEst$ssFit[[s]]$fitrep$slnq
+      # Do MCMC output
+      mcPar <- try(as.matrix(simEst$ssFit[[s]]$mcPar))
+      mcBio <- try(as.matrix(simEst$ssFit[[s]]$mcBio))
+      if (class(mcPar) == "matrix" | class(mcBio) == "matrix" )
+      {
+        blob$am$ss$mcPar[i,s,1:nrow(mcPar),]     <- mcPar
+        blob$am$ss$mcBio[i,s,1:nrow(mcBio),]     <- mcBio
+      } 
+      # Estimator performance flags
+      blob$am$ss$locmin[i,s]      <- simEst$ssFit[[s]]$localMin
+      blob$am$ss$hesspd[i,s]      <- simEst$ssFit[[s]]$hessPosDef
     }
+
     # Now multispecies
-    blob$am$ms$Bmsy[i,]           <- simEst[[i]]$msFit$fitrep$BMSY
-    blob$am$ms$Fmsy[i,]           <- simEst[[i]]$msFit$fitrep$FMSY
-    blob$am$ms$msy[i,]            <- simEst[[i]]$msFit$fitrep$MSY
-    blob$am$ms$q[i,]              <- simEst[[i]]$msFit$fitrep$q
-    blob$am$ms$sigma2[i,]         <- simEst[[i]]$msFit$fitrep$sigma2
-    blob$am$ms$tau2[i,]           <- simEst[[i]]$msFit$fitrep$tau2
-    blob$am$ms$dep[i,]            <- simEst[[i]]$msFit$fitrep$D
-    blob$am$ms$epst[i,]           <- simEst[[i]]$msFit$fitrep$epst
-    blob$am$ms$zetat[i,,]         <- simEst[[i]]$msFit$fitrep$zetat
-    blob$am$ms$rho[i]             <- simEst[[i]]$msFit$fitrep$rho
-    blob$am$ms$chol[i,,]          <- simEst[[i]]$msFit$fitrep$chol
-    blob$am$ms$Bt[i,,]            <- simEst[[i]]$msFit$fitrep$Bt
-    blob$am$ms$Ft[i,,]            <- simEst[[i]]$msFit$fitrep$Ft
-    blob$am$ms$mlnq[i]            <- simEst[[i]]$msFit$fitrep$mlnq
-    blob$am$ms$slnq[i]            <- simEst[[i]]$msFit$fitrep$slnq
+    blob$am$ms$Bmsy[i,]           <- simEst$msFit$fitrep$BMSY
+    blob$am$ms$Fmsy[i,]           <- simEst$msFit$fitrep$FMSY
+    blob$am$ms$msy[i,]            <- simEst$msFit$fitrep$MSY
+    blob$am$ms$q[i,]              <- simEst$msFit$fitrep$q
+    blob$am$ms$sigma2[i,]         <- simEst$msFit$fitrep$sigma2
+    blob$am$ms$tau2[i,]           <- simEst$msFit$fitrep$tau2
+    blob$am$ms$dep[i,]            <- simEst$msFit$fitrep$D
+    blob$am$ms$epst[i,]           <- simEst$msFit$fitrep$epst
+    blob$am$ms$zetat[i,,]         <- simEst$msFit$fitrep$zetat
+    blob$am$ms$rho[i]             <- simEst$msFit$fitrep$rho
+    blob$am$ms$chol[i,,]          <- simEst$msFit$fitrep$chol
+    blob$am$ms$Bt[i,,]            <- simEst$msFit$fitrep$Bt
+    blob$am$ms$Ft[i,,]            <- simEst$msFit$fitrep$Ft
+    blob$am$ms$mlnq[i]            <- simEst$msFit$fitrep$mlnq
+    blob$am$ms$slnq[i]            <- simEst$msFit$fitrep$slnq
     # Split up mcPar and mcBio for the ms model
-    for ( s in 1:nS )
+    mcPar <- try(as.matrix(simEst$msFit$mcPar))
+    mcBio <- try(as.matrix(simEst$msFit$mcBio))
+    # might have NPD hessian, so leave as NAs if so
+    if ( class(mcPar) == "matrix" | class(mcBio) == "matrix")
     {
-      parIdx <- seq ( from = s, to = nrow(simEst[[i]]$msFit$mcPar), by = nS)
-      bioIdx <- seq ( from = s, to = nrow(simEst[[i]]$msFit$mcBio), by = nS)
-      blob$am$ms$mcPar[[i]][[s]]  <- simEst[[i]]$msFit$mcPar[parIdx,]
-      blob$am$ms$mcBio[[i]][[s]]  <- simEst[[i]]$msFit$mcBio[bioIdx,]
+      for ( s in 1:nS )
+      {
+        parIdx <- seq ( from = s, to = nrow(mcPar), by = nS)
+        bioIdx <- seq ( from = s, to = nrow(mcBio), by = nS)
+        blob$am$ms$mcPar[i,s,1:length(parIdx),]     <- mcPar[parIdx,]
+        blob$am$ms$mcBio[i,s,1:length(bioIdx),]     <- mcBio[bioIdx,]  
+      }
     }
-    blob$am$ms$locmin[i]          <- simEst[[i]]$msFit$localMin
-    blob$am$ms$hesspd[i]          <- simEst[[i]]$msFit$hessPosDef
+    # Estimator Performance Flags
+    blob$am$ms$locmin[i]          <- simEst$msFit$localMin
+    blob$am$ms$hesspd[i]          <- simEst$msFit$hessPosDef
   }
+
+  cat ( "Completed ", nReps, " replicates.\n", sep = "" )
 
   blob
 }

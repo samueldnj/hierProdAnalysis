@@ -1,16 +1,22 @@
 ### Control file for coastWide simulation-estimation multispecies model ###
 ### simEst Controls ###
 # nReps
-50
+5
 
 # rSeed
 1
 
-# mcTrials
+# nMCparSS
+9
+
+# nMCparMS
 10
 
+# mcTrials
+1000
+
 # mcSave
-1
+10
 
 # fitTrials
 5

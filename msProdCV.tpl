@@ -259,7 +259,7 @@ FUNCTION mcDumpOut
   if( mcHeader == 0 )
   {
     // Output the parameters needed for performance testing of SA method.
-    mcoutpar << "BMSY MSY FMSY q sigma2 tau2 FnT_bar BnT dep_bar sigma2hat" << endl;
+    mcoutpar << "BMSY MSY FMSY q Sigma2 tau2 FnT_bar BnT dep_bar sigma2" << endl;
   
     for ( int s=1;s<=nS;s++)
     {

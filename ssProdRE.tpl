@@ -32,13 +32,13 @@ DATA_SECTION
 
 PARAMETER_SECTION
   // Leading pop dynamics pars (mostly on log scale - found in pin file)
-  init_bounded_number lnBMSY(0,20,1);            // carrying capacity - log scale
-  init_bounded_number lnFMSY(-5,0,-2);            // intrinsic rate of growth - log scale
+  init_number lnBMSY(1);            // carrying capacity - log scale
+  init_number lnFMSY(2);            // intrinsic rate of growth - log scale
   init_number lnq(-3);              // catchability
 
   // Hyperparameters for prior distributions
-  init_number mBMSY(-1);           // MSY prior mean
-  init_number sBMSY(-1);           // MSY prior SD
+  init_number mBMSY(-1);          // MSY prior mean
+  init_number sBMSY(-1);          // MSY prior SD
   init_number mFMSY(-1);          // lnFMSY prior mean
   init_number sFMSY(-1);          // lnFMSY priod sd
   init_number alphaSigma(-1);     // sigma prior mean
@@ -52,7 +52,7 @@ PARAMETER_SECTION
   init_number lntau2(-2);
   init_number lnsigma2(-2);                          // process error sd log scale
   init_bounded_number rho(0,0.99,-3);                // AR(1) factor
-  init_bounded_vector u(1,nT,-3.,3.,-2);              // standard normal deviations
+  init_bounded_vector u(1,nT,-3.,3.,2);              // standard normal deviations
 
 
   //objective function value
@@ -166,7 +166,7 @@ FUNCTION stateDynamics
     Bt_bar(t+1) = posfun ( Bt_bar(t+1), 10e-1, pospen );
     
     // Increment function penaliser variable
-    fpen += 1000. * pospen;
+    fpen += 100. * pospen;
   }
 
   cout << "Bt_bar = " << Bt_bar << endl;
@@ -197,8 +197,10 @@ FUNCTION calcLikelihoods
   //cout << "tau2hat = " << tau2hat << endl;
   // compute observation model likelihood
   obsNLL = 0.5*nT*log(tau2) + 0.5*SSRobs/tau2;
+  cout << "obsNLL = " << obsNLL << endl;
   // Compute proc error conditional variance
-  procNLL =  0.5*norm2(epst)/sigma2 + 0.5*nT*log(sigma2);
+  procNLL =  0.5*nT*log(sigma2) + 0.5*norm2(u);
+  cout << "procNLL = " << procNLL << endl;
 
   // sum likelihoods
   nll = obsNLL + procNLL;
