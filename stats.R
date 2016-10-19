@@ -24,6 +24,7 @@ makeRelErrorDists <- function ( blob )
   ss  <- blob$am$ss
   ms  <- blob$am$ms
 
+  # Get control constants
   nReps <- ctl$nReps
   nS    <- ctl$nS
   nT    <- ctl$nT

@@ -155,6 +155,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
   # First, SS:
   # Recover number of species
   nS <- omList $ nS
+  nT <- omList $ nT
   # Make dat and par lists
   ssDat <- vector ( mode = "list", length = nS )
   ssPar <- vector ( mode = "list", length = nS )
@@ -265,17 +266,20 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
 
 
   # Set path, exec and paste together command call
-  path      <- getwd()
-  exec      <- file.path(path,activeFileRoot)
-  procCall  <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+  path        <- getwd()
+  exec        <- file.path(path,activeFileRoot)
+  procCall    <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+                            " -mcmc ", 1, " -maxfn ", maxfn,
+                            " -mcsave ", 1, sep = "" )
+  procCallpar <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
+                            " -mcmc ", 1, " -maxfn ", maxfn,
+                            " -mcsave ", 1, sep = "" )
+  procCallhpd  <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
                             " -mcmc ", mcTrials, " -maxfn ", maxfn,
                             " -mcsave ", mcSave, sep = "" )
-  procCall2 <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
-                            " -mcmc ", mcTrials, " -maxfn ", maxfn,
-                            " -mcsave ", mcSave, sep = "" )
-  mcEval    <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
+  mcEval      <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
                     " -mceval", sep = "" )
-  mcEval2   <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
+  mcEvalhpd   <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
                     " -mceval", sep = "" )
 
   # Pull out lnMSY and sMSY for use in refitting procedure later
@@ -309,14 +313,14 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
     mcBio   <- try ( read.table (mcBioFile) )
 
     # Check if that the exit code is correct in the rep file
-    if (fitrep$iExit == 3 )
+    if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 1e0 )
     {
       localMin <- FALSE
       hessPosDef <- FALSE
       if (i < fitTrials)
       {
         cat ( activeFileRoot, 
-              " reached max iteration,\n repeat i = ",
+              " reached max iterations,\n repeat i = ",
               i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
         maxfn <- 5*maxfn
@@ -326,7 +330,7 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
       }
       next
     }
-    if ( fitrep$maxGrad > 1e-4 )
+    if ( abs(fitrep$maxGrad) > 1e-4 )
     {
       localMin <- FALSE
       hessPosDef <- FALSE
@@ -337,11 +341,11 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
               i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
         par$lnBmsy <- lnBmsy + log ( i + 1)
-        par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
+        # par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
       }
       next
     }
-    if ( class (mcPar) == "try-error" | class (mcBio) == "try-error" )
+    if ( ( class (mcPar) == "try-error" | class (mcBio) == "try-error") )
     {
       hessPosDef <- FALSE 
       if (i < fitTrials)
@@ -350,11 +354,18 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
               " has NPD hessian,\n repeat i = ",
               i+1, ".\n", sep = "")
         # Use local min as initial parameters for the next try
-        procCall <- procCall2
+        procCall <- procCallpar
       }
     }
-    if ( localMin & hessPosDef )
+    if ( localMin & hessPosDef ) # Now run MCMC if the global min is found
+    {
+      system ( command = procCallhpd, wait =TRUE, ignore.stdout = TRUE )
+      system ( command = mcEvalhpd,   wait =TRUE, ignore.stdout = TRUE )
+      fitrep  <- lisread ( repFile )
+      mcPar   <- try ( read.table ( mcParFile, header = TRUE) )
+      mcBio   <- try ( read.table (mcBioFile) )
       break
+    }
   }
   # Alternate refitting procedure, needs work
   # # Write to pin file 

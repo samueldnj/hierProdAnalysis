@@ -35,6 +35,12 @@ plotReps <- function ( rep = 1, sim = 1, folder = NULL )
   blobPath <- file.path(getwd(),"project",folder,blobFileName)
   load ( file = blobPath )
 
+  # Create a stamp from scenario and mp name
+  scenario  <- blob$ctl$scenario
+  mp        <- blob$ctl$mp
+  stamp     <- paste(scenario,":",mp,sep="")
+  repCount  <- paste("Replicate ",rep,"/",blob$ctl$nReps,sep="")
+
   # Recover blob elements for plotting
   nS <- blob$ctl$nS
   nT <- blob$ctl$nT
@@ -86,10 +92,12 @@ plotReps <- function ( rep = 1, sim = 1, folder = NULL )
             ylim = c(0,maxFt), ylab = yLab, las = 1, xlab = "" )
   }
   mtext ( text = "Year", outer = TRUE, side = 1)
+  mtext ( text = c(stamp,repCount),side=1, outer = TRUE, 
+          at = c(0.75,0.25),padj=1,col="grey50" )
 }
 
 plotSimPerf <- function ( sim = 1, folder = NULL, 
-                          pars = c("Bmsy","Fmsy","q","dep","BnT"))
+                          pars = c("Bmsy","Fmsy","q","dep","BnT") )
 {
   # First, if a folder name isn't nominated, use sim number
   # to find the folder name
@@ -105,6 +113,11 @@ plotSimPerf <- function ( sim = 1, folder = NULL,
   blobFileName <- paste(folder,".RData",sep="")
   blobPath <- file.path(getwd(),"project",folder,blobFileName)
   load ( file = blobPath )
+
+  # Create a stamp from scenario and mp name
+  scenario  <- blob$ctl$scenario
+  mp        <- blob$ctl$mp
+  stamp     <- paste(scenario,":",mp,sep="")
 
   # Recover blob elements for plotting
   nS <- blob$ctl$nS
@@ -181,5 +194,7 @@ plotSimPerf <- function ( sim = 1, folder = NULL,
   title <- paste("Relative error distributions, nReps = ", length(blob$goodReps))
   mtext ( text = title, outer = TRUE, side = 3 )
   mtext ( text = "Relative Error", side = 1, outer = TRUE)
+  mtext ( text = c(stamp),side=1, outer = TRUE, 
+          at = c(0.75),padj=1,col="grey50" )
 
 }

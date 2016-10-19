@@ -285,7 +285,7 @@ FUNCTION mcDumpOut
   else
   {
     // Condition on "good" starting values
-    if( pospen==0 )
+    if( value(pospen)==0 )
     {
       for ( int s=1;s<=nS;s++)
       {

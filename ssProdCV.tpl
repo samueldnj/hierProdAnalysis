@@ -53,8 +53,8 @@ PARAMETER_SECTION
   init_number betaSigma(-1);          // sigma prior sd
   init_number alphaTau(-1);           // sigma prior mean
   init_number betaTau(-1);            // sigma prior sd
-  init_number mlnq(phz_mlnq);               // log q prior mean
-  init_number slnq(phz_slnq);               // log q prior sd
+  init_number mlnq(phz_mlnq);         // log q prior mean
+  init_number slnq(phz_slnq);         // log q prior sd
 
   // process error deviations
   init_bounded_dev_vector epst(1,nT,-5.,5.,phz_dev);
@@ -225,7 +225,7 @@ FUNCTION mcDumpOut
   else
   {
     // Condition on "good" starting values
-    if( pospen==0 )
+    if( value(pospen)==0 )
     {
       // Output the parameter values for this replicate
       mcoutpar << BMSY << " " << BMSY*FMSY <<" "<< FMSY <<" "<< mfexp(lnqhat); 
