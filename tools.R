@@ -12,6 +12,7 @@
 #		lisread()			Function that reads ADMB style files as a list object
 #   writeADMB()   Function that writes ADMB dat/pin files from list objects
 #   saveSim()     Function that saves the output from a simulation run
+#   read.fit()    Function that reads ADMB par and cor files
 # 
 # --------------------------------------------------------------------------
 

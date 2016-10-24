@@ -10,6 +10,9 @@
 #
 # --------------------------------------------------------------------------
 
+
+
+## THIS ONLY WORKS FOR ADMB OUTPUT
 # makeErrorDists()
 # This function takes a blob object produced by a sim-est procedure
 # and produces distributions of absolute and relative errors
@@ -37,6 +40,8 @@ makeRelErrorDists <- function ( blob )
   msSuccessful <- which ( msHess )
   success <- intersect ( ssSuccessful, msSuccessful )
   failure <- (1:nReps)[-success]
+
+
   
   # Create a list to hold error values
   err <- list ( 
@@ -53,6 +58,8 @@ makeRelErrorDists <- function ( blob )
 # append error lists to blob
 ss$err.mle <- err
 ms$err.mle <- err
+
+
 
 # Fill in ss MLE relative errors
 ss$err.mle$Bmsy     <- t( (t(ss$Bmsy) - ctl$Bmsy)/ctl$Bmsy)[success,]

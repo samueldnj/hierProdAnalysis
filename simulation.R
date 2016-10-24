@@ -159,6 +159,12 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
   # Make dat and par lists
   ssDat <- vector ( mode = "list", length = nS )
   ssPar <- vector ( mode = "list", length = nS )
+
+  # Sum catch to get starting biomass
+  sumCat <- apply ( X = omList$Ct, MARGIN=1, FUN = sum )
+  sumCat <- as.numeric(sumCat)
+  maxF <- apply ( X = omList$Ft, MARGIN=1,FUN=max)
+  maxF <- as.numeric(maxF)
   # loop over species
   for (s in 1:nS )
   {
@@ -166,28 +172,34 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
     ssDat[[s]] <- list (  nT          = omList$nT,
                           Ct          = omList$Ct[s,],
                           It          = omList$It[s,],
-                          phz.Bmsy    = ctl$phz.Bmsy,
-                          phz.Fmsy    = ctl$phz.Fmsy,
-                          phz.mlnq    = ctl$phz.mlnq,
-                          phz.slnq    = ctl$phz.slnq,
-                          phz.dev     = ctl$phz.dev,
-                          phz.AR      = ctl$phz.AR,
+                          phz.Bmsy    = ctl$phz_Bmsy,
+                          phz_Fmsy    = ctl$phz_Fmsy,
+                          phz_tau     = ctl$phz_tau,
+                          phz_sigma   = ctl$phz_sigma,
+                          phz_q       = ctl$phz_q,
+                          phz_mlnq    = ctl$phz_mlnq,
+                          phz_slnq    = ctl$phz_slnq,
+                          phz_dev     = ctl$phz_dev,
+                          phz_AR      = ctl$phz_AR,
                           dumm        =  999 )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy      = log(omList$Bmsy[s]),
+    ssPar[[s]] <- list (  lnBmsy      = log(1.2*omList$Bmsy[s]),
                           lnFmsy      = log(omList$Fmsy[s]),
-                          mBMSY       = omList$Bmsy[s],
-                          sBMSY       = ctl$sBMSYmult[s]*omList$Bmsy[s],
+                          lnTau2      = log(omList$tau[s]),
+                          lnsigma2    = log(omList$sigma+omList$Sigma[s]),
+                          lnq         = log(omList$q[s]),
+                          mBmsy       = omList$Bmsy[s],
+                          sBmsy       = ctl$sBmsyMult[s]*omList$Bmsy[s],
                           mFmsy       = omList$Fmsy[s],
-                          sFmsy       = ctl$sFMSYmult[s]*omList$Fmsy[s],
-                          alpha.sigma = ctl$alpha.sigma, 
-                          beta.sigma  = ctl$beta.sigma,
-                          alpha.tau   = ctl$alpha.tau[s],
-                          beta.tau    = ctl$beta.tau[s],
+                          sFmsy       = ctl$sFmsyMult[s]*omList$Fmsy[s],
+                          alpha_sigma = ctl$alpha_sigma, 
+                          beta_sigma  = ctl$beta_sigma,
+                          alpha_tau   = ctl$alpha_tau[s],
+                          beta_tau    = ctl$beta_tau[s],
                           mlnq        = log(omList$q[s]),
                           slnq        = log(3),
-                          epst        = log(omList$epst+omList$zetat[s,]),
-                          rho         = ctl$rho )
+                          rho         = ctl$rho,
+                          epst        = rep(0,nT) )
 
   }
   # now make dat and par lists for the MS model
@@ -195,32 +207,39 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   nS          = omList$nS,
                   Ct          = omList$Ct,
                   It          = omList$It,
-                  phz.Bmsy    = ctl$phz.Bmsy,
-                  phz.Fmsy    = ctl$phz.Fmsy,
-                  phz.mlnq    = ctl$phz.mlnq,
-                  phz.slnq    = ctl$phz.slnq,
-                  phz.dev     = ctl$phz.dev,
-                  phz.AR      = ctl$phz.AR,
-                  phz.chol    = ctl$phz.chol,
+                  phz_Bmsy    = ctl$phz_Bmsy,
+                  phz_Fmsy    = ctl$phz_Fmsy,
+                  phz_tau     = ctl$phz_tau,
+                  phz_sigma   = ctl$phz_sigma,
+                  phz_q       = ctl$phz_q,
+                  phz_mlnq    = ctl$phz_mlnq,
+                  phz_slnq    = ctl$phz_slnq,
+                  phz_dev     = ctl$phz_dev,
+                  phz_AR      = ctl$phz_AR,
+                  phz_chol    = ctl$phz_chol,
                   dumm        = 999 )
-  msPar <- list ( lnBmsy      = log(omList$Bmsy),
+  msPar <- list ( lnBmsy      = log(1.2*omList$Bmsy),
                   lnFmsy      = log(omList$Fmsy),
-                  mBMSY       = omList$Bmsy,
-                  sBMSY       = ctl$sBMSYmult*omList$Bmsy,
+                  lnTau2      = log(omList$tau),
+                  lnSigma2    = log(omList$Sigma),
+                  lnsigma2    = log(omList$sigma),
+                  lnq         = log(omList$q),
+                  mBmsy       = omList$Bmsy,
+                  sBmsy       = ctl$sBmsyMult*omList$Bmsy,
                   mFmsy       = omList$Fmsy,
-                  sFmsy       = ctl$sFMSYmult*omList$Fmsy,
-                  alpha.sigma = ctl$alpha.sigma,
-                  beta.sigma  = ctl$beta.sigma,
-                  alpha.Sigma = ctl$alpha.Sigma,
-                  beta.Sigma  = ctl$beta.Sigma,
-                  alpha.tau   = ctl$alpha.tau,
-                  beta.tau    = ctl$beta.tau,
+                  sFmsy       = ctl$sFmsyMult*omList$Fmsy,
+                  alpha_sigma = ctl$alpha_sigma,
+                  beta_sigma  = ctl$beta_sigma,
+                  alpha_Sigma = ctl$alpha_Sigma,
+                  beta_Sigma  = ctl$beta_Sigma,
+                  alpha_tau   = ctl$alpha_tau,
+                  beta_tau    = ctl$beta_tau,
                   mlnq        = mean(log(omList$q)),
                   slnq        = log(3),
-                  epst        = log(omList$epst),
-                  zetat       = log(omList$zetat),
                   rho         = ctl$rho,
-                  c           = rep(0,(nS*(nS-1)/2)) )
+                  c           = rep(0,(nS*(nS-1)/2)),
+                  epst        = rep(0,nT),
+                  zetat       = matrix(0,nS,nT) )
   # return list of dat and pin objects for running estimators
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar, 
@@ -312,6 +331,8 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
     mcPar   <- try ( read.table ( mcParFile, header = TRUE) )
     mcBio   <- try ( read.table (mcBioFile) )
 
+    # browser()
+
     # Check if that the exit code is correct in the rep file
     if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 1e0 )
     {
@@ -341,7 +362,7 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
               i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
         par$lnBmsy <- lnBmsy + log ( i + 1)
-        # par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
+        par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
       }
       next
     }
@@ -492,6 +513,8 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
   # Create data objects for EMs
   datPar <- makeDataLists ( om, ctl)
 
+  if(is.null(ctl$mcBurn)) ctl$mcBurn <- 0
+
   # Call EMs
   ssFit <- list()
   for (s in 1:ctl$nS ) 
@@ -501,7 +524,7 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
                                   par = datPar$ssPar[[s]],
                                   lab=s, fitTrials = ctl$fitTrials, 
                                   activeFileRoot = "ssProdCV",
-                                  mcTrials = ctl$mcTrials, 
+                                  mcTrials = ctl$mcTrials+ctl$mcBurn, 
                                   mcSave = 1, maxfn = ctl$maxfn)
   }
   if (!quiet) cat ( "Fitting ", ctl$nS," species hierarchically.\n", 
@@ -509,7 +532,7 @@ seedFit <- function ( seed = 1, ctl, quiet = FALSE )
   msFit <- callProcADMB ( dat = datPar$msDat, par = datPar$msPar,
                           fitTrials = ctl$fitTrials, 
                           activeFileRoot = "msProdCV",
-                          mcTrials = ctl$mcTrials, 
+                          mcTrials = ctl$mcTrials+ctl$mcBurn, 
                           mcSave = 1, maxfn = ctl$maxfn )
 
   cat ("Completed replicate ", seed - ctl$rSeed, " of ", ctl$nReps, ".\n", sep = "")
@@ -536,21 +559,37 @@ simEstProc <- function ( ctl, quiet = TRUE )
   nS      <- ctl$nS
   nT      <- ctl$nT
   rSeed   <- ctl$rSeed
-  nMCMC   <- ctl$mcTrials
+
+  # MCMC output control parameters
+  mcTrials<- ctl$mcTrials
+  mcSave  <- ctl$mcSave
+  mcBurn  <- ctl$mcBurn
   nMCparSS<- ctl$nMCparSS
   nMCparMS<- ctl$nMCparMS
   mcQuant <- ctl$mcQuant
 
+  # mcmc output thinning and burn-in
+  mcSampSS  <- seq (from=mcBurn+1, to = mcTrials+mcBurn, by=mcSave )
+  mcSampMS  <- seq (from=nS*mcBurn+1, to = nS*mcTrials, by=mcSave*nS)
+  mcSampMS  <- union(union ( mcSampMS, mcSampMS+1), mcSampMS+2 )
+  nMC     <- length(mcSampSS)
+
+  # Create dimension names for arrays
+  rNames <- paste("Rep",1:nReps, sep ="")
+  sNames <- ctl$specNames
+  mcNo <- paste("mc",1:nMC,sep="")
+  mcBt <- paste("B",1:nT,sep="")
+
   # Create list object to store all simulated values
-  om <- list (  Bt    = array (NA,dim = c(nReps,nS,nT) ),
-                Ct    = array (NA,dim = c(nReps,nS,nT) ),
-                Ft    = array (NA,dim = c(nReps,nS,nT) ),
-                epst  = array (NA,dim = c(nReps,nS,nT) ),
-                zetat = array (NA,dim = c(nReps,nS,nT) ),
-                deltat= array (NA,dim = c(nReps,nS,nT) ),
-                It    = array (NA,dim = c(nReps,nS,nT) ),
-                ItTrue= array (NA,dim = c(nReps,nS,nT) ),
-                dep   = matrix(NA,nrow = nReps, ncol = nS)
+  om <- list (  Bt    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                Ct    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                Ft    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                epst  = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                zetat = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                deltat= array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                It    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                ItTrue= array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                dep   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames))
               )
                 # sigma = numeric(length = nReps),
                 # Sigma = numeric(length = nReps),
@@ -565,44 +604,44 @@ simEstProc <- function ( ctl, quiet = TRUE )
   am <- list ( ss=NULL, ms=NULL)
 
   # single species
-  am$ss <- list ( Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  msy   = matrix ( NA, nrow = nReps, ncol = nS ),
-                  q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                  sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
-                  tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                  epst  = array (NA, dim = c(nReps,nS,nT)),
-                  rho   = matrix ( NA, nrow = nReps, ncol = nS),
-                  Bt    = array (NA, dim = c(nReps,nS,nT)),
-                  Ft    = array (NA, dim = c(nReps,nS,nT)),
-                  mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  slnq  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  mcPar = array ( NA, dim = c(nReps,nS,nMCMC,nMCparSS)),
-                  mcBio = array ( NA, dim=c(nReps,nS,nMCMC,nT)),
-                  locmin= matrix ( NA, nrow = nReps, ncol = nS),
-                  hesspd= matrix ( NA, nrow = nReps, ncol = nS) )
+  am$ss <- list ( Fmsy  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  Bmsy  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  msy   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  q     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  sigma2= matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  tau2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  dep   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  epst  = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  rho   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  Bt    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  Ft    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  mlnq  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  slnq  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  mcPar = array (NA,dim=c(nReps,nS,nMC,nMCparSS),dimnames=list(rNames,sNames,mcNo,NULL)),
+                  mcBio = array (NA,dim=c(nReps,nS,nMC,nT),dimnames=list(rNames,sNames,mcNo,mcBt)),
+                  locmin= matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  hesspd= matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)))
 
   # multispecies (coastwide)
-  am$ms <- list ( Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  msy   = matrix ( NA, nrow = nReps, ncol = nS ),
-                  q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                  sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
-                  tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
-                  dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                  epst  = matrix ( NA, nrow = nReps, ncol = nT ),
-                  zetat = array  ( NA, dim = c(nReps,nS,nT) ),
-                  rho   = vector ( "numeric",length = nReps ),
-                  chol  = array  ( NA, dim = c(nReps,nS,nS) ),
-                  Bt    = array  ( NA, dim = c(nReps,nS,nT) ),
-                  Ft    = array  ( NA, dim = c(nReps,nS,nT) ),
-                  mlnq  = vector ( "numeric", length=nReps),
-                  slnq  = vector ( "numeric", length=nReps),
-                  mcPar = array ( NA, dim = c(nReps,nS,nMCMC,nMCparMS)),
-                  mcBio = array ( NA, dim=c(nReps,nS,nMCMC,nT)),
-                  locmin= vector ( mode = "logical", length = nReps),
-                  hesspd= vector ( mode = "logical", length = nReps) )
+  am$ms <- list ( Fmsy  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  Bmsy  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  msy   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  q     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  sigma2= matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  tau2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  dep   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  epst  = matrix(NA,nrow=nReps,ncol=nT,dimnames=list(rNames,1:nT)),
+                  zetat = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  rho   = vector("numeric",length=nReps),
+                  chol  = array (NA,dim=c(nReps,nS,nS),dimnames=list(rNames,sNames,sNames)),
+                  Bt    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  Ft    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  mlnq  = vector("numeric",length=nReps),
+                  slnq  = vector("numeric",length=nReps),
+                  mcPar = array (NA,dim=c(nReps,nS,nMC,nMCparMS),dimnames=list(rNames,sNames,mcNo,NULL)),
+                  mcBio = array (NA,dim=c(nReps,nS,nMC,nT),dimnames=list(rNames,sNames,mcNo,mcBt)),
+                  locmin= vector(mode="logical",length=nReps),
+                  hesspd= vector(mode="logical",length=nReps))
 
 
   # The BLOOOOOOBBBBBB
@@ -610,6 +649,7 @@ simEstProc <- function ( ctl, quiet = TRUE )
 
   # Now create a vector of seed values, able to be lapplied over
   seeds <- rSeed + 1:nReps
+  
 
   # simEst <- lapply ( X = seeds, FUN = seedFit, ctl = blob$ctl,
   #                    quiet = quiet )
@@ -637,9 +677,9 @@ simEstProc <- function ( ctl, quiet = TRUE )
     # Loop over single species
     for ( s in 1:nS )
     {
-      blob$am$ss$Bmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$BMSY
-      blob$am$ss$Fmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$FMSY
-      blob$am$ss$msy[i,s]         <- simEst$ssFit[[s]]$fitrep$MSY
+      blob$am$ss$Bmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Bmsy
+      blob$am$ss$Fmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Fmsy
+      blob$am$ss$msy[i,s]         <- simEst$ssFit[[s]]$fitrep$msy
       blob$am$ss$q[i,s]           <- simEst$ssFit[[s]]$fitrep$q
       blob$am$ss$sigma2[i,s]      <- simEst$ssFit[[s]]$fitrep$sigma2
       blob$am$ss$tau2[i,s]        <- simEst$ssFit[[s]]$fitrep$tau2
@@ -647,7 +687,7 @@ simEstProc <- function ( ctl, quiet = TRUE )
       blob$am$ss$epst[i,s,]       <- simEst$ssFit[[s]]$fitrep$epst
       blob$am$ss$rho[i,s]         <- simEst$ssFit[[s]]$fitrep$rho
       blob$am$ss$Bt[i,s,]         <- simEst$ssFit[[s]]$fitrep$Bt
-      blob$am$ss$Ft[i,s,]         <- simEst$ssFit[[s]]$fitrep$Ft
+      blob$am$ss$Ft[i,s,]         <- simEst$ssFit[[s]]$fitrep$Ut
       blob$am$ss$mlnq[i,s]        <- simEst$ssFit[[s]]$fitrep$mlnq
       blob$am$ss$slnq[i,s]        <- simEst$ssFit[[s]]$fitrep$slnq
       # Do MCMC output
@@ -655,8 +695,10 @@ simEstProc <- function ( ctl, quiet = TRUE )
       mcBio <- try(as.matrix(simEst$ssFit[[s]]$mcBio))
       if (class(mcPar) == "matrix" | class(mcBio) == "matrix" )
       {
-        blob$am$ss$mcPar[i,s,1:nrow(mcPar),]     <- mcPar
-        blob$am$ss$mcBio[i,s,1:nrow(mcBio),]     <- mcBio
+        dimnames(blob$am$ss$mcPar)[[4]] <- colnames(mcPar)
+        samples <- intersect(mcSampSS,1:nrow(mcPar))
+        blob$am$ss$mcPar[i,s,1:length(samples),]     <- mcPar[samples,]
+        blob$am$ss$mcBio[i,s,1:length(samples),]     <- mcBio[samples,]
       } 
       # Estimator performance flags
       blob$am$ss$locmin[i,s]      <- simEst$ssFit[[s]]$localMin
@@ -664,9 +706,9 @@ simEstProc <- function ( ctl, quiet = TRUE )
     }
 
     # Now multispecies
-    blob$am$ms$Bmsy[i,]           <- simEst$msFit$fitrep$BMSY
-    blob$am$ms$Fmsy[i,]           <- simEst$msFit$fitrep$FMSY
-    blob$am$ms$msy[i,]            <- simEst$msFit$fitrep$MSY
+    blob$am$ms$Bmsy[i,]           <- simEst$msFit$fitrep$Bmsy
+    blob$am$ms$Fmsy[i,]           <- simEst$msFit$fitrep$Fmsy
+    blob$am$ms$msy[i,]            <- simEst$msFit$fitrep$msy
     blob$am$ms$q[i,]              <- simEst$msFit$fitrep$q
     blob$am$ms$sigma2[i,]         <- simEst$msFit$fitrep$sigma2
     blob$am$ms$tau2[i,]           <- simEst$msFit$fitrep$tau2
@@ -676,7 +718,7 @@ simEstProc <- function ( ctl, quiet = TRUE )
     blob$am$ms$rho[i]             <- simEst$msFit$fitrep$rho
     blob$am$ms$chol[i,,]          <- simEst$msFit$fitrep$chol
     blob$am$ms$Bt[i,,]            <- simEst$msFit$fitrep$Bt
-    blob$am$ms$Ft[i,,]            <- simEst$msFit$fitrep$Ft
+    blob$am$ms$Ft[i,,]            <- simEst$msFit$fitrep$Ut
     blob$am$ms$mlnq[i]            <- simEst$msFit$fitrep$mlnq
     blob$am$ms$slnq[i]            <- simEst$msFit$fitrep$slnq
     # Split up mcPar and mcBio for the ms model
@@ -685,12 +727,16 @@ simEstProc <- function ( ctl, quiet = TRUE )
     # might have NPD hessian, so leave as NAs if so
     if ( class(mcPar) == "matrix" | class(mcBio) == "matrix")
     {
+      dimnames(blob$am$ms$mcPar)[[4]] <- colnames(mcPar)
       for ( s in 1:nS )
       {
         parIdx <- seq ( from = s, to = nrow(mcPar), by = nS)
+        parIdx <- intersect (parIdx, mcSampMS)
         bioIdx <- seq ( from = s, to = nrow(mcBio), by = nS)
+        bioIdx <- intersect (bioIdx, mcSampMS)
         blob$am$ms$mcPar[i,s,1:length(parIdx),]     <- mcPar[parIdx,]
-        blob$am$ms$mcBio[i,s,1:length(bioIdx),]     <- mcBio[bioIdx,]  
+        blob$am$ms$mcBio[i,s,1:length(bioIdx),]     <- mcBio[bioIdx,]
+
       }
     }
     # Estimator Performance Flags
@@ -708,7 +754,7 @@ simEstProc <- function ( ctl, quiet = TRUE )
 # Function to simulate a logistic based surplus production model,
 # assuming that population is initially at equilibrium (2*Bmsy) modified
 # by a proc error.
-# inputs:     msy=maximum sustainable yield; Fmsy=fishing mortality for MSY
+# inputs:     msy=maximum sustainable yield; Fmsy=fishing mortality for msy
 #             nT=length of simulation; Ct=nT-vector of catch (opt)
 # 						Ft=nT-vector of fishing mortality (opt)
 #             epst=nT-vector of env (AR(1)) logN proc errors (bias corrected) 
@@ -731,7 +777,7 @@ logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
 
   if ( is.null ( Ct ) ) 
   {
-  	Ct <- numeric ( length = nT )
+  	Ct <- rep(NA,nT)
   }
 
   # Populate the vector, with a special case for t = 1
@@ -740,7 +786,7 @@ logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
   # Loop over remaining years
   for ( t in 2:nT )
   {
-    if ( Ct [ t-1 ] == 0 ) Ct [ t-1 ] <- Ft[t-1] * Bt [ t-1 ]
+    if ( is.na(Ct[t-1]) ) Ct [ t-1 ] <- Ft[t-1] * Bt [ t-1 ]
     Bt [ t ] <-   (	Bt [ t-1 ] +                       # prev year's B
                   	2. * Fmsy * Bt [ t-1 ] * 
                   	( 1. - Bt [ t-1 ] / Bmsy / 2. ) -  # recruitment

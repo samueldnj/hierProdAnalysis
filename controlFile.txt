@@ -7,10 +7,13 @@ prod
 testScenario
 
 # nReps
-100
+5
 
 # rSeed
 1
+
+# specNames
+Dover English Rock
 
 # nMCparSS
 9
@@ -18,14 +21,20 @@ testScenario
 # nMCparMS
 10
 
+# mcBurn
+1000
+
 # mcTrials
 10000
 
+# mcAlpha
+0.05
+
 # mcSave
-1
+10
 
 # fitTrials
-5
+3
 
 # maxfn
 1000
@@ -53,11 +62,11 @@ testScenario
 
 ## Random models ##
 ## Environmental process error (applied to all species)
-# sigma
+# sigma2
 0.2
 
 # rho (auto-correlation in env proc error)
-0.5
+0
 
 ## Multispecies proc error
 ## Correlation matrix
@@ -67,74 +76,85 @@ testScenario
 0.2 -0.2 1
 
 ## MS proc error sd
-# Sigma
+# Sigma2
 0.2 0.2 0.2
 
 ## Observation error sd
-# tau
-0.2 0.2 0.2
+# tau2
+0.1 0.1 0.1
 
 ## Fishing Mortality (should provide a full time series... or not)
 # F_mult
-0 1.2 0.8
+0.2 2 0.8
 
 # tFpeak
-20
+15
 
 ### EM controls ###
 ## Initial values for parameters and hyperparameters not included above ##
 ## Hyperparameters ##
 ## Bmsy estimation phase
-# phz.Bmsy
+# phz_Bmsy
 1
 
 ## Fmsy estimation phase
-# phz.Fmsy
+# phz_Fmsy
+1
+
+## SD estimation phases
+# phz_tau
+-3
+
+# phz_sigma
 2
 
-## lnBMSY prior (mean set to true value)
-# sBMSYmult
+## Survey catchability (DON"T FIX)
+# phz_q
+2
+
+## BMSY prior (mean set to true value)
+# sBmsyMult
 3 3 3
 
-## FMSY normal prior (mean set to true value)
-# sFMSYmult
+## Fmsy normal prior (mean set to true value)
+# sFmsyMult
 3 3 3
 
 ## sigma prior (inverse gamma) multispecies AR(1) env proc error
-# alpha.sigma 
+# alpha_sigma 
 2
 
-# beta.sigma
+# beta_sigma
 0.3
 
 ## Sigma prior (inverse gamma) (single species correlated proc error)
-# alpha.Sigma
+# alpha_Sigma
 2 2 2
 
-# beta.Sigma
+# beta_Sigma
 0.6 0.6 0.6
 
 ## tau prior (inverse gamma)
-# alpha.tau
+# alpha_tau
 2 2 2
 
-# beta.tau
+# beta_tau
 0.6 0.6 0.6
 
 ## Catchability prior (estimation phases (phz))
-# phz.mlnq
--3
+# phz_mlnq
+-4
 
-# phz.slnq
+# phz_slnq
 -3
 
 ## Proc error deviations
-# phz.dev
-1
+# phz_dev
+2
 
 ## Correlation
-# phz.AR
--3
+# phz_AR
+-4
 
-# phz.chol
--3
+# phz_chol
+-4
