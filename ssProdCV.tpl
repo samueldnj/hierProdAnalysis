@@ -48,7 +48,7 @@ PARAMETER_SECTION
   init_bounded_number lnFmsy(-5,0,phz_Fmsy);         // intrinsic rate of growth - log scale
   init_bounded_number lnTau2(-5,1,phz_tau);           // obs error sd
   init_bounded_number lnsigma2(-5,1,phz_sigma);       // proc error sd
-  init_bounded_number lnq(-5,1,phz_q);               // survey catchability
+  //init_bounded_number lnq(-5,1,phz_q);               // survey catchability
 
   // Fixed parameters and hyperparameters
   init_number mBmsy(-1);              // msy prior mean
@@ -193,8 +193,8 @@ FUNCTION stateDynamics
 // function to compute predicted observations and residuals
 FUNCTION obsModel
   // Compute conditional estimate of lnq_hat
-  //lnqhat = sum ( log ( It ) - log ( Bt_bar ) ) / nT ;
-  q = mfexp(lnq);
+  lnqhat = sum ( log ( It ) - log ( Bt_bar ) ) / nT ;
+  q = mfexp(lnqhat);
   //cout << "q = " << q << endl;
   // Compute predicted index of abundance
   It_bar = q * Bt_bar;
@@ -222,7 +222,7 @@ FUNCTION calcLikelihoods
   // compute observation model likelihood
   obsNLL = 0.5*nT*log(tau2) + 0.5*SSRobs/tau2;
   // Compute proc error conditional variance
-  procNLL = 0.5*nT*log(sigma2corr) + 0.5*norm2(epstCorr)/sigma2corr;
+  procNLL = 0.5*nT*log(sigma2) + 0.5*norm2(epst)/sigma2;
 
   // sum likelihoods
   nll = obsNLL + procNLL;
@@ -240,7 +240,7 @@ FUNCTION calcPriors
   // tau2hat prior
   prior += (alpha_tau + 1) * log(tau2) + beta_tau / tau2;
   // lnq prior
-  prior += (lnq - mlnq)*(lnq-mlnq) / slnq / slnq / 2;
+  prior += (lnqhat - mlnq)*(lnqhat-mlnq) / slnq / slnq / 2;
 
 
 FUNCTION mcDumpOut

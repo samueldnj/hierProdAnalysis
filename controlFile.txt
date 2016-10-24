@@ -1,7 +1,7 @@
 ### Control file for coastWide simulation-estimation multispecies model ###
 ### simEst Controls ###
 # mp
-prod
+qConc_ms_ss
 
 # scenario
 testScenario
@@ -88,7 +88,7 @@ Dover English Rock
 0.2 2 0.8
 
 # tFpeak
-15
+20
 
 ### EM controls ###
 ## Initial values for parameters and hyperparameters not included above ##

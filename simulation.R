@@ -183,11 +183,11 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                           phz_AR      = ctl$phz_AR,
                           dumm        =  999 )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy      = log(1.2*omList$Bmsy[s]),
+    ssPar[[s]] <- list (  lnBmsy      = log(1.5*omList$Bmsy[s]),
                           lnFmsy      = log(omList$Fmsy[s]),
                           lnTau2      = log(omList$tau[s]),
                           lnsigma2    = log(omList$sigma+omList$Sigma[s]),
-                          lnq         = log(omList$q[s]),
+                          # lnq         = log(omList$q[s]),
                           mBmsy       = omList$Bmsy[s],
                           sBmsy       = ctl$sBmsyMult[s]*omList$Bmsy[s],
                           mFmsy       = omList$Fmsy[s],
@@ -218,12 +218,12 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   phz_AR      = ctl$phz_AR,
                   phz_chol    = ctl$phz_chol,
                   dumm        = 999 )
-  msPar <- list ( lnBmsy      = log(1.2*omList$Bmsy),
+  msPar <- list ( lnBmsy      = log(1.5*omList$Bmsy),
                   lnFmsy      = log(omList$Fmsy),
                   lnTau2      = log(omList$tau),
                   lnSigma2    = log(omList$Sigma),
                   lnsigma2    = log(omList$sigma),
-                  lnq         = log(omList$q),
+                  # lnq         = log(omList$q),
                   mBmsy       = omList$Bmsy,
                   sBmsy       = ctl$sBmsyMult*omList$Bmsy,
                   mFmsy       = omList$Fmsy,
@@ -331,10 +331,10 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
     mcPar   <- try ( read.table ( mcParFile, header = TRUE) )
     mcBio   <- try ( read.table (mcBioFile) )
 
-    # browser()
+    browser()
 
     # Check if that the exit code is correct in the rep file
-    if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 1e0 )
+    if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 1e1 )
     {
       localMin <- FALSE
       hessPosDef <- FALSE
@@ -346,12 +346,12 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
         # Increment lnBMSY and tighten sBMSY
         maxfn <- 5*maxfn
         procCall  <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
-                            " -mcmc ", mcTrials, " -maxfn ", maxfn,
-                            " -mcsave ", mcSave, sep = "" )
+                            " -mcmc ", 1, " -maxfn ", maxfn,
+                            " -mcsave ", 1, sep = "" )
+        next
       }
-      next
     }
-    if ( abs(fitrep$maxGrad) > 1e-4 )
+    if ( abs(fitrep$maxGrad) > 1e-2 )
     {
       localMin <- FALSE
       hessPosDef <- FALSE
@@ -362,9 +362,9 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
               i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
         par$lnBmsy <- lnBmsy + log ( i + 1)
-        par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
+        # par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
+        next
       }
-      next
     }
     if ( ( class (mcPar) == "try-error" | class (mcBio) == "try-error") )
     {
@@ -376,6 +376,7 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
               i+1, ".\n", sep = "")
         # Use local min as initial parameters for the next try
         procCall <- procCallpar
+        next
       }
     }
     if ( localMin & hessPosDef ) # Now run MCMC if the global min is found

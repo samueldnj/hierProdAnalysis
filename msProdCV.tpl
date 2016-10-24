@@ -54,7 +54,7 @@ PARAMETER_SECTION
   init_bounded_vector lnTau2(1,nS,-5,1,phz_tau);            // tau - osb error sd
   init_bounded_vector lnSigma2(1,nS,-5,1,phz_sigma);        // Sigma - MS proc error sd
   init_bounded_number lnsigma2(-5,1,phz_sigma);             // sigma - env proc error sd
-  init_bounded_vector lnq(1,nS,-5,1,phz_q);               // survey catchability
+  //init_bounded_vector lnq(1,nS,-5,1,phz_q);               // survey catchability
 
   // Prior hyperparameters
   init_vector mBmsy(1,nS,-1);       // msy prior mean (species spec)
@@ -95,7 +95,7 @@ PARAMETER_SECTION
   number sigma2;
 
   // variables to hold concentrated parameters
-  //sdreport_vector lnqhat(1,nS);
+  sdreport_vector lnqhat(1,nS);
   sdreport_vector q(1,nS);
 
   //penalizer
@@ -132,9 +132,11 @@ PROCEDURE_SECTION
   f = 0.;
 
   // initialise derived variables
-  //lnqhat=0.;
+  lnqhat=0.;
   q = 0.;
   chol = 0.;
+  dep_bar = 0.;
+  UnT_bar = 0.;
 
   // Run state dynamics function
   stateDynamics();
@@ -228,11 +230,11 @@ FUNCTION stateDynamics
   
 // function to compute predicted observations and residuals
 FUNCTION obsModel
-  // Compute conditional estimate of lnq_hat
-  //lnqhat(s) = sum ( log ( It(s) ) - log ( Bt_bar(s) ) ) / nT ;
-  q = 0.; q = mfexp(lnq);
   for ( int s=1;s<=nS;s++)
   {
+    // Compute conditional estimate of lnq_hat
+    lnqhat(s) = sum ( log ( It(s) ) - log ( Bt_bar(s) ) ) / nT ;
+    q(s) = mfexp ( lnqhat(s));
     // Compute predicted index of abundance
     It_bar(s) = q(s) * Bt_bar(s);
 
@@ -282,7 +284,7 @@ FUNCTION calcPriors
   // tau2hat prior
   prior += elem_prod((alpha_tau+1),log(tau2))+elem_div(beta_tau,tau2);
   // lnq prior
-  prior += pow( lnq - mlnq, 2 ) / slnq / slnq / 2;
+  prior += pow( lnqhat - mlnq, 2 ) / slnq / slnq / 2;
 
 
 FUNCTION mcDumpOut
