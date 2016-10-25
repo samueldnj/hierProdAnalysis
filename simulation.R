@@ -197,7 +197,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                           alpha_tau   = ctl$alpha_tau[s],
                           beta_tau    = ctl$beta_tau[s],
                           mlnq        = log(omList$q[s]),
-                          slnq        = log(3),
+                          slnq        = ctl$slnq,
                           rho         = ctl$rho,
                           epst        = rep(0,nT) )
 
@@ -235,7 +235,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   alpha_tau   = ctl$alpha_tau,
                   beta_tau    = ctl$beta_tau,
                   mlnq        = mean(log(omList$q)),
-                  slnq        = log(3),
+                  slnq        = ctl$slnq,
                   rho         = ctl$rho,
                   c           = rep(0,(nS*(nS-1)/2)),
                   epst        = rep(0,nT),
@@ -311,30 +311,32 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
   lapply (  X = seq_along(dat), FUN = writeADMB, x = dat, 
             activeFile=datFile )
 
+  # Write to pin file 
+  cat ( "## ", activeFileRoot, " initial parameter file, created ", 
+        format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
+        sep = "", file = pinFile, append = FALSE )
+  lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
+            activeFile=pinFile )
+
+  # Now run the model and read in rep and MCMC files
+  system ( command = procCall, wait =TRUE, ignore.stdout = TRUE )
+  system ( command = mcEval, wait =TRUE, ignore.stdout = TRUE )
+
   for ( i in 0:fitTrials )
   {
     hessPosDef <- TRUE
     localMin <- TRUE
     
-    # Write to pin file 
-    cat ( "## ", activeFileRoot, " initial parameter file, created ", 
-          format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
-          sep = "", file = pinFile, append = FALSE )
-    lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
-              activeFile=pinFile )
-
-    # Now run the model and read in rep and MCMC files
-    system ( command = procCall, wait =TRUE, ignore.stdout = TRUE )
-    system ( command = mcEval, wait =TRUE, ignore.stdout = TRUE )
+    
 
     fitrep  <- lisread ( repFile )
-    mcPar   <- try ( read.table ( mcParFile, header = TRUE) )
+    mcPar   <- try ( read.table ( mcParFile, header = TRUE), silent=TRUE )
     mcBio   <- try ( read.table (mcBioFile) )
 
     browser()
 
-    # Check if that the exit code is correct in the rep file
-    if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 1e1 )
+    # If not, then we go through the list:
+    if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 2e1 )
     {
       localMin <- FALSE
       hessPosDef <- FALSE
@@ -361,8 +363,7 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
               " didn't find local min,\n repeat i = ",
               i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
-        par$lnBmsy <- lnBmsy + log ( i + 1)
-        # par$sBMSY <- sBMSY * (fitTrials - i + 1)  / (fitTrials)
+        par$lnBmsy <- lnBmsy + log ((i + 1)*0.2)
         next
       }
     }
@@ -379,8 +380,10 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
         next
       }
     }
-    if ( localMin & hessPosDef ) # Now run MCMC if the global min is found
+    # If MCMC possible, hessian is PD. Run MCMC from this point
+    if ( class(mcPar) == "data.frame" & (nrow(mcPar)==1|nrow(mcPar)==3) ) 
     {
+      # browser(cat("In the final part\n"))
       system ( command = procCallhpd, wait =TRUE, ignore.stdout = TRUE )
       system ( command = mcEvalhpd,   wait =TRUE, ignore.stdout = TRUE )
       fitrep  <- lisread ( repFile )

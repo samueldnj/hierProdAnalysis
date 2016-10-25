@@ -7,10 +7,10 @@ qConc_ms_ss
 testScenario
 
 # nReps
-5
+1
 
 # rSeed
-1
+100
 
 # specNames
 Dover English Rock
@@ -27,14 +27,11 @@ Dover English Rock
 # mcTrials
 10000
 
-# mcAlpha
-0.05
-
 # mcSave
 10
 
 # fitTrials
-3
+0
 
 # maxfn
 1000
@@ -48,7 +45,7 @@ Dover English Rock
 
 ## Simulation length
 # nT
-40
+30
 
 ## Leading parameter values for multispecies OM
 # Bmsy
@@ -66,7 +63,7 @@ Dover English Rock
 0.2
 
 # rho (auto-correlation in env proc error)
-0
+0.3
 
 ## Multispecies proc error
 ## Correlation matrix
@@ -88,7 +85,7 @@ Dover English Rock
 0.2 2 0.8
 
 # tFpeak
-20
+15
 
 ### EM controls ###
 ## Initial values for parameters and hyperparameters not included above ##
@@ -106,11 +103,11 @@ Dover English Rock
 -3
 
 # phz_sigma
-2
+-2
 
 ## Survey catchability (DON"T FIX)
 # phz_q
-2
+-2
 
 ## BMSY prior (mean set to true value)
 # sBmsyMult
@@ -120,12 +117,16 @@ Dover English Rock
 # sFmsyMult
 3 3 3
 
+## lnq standard deviation
+# slnq
+0.1
+
 ## sigma prior (inverse gamma) multispecies AR(1) env proc error
 # alpha_sigma 
 2
 
 # beta_sigma
-0.3
+0.6
 
 ## Sigma prior (inverse gamma) (single species correlated proc error)
 # alpha_Sigma
@@ -157,4 +158,4 @@ Dover English Rock
 -4
 
 # phz_chol
--4
+4
