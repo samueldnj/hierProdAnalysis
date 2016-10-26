@@ -107,8 +107,8 @@ plotMCMCspecies <- function ( rep=1, spec=1, sim = 1 )
   nonNAss <- length(parMCoutSS[!is.na(parMCoutSS)])/ncol(parMCoutSS)
   nonNAms <- length(parMCoutMS[!is.na(parMCoutMS)])/ncol(parMCoutMS)
   # Set up mc output thinning
-  parMCoutSS <- as.mcmc(parMCoutSS[nonNAss,])
-  parMCoutMS <- as.mcmc(parMCoutMS[nonNAms,])
+  parMCoutSS <- as.mcmc(parMCoutSS[1:nonNAss,])
+  parMCoutMS <- as.mcmc(parMCoutMS[1:nonNAms,])
 
   # Now to plot each model's posterior distributions
   titleSS <- paste ( "SS MCMC for ", spec, sep = "")
