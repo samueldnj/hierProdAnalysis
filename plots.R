@@ -19,7 +19,7 @@
 #           sim=number indicating blob to load from project dir
 # output:   NULL
 # usage:    post-sim, showing MCMC performance
-plotMCMCpar <- function ( rep=1, par="BMSY", sim=1 )
+plotMCMCpar <- function ( rep=1, par="Bmsy", sim=1 )
 {
   # Check if blob is loaded, if not, load the
   if (!exists(x="blob",where=1)) loadSim(sim)
