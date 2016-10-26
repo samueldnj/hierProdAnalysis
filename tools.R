@@ -19,8 +19,124 @@
 # 
 # --------------------------------------------------------------------------
 
+# panLegend   (Place legend in plot region)
+# Purpose:    Place a legend in the plot region defined by (0,1), (0,1).
+#             The ... notation allows all parameters available to "legend" to be
+#             passed.
+# Parameters: x, y are the coordinates of the legend
+#             legTxt is the text associated with the legend
+# Returns:    NULL (invisibly)
+# Source:     A.R. Kronlund
+# Revised:    K.Holt; 13-Jan-10 to accomodate axes on log scale
+panLegend <- function( x, y, legTxt, ... )
+{
+  # Allows legend to be placed at 0<x<1, 0<y<1.
+  usr  <- par( "usr" )
+  yLog <- par("ylog")
+  xLog <- par("xlog")
+  # Check for log-transformed axes and adjust usr commands as needed
+    # note: when a log scale is in use, 
+    #           usr gives limits in the form 10 ^ par("usr")
+  # Case 1: neither axis is on the log scale
+  if (yLog==FALSE & xLog==FALSE) {
+    par( usr=c(0,1,0,1) )
+  }
+  # Case 2: only the y-axis is on log scale
+  if (yLog==TRUE & xLog==FALSE) 
+  {
+     usr[3:4]<-10 ^ par("usr")[3:4]
+     par( usr=c(0,1,0,1), ylog=FALSE )
+   } 
+  # Case 3: only the x-axis is on log scale
+  if (yLog==FALSE & yLog==TRUE) 
+  {
+     usr[1:2]<-10 ^ par("usr")[1:2]
+     par( usr=c(0,1,0,1), xlog=FALSE )
+   } 
+  # Case 4: both axes are on the log scale
+  if (yLog==TRUE & xLog==TRUE) 
+  {
+     usr[1:4]<-10 ^ par("usr")[1:4]
+     par( usr=c(0,1,0,1), xlog=FALSE, ylog=FALSE )
+   } 
+  legend( x, y, legend=legTxt, ... )
+  par( usr=usr )
+  return( NULL )
+}
+
+# panLab      (Place text labels in plot region)
+# Purpose:    Place a text label in the plot region defined by (0,1), (0,1).
+#             The ... notation allows all parameters available to "text" to be
+#             passed.
+# Parameters: x, y are the coordinates of the label
+#             txt is the text
+# Returns:    NULL (invisibly)
+# Source:     A.R. Kronlund
+# Revised:    K.Holt; 13-Jan-10 to accomodate axes on log scale
+panLab <- function( x, y, txt, ... )
+{
+  # Allows text to be placed in plot panel at 0<x<1, 0<y<1.
+  usr <- par( "usr" )
+  
+  yLog <- par("ylog")
+  xLog <- par("xlog")
+  
+  # Check for log-transformed axes and adjust usr commands as needed
+  # note: when a log scale is in use, 
+  #           usr gives limits in the form 10 ^ par("usr")
+
+  # Case 1: neither axis is on the log scale
+  if (yLog==FALSE & xLog==FALSE)
+  {
+    par( usr=c(0,1,0,1) )
+  }
+  # Case 2: only the y-axis is on log scale
+  if (yLog==TRUE & xLog==FALSE) 
+  {
+    usr[3:4]<-10 ^ par("usr")[3:4]
+    par( usr=c(0,1,0,1), ylog=FALSE )
+  } 
+  # Case 3: only the x-axis is on log scale
+  if (yLog==FALSE & yLog==TRUE) 
+  {
+    usr[1:2]<-10 ^ par("usr")[1:2]
+    par( usr=c(0,1,0,1), xlog=FALSE )
+  } 
+  # Case 4: both axes are on the log scale
+  if (yLog==TRUE & xLog==TRUE) 
+  {
+    usr[1:4]<-10 ^ par("usr")[1:4]
+    par( usr=c(0,1,0,1), xlog=FALSE, ylog=FALSE )
+  } 
+  text( x, y, txt, ... )
+  par( usr=usr )
+  return( NULL )
+}
+
 # loadSim()
-# Loads the 
+# Loads the nominated simulation blob into memory, so that plot functions
+# run faster.
+# inputs:   sim=ordinal indicator of sim in project folder
+# ouputs:   NULL
+# usage:    Prior to plotting simulation outputs
+loadSim <- function (sim=1)
+{
+  # List directories in project folder, remove "." from list
+  dirList <- list.dirs (path="./project",full.names = FALSE,
+                        recursive=FALSE)
+  # Restrict to sim_ folders, pick the nominated simulation
+  simList <- dirList[grep(pattern="sim",x=dirList)]
+  folder <- simList[sim]
+
+  # Load the nominated blob
+  blobFileName <- paste(folder,".RData",sep="")
+  blobPath <- file.path(getwd(),"project",folder,blobFileName)
+  load ( file = blobPath )
+
+  assign( "blob",blob,pos=1 )
+  cat("MSG (loadSim) Simulation ", folder, " loaded from ./project/\n", sep="" )
+}
+
 
 # calcDetFit()
 # For troubleshooting bad model fits, by stepping through the

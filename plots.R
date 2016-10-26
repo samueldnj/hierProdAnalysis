@@ -9,26 +9,20 @@
 #
 # --------------------------------------------------------------------------
 
+
+
 # plotMCMCpar()
 # Function that will plot MCMC output from ADMB models for a nominated
 # parameter, simulation and replicate. Uses the coda package.
 # inputs:   rep=replicate number; 
-#           sim=number indicating blob to load from project dir
 #           par=character name of parameter
+#           sim=number indicating blob to load from project dir
 # output:   NULL
 # usage:    post-sim, showing MCMC performance
-plotMCMCpar <- function ( rep=1, sim=1, par="BMSY" )
+plotMCMCpar <- function ( rep=1, par="BMSY", sim=1 )
 {
-  # List directories in project folder, remove "." from list
-  dirList <- list.dirs (path="./project",full.names = FALSE,
-                        recursive=FALSE)
-  simList <- dirList[grep(pattern="sim",x=dirList)]
-  folder <- simList[sim]
-
-  # Load the nominated blob
-  blobFileName <- paste(folder,".RData",sep="")
-  blobPath <- file.path(getwd(),"project",folder,blobFileName)
-  load ( file = blobPath )
+  # Check if blob is loaded, if not, load the
+  if (!exists(x="blob",where=1)) loadSim(sim)
 
   # Create a stamp from scenario and mp name
   scenario  <- blob$ctl$scenario
@@ -76,25 +70,18 @@ plotMCMCpar <- function ( rep=1, sim=1, par="BMSY" )
 
 # plotMCMCspecies()
 # Function that will plot MCMC output from ADMB models for a nominated
-# species, simulation and replicate. Uses the coda package.
-# inputs:   rep=replicate number; 
-#           sim=number indicating blob to load from project dir
+# species and replicate from the loaded blob. Uses the coda package.
+# inputs:   rep=replicate number to start from; 
 #           spec=number indicating the species
+#           sim=number indicating simulation to load if no blob present
 # output:   NULL
 # usage:    post-sim, showing MCMC performance
-plotMCMCspecies <- function ( rep=1, sim=1, spec=1 )
+plotMCMCspecies <- function ( rep=1, spec=1, sim = 1 )
 {
-  # List directories in project folder, remove "." from list
-  dirList <- list.dirs (path="./project",full.names = FALSE,
-                        recursive=FALSE)
-  simList <- dirList[grep(pattern="sim",x=dirList)]
-  folder <- simList[sim]
-
-  # Load the nominated blob
-  blobFileName <- paste(folder,".RData",sep="")
-  blobPath <- file.path(getwd(),"project",folder,blobFileName)
-  load ( file = blobPath )
-
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  if (!exists(x="blob",where=1)) loadSim(sim)
+ 
   # Create a stamp from scenario and mp name
   scenario  <- blob$ctl$scenario
   mp        <- blob$ctl$mp
@@ -146,23 +133,17 @@ plotMCMCspecies <- function ( rep=1, sim=1, spec=1 )
 # inputs:   rep=replicate number
 #           sim=number indicating blob to load from project dir
 #           quant=numeric of percentiles to be calculated
-plotMCMCbio <- function ( sim = 1, rep = 1, quant=c(0.025,0.5,0.975))
+plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
 {
-  # List directories in project folder, remove "." from list
-  dirList <- list.dirs (path="./project",full.names = FALSE,
-                        recursive=FALSE)
-  simList <- dirList[grep(pattern="sim",x=dirList)]
-  folder <- simList[sim]
-
-  # Load the nominated blob
-  blobFileName <- paste(folder,".RData",sep="")
-  blobPath <- file.path(getwd(),"project",folder,blobFileName)
-  load ( file = blobPath )
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  if (!exists(x="blob",where=1)) loadSim(sim)
 
   # Recover control pars
   nS <- blob$ctl$nS
   nT <- blob$ctl$nT
 
+  browser()
 
   # load biomass trajectories
   omBio <- blob$om$Bt[rep,,]
@@ -176,12 +157,20 @@ plotMCMCbio <- function ( sim = 1, rep = 1, quant=c(0.025,0.5,0.975))
   ssBio <- apply(X=ssBio,FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=quant)
   msBio <- apply(X=msBio,FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=quant)
 
+  # Fit diagnostics (hessian)
+  hpdSS <- blob$am$ss$hesspd[rep,]
+  hpdMS <- blob$am$ms$hesspd[rep]
+
+  # Set colours
+  ssCol <- "steelblue"
+  msCol <- "salmon"
+
   # Now plot!
   par(mfrow = c(3,1), mar = c(1,1,1,1), oma=c(1,1,1,1))
   for (s in 1:nS)
   {
     # Compute max B value
-    yLim <- 1.1*max (ssBio[,s,])
+    yLim <- 1.3*max (omBio[s,])
     # Blank plot
     plot ( x=c(1,nT), y =c(1,yLim), type = "n", xlab = "", ylab = "Biomass (t)")
     # Create polygon vertices
@@ -190,14 +179,14 @@ plotMCMCbio <- function ( sim = 1, rep = 1, quant=c(0.025,0.5,0.975))
     yPolyMS <- c(msBio[1,s,1:nT],msBio[3,s,nT:1])
     # plot CI bands
     # SS
-    polygon (x = xPoly, y = yPolySS, col = "steelblue", density=1)
+    polygon (x = xPoly, y = yPolySS, col = ssCol, density=1)
     # MS
-    polygon (x = xPoly, y = yPolyMS, col = "salmon", density=1)
+    polygon (x = xPoly, y = yPolyMS, col = msCol, density=1)
     # Plot Medians
-    lines ( x = 1:nT, y = ssBio[2,s,], col = "steelblue",lty=2,lwd=2 )
-    lines ( x = 1:nT, y = msBio[2,s,], col = "salmon",lty=2,lwd=2 )
+    lines ( x = 1:nT, y = ssBio[2,s,], col = ssCol,lty=2,lwd=2 )
+    lines ( x = 1:nT, y = msBio[2,s,], col = msCol,lty=2,lwd=2 )
     # Plot true biomass
-    lines ( x=1:nT, y = omBio[s,],col="black", lwd = 0.8)
+    lines ( x=1:nT, y = omBio[s,],col="black", lwd = 2)
   }
   return()
 }
@@ -211,22 +200,11 @@ plotMCMCbio <- function ( sim = 1, rep = 1, quant=c(0.025,0.5,0.975))
 #           folder=name of folder/blob file (supercedes sim number)
 # output:   NULL
 # usage:    post-simulation run, plotting performance
-plotBCF <- function ( rep = 1, sim = 1, folder = NULL, est="MLE" )
+plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
 {
-  # First, if a folder name isn't nominated, use sim number
-  # to find the folder name
-  if (is.null(folder))
-  {
-    # List directories in project folder, remove "." from list
-    dirList <- list.dirs (path="./project",full.names = FALSE,
-                          recursive=FALSE)
-    simList <- dirList[grep(pattern="sim",x=dirList)]
-    folder <- simList[sim]
-  }
-  # Load the nominated blob
-  blobFileName <- paste(folder,".RData",sep="")
-  blobPath <- file.path(getwd(),"project",folder,blobFileName)
-  load ( file = blobPath )
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  if (!exists(x="blob",where=1)) loadSim(sim)
 
   # Create a stamp from scenario and mp name
   scenario  <- blob$ctl$scenario
@@ -272,6 +250,15 @@ plotBCF <- function ( rep = 1, sim = 1, folder = NULL, est="MLE" )
     msq        <- mcParMSMed[rep,,"q"]
   }
   
+  # Recover diagnostics for the fits
+  hpdSS <- blob$am$ss$hesspd[rep,]
+  minSS <- blob$am$ss$locmin[rep,]
+  hpdMS <- blob$am$ms$hesspd[rep]
+  minMS <- blob$am$ms$locmin[rep]
+
+  # Set colours for each model
+  ssCol <- "steelblue"
+  msCol <- "salmon"
 
   # Set up plot window
   par ( mfrow = c(3,nS), mar = c(1,4,1,0), oma = c(3,0,1,0.5) )
@@ -284,11 +271,18 @@ plotBCF <- function ( rep = 1, sim = 1, folder = NULL, est="MLE" )
     plot    ( x = c(1,nT), y = c(0,maxBt), type = "n", 
               ylim = c(0,maxBt), ylab = yLab, las = 1, xlab = "" ,
               main = specNames[s] )
+    if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
+                            col=c(ssCol,msCol), lty = c(2,2), 
+                            lwd = c(2,2), cex=c(0.7), bty="n" )
+    if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=0.7)
+    if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=0.7)
+    if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=0.7)
+    if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=0.7)
+    points  ( x = 1:nT, y = It[s,]/ssq[s], pch = 2, cex = 0.6, col="grey70" )
+    points  ( x = 1:nT, y = It[s,]/msq[s], pch = 5, cex = 0.6, col="grey70" )
     lines   ( x = 1:nT, y = omBt[s,], col = "black", lwd = 2)
-    lines   ( x = 1:nT, y = ssBt[s,], col = "steelblue", lwd = 2, lty = 2 )
-    lines   ( x = 1:nT, y = msBt[s,], col = "salmon", lwd = 2, lty = 2 )
-    points  ( x = 1:nT, y = It[s,]/ssq[s], pch = 2, cex = 0.8, col="grey50" )
-    points  ( x = 1:nT, y = It[s,]/msq[s], pch = 5, cex = 0.8, col="grey50" )
+    lines   ( x = 1:nT, y = ssBt[s,], col = ssCol, lwd = 2, lty = 2 )
+    lines   ( x = 1:nT, y = msBt[s,], col = msCol, lwd = 2, lty = 2 )
   }
   # Now plot catch
   for ( s in 1:nS )
@@ -321,23 +315,11 @@ plotBCF <- function ( rep = 1, sim = 1, folder = NULL, est="MLE" )
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
 # usage:    
-plotSimPerf <- function ( sim = 1, folder = NULL, 
-                          pars = c("Bmsy","Fmsy","q","dep","BnT") )
+plotSimPerf <- function ( pars = c("Bmsy","Fmsy","q","dep","BnT"), sim=1 )
 {
-  # First, if a folder name isn't nominated, use sim number
-  # to find the folder name
-  if (is.null(folder))
-  {
-    # List directories in project folder, remove "." from list
-    dirList <- list.dirs (path="./project",full.names = FALSE,
-                          recursive=FALSE)
-    simList <- dirList[grep(pattern="sim",x=dirList)]
-    folder <- simList[sim]
-  }
-  # Load the nominated blob
-  blobFileName <- paste(folder,".RData",sep="")
-  blobPath <- file.path(getwd(),"project",folder,blobFileName)
-  load ( file = blobPath )
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  if (!exists(x="blob",where=1)) loadSim(sim)
 
   # Create a stamp from scenario and mp name
   scenario  <- blob$ctl$scenario
