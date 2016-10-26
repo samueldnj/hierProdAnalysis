@@ -8,14 +8,45 @@
 # Date: 24 August, 2016
 #
 #
+# ToDo: 1. Complete list of tools
+#       2. Write headers for saveSim()
+#
 #	List of tools:
-#		lisread()			Function that reads ADMB style files as a list object
+#		lisread()			Function that reads ADMB style files as a list object (JS)
 #   writeADMB()   Function that writes ADMB dat/pin files from list objects
 #   saveSim()     Function that saves the output from a simulation run
-#   read.fit()    Function that reads ADMB par and cor files
+#   read.admb()   Function that reads ADMB output (SJDM)
 # 
 # --------------------------------------------------------------------------
 
+# loadSim()
+# Loads the 
+
+# calcDetFit()
+# For troubleshooting bad model fits, by stepping through the
+# empirical covariance matrix and calculating determinants for sub-matrices.
+# Hopefully, the sub-matrices without full rank can be identified and 
+# the culprits can be found.
+# inputs:   fit=list returned by read.fit
+# outputs:  det=named vector of deteterminants for submatrices missing
+#               the named variable
+calcDetFit <- function (fit)
+{
+  npar  <- fit$npar
+  cor   <- fit$cor
+
+  subDet <- numeric ( length = npar )
+
+  for(j in 1:npar)
+  {
+    subMat <- cor[-j,-j]
+    subDet[j] <- det(subMat)
+  }
+  return(subDet)
+}
+
+# saveSim()
+# Function that....
 saveSim <- function(blob, folder, path)
 {
   rDataFile <- paste ( folder, ".RData", sep = "" )
@@ -177,6 +208,21 @@ readRagged <- function( x, var, ncols ) {
   }
   outList
 }   # end readRagged()
+read.admb <-
+function(ifile)
+{ 
+  ret=read.fit(ifile)
+  
+  fn=paste(ifile,'.rep', sep='')
+  A=read.rep(fn)
+  A$fit=ret
+  
+  pfn=paste(ifile,'.psv',sep='')
+  if(file.exists(pfn))
+    A$post.samp=read.psv(pfn)
+  
+  return(A)
+}
 
 read.fit <-
 function(ifile)
@@ -208,4 +254,64 @@ function(ifile)
   ret$cor[lower.tri(ret$cor)] <- t(ret$cor)[lower.tri(ret$cor)] 
   ret$cov<-ret$cor*(ret$std%o%ret$std)
   return(ret)
+}
+
+read.rep <- 
+function(fn)
+{
+  # The following reads a report file
+  # Then the 'A' object contains a list structure
+  # with all the elemements in the report file.
+  # In the REPORT_SECTION of the AMDB template use 
+  # the following format to output objects:
+  #   report<<"object \n"<<object<<endl;
+  #
+  # The part in quotations becomes the list name.
+  # Created By Steven Martell
+  options(warn=-1)  #Suppress the NA message in the coercion to double
+  
+  
+  ifile=scan(fn,what="character",flush=TRUE,blank.lines.skip=FALSE,quiet=TRUE)
+  idx=sapply(as.double(ifile),is.na)
+  vnam=ifile[idx] #list names
+  nv=length(vnam) #number of objects
+  A=list()
+  ir=0
+  for(i in 1:nv)
+  {
+    ir=match(vnam[i],ifile)
+    if(i!=nv) irr=match(vnam[i+1],ifile) else irr=length(ifile)+1 #next row
+    dum=NA
+    if(irr-ir==2) dum=as.double(scan(fn,skip=ir,nlines=1,quiet=TRUE,what=""))
+    if(irr-ir>2) dum=as.matrix(read.table(fn,skip=ir,nrow=irr-ir-1,fill=TRUE))
+
+    if(is.numeric(dum))#Logical test to ensure dealing with numbers
+    {
+      A[[vnam[i]]]=dum
+    }
+  }
+  options(warn=0)
+  
+  return(A)
+}
+
+read.psv <-
+function(fn, nsamples=10000)
+{
+  #This function reads the binary output from ADMB
+  #-mcsave command line option.
+  #fn = paste(ifile,'.psv',sep='')
+  filen <- file(fn, "rb")
+  nopar <- readBin(filen, what = integer())
+  mcmc <- readBin(filen, what = numeric(), n = nopar * nsamples)
+  mcmc <- matrix(mcmc, byrow = TRUE, ncol = nopar)
+  close(filen)
+  return(mcmc)
+}
+
+gletter <-
+function(i=1)
+{
+  usr=par("usr"); inset.x=0.05*(usr[2]-usr[1]); inset.y=0.05*(usr[4]-usr[3])
+  text(usr[1]+inset.x,usr[4]-inset.y,paste("(",letters[i],")",sep=""),cex=1.,font=1)
 }

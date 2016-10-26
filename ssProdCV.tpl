@@ -76,7 +76,7 @@ PARAMETER_SECTION
   number Fmsy;
   number sigma;
   number tau;
-  sdreport_number q;
+  number q;
   
   // variances
   number sigma2;
@@ -195,10 +195,10 @@ FUNCTION stateDynamics
     Bt_bar(t+1) = ( Bt_bar(t) + 
                     2. * Fmsy * Bt_bar(t) * (1 - Bt_bar(t)/Bmsy/2. ) - 
                     katch(t) ) * mfexp ( epstCorr(t+1) );
-    Bt_bar(t+1) = posfun ( Bt_bar(t+1), 1., pospen );
+    Bt_bar(t+1) = posfun ( Bt_bar(t+1), katch(t+1)+10, pospen );
     //cout << "Computing B" << t+1 << " = " << Bt_bar(t+1) << endl;
     // Increment function penaliser variable
-    fpen += 100. * pospen;
+    fpen += 10000. * pospen;
   }
 
   // compute derived performance values

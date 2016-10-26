@@ -99,7 +99,7 @@ PARAMETER_SECTION
   matrix zetat(1,nS,1,nT);
 
   // variables to hold concentrated parameters
-  sdreport_vector lnqhat(1,nS);
+  vector lnqhat(1,nS);
   sdreport_vector q(1,nS);
 
   //penalizer
@@ -175,14 +175,14 @@ PROCEDURE_SECTION
 // State dynamics subroutine
 FUNCTION stateDynamics
   // exponentiate leading parameters
-  Fmsy = mfexp ( lnFmsy );         // optimal fishing mortality
-  Bmsy = mfexp ( lnBmsy );           // msy
-  msy = elem_prod( Bmsy, Fmsy);     // optimal biomass
+  Fmsy  = mfexp ( lnFmsy );         // optimal fishing mortality
+  Bmsy  = mfexp ( lnBmsy );           // msy
+  msy   = elem_prod( Bmsy, Fmsy);     // optimal biomass
 
   // initialise variables
-  Bt_bar = 0.; chol = 0.; 
-  epst = 0.; zetat = 0.;
-  epstCorr = 0.; zetatCorr = 0.;
+  Bt_bar    = 0.; chol      = 0.; 
+  epst      = 0.; zetat     = 0.;
+  epstCorr  = 0.; zetatCorr = 0.;
 
   // back-calculate leading pars
   sigma2   = mfexp(lnsigma2);
@@ -240,10 +240,10 @@ FUNCTION stateDynamics
       Bt_bar(s,t+1) = ( Bt_bar(s,t) + 
                       2. * Fmsy(s) * Bt_bar(s,t) * (1 - Bt_bar(s,t)/Bmsy(s)/2.0 ) - 
                       katch(s,t) ) * mfexp ( epstCorr(t+1)+zetatCorr(s,t+1) );
-      Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), 10e-1, pospen );
+      Bt_bar(s,t+1) = posfun ( Bt_bar(s,t+1), katch(s,t+1)+10, pospen );
       
       // Increment function penaliser variable
-      fpen += 1000. * pospen;
+      fpen += 10000. * pospen;
     }
   }
   

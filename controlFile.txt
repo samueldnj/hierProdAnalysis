@@ -7,10 +7,10 @@ qConc_ms_ss
 testScenario
 
 # nReps
-1
+100
 
 # rSeed
-100
+1
 
 # specNames
 Dover English Rock
@@ -31,10 +31,10 @@ Dover English Rock
 10
 
 # fitTrials
-0
+4
 
 # maxfn
-1000
+30000
 
 ### OM controls ###
 ## Number of stocks 
@@ -85,7 +85,7 @@ Dover English Rock
 0.2 2 0.8
 
 # tFpeak
-15
+10
 
 ### EM controls ###
 ## Initial values for parameters and hyperparameters not included above ##
@@ -103,7 +103,7 @@ Dover English Rock
 -3
 
 # phz_sigma
--2
+2
 
 ## Survey catchability (DON"T FIX)
 # phz_q

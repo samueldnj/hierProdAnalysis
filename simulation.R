@@ -183,7 +183,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                           phz_AR      = ctl$phz_AR,
                           dumm        =  999 )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy      = log(1.5*omList$Bmsy[s]),
+    ssPar[[s]] <- list (  lnBmsy      = log(sumCat[s]),
                           lnFmsy      = log(omList$Fmsy[s]),
                           lnTau2      = log(omList$tau[s]),
                           lnsigma2    = log(omList$sigma+omList$Sigma[s]),
@@ -218,7 +218,7 @@ makeDataLists <- function ( omList = om, ctl = ctlList )
                   phz_AR      = ctl$phz_AR,
                   phz_chol    = ctl$phz_chol,
                   dumm        = 999 )
-  msPar <- list ( lnBmsy      = log(1.5*omList$Bmsy),
+  msPar <- list ( lnBmsy      = log(sumCat),
                   lnFmsy      = log(omList$Fmsy),
                   lnTau2      = log(omList$tau),
                   lnSigma2    = log(omList$Sigma),
@@ -276,6 +276,7 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
   # No label on admb output files
   parFile   <- paste ( activeFileRoot,".par", sep = "")
   repFile   <- paste ( activeFileRoot,".rep", sep = "")
+  psvFile   <- paste ( activeFileRoot,".psv", sep = "")
   mcParFile <- paste ( activeFileRoot,"ParMC.dat", sep = "")
   mcBioFile <- paste ( activeFileRoot,"BioMC.dat", sep = "")
 
@@ -283,23 +284,19 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
   mcParBackup <- paste (activeFileRoot,lab,"ParMC.bak", sep = "")
   mcBioBackup <- paste (activeFileRoot,lab,"BioMC.bak", sep = "")
 
-
   # Set path, exec and paste together command call
   path        <- getwd()
   exec        <- file.path(path,activeFileRoot)
   procCall    <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
-                            " -mcmc ", 1, " -maxfn ", maxfn,
-                            " -mcsave ", 1, sep = "" )
-  procCallpar <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
-                            " -mcmc ", 1, " -maxfn ", maxfn,
-                            " -mcsave ", 1, sep = "" )
-  procCallhpd  <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
                             " -mcmc ", mcTrials, " -maxfn ", maxfn,
-                            " -mcsave ", mcSave, sep = "" )
-  mcEval      <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
-                    " -mceval", sep = "" )
-  mcEvalhpd   <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
-                    " -mceval", sep = "" )
+                            " -mcsave ", mcSave, " -nox", sep = "" )
+  procCallpar <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
+                            " -mcmc ", mcTrials, " -maxfn ", maxfn,
+                            " -mcsave ", mcSave, " -nox", sep = "" )
+  mcEval      <- paste (  exec, " -ainp ", pinFile, " -ind ", datFile, 
+                          " -mceval", sep = "" )
+  mcEvalpar   <- paste (  exec, " -ainp ", pinFile, " -ind ", datFile, 
+                          " -mceval", sep = "" )
 
   # Pull out lnMSY and sMSY for use in refitting procedure later
   lnBmsy   <- par$lnBmsy
@@ -319,168 +316,92 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
             activeFile=pinFile )
 
   # Now run the model and read in rep and MCMC files
-  system ( command = procCall, wait =TRUE, ignore.stdout = TRUE )
-  system ( command = mcEval, wait =TRUE, ignore.stdout = TRUE )
-
-  for ( i in 0:fitTrials )
+  prcOut  <- system ( command = procCall, wait =TRUE, ignore.stdout = FALSE, 
+                      intern = TRUE, ignore.stderr=TRUE )
+  evalOut <- system ( command = mcEval, wait =TRUE, 
+                      ignore.stdout = FALSE, intern=TRUE, ignore.stderr=TRUE )
+  
+  for ( i in 1:fitTrials )
   {
     hessPosDef <- TRUE
     localMin <- TRUE
-    
-    
-
-    fitrep  <- lisread ( repFile )
+      
+    # Read in output from em
     mcPar   <- try ( read.table ( mcParFile, header = TRUE), silent=TRUE )
-    mcBio   <- try ( read.table (mcBioFile) )
+    mcBio   <- try ( read.table (mcBioFile), silent=TRUE )
+    fitrep  <- lisread ( repFile )
 
-    browser()
-
-    # If not, then we go through the list:
-    if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 2e1 )
+    # Check if there was MCMC output, if not, go down the list of possible 
+    # reasons, and rerun the fit
+    if (!is.null(attr(prcOut,"status"))|!is.null(attr(evalOut,"status")))
     {
-      localMin <- FALSE
       hessPosDef <- FALSE
-      if (i < fitTrials)
+      # Did we run out of iterations (max grad ceiling is v. high here,
+      # but this sometimes works)
+      if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 1e3 )
       {
+        localMin <- FALSE
         cat ( activeFileRoot, 
               " reached max iterations,\n repeat i = ",
-              i+1, ".\n", sep = "")
-        # Increment lnBMSY and tighten sBMSY
-        maxfn <- 5*maxfn
-        procCall  <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
-                            " -mcmc ", 1, " -maxfn ", maxfn,
-                            " -mcsave ", 1, sep = "" )
+              i, ".\n", sep = "")
+        # Re-run from where the last one stopped
+        prcOut <-   system (  command = procCallpar, wait =TRUE, 
+                              ignore.stdout = TRUE, intern=TRUE,
+                              ignore.stderr=TRUE )
+        evalOut <-  system ( command = mcEvalpar, wait =TRUE, 
+                             ignore.stdout = TRUE, intern=TRUE,
+                             ignore.stderr=TRUE )
         next
       }
-    }
-    if ( abs(fitrep$maxGrad) > 1e-2 )
-    {
-      localMin <- FALSE
-      hessPosDef <- FALSE
-      if (i < fitTrials)
+      # If the model stopped for another reason, but the max gradient is
+      # too high, or the positive penalty was invoked, then Increment
+      # lnBmsy and rerun.
+      if ( fitrep$iExit <= 1 & (abs(fitrep$maxGrad) > 1e-4 | fitrep$fpen > 0 ) )
       {
+        localMin <- FALSE
         cat ( activeFileRoot, 
               " didn't find local min,\n repeat i = ",
-              i+1, ".\n", sep = "")
+              i, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
-        par$lnBmsy <- lnBmsy + log ((i + 1)*0.2)
+        par$lnBmsy <- lnBmsy *(1+(i)*0.2)
+        # Write to pin file 
+        cat ( "## ", activeFileRoot, " initial parameter file, created ", 
+              format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
+              sep = "", file = pinFile, append = FALSE )
+        lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
+                  activeFile=pinFile )
+        # Now run the model and read in rep and MCMC files
+        prcOut <-   system (  command = procCall, wait =TRUE, 
+                              ignore.stdout = TRUE, intern=TRUE,
+                              ignore.stderr=TRUE )
+        evalOut <-  system ( command = mcEval, wait =TRUE, 
+                             ignore.stdout = TRUE, intern=TRUE,
+                             ignore.stderr=TRUE )
         next
-      }
+      }      
     }
-    if ( ( class (mcPar) == "try-error" | class (mcBio) == "try-error") )
-    {
-      hessPosDef <- FALSE 
-      if (i < fitTrials)
-      {
-        cat ( activeFileRoot, 
-              " has NPD hessian,\n repeat i = ",
-              i+1, ".\n", sep = "")
-        # Use local min as initial parameters for the next try
-        procCall <- procCallpar
-        next
-      }
-    }
-    # If MCMC possible, hessian is PD. Run MCMC from this point
-    if ( class(mcPar) == "data.frame" & (nrow(mcPar)==1|nrow(mcPar)==3) ) 
-    {
-      # browser(cat("In the final part\n"))
-      system ( command = procCallhpd, wait =TRUE, ignore.stdout = TRUE )
-      system ( command = mcEvalhpd,   wait =TRUE, ignore.stdout = TRUE )
-      fitrep  <- lisread ( repFile )
-      mcPar   <- try ( read.table ( mcParFile, header = TRUE) )
-      mcBio   <- try ( read.table (mcBioFile) )
-      break
-    }
+    # Break if hess Positive definite
+    if (hessPosDef) break
+    # Otherwise, rerun the model using the par as the pin
+    prcOut <-   system (  command = procCallpar, wait =TRUE, 
+                          ignore.stdout = TRUE, intern=TRUE,
+                          ignore.stderr=TRUE )
+    evalOut <-  system ( command = mcEvalpar, wait =TRUE, 
+                         ignore.stdout = TRUE, intern=TRUE,
+                         ignore.stderr=TRUE )
   }
-  # Alternate refitting procedure, needs work
-  # # Write to pin file 
-  # cat ( "## ", activeFileRoot, " initial parameter file, created ", 
-  #       format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
-  #       sep = "", file = pinFile, append = FALSE )
-  # lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
-  #           activeFile=pinFile )
+  # Now check the MLE fit, but don't bother to refit if we've got 
+  # a posterior (no matter the quality)
+  if (fitrep$maxGrad > 1e-4) localMin <- FALSE
 
-  # # Now run the model and read in rep and MCMC files
-  # call <- system ( command = procCall, wait =TRUE, ignore.stdout = TRUE, intern=TRUE )
-  # system ( command = mcEval, wait =TRUE, ignore.stdout = TRUE, intern=TRUE )
-
-  # if (!is.null(attr(call,"status"))) browser()
-
-  # for ( i in 0:(fitTrials) )
-  # {
-  #   hessPosDef <- FALSE
-  #   localMin <- FALSE    
-
-  #   # read in model outputs
-  #   fitrep  <- lisread  ( repFile )
-  #   fitpar  <- lisread  ( parFile, quiet=TRUE )
-  #   fitpar  <- fitpar[2:length(fitpar)]
-  #   mcPar   <- try ( read.table (mcParFile, header = TRUE) )
-  #   mcBio   <- try ( read.table (mcBioFile) )
-
-  #   if ( fitrep$maxGrad < 1e-4 & class(mcPar) == "data.frame")
-  #   {
-  #     hessPosDef <- TRUE
-  #     localMin   <- TRUE
-  #     break
-  #   }
-
-  #   # Check the exit code:
-  #   if (fitrep$iExit == 3 )
-  #   {
-  #     if (i < fitTrials)
-  #     {
-  #       cat ( activeFileRoot, 
-  #             " ran out of iterations,\n repeat i = ", i+1, "\n", sep = "")
-  #       # Restart from the par file
-  #       system ( command = procCall2, wait =TRUE, ignore.stdout = FALSE )
-  #       system ( command = mcEval2, wait =TRUE, ignore.stdout = FALSE )
-  #       next
-  #     }
-  #   }
-  #   # Check the maximum gradient
-  #   if (fitrep$maxGrad > 1e-4)
-  #   {
-  #     if (i < fitTrials)
-  #     {
-  #       cat ( activeFileRoot, 
-  #             " couldn't find local min,\n repeat i = ", i+1, "\n", sep = "")
-  #       # Change pin file value to try to "squeeze" the likelihood        
-  #       par$lnBMSY  <- (1 + (i+1)/fitTrials)*lnBmsy
-  #       par$sBMSY   <- (1 - i/(fitTrials))*sBMSY
-  #       # Write to pin file 
-  #       cat ( "## ", activeFileRoot, " initial parameter file, created ", 
-  #             format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
-  #             sep = "", file = pinFile, append = FALSE )
-  #       lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
-  #                 activeFile=pinFile )
-  #       system ( command = procCall, wait =TRUE, ignore.stdout = TRUE, intern=TRUE )
-  #       system ( command = mcEval, wait =TRUE, ignore.stdout = TRUE, intern=TRUE )
-  #     }
-  #   }
-  #   if ( class (mcPar) == "try-error" | class (mcBio) == "try-error" )
-  #   {
-  #     if (i < fitTrials)
-  #     {
-  #       cat ( activeFileRoot, 
-  #             " has NPD hessian,\n repeat i = ", i+1, "\n", sep = "")
-  #       # Use par file as pin, try refitting
-  #       system ( command = procCall2, wait =TRUE, ignore.stdout = TRUE )
-  #       system ( command = mcEval2, wait =TRUE, ignore.stdout = TRUE )
-  #       next
-  #     }
-  #   }
-  # }
-  if ( !localMin | !hessPosDef )
+  # Now if the hessian is NPD, get the posterior for another fit
+  if ( !hessPosDef )
   {
-    if ( !hessPosDef ) #Is this really a good idea?
-    {
-      mcPar <- read.table (mcParBackup, header = TRUE )
-      mcBio <- read.table (mcBioBackup)
-    }
-    cat(  "\n", activeFileRoot, "model had trouble fitting in", i, 
-          "trials with given pin and dat file.\n",
-          "Copying bad pin and dat for forensics.\n" )
+    mcPar <- read.table (mcParBackup, header = TRUE )
+    mcBio <- read.table (mcBioBackup)
+    cat(  "\n", activeFileRoot, " had trouble finding PD hessian in ", 
+          i, " trials with given pin.\n",
+          "Copying bad pin and dat for forensics.\n", sep="" )
     # Save the *.pin and *.dat files for forensics.
     badPinFile <- file.path(  getwd(),"badfits",
                               paste( activeFileRoot,lab,Sys.time(),".pin", sep="" ) )
@@ -494,8 +415,16 @@ callProcADMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], lab=NULL,
     file.copy( mcBioFile, mcBioBackup, overwrite = TRUE )
   }
 
-  out <- list ( fitrep = fitrep, mcPar = mcPar, mcBio = mcBio,
-                localMin = localMin, hessPosDef = hessPosDef )
+  # Delete output that will trick procedure in the future
+  file.remove(mcParFile,mcBioFile)
+  if (file.exists(psvFile)) file.remove(psvFile)
+
+  # Return
+  out <- list ( fitrep = fitrep, 
+                mcPar = mcPar, 
+                mcBio = mcBio,
+                localMin = localMin, 
+                hessPosDef = hessPosDef )
   out
 }
 
