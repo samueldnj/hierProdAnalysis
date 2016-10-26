@@ -143,8 +143,6 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
   nS <- blob$ctl$nS
   nT <- blob$ctl$nT
 
-  browser()
-
   # load biomass trajectories
   omBio <- blob$om$Bt[rep,,]
   ssBio <- blob$am$ss$mcBio[rep,,,]
@@ -164,6 +162,11 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
   # Set colours
   ssCol <- "steelblue"
   msCol <- "salmon"
+  # Create transparent fill colours for polys
+  ssFill <- col2rgb(ssCol)/255
+  ssFill <- rgb(ssFill[1],ssFill[2],ssFill[3],alpha=0.5)
+  msFill <- col2rgb(msCol)/255
+  msFill <- rgb(msFill[1],msFill[2],msFill[3],alpha=0.5)
 
   # Now plot!
   par(mfrow = c(3,1), mar = c(1,1,1,1), oma=c(1,1,1,1))
@@ -177,11 +180,16 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
     xPoly <- c(1:nT,nT:1)
     yPolySS <- c(ssBio[1,s,1:nT],ssBio[3,s,nT:1])
     yPolyMS <- c(msBio[1,s,1:nT],msBio[3,s,nT:1])
+    if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
+                            fill=c(ssFill,msFill), border=c(NA,NA), 
+                            cex=c(0.7), bty="n" )
+    if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=0.7)
+    if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=0.7)
     # plot CI bands
     # SS
-    polygon (x = xPoly, y = yPolySS, col = ssCol, density=1)
+    polygon (x = xPoly, y = yPolySS,border=NA,col = ssFill,density=NA)
     # MS
-    polygon (x = xPoly, y = yPolyMS, col = msCol, density=1)
+    polygon (x = xPoly, y = yPolyMS,border=NA,col = msFill,density=NA)
     # Plot Medians
     lines ( x = 1:nT, y = ssBio[2,s,], col = ssCol,lty=2,lwd=2 )
     lines ( x = 1:nT, y = msBio[2,s,], col = msCol,lty=2,lwd=2 )
