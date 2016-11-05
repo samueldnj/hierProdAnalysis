@@ -46,8 +46,8 @@ PARAMETER_SECTION
   //parameters to estimate (mostly on log scale - found in pin file)
   init_bounded_number lnBmsy(2,10,phz_Bmsy);         // carrying capacity - log scale
   init_bounded_number lnFmsy(-5,0,phz_Fmsy);         // intrinsic rate of growth - log scale
-  init_bounded_number lnTau2(-5,1,phz_tau);           // obs error sd
-  init_bounded_number lnsigma2(-5,1,phz_sigma);       // proc error sd
+  init_bounded_number lnTau2(-5,1,phz_tau);          // obs error sd
+  init_bounded_number lnsigma2(-5,1,phz_sigma);      // proc error sd
   //init_bounded_number lnq(-5,1,phz_q);               // survey catchability
 
   // Fixed parameters and hyperparameters
@@ -55,18 +55,18 @@ PARAMETER_SECTION
   init_number sBmsy(-1);              // msy prior SD
   init_number mFmsy(-1);              // lnFmsy prior mean
   init_number sFmsy(-1);              // lnFmsy priod sd
-  init_number alpha_sigma(-1);         // sigma prior mean
-  init_number beta_sigma(-1);          // sigma prior sd
-  init_number alpha_tau(-1);           // sigma prior mean
-  init_number beta_tau(-1);            // sigma prior sd
+  init_number alpha_sigma(-1);        // sigma prior mean
+  init_number beta_sigma(-1);         // sigma prior sd
+  init_number alpha_tau(-1);          // sigma prior mean
+  init_number beta_tau(-1);           // sigma prior sd
   init_number mlnq(phz_mlnq);         // log q prior mean
   init_number slnq(phz_slnq);         // log q prior sd
 
   // autocorrelation factor
   init_bounded_number rho(0,0.9,phz_AR);         // AR(1) factor
-
+  !! cout << rho << endl;
   // process error deviations
-  init_vector epst_st(1,nT,phz_dev);
+  init_bounded_vector epst_st(1,nT,-3.,3.,phz_dev);
 
   //objective function value
   objective_function_value f;

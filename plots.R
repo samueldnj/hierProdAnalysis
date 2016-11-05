@@ -9,8 +9,6 @@
 #
 # --------------------------------------------------------------------------
 
-
-
 # plotMCMCpar()
 # Function that will plot MCMC output from ADMB models for a nominated
 # parameter, simulation and replicate. Uses the coda package.
@@ -22,17 +20,17 @@
 plotMCMCpar <- function ( rep=1, par="Bmsy", sim=1 )
 {
   # Check if blob is loaded, if not, load the
-  if (!exists(x="blob",where=1)) loadSim(sim)
+  if (!exists(x="blob",where=1)) .loadSim(sim)
 
   # Create a stamp from scenario and mp name
-  scenario  <- blob$ctl$scenario
-  mp        <- blob$ctl$mp
+  scenario  <- blob$ctrl$scenario
+  mp        <- blob$ctrl$mp
   stamp     <- paste(scenario,":",mp,sep="")
-  repCount  <- paste("Replicate ",rep,"/",blob$ctl$nReps,sep="")
+  repCount  <- paste("Replicate ",rep,"/",blob$ctrl$nReps,sep="")
 
   # Recover blob elements for plotting
-  nS    <- blob$ctl$nS
-  nT    <- blob$ctl$nT
+  nS    <- blob$opMod$nS
+  nT    <- blob$opMod$nT
 
   # Species names
   specNames <- blob$ctl$specNames
@@ -57,12 +55,12 @@ plotMCMCpar <- function ( rep=1, par="Bmsy", sim=1 )
   titleMS <- paste ( "MS MCMC for ", par, sep = "")
 
   # plot SS trace and posteriors
-  plot(parMCoutSS)
+  plot(parMCoutSS,las=1)
   mtext(side=3,text=titleSS,outer=TRUE,padj=2)
 
   # create a new device and plot MS trace and posteriors
   dev.new()
-  plot(parMCoutMS)
+  plot(parMCoutMS,las=1)
   mtext(side=3,text=titleMS,outer=TRUE,padj=2)  
 
   return()
@@ -80,22 +78,22 @@ plotMCMCspecies <- function ( rep=1, spec=1, sim = 1 )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
-  if (!exists(x="blob",where=1)) loadSim(sim)
+  if (!exists(x="blob",where=1)) .loadSim(sim)
  
   # Create a stamp from scenario and mp name
-  scenario  <- blob$ctl$scenario
-  mp        <- blob$ctl$mp
+  scenario  <- blob$ctrl$scenario
+  mp        <- blob$ctrl$mp
   stamp     <- paste(scenario,":",mp,sep="")
   repCount  <- paste("Replicate ",rep,"/",blob$ctl$nReps,sep="")
 
   # Recover blob elements for plotting
-  nS    <- blob$ctl$nS
-  nT    <- blob$ctl$nT
+  nS    <- blob$opMod$nS
+  nT    <- blob$opMod$nT
 
   # Species names
-  if (!is.null(blob$ctl$specNames))
+  if (!is.null(blob$ctrl$specNames))
   {
-    specNames <- blob$ctl$specNames
+    specNames <- blob$ctrl$specNames
     spec <- specNames[spec]
   }
   
@@ -115,12 +113,12 @@ plotMCMCspecies <- function ( rep=1, spec=1, sim = 1 )
   titleMS <- paste ( "MS MCMC for ", spec, sep = "")
 
   # plot SS trace and posteriors
-  plot(parMCoutSS)
+  plot(parMCoutSS,las=1)
   mtext(side=3,text=titleSS,outer=TRUE,padj=2)
 
   # create a new device and plot MS trace and posteriors
   dev.new()
-  plot(parMCoutMS)
+  plot(parMCoutMS,las=1)
   mtext(side=3,text=titleMS,outer=TRUE,padj=2)  
 
   return()
@@ -137,11 +135,11 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
-  if (!exists(x="blob",where=1)) loadSim(sim)
+  if (!exists(x="blob",where=1)) .loadSim(sim)
 
   # Recover control pars
-  nS <- blob$ctl$nS
-  nT <- blob$ctl$nT
+  nS <- blob$opMod$nS
+  nT <- blob$opMod$nT
 
   # load biomass trajectories
   omBio <- blob$om$Bt[rep,,]
@@ -175,7 +173,8 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
     # Compute max B value
     yLim <- 1.3*max (omBio[s,])
     # Blank plot
-    plot ( x=c(1,nT), y =c(1,yLim), type = "n", xlab = "", ylab = "Biomass (t)")
+    plot (  x=c(1,nT), y =c(1,yLim), type = "n", xlab = "", ylab = "Biomass (t)",
+            las=1 )
     # Create polygon vertices
     xPoly <- c(1:nT,nT:1)
     yPolySS <- c(ssBio[1,s,1:nT],ssBio[3,s,nT:1])
@@ -212,20 +211,20 @@ plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
-  if (!exists(x="blob",where=1)) loadSim(sim)
+  if (!exists(x="blob",where=1)) .loadSim(sim)
 
   # Create a stamp from scenario and mp name
-  scenario  <- blob$ctl$scenario
-  mp        <- blob$ctl$mp
+  scenario  <- blob$ctrl$scenario
+  mp        <- blob$ctrl$mp
   stamp     <- paste(scenario,":",mp,sep="")
-  repCount  <- paste("Replicate ",rep,"/",blob$ctl$nReps,sep="")
+  repCount  <- paste("Replicate ",rep,"/",blob$ctrl$nReps,sep="")
 
   # Recover blob elements for plotting
-  nS <- blob$ctl$nS
-  nT <- blob$ctl$nT
+  nS <- blob$opMod$nS
+  nT <- blob$opMod$nT
 
   # Species names
-  specNames <- blob$ctl$specNames
+  specNames <- blob$ctrl$specNames
 
   # True OM quantities
   omBt  <- blob$om$Bt[rep,,]
@@ -276,16 +275,16 @@ plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
   {
     if ( s == 1 ) yLab <- "Biomass (t)" else yLab <- ""
     maxBt <- 1.05*max ( omBt[s,], ssBt[s,], msBt[s,],It[s,]/ssq[s],It[s,]/msq[s])
-    plot    ( x = c(1,nT), y = c(0,maxBt), type = "n", 
+    plot    ( x = c(1,nT), y = c(0,maxBt), type = "n",
               ylim = c(0,maxBt), ylab = yLab, las = 1, xlab = "" ,
               main = specNames[s] )
     if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
                             col=c(ssCol,msCol), lty = c(2,2), 
                             lwd = c(2,2), cex=c(0.7), bty="n" )
-    if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=0.7)
-    if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=0.7)
-    if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=0.7)
-    if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=0.7)
+    if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=1)
+    if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1)
+    if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=1)
+    if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1)
     points  ( x = 1:nT, y = It[s,]/ssq[s], pch = 2, cex = 0.6, col="grey70" )
     points  ( x = 1:nT, y = It[s,]/msq[s], pch = 5, cex = 0.6, col="grey70" )
     lines   ( x = 1:nT, y = omBt[s,], col = "black", lwd = 2)
@@ -322,21 +321,20 @@ plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-# usage:    
 plotSimPerf <- function ( pars = c("Bmsy","Fmsy","q","dep","BnT"), sim=1 )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
-  if (!exists(x="blob",where=1)) loadSim(sim)
+  if (!exists(x="blob",where=1)) .loadSim(sim)
 
   # Create a stamp from scenario and mp name
-  scenario  <- blob$ctl$scenario
-  mp        <- blob$ctl$mp
+  scenario  <- blob$ctrl$scenario
+  mp        <- blob$ctrl$mp
   stamp     <- paste(scenario,":",mp,sep="")
 
   # Recover blob elements for plotting
-  nS        <- blob$ctl$nS
-  specNames <- blob$ctl$specNames
+  nS        <- blob$opMod$nS
+  specNames <- blob$ctrl$specNames
 
   # Recover relative error distributions
   ssRE <- blob$am$ss$err.mle
