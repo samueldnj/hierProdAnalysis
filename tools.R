@@ -140,9 +140,12 @@ doBatchRun <- function( batchFolderName )
     nCores  <- min(nBatchFiles,detectCores()-1)
     cl      <- makePSOCKcluster(nCores)
     # Run parallel batch
-    cat ("Running ", nBatchFiles, " simulations in parallel.\n", sep = "" )
+    cat ("Running ", nBatchFiles, " simulations in parallel on ",
+          nCores, " cores.\n", sep = "" )
     tBegin    <- proc.time()
     startDate <- date()
+    # append main WD path to the front of the batchFolderNames
+    batchFolderNames <- file.path(getwd(),batchFolderNames)
 
     tmp     <- clusterApply(cl, x=batchFolderNames, fun=doBatchRun)
     # tmp <-lapply(X=file.path(getwd(),batchFolderNames), FUN=doBatchRun)
@@ -155,14 +158,12 @@ doBatchRun <- function( batchFolderName )
     # # Set up the destination
     # destination <- file.path(getwd(),"project")
 
-
-
     # Now copy the contents of each batchFolderName to the project folder
     require(stringr)
     for (i in 1:nBatchFiles)
     {
       # Find the sim output folder in the project file
-      batchDir <- file.path(getwd(),batchFolderNames[i],"project",simFolderNames[i])
+      batchDir <- file.path(batchFolderNames[i],"project",simFolderNames[i])
       # Set up the destination
       destination <- file.path(getwd(),"project")
 

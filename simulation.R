@@ -84,7 +84,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   }
 
   # Obs error var
-  tau <- obj$opMod$tau
+  tau <- sqrt(obj$opMod$tau2)
 
   # Initialise list to hold the data
   om <- list (  Bt    = matrix (NA,nrow=nS, ncol=nT ),
@@ -100,7 +100,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
                 Sigma2= Sigma*Sigma,
                 msCorr= msCorr,
                 rho   = rho,
-                tau   = tau,
+                tau2  = tau*tau,
                 q     = obj$opMod$q,
                 nT    = nT,
                 nS    = nS,
@@ -210,7 +210,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(sumCat[s]),
                           lnFmsy      = log(om$Fmsy[s]),
-                          lnTau2      = log(om$tau[s]),
+                          lnTau2      = log(om$tau2[s]),
                           lnsigma2    = log(om$sigma+om$Sigma[s]),
                           # lnq         = log(obj$om$q[s]),
                           mBmsy       = obj$assess$mBmsy[s],
@@ -239,7 +239,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
                   phz_q       = obj$assess$phz_q,
                   phz_mlnq    = obj$assess$phz_mlnq,
                   phz_slnq    = obj$assess$phz_slnq,
-                  phz_dev     = obj$assess$phz_dev,
+                  phz_varprior= obj$assess$phz_varPrior,
+                  phz_epst    = obj$assess$phz_dev,
+                  phz_zetat   = obj$assess$phz_zetat,
                   phz_AR      = obj$assess$phz_AR,
                   phz_chol    = obj$assess$phz_chol,
                   dumm        = 999 )
@@ -487,7 +489,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
                     sep = "")
   msFit <- .callProcADMB (  dat = datPar$msDat, par = datPar$msPar,
                             fitTrials = obj$assess$fitTrials, 
-                            activeFileRoot = "msProdCV",
+                            activeFileRoot = "msProd",
                             mcTrials = obj$assess$mcTrials+obj$assess$mcBurn, 
                             mcSave = obj$assess$mcSave, 
                             maxfn = obj$assess$maxfn )
