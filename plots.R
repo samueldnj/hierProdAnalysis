@@ -435,7 +435,7 @@ plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-plotSimPerf <- function ( pars = c("Bmsy","Fmsy","q","dep","BnT"), sim=1 )
+plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -486,8 +486,8 @@ plotSimPerf <- function ( pars = c("Bmsy","Fmsy","q","dep","BnT"), sim=1 )
   {
     for (par in 1:length(pars))
     {
-      quantiles[s,,par,1] <- ssQuant[pars[par]][[1]][s,]
-      quantiles[s,,par,2] <- msQuant[pars[par]][[1]][s,]
+      quantiles[s,,par,1] <- ssQuant[ssPars[par]][[1]][s,]
+      quantiles[s,,par,2] <- msQuant[msPars[par]][[1]][s,]
     }
   }
   

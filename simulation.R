@@ -216,7 +216,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
                           lnUmsy      = log(om$Umsy[s]),
-                          lnTau2      = log(om$tau2[s]),
+                          lnTau2      = log(obj$assess$tau2[s]),
                           lnkappa2    = log(om$sigma2+om$Sigma2[s]),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
@@ -259,7 +259,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   dumm        =  999 )
   msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
                   lnUmsy      = log(om$Umsy),
-                  lnTau2      = log(om$tau2),
+                  lnTau2      = log(obj$assess$tau2),
                   lnkappa2    = log(om$sigma2),
                   lnSigma2    = log(om$Sigma2),
                   gamma       = obj$assess$gamma,
@@ -323,7 +323,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Set path, exec and paste together command call
   path        <- getwd()
   exec        <- file.path(path,activeFileRoot)
-  if (mcDiag) diagCall <- " -mcdiag"
+  if (mcDiag) diagCall <- " -mcdiag" else diagCall <- ""
   procCall    <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
                             " -mcmc ", mcTrials, " -maxfn ", maxfn,
                             " -mcsave ", mcSave, " -nox",
@@ -481,6 +481,22 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # Run operating model to generate data
   obj$om <- .opModel ( obj, seed = seed )
+
+  # Recalculate IG beta pars if set
+  if ( obj$assess$autoIG )
+  {
+    # recover operating model RE variances
+    kappa2 <- obj$om$kappa2
+    Sigma2 <- obj$om$Sigma2
+
+    # Get IG alpha pars from ctl file
+    alpha_kappa <- obj$assess$alpha_kappa
+    alpha_Sigma <- obj$assess$alpha_Sigma
+
+    # Now solve for new beta pars, placing the mode at the om value
+    obj$assess$beta_kappa <- kappa2*(alpha_kappa+1)
+    obj$assess$beta_Sigma <- Sigma2*(alpha_Sigma+1)
+  }
 
   # Create data objects for EMs
   datPar <- .makeDataLists ( obj )

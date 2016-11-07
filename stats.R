@@ -42,42 +42,66 @@
   failure <- (1:nReps)[-success]
 
   # Create a list to hold error values
-  err <- list ( 
+  ssErr <- list ( 
                 Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
                 mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
-                # slnq  = matrix ( NA, nrow = nReps, ncol = nS ),
                 dep   = matrix ( NA, nrow = nReps, ncol = nS ),
                 BnT   = matrix ( NA, nrow = nReps, ncol = nS )
               )
+  # Slightly difference structure for MS model
+  msErr <- list ( 
+                Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                sigma2= matrix ( NA, nrow=nReps, ncol=1),
+                Sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
+                tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
+                q     = matrix ( NA, nrow = nReps, ncol = nS ),
+                mlnq  = matrix ( NA, nrow = nReps, ncol = 1 ),
+                dep   = matrix ( NA, nrow = nReps, ncol = nS ),
+                BnT   = matrix ( NA, nrow = nReps, ncol = nS )
+              )
+
   # append error lists to blob
-  ss$err.mle <- err
-  ms$err.mle <- err
+  # Single species only has one error term
+  ss$err.mle <- ssErr
+
+  # now append Sigma2 to the err list
+  ms$err.mle <- msErr
 
   # Fill in ss MLE relative errors
-  ss$err.mle$Bmsy     <- t( (t(ss$Bmsy) - opMod$pars$Bmsy)/opMod$pars$Bmsy)
-  ss$err.mle$Umsy     <- t( (t(ss$Umsy) - opMod$pars$Umsy)/opMod$pars$Umsy)
-  ss$err.mle$sigma2   <- ((ss$sigma2 - opMod$pars$sigma^2)/opMod$pars$sigma^2)
-  ss$err.mle$tau2     <- t( (t(ss$tau2) - (opMod$tau)^2)/(opMod$tau)^2)
-  ss$err.mle$q        <- t( (t(ss$q) - opMod$q)/ opMod$q )
-  ss$err.mle$mlnq     <- t( t(ss$mlnq) - mean(log(opMod$q)))
-  # ss$err.mle$slnq     <- t( t(ss$slnq) - mean(log(ctl$q))) 
-  ss$err.mle$dep      <- ((ss$dep - om$dep)/om$dep)
-  ss$err.mle$BnT      <- ((ss$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT])
+  for ( s in 1:nS )
+  {
+    ss$err.mle$Bmsy[,s]   <- (ss$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
+    ss$err.mle$Umsy[,s]   <- (ss$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
+    ss$err.mle$sigma2[,s] <- (ss$sigma2[,s] - opMod$pars$sigma2)/opMod$pars$sigma2
+    ss$err.mle$tau2[,s]   <- (ss$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
+    ss$err.mle$q[,s]      <- (ss$q[,s] - opMod$q[s])/opMod$q[s]
+    ss$err.mle$mlnq[,s]   <- (ss$mlnq[,s] - mean(log(opMod$q)))
+    ss$err.mle$dep[,s]    <- (ss$dep[,s] - om$dep[,s])/om$dep[,s]
+    ss$err.mle$BnT[,s]    <- (ss$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
 
-  # Now fill in ms MLE relative errors
-  ms$err.mle$Bmsy     <- t( (t(ms$Bmsy) - opMod$pars$Bmsy)/opMod$pars$Bmsy)
-  ms$err.mle$Umsy     <- t( (t(ms$Umsy) - opMod$pars$Umsy)/opMod$pars$Umsy)
-  ms$err.mle$sigma2   <- ((ms$sigma2 - opMod$pars$sigma^2)/opMod$pars$sigma^2)
-  ms$err.mle$tau2     <- t( (t(ms$tau2) - (opMod$tau)^2)/(opMod$tau)^2)
-  ms$err.mle$q        <- t( (t(ms$q) - opMod$q)/ opMod$q )
-  ms$err.mle$mlnq     <- as.matrix(t( t(ms$mlnq) - mean(log(opMod$q))))
-  # ms$err.mle$slnq   <- t( t(ms$mlnq) - mean(log(ctl$q))) 
-  ms$err.mle$dep      <- ((ms$dep - om$dep)/om$dep)
-  ms$err.mle$BnT      <- ((ms$Bt[,,nT] - om$Bt[,,nT])/om$Bt[,,nT])
+    # Now fill in ms MLE relative errors
+    # some are only estimated once (instead of nS times)
+    if (s == 1)
+    {
+      ms$err.mle$sigma2     <- t(ms$sigma2 - opMod$pars$sigma2)/opMod$pars$sigma2
+      ms$err.mle$mlnq       <- t(ms$mlnq - mean(log(opMod$q)))
+    }
+    browser()
+    # Now the rest of the pars
+    ms$err.mle$Bmsy[,s]   <- (ms$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
+    ms$err.mle$Umsy[,s]   <- (ms$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
+    ms$err.mle$Sigma2[,s] <- (ms$Sigma2[,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
+    ms$err.mle$tau2[,s]   <- (ms$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
+    ms$err.mle$q[,s]      <- (ms$q[,s] - opMod$q[s])/opMod$q[s]
+    ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
+    ms$err.mle$BnT[,s]    <- (ms$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
+  }
+  
 
   # Append these to blob
   blob$am$ss <- ss

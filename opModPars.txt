@@ -12,15 +12,15 @@
 
 ## Process Error ##
 ## Environmental process error (applied to all species)
-# sigma2
+# kappa2
 0.2
 
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.2 0.2 
-0.2 1 -0.2 
-0.2 -0.2 1
+1 0.8 0.8 
+0.8 1 -0.8 
+0.8 -0.8 1
 
 ## MS proc error sd
 # Sigma2

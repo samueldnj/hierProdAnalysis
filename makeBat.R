@@ -5,10 +5,10 @@
 # of parameters and different values at which to test them.
 # Function below also requires abbreviations of the 
 
-parListEffectsMults <- list( "opMod$corrMult" = seq(-0.25,1,by=0.25),
+parListEffectsMults <- list( "opMod$corrMult" = seq(0,1,by=0.2),
                              "opMod$sigmaMult" = c(0.1,0.5,1,1.5,2)
                            )
-labels <- c("msCorr","sharedVar")
+labels <- c("corrM","varM")
 
 
 # Function to create batch files from the lists above
