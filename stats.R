@@ -44,7 +44,7 @@
   # Create a list to hold error values
   err <- list ( 
                 Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                Fmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
+                Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -59,7 +59,7 @@
 
   # Fill in ss MLE relative errors
   ss$err.mle$Bmsy     <- t( (t(ss$Bmsy) - opMod$pars$Bmsy)/opMod$pars$Bmsy)
-  ss$err.mle$Fmsy     <- t( (t(ss$Fmsy) - opMod$pars$Fmsy)/opMod$pars$Fmsy)
+  ss$err.mle$Umsy     <- t( (t(ss$Umsy) - opMod$pars$Umsy)/opMod$pars$Umsy)
   ss$err.mle$sigma2   <- ((ss$sigma2 - opMod$pars$sigma^2)/opMod$pars$sigma^2)
   ss$err.mle$tau2     <- t( (t(ss$tau2) - (opMod$tau)^2)/(opMod$tau)^2)
   ss$err.mle$q        <- t( (t(ss$q) - opMod$q)/ opMod$q )
@@ -70,7 +70,7 @@
 
   # Now fill in ms MLE relative errors
   ms$err.mle$Bmsy     <- t( (t(ms$Bmsy) - opMod$pars$Bmsy)/opMod$pars$Bmsy)
-  ms$err.mle$Fmsy     <- t( (t(ms$Fmsy) - opMod$pars$Fmsy)/opMod$pars$Fmsy)
+  ms$err.mle$Umsy     <- t( (t(ms$Umsy) - opMod$pars$Umsy)/opMod$pars$Umsy)
   ms$err.mle$sigma2   <- ((ms$sigma2 - opMod$pars$sigma^2)/opMod$pars$sigma^2)
   ms$err.mle$tau2     <- t( (t(ms$tau2) - (opMod$tau)^2)/(opMod$tau)^2)
   ms$err.mle$q        <- t( (t(ms$q) - opMod$q)/ opMod$q )

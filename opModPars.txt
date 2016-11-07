@@ -7,7 +7,7 @@
 # Bmsy
 200 400 800
 
-# Fmsy
+# Umsy
 0.2 0.25 0.3
 
 ## Process Error ##
@@ -18,9 +18,9 @@
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 1 1 
-1 1 1 
-1 1 1
+1 0.2 0.2 
+0.2 1 -0.2 
+0.2 -0.2 1
 
 ## MS proc error sd
 # Sigma2

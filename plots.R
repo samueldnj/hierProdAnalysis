@@ -198,10 +198,124 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
   return()
 }
 
-# plotRepBCF()
+# plotRepBCU()
 # Function that will open a supplied saved blob object and plot a 
 # given replicate's true and estimated time series of biomass, 
-# catch, fishing mortality and IoA data. 
+# catch, exploitation and IoA data. 
+# inputs:   rep=replicate number for plotting; 
+#           sim=number indicating blob to load (alpha order in project folder)
+#           folder=name of folder/blob file (supercedes sim number)
+# output:   NULL
+# usage:    post-simulation run, plotting performance
+plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
+{
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  if (!exists(x="blob",where=1)) .loadSim(sim)
+
+  # Create a stamp from scenario and mp name
+  scenario  <- blob$ctrl$scenario
+  mp        <- blob$ctrl$mp
+  stamp     <- paste(scenario,":",mp,sep="")
+  repCount  <- paste("Replicate ",rep,"/",blob$ctrl$nReps,sep="")
+
+  # Recover blob elements for plotting
+  nS <- blob$opMod$nS
+  nT <- blob$opMod$nT
+
+  # Species names
+  specNames <- blob$ctrl$specNames
+
+  # True OM quantities
+  omBt  <- blob$om$Bt[rep,,]
+  Ct    <- blob$om$Ct[rep,,]
+  It    <- blob$om$It[rep,,]
+  Ut    <- blob$om$Ut[rep,,]
+
+  
+  if ( est == "MLE" )
+  { # Single species model
+    ssBt  <- blob$am$ss$Bt[rep,,]
+    ssq   <- blob$am$ss$q[rep,]
+
+    # Multispecies model
+    msBt  <- blob$am$ms$Bt[rep,,]
+    msq   <- blob$am$ms$q[rep,]  
+  }
+  if ( est == "MCMC" )
+  {
+    # single species
+    mcBioSSMed <- apply(X=blob$am$ss$mcBio,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
+    mcParSSMed <- apply(X=blob$am$ss$mcPar,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
+    ssBt       <- mcBioSSMed[rep,,]
+    ssq        <- mcParSSMed[rep,,"q"]
+
+    # multispeces
+    mcBioMSMed <- apply(X=blob$am$ms$mcBio,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
+    mcParMSMed <- apply(X=blob$am$ms$mcPar,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
+    msBt       <- mcBioMSMed[rep,,]
+    msq        <- mcParMSMed[rep,,"q"]
+  }
+  
+  # Recover diagnostics for the fits
+  hpdSS <- blob$am$ss$hesspd[rep,]
+  minSS <- blob$am$ss$locmin[rep,]
+  hpdMS <- blob$am$ms$hesspd[rep]
+  minMS <- blob$am$ms$locmin[rep]
+
+  # Set colours for each model
+  ssCol <- "steelblue"
+  msCol <- "salmon"
+
+  # Set up plot window
+  par ( mfrow = c(3,nS), mar = c(1,4,1,0), oma = c(3,0,1,0.5) )
+  # Plot biomass, actual and estimated, including 2 index series,
+  # scaled by model estimated q
+  for ( s in 1:nS )
+  {
+    if ( s == 1 ) yLab <- "Biomass (t)" else yLab <- ""
+    maxBt <- 1.05*max ( omBt[s,], ssBt[s,], msBt[s,],It[s,]/ssq[s],It[s,]/msq[s])
+    plot    ( x = c(1,nT), y = c(0,maxBt), type = "n",
+              ylim = c(0,maxBt), ylab = yLab, las = 1, xlab = "" ,
+              main = specNames[s] )
+    if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
+                            col=c(ssCol,msCol), lty = c(2,2), 
+                            lwd = c(2,2), cex=c(0.7), bty="n" )
+    if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=1)
+    if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1)
+    if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=1)
+    if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1)
+    points  ( x = 1:nT, y = It[s,]/ssq[s], pch = 2, cex = 0.6, col="grey70" )
+    points  ( x = 1:nT, y = It[s,]/msq[s], pch = 5, cex = 0.6, col="grey70" )
+    lines   ( x = 1:nT, y = omBt[s,], col = "black", lwd = 2)
+    lines   ( x = 1:nT, y = ssBt[s,], col = ssCol, lwd = 2, lty = 2 )
+    lines   ( x = 1:nT, y = msBt[s,], col = msCol, lwd = 2, lty = 2 )
+  }
+  # Now plot catch
+  for ( s in 1:nS )
+  {
+    maxCt <- max ( Ct[s,])
+    if ( s == 1 ) yLab <- "Catch (t)" else yLab <- ""
+    plot  ( x = 1:nT, y = Ct[s,], col = "blue", lwd = 2, type = "l",
+            ylim = c(0,maxCt), ylab = yLab, las = 1, xlab = "" )
+  }
+  # Now F
+  for ( s in 1:nS )
+  {
+    if ( s == 1 ) yLab <- "Fishing Mortality" else yLab <- ""
+    maxUt <- max ( Ut[s,])
+    plot  ( x = 1:nT, y = Ut[s,], col = "black", lwd = 2, type = "l",
+            ylim = c(0,maxUt), ylab = yLab, las = 1, xlab = "" )
+  }
+  mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5)
+  mtext ( text = c(stamp,repCount),side=1, outer = TRUE, 
+          at = c(0.9,0.1),padj=2,col="grey50",cex=0.8 )
+}
+
+# plotRepBCU()
+# Function that will open a supplied saved blob object and plot a 
+# given replicate's true and estimated time series of biomass, 
+# catch, exploitation and IoA data. 
 # inputs:   rep=replicate number for plotting; 
 #           sim=number indicating blob to load (alpha order in project folder)
 #           folder=name of folder/blob file (supercedes sim number)
@@ -413,3 +527,4 @@ plotSimPerf <- function ( pars = c("Bmsy","Fmsy","q","dep","BnT"), sim=1 )
           at = c(0.75),padj=1,col="grey50" )
 
 }
+

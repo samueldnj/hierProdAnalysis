@@ -18,9 +18,9 @@
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.9 0.9 
-0.9 1 0.9 
-0.9 0.9 1
+1 0.2 0.2 
+0.2 1 -0.2 
+0.2 -0.2 1
 
 ## MS proc error sd
 # Sigma2

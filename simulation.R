@@ -17,13 +17,13 @@
 #                   ie saves to ./project/folder
 # ouputs:   NULL
 # usage:    from the console to run the procedure
-runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
+runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 { 
   # read in control file
   controlList <- .readParFile ( ctlFile )
   controlList <- .createList  ( controlList )
   # Run simEst Procedure
-  blob <- .simEstProc( obj = controlList, quiet = TRUE )
+  blob <- .simEstProc( obj = controlList, quiet )
   # Make error distributions
   blob <- .makeRelErrorDists ( blob )
   
@@ -72,7 +72,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   if (!is.null(obj$opMod$sigmaMult)) sigma <- sigma*obj$opMod$sigmaMult
 
   # Correlation parameters
-  rho     <- obj$opMod$rho          # longitudinal auto-correlation
+  gamma     <- obj$opMod$gamma          # longitudinal auto-correlation
   msCorr  <- obj$opMod$pars$msCorr  # ms cross correlation
 
   # Multiply the off-diagonal elements of msCorr if desired
@@ -89,7 +89,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   # Initialise list to hold the data
   om <- list (  Bt    = matrix (NA,nrow=nS, ncol=nT ),
                 Ct    = matrix (NA,nrow=nS, ncol=nT ),
-                Ft    = matrix (NA,nrow=nS, ncol=nT ),
+                Ut    = matrix (NA,nrow=nS, ncol=nT ),
                 ItTrue= matrix (NA,nrow=nS, ncol=nT ),
                 epst  = numeric (length=nT ),
                 zetat = matrix (NA,nrow=nS, ncol=nT ),
@@ -99,17 +99,18 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
                 sigma2= sigma*sigma,
                 Sigma2= Sigma*Sigma,
                 msCorr= msCorr,
-                rho   = rho,
+                gamma = gamma,
+                rho   = sigma*sigma/mean(Sigma*Sigma),
                 tau2  = tau*tau,
                 q     = obj$opMod$q,
                 nT    = nT,
                 nS    = nS,
                 Bmsy  = obj$opMod$pars$Bmsy,
-                Fmsy  = obj$opMod$pars$Fmsy )
+                Umsy  = obj$opMod$pars$Umsy )
 
   # Now create epst and zetat vectors using the proc error components
   epst      <- .fillRanWalk(  z=rnorm(n = nT), s=sigma,
-                              rho=rho )
+                              gamma=gamma )
   zetat     <- matrix  (rnorm ( n = nS*nT ), nrow = nS, ncol = nT)
   zetat     <- .genCorrDevs ( zetat,
                               Mcorr=msCorr,
@@ -118,39 +119,39 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   # standard normal deviations for obs error (uncorrelated)
   deltat    <- matrix(rnorm ( n = nS*nT ), nrow = nS, ncol = nT) 
 
-  # Create Ft time series
+  # Create Ut time series
   ## REPLACE WITH A FUNCTION LATER FOR MULTIPLE correlated Ft TRAJECTORIES ##
-  FtProp <- numeric ( length = nT )
-  Fmult <- obj$opMod$Fmult
+  UtProp <- numeric ( length = nT )
+  Umult <- obj$opMod$Umult
   # Then get time of peak fishing mortality
-  tFpeak <- obj$opMod$tFpeak
+  tUpeak <- obj$opMod$tUpeak
   # Compute gradients of the pieces
-  Fgrad1 <- ( Fmult [ 2 ] - Fmult [ 1 ] ) / (tFpeak - 1 )
-  Fgrad2 <- ( Fmult [ 3 ] - Fmult [ 2 ] ) / 
-                  ( nT - tFpeak )
-  # Populate Ft with multipliers of F_MSY
-  FtProp [ 1:tFpeak ]         <- Fmult [ 1 ] + 0:(tFpeak - 1) * Fgrad1
-  FtProp [ (tFpeak + 1):nT ]  <- Fmult [ 2 ] + 1:(nT - tFpeak) * Fgrad2
+  Ugrad1 <- ( Umult [ 2 ] - Umult [ 1 ] ) / (tUpeak - 1 )
+  Ugrad2 <- ( Umult [ 3 ] - Umult [ 2 ] ) / 
+                  ( nT - tUpeak )
+  # Populate Ut with multipliers of Umsy
+  UtProp [ 1:tUpeak ]         <- Umult [ 1 ] + 0:(tUpeak - 1) * Ugrad1
+  UtProp [ (tUpeak + 1):nT ]  <- Umult [ 2 ] + 1:(nT - tUpeak) * Ugrad2
 
   # Overwrite Ft with actual F values
-  Fst <- matrix ( FtProp, nrow = nS, ncol = nT, byrow = TRUE )
-  for ( s in 1:nS ) Fst[s,] <- obj$opMod$pars$Fmsy[s] * Fst[s,]
+  Ust <- matrix ( UtProp, nrow = nS, ncol = nT, byrow = TRUE )
+  for ( s in 1:nS ) Ust[s,] <- obj$opMod$pars$Umsy[s] * Ust[s,]
 
   # Loop over species and fill list entries with biological
   # and observational data
   for ( s in 1:nS )
   {
-    bio <- .logProdModel ( Bmsy = obj$opMod$pars$Bmsy[s], 
-                          Fmsy = obj$opMod$pars$Fmsy[s],
-                          nT = nT, Ft = Fst[s,], 
-                          epst = epst,
-                          zetat = zetat[s,] )
-    obs <- .obsModel ( Bt = bio $ Bt, q = obj$opMod$q[s], nT = nT,
-                      deltat = deltat[s,], tau = tau[s] )
+    bio <- .logProdModel (  Bmsy = obj$opMod$pars$Bmsy[s], 
+                            Umsy = obj$opMod$pars$Umsy[s],
+                            nT = nT, Ut = Ust[s,], 
+                            epst = epst,
+                            zetat = zetat[s,] )
+    obs <- .obsModel (  Bt = bio $ Bt, q = obj$opMod$q[s], nT = nT,
+                        deltat = deltat[s,], tau = tau[s] )
 
     om$Bt[s,]     <- bio$Bt
     om$Ct[s,]     <- bio$Ct
-    om$Ft[s,]     <- bio$Ft
+    om$Ut[s,]     <- bio$Ut
     om$ItTrue[s,] <- obj$opMod$q[s]*bio$Bt
     om$It[s,]     <- obs$It
     om$zetat[s,]  <- bio$zetat
@@ -187,86 +188,97 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   # Sum catch to get starting biomass
   sumCat <- apply ( X = obj$om$Ct, MARGIN=1, FUN = sum )
   sumCat <- as.numeric(sumCat)
-  maxF <- apply ( X = obj$om$Ft, MARGIN=1,FUN=max)
-  maxF <- as.numeric(maxF)
+  maxU <- apply ( X = obj$om$Ut, MARGIN=1,FUN=max)
+  maxU <- as.numeric(maxU)
 
   # loop over species
   for (s in 1:nS )
   {
     # Make dat list
     ssDat[[s]] <- list (  nT          = om$nT,
+                          nS          = 1,
                           Ct          = om$Ct[s,],
                           It          = om$It[s,],
-                          phz.Bmsy    = obj$assess$phz_Bmsy,
-                          phz_Fmsy    = obj$assess$phz_Fmsy,
+                          phz_Bmsy    = obj$assess$phz_Bmsy,
+                          phz_Umsy    = obj$assess$phz_Umsy,
                           phz_tau     = obj$assess$phz_tau,
-                          phz_sigma   = obj$assess$phz_sigma,
+                          phz_kappa   = obj$assess$phz_kappa,
+                          phz_Sigma   = -1,
                           phz_q       = obj$assess$phz_q,
                           phz_mlnq    = obj$assess$phz_mlnq,
                           phz_slnq    = obj$assess$phz_slnq,
-                          phz_dev     = obj$assess$phz_dev,
+                          phz_IGpriors= obj$assess$phz_IGpriors,
+                          phz_omegat  = obj$assess$phz_omegat,
+                          phz_zetat   = -1,
                           phz_AR      = obj$assess$phz_AR,
+                          phz_chol    = -1,
                           dumm        =  999 )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy      = log(sumCat[s]),
-                          lnFmsy      = log(om$Fmsy[s]),
+    ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
+                          lnUmsy      = log(om$Umsy[s]),
                           lnTau2      = log(om$tau2[s]),
-                          lnsigma2    = log(om$sigma+om$Sigma[s]),
+                          lnkappa2    = log(om$sigma2+om$Sigma2[s]),
+                          lnSigma2    = 0,
+                          gamma       = obj$assess$gamma,
+                          # c           = 0,
                           # lnq         = log(obj$om$q[s]),
                           mBmsy       = obj$assess$mBmsy[s],
                           sBmsy       = obj$assess$sBmsy[s],
-                          mFmsy       = obj$assess$mFmsy[s],
-                          sFmsy       = obj$assess$sFmsy[s],
-                          alpha_sigma = obj$assess$alpha_sigma, 
-                          beta_sigma  = obj$assess$beta_sigma,
+                          mUmsy       = obj$assess$mUmsy[s],
+                          sUmsy       = obj$assess$sUmsy[s],
+                          alpha_kappa = obj$assess$alpha_kappa, 
+                          beta_kappa  = obj$assess$beta_kappa,
+                          alpha_Sigma = obj$assess$alpha_Sigma[s], 
+                          beta_Sigma  = obj$assess$beta_Sigma[s],
                           alpha_tau   = obj$assess$alpha_tau[s],
                           beta_tau    = obj$assess$beta_tau[s],
                           mlnq        = obj$assess$mlnq,
                           slnq        = obj$assess$slnq,
-                          rho         = obj$opMod$rho,
-                          epst        = rep(0,nT) )
+                          epst        = rep(0,nT),
+                          zetat       = matrix(0,nrow=nS,ncol=nT) )
 
   }
   # now make dat and par lists for the MS model
   msDat <- list ( nT          = om$nT,
-                  nS          = om$nS,
+                  nS          = nS,
                   Ct          = om$Ct,
                   It          = om$It,
                   phz_Bmsy    = obj$assess$phz_Bmsy,
-                  phz_Fmsy    = obj$assess$phz_Fmsy,
+                  phz_Umsy    = obj$assess$phz_Umsy,
                   phz_tau     = obj$assess$phz_tau,
-                  phz_sigma   = obj$assess$phz_sigma,
+                  phz_kappa   = obj$assess$phz_kappa,
+                  phz_Sigma   = obj$assess$phz_Sigma,
                   phz_q       = obj$assess$phz_q,
                   phz_mlnq    = obj$assess$phz_mlnq,
                   phz_slnq    = obj$assess$phz_slnq,
-                  phz_varprior= obj$assess$phz_varPrior,
-                  phz_epst    = obj$assess$phz_dev,
+                  phz_IGpriors= obj$assess$phz_IGpriors,
+                  phz_omegat  = obj$assess$phz_omegat,
                   phz_zetat   = obj$assess$phz_zetat,
                   phz_AR      = obj$assess$phz_AR,
                   phz_chol    = obj$assess$phz_chol,
-                  dumm        = 999 )
-  msPar <- list ( lnBmsy      = log(sumCat),
-                  lnFmsy      = log(om$Fmsy),
-                  lnTau2      = log(om$tau),
-                  lnSigma2    = log(om$Sigma),
-                  lnsigma2    = log(om$sigma),
-                  # lnq         = log(om$q),
+                  dumm        =  999 )
+  msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
+                  lnUmsy      = log(om$Umsy),
+                  lnTau2      = log(om$tau2),
+                  lnkappa2    = log(om$sigma2),
+                  lnSigma2    = log(om$Sigma2),
+                  gamma       = obj$assess$gamma,
+                  c           = rep(0,nS*(nS-1)/2),
+                  # lnq         = log(obj$om$q),
                   mBmsy       = obj$assess$mBmsy,
                   sBmsy       = obj$assess$sBmsy,
-                  mFmsy       = obj$assess$mFmsy,
-                  sFmsy       = obj$assess$sFmsy,
-                  alpha_sigma = obj$assess$alpha_sigma,
-                  beta_sigma  = obj$assess$beta_sigma,
-                  alpha_Sigma = obj$assess$alpha_Sigma,
+                  mUmsy       = obj$assess$mUmsy,
+                  sUmsy       = obj$assess$sUmsy,
+                  alpha_kappa = obj$assess$alpha_kappa, 
+                  beta_kappa  = obj$assess$beta_kappa,
+                  alpha_Sigma = obj$assess$alpha_Sigma, 
                   beta_Sigma  = obj$assess$beta_Sigma,
                   alpha_tau   = obj$assess$alpha_tau,
                   beta_tau    = obj$assess$beta_tau,
                   mlnq        = obj$assess$mlnq,
                   slnq        = obj$assess$slnq,
-                  rho         = obj$opMod$rho,
-                  c           = rep(0,(nS*(nS-1)/2)),
                   epst        = rep(0,nT),
-                  zetat       = matrix(0,nS,nT) )
+                  zetat       = matrix(0,nrow=nS,ncol=nT) )
   # return list of dat and pin objects for running estimators
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar, 
@@ -294,7 +306,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
 # usage:    fitting a replicate model run to given data
 .callProcADMB <- function ( dat=ssDat[[1]], par=ssPar[[1]], lab=NULL, 
                             fitTrials = 3, activeFileRoot="ssProd",
-                            mcTrials = 1, mcSave = 1, maxfn = 10000 )
+                            mcTrials = 1, mcSave = 1, maxfn = 10000,
+                            quiet = TRUE, mcDiag=FALSE )
 { 
   # Set the active filename root, paste with label and extensions
   datFile   <- paste ( activeFileRoot,lab,".dat", sep = "")
@@ -310,16 +323,21 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   # Set path, exec and paste together command call
   path        <- getwd()
   exec        <- file.path(path,activeFileRoot)
+  if (mcDiag) diagCall <- " -mcdiag"
   procCall    <- paste ( exec, " -ainp ", pinFile, " -ind ", datFile, 
                             " -mcmc ", mcTrials, " -maxfn ", maxfn,
-                            " -mcsave ", mcSave, " -nox", sep = "" )
+                            " -mcsave ", mcSave, " -nox",
+                            diagCall, sep = "" )
   procCallpar <- paste ( exec, " -ainp ", parFile, " -ind ", datFile, 
                             " -mcmc ", mcTrials, " -maxfn ", maxfn,
-                            " -mcsave ", mcSave, " -nox", sep = "" )
+                            " -mcsave ", mcSave, " -nox",
+                            diagCall, sep = "" )
   mcEval      <- paste (  exec, " -ainp ", pinFile, " -ind ", datFile, 
                           " -mceval", sep = "" )
   mcEvalpar   <- paste (  exec, " -ainp ", pinFile, " -ind ", datFile, 
                           " -mceval", sep = "" )
+
+
 
   # Pull out lnMSY and sMSY for use in refitting procedure later
   lnBmsy   <- par$lnBmsy
@@ -339,12 +357,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
             activeFile=pinFile )
 
   # Now run the model and read in rep and MCMC files
-  prcOut  <- system ( command = procCall, wait =TRUE, ignore.stdout = FALSE, 
-                      intern = TRUE, ignore.stderr=TRUE )
-  evalOut <- system ( command = mcEval, wait =TRUE, 
-                      ignore.stdout = FALSE, intern=TRUE, ignore.stderr=TRUE )
+  system (  command = procCall, wait =TRUE, ignore.stdout = quiet, 
+            intern = FALSE, ignore.stderr=quiet )
+  system (  command = mcEval, wait =TRUE, 
+            ignore.stdout = quiet, intern=FALSE, ignore.stderr=quiet )
   
-  for ( i in 1:fitTrials )
+  for ( i in 0:fitTrials )
   {
     hessPosDef <- TRUE
     localMin <- TRUE
@@ -353,10 +371,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
     mcPar   <- try ( read.table ( mcParFile, header = TRUE), silent=TRUE )
     mcBio   <- try ( read.table (mcBioFile), silent=TRUE )
     fitrep  <- lisread ( repFile )
-
     # Check if there was MCMC output, if not, go down the list of possible 
-    # reasons, and rerun the fit
-    if (!is.null(attr(prcOut,"status"))|!is.null(attr(evalOut,"status")))
+    # reasons, and rerun the EM
+
+    if (class(mcPar) == "try-error")
     {
       hessPosDef <- FALSE
       # Did we run out of iterations (max grad ceiling is v. high here,
@@ -364,16 +382,16 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
       if (fitrep$iExit == 3 & abs(fitrep$maxGrad) < 1e3 )
       {
         localMin <- FALSE
-        cat ( activeFileRoot, 
-              " reached max iterations,\n repeat i = ",
-              i, ".\n", sep = "")
+        cat (  activeFileRoot, 
+                          " reached max iterations.\n",sep="" )
+        cat( "repeat i = ", i+1, ".\n", sep = "")
         # Re-run from where the last one stopped
-        prcOut <-   system (  command = procCallpar, wait =TRUE, 
-                              ignore.stdout = TRUE, intern=TRUE,
-                              ignore.stderr=TRUE )
-        evalOut <-  system ( command = mcEvalpar, wait =TRUE, 
-                             ignore.stdout = TRUE, intern=TRUE,
-                             ignore.stderr=TRUE )
+        system (  command = procCallpar, wait =TRUE, 
+                  ignore.stdout = quiet, intern=FALSE,
+                  ignore.stderr=quiet )
+        system ( command = mcEvalpar, wait =TRUE, 
+                 ignore.stdout = quiet, intern=FALSE,
+                 ignore.stderr=quiet )
         next
       }
       # If the model stopped for another reason, but the max gradient is
@@ -383,8 +401,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
       {
         localMin <- FALSE
         cat ( activeFileRoot, 
-              " didn't find local min,\n repeat i = ",
-              i, ".\n", sep = "")
+              " didn't find local min.\n", sep="" )
+        cat( "repeat i = ", i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
         par$lnBmsy <- lnBmsy *(1+(i)*0.2)
         # Write to pin file 
@@ -394,49 +412,46 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
         lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
                   activeFile=pinFile )
         # Now run the model and read in rep and MCMC files
-        prcOut <-   system (  command = procCall, wait =TRUE, 
-                              ignore.stdout = TRUE, intern=TRUE,
-                              ignore.stderr=TRUE )
-        evalOut <-  system ( command = mcEval, wait =TRUE, 
-                             ignore.stdout = TRUE, intern=TRUE,
-                             ignore.stderr=TRUE )
+        system (  command = procCall, wait =TRUE, 
+                  ignore.stdout = quiet, intern=FALSE,
+                  ignore.stderr=quiet )
+        system ( command = mcEval, wait =TRUE, 
+                 ignore.stdout = quiet, intern=FALSE,
+                 ignore.stderr=quiet )
         next
       }      
     }
     # Break if hess Positive definite
     if (hessPosDef) break
     # Otherwise, rerun the model using the par as the pin
+    cat ( activeFileRoot, 
+          " is not fitting, repeat i =  ",
+          i+1, ".\n", sep = "")
     prcOut <-   system (  command = procCallpar, wait =TRUE, 
-                          ignore.stdout = TRUE, intern=TRUE,
-                          ignore.stderr=TRUE )
+                          ignore.stdout = quiet, intern=quiet,
+                          ignore.stderr=quiet )
     evalOut <-  system ( command = mcEvalpar, wait =TRUE, 
-                         ignore.stdout = TRUE, intern=TRUE,
-                         ignore.stderr=TRUE )
+                         ignore.stdout = quiet, intern=quiet,
+                         ignore.stderr=quiet )
   }
   # Now check the MLE fit, but don't bother to refit if we've got 
   # a posterior (no matter the quality)
   if (fitrep$maxGrad > 1e-4) localMin <- FALSE
 
-  # # Now if the hessian is NPD, get the posterior for another fit
-  # if ( !hessPosDef )
-  # {
-  #   mcPar <- read.table (mcParBackup, header = TRUE )
-  #   mcBio <- read.table (mcBioBackup)
-  #   cat(  "\n", activeFileRoot, " had trouble finding PD hessian in ", 
-  #         i, " trials with given pin.\n",
-  #         "Copying bad pin and dat for forensics.\n", sep="" )
-  #   # Save the *.pin and *.dat files for forensics.
-  #   badPinFile <- file.path(  getwd(),"badfits",
-  #                             paste( activeFileRoot,lab,Sys.time(),".pin", sep="" ) )
-  #   file.copy( pinFile, badPinFile, overwrite=TRUE )
-  #   badDatFile <- file.path(  getwd(),"badfits",
-  #                             paste( activeFileRoot,lab,Sys.time(),".dat", sep="" ) )
-  #   file.copy( datFile, badDatFile, overwrite=TRUE )
-  # } else { 
-  #   # copy Par and Bio MCMC output for use in case of bad fits
-  #   file.copy( mcParFile, mcParBackup, overwrite = TRUE )
-  #   file.copy( mcBioFile, mcBioBackup, overwrite = TRUE )
-  # }
+  # Now if the hessian is NPD, get the posterior for another fit
+  if ( !hessPosDef )
+  {
+    cat(  "\n", activeFileRoot, " had trouble finding PD hessian in ", 
+          i, " trials with given pin.\n",
+          "Copying bad pin and dat for forensics.\n", sep="" )
+    # Save the *.pin and *.dat files for forensics.
+    badPinFile <- file.path(  getwd(),"badfits",
+                              paste( activeFileRoot,lab,Sys.time(),".pin", sep="" ) )
+    file.copy( pinFile, badPinFile, overwrite=TRUE )
+    badDatFile <- file.path(  getwd(),"badfits",
+                              paste( activeFileRoot,lab,Sys.time(),".dat", sep="" ) )
+    file.copy( datFile, badDatFile, overwrite=TRUE )
+  }
 
   # Delete output that will trick procedure in the future
   file.remove(mcParFile,mcBioFile)
@@ -456,7 +471,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
 # returns a full run of the simulation-estimation procedure using
 # the supplied seed values and the control list parameters
 # inputs:   seed=integer value provided to the rng
-#           ctl=control-list set in controlFile.txt
+#           obj=ctlList set in controlFile.txt
 # ouputs:   om=list of operating model quantities
 #           ssFit=nS-list of ss model outputs
 #           msFit=list of ms model outputs
@@ -476,23 +491,27 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   ssFit <- list()
   for (s in 1:obj$opMod$nS ) 
   {
-    if (!quiet) cat ( "Fitting species ", s, " of ", obj$ctrl$nS, "\n", sep = "")
+    cat ( "Fitting species ", s, " of ", obj$opMod$nS, "\n", sep = "")
     ssFit[[s]] <- .callProcADMB ( dat = datPar$ssDat[[s]], 
                                   par = datPar$ssPar[[s]],
                                   lab=s, fitTrials = obj$assess$fitTrials, 
-                                  activeFileRoot = "ssProdCV",
+                                  activeFileRoot = "msProd",
                                   mcTrials = obj$assess$mcTrials+obj$assess$mcBurn, 
-                                  mcSave = obj$assess$mcAve, 
-                                  maxfn = obj$assess$maxfn)
+                                  mcSave = obj$assess$mcSave, 
+                                  maxfn = obj$assess$maxfn,
+                                  mcDiag = obj$assess$mcDiag,
+                                  quiet = quiet)
   }
-  if (!quiet) cat ( "Fitting ", obj$opMod$nS," species hierarchically.\n", 
+  cat ( "Fitting ", obj$opMod$nS," species hierarchically.\n", 
                     sep = "")
   msFit <- .callProcADMB (  dat = datPar$msDat, par = datPar$msPar,
                             fitTrials = obj$assess$fitTrials, 
                             activeFileRoot = "msProd",
                             mcTrials = obj$assess$mcTrials+obj$assess$mcBurn, 
                             mcSave = obj$assess$mcSave, 
-                            maxfn = obj$assess$maxfn )
+                            maxfn = obj$assess$maxfn,
+                            mcDiag = obj$assess$mcDiag,
+                            quiet = quiet )
 
   cat ( "Completed replicate ", seed - obj$ctrl$rSeed, " of ", 
         obj$ctrl$nReps, ".\n", sep = "" )
@@ -540,7 +559,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   # Create list object to store all simulated values
   om <- list  ( Bt    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 Ct    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                Ft    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                Ut    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 epst  = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 zetat = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 deltat= array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -555,13 +574,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
                 # nT    = numeric(length = nReps),
                 # nS    = numeric(length = nReps),
                 # msy   = numeric(length = nReps),
-                # Fmsy  = numeric(length = nReps) )
+                # Umsy  = numeric(length = nReps) )
 
   # Now create a list object to ss and ms assessment model outputs
   am <- list ( ss=NULL, ms=NULL)
 
   # single species
-  am$ss <- list ( Fmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+  am$ss <- list ( Umsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   Bmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   msy     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
@@ -569,9 +588,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
                   tau2    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   epst    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  rho     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  gamma   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   Bt      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  Ft      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   mlnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   slnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   mcPar   = array (NA,dim=c(nReps,nS,nMC,nMCparSS),dimnames=list(rNames,sNames,mcNo,NULL)),
@@ -581,19 +600,20 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
                   maxGrad = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)))
 
   # multispecies (coastwide)
-  am$ms <- list ( Fmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+  am$ms <- list ( Umsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   Bmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   msy     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  sigma2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  sigma2  = rep(NA,length=nReps),
+                  Sigma2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   tau2    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   epst    = matrix(NA,nrow=nReps,ncol=nT,dimnames=list(rNames,1:nT)),
                   zetat   = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  rho     = vector("numeric",length=nReps),
+                  gamma   = vector("numeric",length=nReps),
                   chol    = array (NA,dim=c(nReps,nS,nS),dimnames=list(rNames,sNames,sNames)),
                   Bt      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  Ft      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
+                  Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   mlnq    = vector("numeric",length=nReps),
                   slnq    = vector("numeric",length=nReps),
                   mcPar   = array (NA,dim=c(nReps,nS,nMC,nMCparMS),dimnames=list(rNames,sNames,mcNo,NULL)),
@@ -622,7 +642,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
     blob$om$Bt[i,,]         <- simEst$om$Bt
     blob$om$Ct[i,,]         <- simEst$om$Ct
     blob$om$epst[i,,]       <- simEst$om$epst
-    blob$om$Ft[i,,]         <- simEst$om$Ft
+    blob$om$Ut[i,,]         <- simEst$om$Ut
     blob$om$zetat[i,,]      <- simEst$om$zetat
     blob$om$deltat[i,,]     <- simEst$om$Bt
     blob$om$It[i,,]         <- simEst$om$It
@@ -634,16 +654,16 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
     for ( s in 1:nS )
     {
       blob$am$ss$Bmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Bmsy
-      blob$am$ss$Fmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Fmsy
+      blob$am$ss$Umsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Umsy
       blob$am$ss$msy[i,s]         <- simEst$ssFit[[s]]$fitrep$msy
       blob$am$ss$q[i,s]           <- simEst$ssFit[[s]]$fitrep$q
-      blob$am$ss$sigma2[i,s]      <- simEst$ssFit[[s]]$fitrep$sigma2
+      blob$am$ss$sigma2[i,s]      <- simEst$ssFit[[s]]$fitrep$kappa2
       blob$am$ss$tau2[i,s]        <- simEst$ssFit[[s]]$fitrep$tau2
       blob$am$ss$dep[i,s]         <- simEst$ssFit[[s]]$fitrep$D
       blob$am$ss$epst[i,s,]       <- simEst$ssFit[[s]]$fitrep$epst
-      blob$am$ss$rho[i,s]         <- simEst$ssFit[[s]]$fitrep$rho
+      blob$am$ss$gamma[i,s]       <- simEst$ssFit[[s]]$fitrep$gamma
       blob$am$ss$Bt[i,s,]         <- simEst$ssFit[[s]]$fitrep$Bt
-      blob$am$ss$Ft[i,s,]         <- simEst$ssFit[[s]]$fitrep$Ut
+      blob$am$ss$Ut[i,s,]         <- simEst$ssFit[[s]]$fitrep$Ut
       blob$am$ss$mlnq[i,s]        <- simEst$ssFit[[s]]$fitrep$mlnq
       blob$am$ss$slnq[i,s]        <- simEst$ssFit[[s]]$fitrep$slnq
       # Do MCMC output only if hesspd
@@ -661,18 +681,19 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
 
     # Now multispecies
     blob$am$ms$Bmsy[i,]           <- simEst$msFit$fitrep$Bmsy
-    blob$am$ms$Fmsy[i,]           <- simEst$msFit$fitrep$Fmsy
+    blob$am$ms$Umsy[i,]           <- simEst$msFit$fitrep$Umsy
     blob$am$ms$msy[i,]            <- simEst$msFit$fitrep$msy
     blob$am$ms$q[i,]              <- simEst$msFit$fitrep$q
-    blob$am$ms$sigma2[i,]         <- simEst$msFit$fitrep$sigma2
+    blob$am$ms$Sigma2[i,]         <- simEst$msFit$fitrep$Sigma2
+    blob$am$ms$sigma2[i]          <- simEst$msFit$fitrep$kappa2
     blob$am$ms$tau2[i,]           <- simEst$msFit$fitrep$tau2
     blob$am$ms$dep[i,]            <- simEst$msFit$fitrep$D
     blob$am$ms$epst[i,]           <- simEst$msFit$fitrep$epst
     blob$am$ms$zetat[i,,]         <- simEst$msFit$fitrep$zetat
-    blob$am$ms$rho[i]             <- simEst$msFit$fitrep$rho
+    blob$am$ms$gamma[i]           <- simEst$msFit$fitrep$gamma
     blob$am$ms$chol[i,,]          <- simEst$msFit$fitrep$chol
     blob$am$ms$Bt[i,,]            <- simEst$msFit$fitrep$Bt
-    blob$am$ms$Ft[i,,]            <- simEst$msFit$fitrep$Ut
+    blob$am$ms$Ut[i,,]            <- simEst$msFit$fitrep$Ut
     blob$am$ms$mlnq[i]            <- simEst$msFit$fitrep$mlnq
     blob$am$ms$slnq[i]            <- simEst$msFit$fitrep$slnq
     # Split up mcPar and mcBio for the ms model
@@ -705,7 +726,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
 # Function to simulate a logistic based surplus production model,
 # assuming that population is initially at equilibrium (2*Bmsy) modified
 # by a proc error.
-# inputs:     msy=maximum sustainable yield; Fmsy=fishing mortality for msy
+# inputs:     msy=maximum sustainable yield; Umsy=fishing mortality for msy
 #             nT=length of simulation; Ct=nT-vector of catch (opt)
 # 						Ft=nT-vector of fishing mortality (opt)
 #             epst=nT-vector of env (AR(1)) logN proc errors (bias corrected) 
@@ -713,14 +734,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
 # outputs:    Bt=nT-vector of modeled biomass; Ct=nT-vector of catch
 # 						Ut=vector of exploitation rates; 
 # usage:      Bexp(eps) = indices of abundance for estimation w/ logN errors eps
-.logProdModel <- function ( Bmsy = 1, Fmsy = 0.1, nT = 50, Ft = NULL, Ct = NULL,
+.logProdModel <- function ( Bmsy = 1, Umsy = 0.1, nT = 50, Ut = NULL, Ct = NULL,
                             epst = exp(rnorm ( n = nT )-0.5), 
                             zetat = exp(rep(0,nT)) )
 {
   # First, initialise a vector to hold biomass
   Bt <- numeric ( length = nT )
 
-  if ( is.null ( Ft ) & is.null ( Ct ) ) 
+  if ( is.null ( Ut ) & is.null ( Ct ) ) 
   {
     cat ( "You're missing harvest, stupid.\n" )
     return ()
@@ -737,9 +758,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
   # Loop over remaining years
   for ( t in 2:nT )
   {
-    if ( is.na(Ct[t-1]) ) Ct [ t-1 ] <- Ft[t-1] * Bt [ t-1 ]
+    if ( is.na(Ct[t-1]) ) Ct [ t-1 ] <- Ut[t-1] * Bt [ t-1 ]
     Bt [ t ] <-   (	Bt [ t-1 ] +                       # prev year's B
-                  	2. * Fmsy * Bt [ t-1 ] * 
+                  	2. * Umsy * Bt [ t-1 ] * 
                   	( 1. - Bt [ t-1 ] / Bmsy / 2. ) -  # recruitment
                   	Ct [ t-1 ]                         # Catch
                   )
@@ -749,17 +770,17 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
     Bt[t] <- Bt[t]*epst[t]*zetat[t] # Process error
 }  # End loop for biomass
   # Generate catch for nT
-  Ct[nT] <- Ft[nT] * Bt[nT]
+  Ct[nT] <- Ut[nT] * Bt[nT]
 
   # compute depletion value for comparison to model fit
   dep <- Bt [ nT ] / Bmsy / 2.
 
-  # Return B, C, F and U series and
+  # Return B, C, U and U series and
   # depletion value
   outList <- list ()
   outList $ Bt <- Bt
   outList $ Ct <- Ct
-  outList $ Ft <- Ft
+  outList $ Ut <- Ut
   outList $ epst <- epst
   outList $ zetat <- zetat
   outList $ dep <- dep
@@ -793,7 +814,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
 #           rho=autocorrelation factor
 # outputs:  zcorr=vector of autocorrelated log-normal deviations
 # usage:    to provide auto-correlated process errors
-.fillRanWalk <- function ( z=rnorm(10), s = 1, rho = 0, c=0, normScale=FALSE )
+.fillRanWalk <- function ( z=rnorm(10), s = 1, gamma = 0, c=0, normScale=FALSE )
 {
   # initialise output vector
   zcorr <- numeric ( length ( z ) )
@@ -803,13 +824,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL )
 
   # Create correlated variance term
   s2 <- s * s
-  s2corr <- s2 / (1 - rho * rho )
+  s2corr <- s2 / (1 - gamma * gamma )
 
   # loop to populate auto-correlated vector
   zcorr[1] <- c + z[1]
   for ( t in 2:length(z) )
   {
-    zcorr[t] <- c + rho * zcorr[t-1] + z[t]
+    zcorr[t] <- c + gamma * zcorr[t-1] + z[t]
   }
 
   if (normScale) return (zcorr)
