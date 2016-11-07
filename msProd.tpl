@@ -24,12 +24,12 @@ DATA_SECTION
   init_int phz_Bmsy;             // maximum sustainable yield
   init_int phz_Umsy;            // explotation rate
   init_int phz_tau;             // tau - obs error variance
-  init_int phz_kappa;           // total proc error variance
-  init_int phz_Sigma;             // proportion of proc error for shared REs
-  init_int phz_q;               // q - survey catchability
+  init_int phz_kappa;           // shared RE variance
+  init_int phz_Sigma;           // species specific RE variance
+  init_int phz_q;               // q - survey catchability - concentrated
   init_int phz_mlnq;            // shared q prior mean
   init_int phz_slnq;            // shared q prior variance
-  init_int phz_varPriors;       // priors on variance terms
+  init_int phz_varPriors;       // IG priors on variance terms
   init_int phz_omegat;          // shared envrionmental REs
   init_int phz_zetat;           // species spec REs
   init_int phz_AR;              // AR (gamma) for shared REs (omega)
@@ -69,7 +69,7 @@ PARAMETER_SECTION
   // variance terms
   init_bounded_vector lnTau2(1,nS,-5,2,phz_tau);      // tau - osb error sd
   init_bounded_number lnkappa2(-2,2,phz_kappa);       // shared RE variance
-  init_bounded_vector lnSigma2(1,nS,-2,2,phz_Sigma);       // species spec RE var
+  init_bounded_vector lnSigma2(1,nS,-2,2,phz_Sigma);  // species spec RE var
 
   vector tau2(1,nS);
   number kappa2;
@@ -100,11 +100,11 @@ PARAMETER_SECTION
   init_number slnq(phz_slnq);       // logq prior sd (shared)
 
   // process error deviations
-  init_bounded_vector omegat_st(1,nT,-3.,3.,phz_omegat); // environmental proc error
-  init_bounded_matrix zetat_st(1,nS,1,nT,-3.,3.,phz_zetat); // species-specific proc error
+  init_bounded_vector omegat(1,nT,-3.,3.,phz_omegat); // environmental proc error
+  init_bounded_matrix zetat(1,nS,1,nT,-3.,3.,phz_zetat); // species-specific proc error
   // might be able to use dvector later for the following
-  vector omegat(1,nT);
-  matrix zetat(1,nS,1,nT);
+  //vector omegat(1,nT);
+  //matrix zetat(1,nS,1,nT);
   vector epst(1,nT);        // built using gamma and omegat
   matrix zetatc(1,nS,1,nT); // correlated zetat values (using chol)
 
@@ -198,8 +198,8 @@ FUNCTION stateDynamics
 
   
   // initialise RE variables
-  omegat.initialize();
-  zetat.initialize();
+  // omegat.initialize();
+  // zetat.initialize();
   chol.initialize();
   epst.initialize();
   zetatc.initialize();
@@ -213,7 +213,7 @@ FUNCTION stateDynamics
   tau     = mfexp(lnTau2*0.5);
   kappa   = mfexp(lnkappa2*0.5);
 
-  omegat = omegat_st * kappa;
+  //omegat = omegat_st * kappa;
 
   // multispecies model
   if ( nS > 1 ) 
@@ -234,7 +234,7 @@ FUNCTION stateDynamics
       chol(i)(1,i) /= norm(chol(i)(1,i));
     }
 
-  for (int s=1;s<=nS;s++) zetat(s) = zetat_st(s) * Sigma(s);
+  //for (int s=1;s<=nS;s++) zetat(s) = zetat_st(s) * Sigma(s);
 
   // Compute correlated zetat values
   zetatc = chol * zetat;
@@ -318,11 +318,11 @@ FUNCTION calcLikelihoods
   // concentrate tau2
   //tau2 = elem_div(ss,validObs);
   // compute likelihood
-  obsLike = 0.5*nT*log(ss); //concentrated obs error var
+  //obsLike = 0.5*nT*log(ss); //concentrated obs error var
   obsLike = 0.5*nT*log(tau2) + 0.5*elem_div(ss,tau2);
 
   // compute shared effects penalty (on standard normal devs)
-  omegaLike = 0.5*norm2(omegat_st);//kappa2;
+  omegaLike = 0.5*nT*log(kappa2) + 0.5*norm2(omegat)/kappa2;
 
   // add single species likelihoods
   totalLike = sum(obsLike) + omegaLike;
@@ -331,7 +331,7 @@ FUNCTION calcLikelihoods
   // to likelihood
   if (nS > 1) 
   {
-    for (int s=1;s<=nS;s++) zetaLike(s) = 0.5*norm2(zetat_st(s));//Sigma2(s);
+    for (int s=1;s<=nS;s++) zetaLike(s) = 0.5*nT*log(Sigma2(s)) + 0.5*norm2(zetat(s))/Sigma2(s);
     totalLike += sum(zetaLike);
   }
 
