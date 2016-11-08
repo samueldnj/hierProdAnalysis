@@ -15,7 +15,7 @@ opMod$q c(0.8,1,1.2)
 opMod$gamma 0
 opMod$tau2 c(0.2,0.2,0.2)
 opMod$corrMult 1
-opMod$sigmaMult 1
+opMod$kappaMult 1
 assess$autoIG FALSE
 assess$fitTrials 3
 assess$maxfn 5000

@@ -77,7 +77,7 @@
   {
     ss$err.mle$Bmsy[,s]   <- (ss$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
     ss$err.mle$Umsy[,s]   <- (ss$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-    ss$err.mle$sigma2[,s] <- (ss$sigma2[,s] - opMod$pars$sigma2)/opMod$pars$sigma2
+    ss$err.mle$kappa2[,s] <- (ss$kappa2[,s] - opMod$pars$kappa2)/opMod$pars$kappa2
     ss$err.mle$tau2[,s]   <- (ss$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
     ss$err.mle$q[,s]      <- (ss$q[,s] - opMod$q[s])/opMod$q[s]
     ss$err.mle$mlnq[,s]   <- (ss$mlnq[,s] - mean(log(opMod$q)))
@@ -88,10 +88,9 @@
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.mle$sigma2     <- t(ms$sigma2 - opMod$pars$sigma2)/opMod$pars$sigma2
+      ms$err.mle$kappa2     <- t(ms$kappa2 - opMod$pars$kappa2)/opMod$pars$sigma2
       ms$err.mle$mlnq       <- t(ms$mlnq - mean(log(opMod$q)))
     }
-    browser()
     # Now the rest of the pars
     ms$err.mle$Bmsy[,s]   <- (ms$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
     ms$err.mle$Umsy[,s]   <- (ms$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
@@ -101,7 +100,6 @@
     ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
     ms$err.mle$BnT[,s]    <- (ms$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
   }
-  
 
   # Append these to blob
   blob$am$ss <- ss

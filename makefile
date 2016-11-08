@@ -13,7 +13,6 @@ install:
 # Run ADMB to set up executables
 ADMB:
 	$(ADMB) msProdCV.tpl
-	$(ADMB) ssProdCV.tpl
 
 # Create directories to hold project files and forensics
 dirs:

@@ -65,11 +65,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   nS <- obj$opMod$nS          # number of species
 
   # Process error component vars
-  sigma <- sqrt(obj$opMod$pars$sigma)    # longitudinal shared proc error sd
+  kappa <- sqrt(obj$opMod$pars$kappa)    # longitudinal shared proc error sd
   Sigma <- sqrt(obj$opMod$pars$Sigma)    # ms proc error cov mtx
   
   # Rescale shared effects sd if desired
-  if (!is.null(obj$opMod$sigmaMult)) sigma <- sigma*obj$opMod$sigmaMult
+  if (!is.null(obj$opMod$kappaMult)) kappa <- kappa*obj$opMod$kappaMult
 
   # Correlation parameters
   gamma     <- obj$opMod$gamma          # longitudinal auto-correlation
@@ -96,11 +96,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 deltat= matrix (NA,nrow=nS, ncol=nT ),
                 It    = matrix (NA,nrow=nS, ncol=nT ),
                 dep   = numeric(length = nS),
-                sigma2= sigma*sigma,
+                kappa2= kappa*kappa,
                 Sigma2= Sigma*Sigma,
                 msCorr= msCorr,
                 gamma = gamma,
-                rho   = sigma*sigma/mean(Sigma*Sigma),
                 tau2  = tau*tau,
                 q     = obj$opMod$q,
                 nT    = nT,
@@ -109,7 +108,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 Umsy  = obj$opMod$pars$Umsy )
 
   # Now create epst and zetat vectors using the proc error components
-  epst      <- .fillRanWalk(  z=rnorm(n = nT), s=sigma,
+  epst      <- .fillRanWalk(  z=rnorm(n = nT), s=kappa,
                               gamma=gamma )
   zetat     <- matrix  (rnorm ( n = nS*nT ), nrow = nS, ncol = nT)
   zetat     <- .genCorrDevs ( zetat,
@@ -217,7 +216,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
                           lnUmsy      = log(om$Umsy[s]),
                           lnTau2      = log(obj$assess$tau2[s]),
-                          lnkappa2    = log(om$sigma2+om$Sigma2[s]),
+                          lnkappa2    = log(om$kappa2+om$Sigma2[s]),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
                           # c           = 0,
@@ -260,7 +259,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
                   lnUmsy      = log(om$Umsy),
                   lnTau2      = log(obj$assess$tau2),
-                  lnkappa2    = log(om$sigma2),
+                  lnkappa2    = log(om$kappa2),
                   lnSigma2    = log(om$Sigma2),
                   gamma       = obj$assess$gamma,
                   c           = rep(0,nS*(nS-1)/2),
@@ -609,7 +608,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   mlnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   slnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  mcPar   = array (NA,dim=c(nReps,nS,nMC,nMCparSS),dimnames=list(rNames,sNames,mcNo,NULL)),
+                  mcPar   = array (NA,dim=c(nReps,nS,nMC,nMCparMS),dimnames=list(rNames,sNames,mcNo,NULL)),
                   mcBio   = array (NA,dim=c(nReps,nS,nMC,nT),dimnames=list(rNames,sNames,mcNo,mcBt)),
                   locmin  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   hesspd  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),

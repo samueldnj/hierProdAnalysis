@@ -19,8 +19,8 @@
 ## Correlation matrix
 # msCorr
 1 0.8 0.8 
-0.8 1 -0.8 
-0.8 -0.8 1
+0.8 1 0.8 
+0.8 0.8 1
 
 ## MS proc error sd
 # Sigma2
