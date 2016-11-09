@@ -229,8 +229,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           beta_kappa  = obj$assess$beta_kappa,
                           alpha_Sigma = obj$assess$alpha_Sigma[s], 
                           beta_Sigma  = obj$assess$beta_Sigma[s],
-                          alpha_tau   = obj$assess$alpha_tau[s],
-                          beta_tau    = obj$assess$beta_tau[s],
+                          alpha_tau   = obj$assess$alpha_tau,
+                          beta_tau    = obj$assess$beta_tau,
                           mlnq        = obj$assess$mlnq,
                           slnq        = obj$assess$slnq,
                           lnqbar      = 0,
@@ -258,6 +258,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   phz_AR      = obj$assess$phz_AR,
                   phz_chol    = obj$assess$phz_chol,
                   dumm        =  999 )
+
   msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
                   lnUmsy      = log(om$Umsy),
                   lnTau2      = log(obj$assess$tau2),
@@ -278,7 +279,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   beta_tau    = obj$assess$beta_tau,
                   mlnq        = obj$assess$mlnq,
                   slnq        = obj$assess$slnq,
-                  lnqbar      = obj$assess$lnqbar
+                  lnqbar      = obj$assess$lnqbar,
                   lnTau2qs    = log(obj$assess$tau2qs),
                   epst        = rep(0,nT),
                   zetat       = matrix(0,nrow=nS,ncol=nT) )

@@ -21,14 +21,14 @@ DATA_SECTION
   init_matrix It(1,nS,1,nT);          // indices of abundance
 
   // Estimation phases
-  init_int phz_Bmsy;             // maximum sustainable yield
+  init_int phz_Bmsy;            // maximum sustainable yield
   init_int phz_Umsy;            // explotation rate
   init_int phz_tau;             // tau - obs error variance
   init_int phz_kappa;           // shared RE variance
   init_int phz_Sigma;           // species specific RE variance
-  init_int phz_q;               // q - survey catchability - concentrated
+  init_int phz_lnq;             // q - survey catchability - concentrated
   init_int phz_mlnq;            // shared q prior mean
-  init_int phz_s2lnq;            // shared q prior variance
+  init_int phz_s2lnq;           // shared q prior variance
   init_int phz_varPriors;       // IG priors on variance terms
   init_int phz_omegat;          // shared envrionmental REs
   init_int phz_zetat;           // species spec REs
@@ -42,7 +42,7 @@ DATA_SECTION
   int cEntries;
   int verbose;
   int phz_tau2qs;
-  !! phz_tau2qs = phz_q;
+  !! phz_tau2qs = phz_lnq;
 
   // Procedure to exit if not all data is read correctly
   LOC_CALCS
@@ -103,7 +103,7 @@ PARAMETER_SECTION
 
   init_bounded_number mlnq(-3.,3.,phz_mlnq);      // logq prior mean (shared)
   init_number s2lnq(-1);                          // logq prior sd (shared)
-  init_bounded_number lnqbar(-5,2,phz_q);         // mean lnq across species
+  init_bounded_number lnqbar(-5,2,phz_lnq);       // mean lnq across species
   init_bounded_number lnTau2_qs(-5,2,phz_tau2qs); // logqs prior var
 
   // process error deviations
@@ -377,15 +377,13 @@ FUNCTION calcPriors
   }
   
   // lnq prior (shared)
-  if (phz_q > 0)
+  if (phz_mlnq > 0)
   {
     if (nS == 1) lnqPrior = pow ( lnqhatSpec - mlnq, 2 ) / s2lnq /2;
     else {
-      lnqPrior = 0.5*nS*log(mfexp(lnTau2_qs)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lnTau2_qs);
-      lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq;
-      lnqPrior += lnTau2_qs;
+      lnqPrior = 0.5*log(mfexp(lnTau2_qs)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lnTau2_qs);
+      lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
     }
-    lnqPrior += mlnq;
   }
 
   // sum up the t

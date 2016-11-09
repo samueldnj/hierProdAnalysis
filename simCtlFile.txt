@@ -46,12 +46,12 @@ assess$sBmsy c(400,800,1600)
 assess$mUmsy c(0.2,0.25,0.3)
 assess$sUmsy c(0.6,0.75,0.9)
 assess$mlnq 0
-assess$slnq 1
+assess$slnq 0.5
 assess$lnqbar 0
 assess$tau2qs 0.1
 assess$alpha_kappa 2
 assess$beta_kappa 0.2
 assess$alpha_Sigma c(2,2,2)
 assess$beta_Sigma c(0.2,0.2,0.2)
-assess$alpha_tau c(2,2,2)
-assess$beta_tau c(0.3,0.3,0.3)
+assess$alpha_tau 2
+assess$beta_tau 0.3
