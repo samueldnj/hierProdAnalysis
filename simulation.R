@@ -25,7 +25,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Run simEst Procedure
   blob <- .simEstProc( obj = controlList, quiet )
   # Make error distributions
-  blob <- .makeRelErrorDists ( blob )
+  #blob <- .makeRelErrorDists ( blob )
   
   # save output to project folder
   # First, if a folder name isn't nominated, create a default sim folder
@@ -146,7 +146,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             epst = epst,
                             zetat = zetat[s,] )
     obs <- .obsModel (  Bt = bio $ Bt, q = obj$opMod$q[s], nT = nT,
-                        deltat = deltat[s,], tau = tau[s] )
+                        deltat = deltat[s,], tau = tau )
 
     om$Bt[s,]     <- bio$Bt
     om$Ct[s,]     <- bio$Ct
@@ -203,7 +203,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           phz_tau     = obj$assess$phz_tau,
                           phz_kappa   = obj$assess$phz_kappa,
                           phz_Sigma   = -1,
-                          phz_q       = obj$assess$phz_q,
+                          phz_q       = -1,
                           phz_mlnq    = obj$assess$phz_mlnq,
                           phz_slnq    = obj$assess$phz_slnq,
                           phz_IGpriors= obj$assess$phz_IGpriors,
@@ -215,8 +215,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
                           lnUmsy      = log(om$Umsy[s]),
-                          lnTau2      = log(obj$assess$tau2[s]),
-                          lnkappa2    = log(om$kappa2+om$Sigma2[s]),
+                          lnTau2      = log(obj$assess$tau2),
+                          lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2[s]),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
                           # c           = 0,
@@ -233,6 +233,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           beta_tau    = obj$assess$beta_tau[s],
                           mlnq        = obj$assess$mlnq,
                           slnq        = obj$assess$slnq,
+                          lnqbar      = 0,
+                          lnTau2qs    = 0,
                           epst        = rep(0,nT),
                           zetat       = matrix(0,nrow=nS,ncol=nT) )
 
@@ -259,8 +261,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
                   lnUmsy      = log(om$Umsy),
                   lnTau2      = log(obj$assess$tau2),
-                  lnkappa2    = log(om$kappa2),
-                  lnSigma2    = log(om$Sigma2),
+                  lnkappa2    = log(obj$assess$kappa2),
+                  lnSigma2    = log(obj$assess$Sigma2),
                   gamma       = obj$assess$gamma,
                   c           = rep(0,nS*(nS-1)/2),
                   # lnq         = log(obj$om$q),
@@ -276,6 +278,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   beta_tau    = obj$assess$beta_tau,
                   mlnq        = obj$assess$mlnq,
                   slnq        = obj$assess$slnq,
+                  lnqbar      = obj$assess$lnqbar
+                  lnTau2qs    = log(obj$assess$tau2qs),
                   epst        = rep(0,nT),
                   zetat       = matrix(0,nrow=nS,ncol=nT) )
   # return list of dat and pin objects for running estimators
@@ -563,7 +567,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   nMCparMS<- obj$assess$nParMS
 
   # Compute total number of trials
-  nMC <- (mcTrials+mcBurn)/mcSave
+  nMC <- ((mcTrials+mcBurn)/mcSave)/2
 
   # Create dimension names for arrays
   rNames <- paste("Rep",1:nReps, sep ="")
@@ -580,7 +584,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 deltat= array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 It    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 ItTrue= array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                dep   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames))
+                dep   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                kappa2= NA,
+                Sigma2= NA
               )
                 # sigma = numeric(length = nReps),
                 # Sigma = numeric(length = nReps),
@@ -599,7 +605,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Bmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   msy     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  sigma2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  kappa2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   tau2    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   epst    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -619,9 +625,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Bmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   msy     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  sigma2  = rep(NA,length=nReps),
+                  kappa2  = rep   (NA,length=nReps),
                   Sigma2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  tau2    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  tau2    = rep   (NA,nReps),
                   dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   epst    = matrix(NA,nrow=nReps,ncol=nT,dimnames=list(rNames,1:nT)),
                   zetat   = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -663,6 +669,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     blob$om$It[i,,]         <- simEst$om$It
     blob$om$ItTrue[i,,]     <- simEst$om$ItTrue
     blob$om$dep[i,]         <- simEst$om$dep
+    blob$om$kappa2          <- simEst$om$kappa2
+    blob$om$Sigma2          <- simEst$om$Sigma2
 
     # Save AM results
     # Loop over single species
@@ -672,7 +680,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ss$Umsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Umsy
       blob$am$ss$msy[i,s]         <- simEst$ssFit[[s]]$fitrep$msy
       blob$am$ss$q[i,s]           <- simEst$ssFit[[s]]$fitrep$q
-      blob$am$ss$sigma2[i,s]      <- simEst$ssFit[[s]]$fitrep$kappa2
+      blob$am$ss$kappa2[i,s]      <- simEst$ssFit[[s]]$fitrep$kappa2
       blob$am$ss$tau2[i,s]        <- simEst$ssFit[[s]]$fitrep$tau2
       blob$am$ss$dep[i,s]         <- simEst$ssFit[[s]]$fitrep$D
       blob$am$ss$epst[i,s,]       <- simEst$ssFit[[s]]$fitrep$epst
@@ -685,8 +693,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       if (simEst$ssFit[[s]]$hessPosDef)
       {
         dimnames(blob$am$ss$mcPar)[[4]] <- colnames(simEst$ssFit[[s]]$mcPar)
-        blob$am$ss$mcPar[i,s,,]     <- as.matrix(simEst$ssFit[[s]]$mcPar)
-        blob$am$ss$mcBio[i,s,,]     <- as.matrix(simEst$ssFit[[s]]$mcBio)
+        mcPar <- simEst$ssFit[[s]]$mcPar
+        mcBio <- simEst$ssFit[[s]]$mcBio
+        blob$am$ss$mcPar[i,s,,]     <- as.matrix(mcPar[(nrow(mcPar)/2+1):nrow(mcPar),])
+        blob$am$ss$mcBio[i,s,,]     <- as.matrix(mcBio[(nrow(mcBio)/2+1):nrow(mcBio),])
       }
       # Estimator performance flags
       blob$am$ss$locmin[i,s]      <- simEst$ssFit[[s]]$localMin
@@ -700,8 +710,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     blob$am$ms$msy[i,]            <- simEst$msFit$fitrep$msy
     blob$am$ms$q[i,]              <- simEst$msFit$fitrep$q
     blob$am$ms$Sigma2[i,]         <- simEst$msFit$fitrep$Sigma2
-    blob$am$ms$sigma2[i]          <- simEst$msFit$fitrep$kappa2
-    blob$am$ms$tau2[i,]           <- simEst$msFit$fitrep$tau2
+    blob$am$ms$kappa2[i]          <- simEst$msFit$fitrep$kappa2
+    blob$am$ms$tau2[i]            <- simEst$msFit$fitrep$tau2
     blob$am$ms$dep[i,]            <- simEst$msFit$fitrep$D
     blob$am$ms$epst[i,]           <- simEst$msFit$fitrep$epst
     blob$am$ms$zetat[i,,]         <- simEst$msFit$fitrep$zetat
@@ -718,10 +728,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       for ( s in 1:nS )
       {
         dimnames(blob$am$ms$mcPar)[[4]] <- colnames(simEst$msFit$mcPar)
-        parIdx <- seq ( from = s, to = nrow(simEst$msFit$mcPar), by = nS)
-        bioIdx <- seq ( from = s, to = nrow(simEst$msFit$mcBio), by = nS)
-        blob$am$ms$mcPar[i,s,,]     <- as.matrix(simEst$msFit$mcPar[parIdx,])
-        blob$am$ms$mcBio[i,s,,]     <- as.matrix(simEst$msFit$mcBio[bioIdx,])
+        mcPar <- simEst$msFit$mcPar
+        mcBio <- simEst$msFit$mcBio
+        parIdx <- seq ( from = nrow(mcPar)/2+s, to = nrow(mcPar), by = nS)
+        bioIdx <- seq ( from = nrow(mcBio)/2+s, to = nrow(mcPar), by = nS)
+        blob$am$ms$mcPar[i,s,,]  <- as.matrix(mcPar[parIdx,])
+        blob$am$ms$mcBio[i,s,,]  <- as.matrix(mcBio[bioIdx,])
 
       }
     }

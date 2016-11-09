@@ -9,6 +9,36 @@
 #
 # --------------------------------------------------------------------------
 
+# plotContours()
+# Function to plot the performance contours over two variables
+# 
+# plotContours <- function (  table   = "statTable.csv", 
+#                             pars    = c("BnT", "Umsy" ),
+#                             mpLabel = "informedPriors" )
+# {
+#   # Load stat table
+#   tablePath <- file.path ( getwd(),"project/Statistics",table)
+#   table <- read.csv (tablePath, header=TRUE)
+
+#   # reduce to the correct MP
+#   table <- table [ which(table$mp == mpLabel ),]
+
+#   table <- table  %>% filter(mp==mpLabel)  
+#                   %>% mutate (  reRatio = sqrt(kappa2True/Sigma2True) )
+
+#   # Set up plotting environment
+#   nrows <- 2 * length(pars)
+#   nS    <- length(unique(table$species))
+#   par (mfrow c(nrows,nS), mar = c(1,1,1,1), oma = c(1,1,1,1) )
+
+#   for (s in 1:nS)
+#   {
+#     for ()
+#   }
+
+
+# }
+
 # plotMCMCpar()
 # Function that will plot MCMC output from ADMB models for a nominated
 # parameter, simulation and replicate. Uses the coda package.
@@ -233,6 +263,7 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
   Ut    <- blob$om$Ut[rep,,]
 
   
+  
   if ( est == "MLE" )
   { # Single species model
     ssBt  <- blob$am$ss$Bt[rep,,]
@@ -256,6 +287,11 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
     msBt       <- mcBioMSMed[rep,,]
     msq        <- mcParMSMed[rep,,"q"]
   }
+
+  # Estimated Ut
+  ssUt <- Ct / ssBt
+  msUt <- Ct / msBt
+
   
   # Recover diagnostics for the fits
   hpdSS <- blob$am$ss$hesspd[rep,]
@@ -274,7 +310,7 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
   for ( s in 1:nS )
   {
     if ( s == 1 ) yLab <- "Biomass (t)" else yLab <- ""
-    maxBt <- 1.05*max ( omBt[s,], ssBt[s,], msBt[s,],It[s,]/ssq[s],It[s,]/msq[s])
+    maxBt <- 1.05*max ( omBt[s,], ssBt[s,], msBt[s,])
     plot    ( x = c(1,nT), y = c(0,maxBt), type = "n",
               ylim = c(0,maxBt), ylab = yLab, las = 1, xlab = "" ,
               main = specNames[s] )
@@ -306,6 +342,8 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
     maxUt <- max ( Ut[s,])
     plot  ( x = 1:nT, y = Ut[s,], col = "black", lwd = 2, type = "l",
             ylim = c(0,maxUt), ylab = yLab, las = 1, xlab = "" )
+    lines (x = 1:nT, y = ssUt[s,], col= ssCol, lwd = 2, lty = 2 )
+    lines (x = 1:nT, y = msUt[s,], col= msCol, lwd = 2, lty = 2 )
   }
   mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5)
   mtext ( text = c(stamp,repCount),side=1, outer = TRUE, 
@@ -467,7 +505,6 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
   msQuant <- lapply ( X = seq_along(msRE), FUN = quantWrap, x=msRE, 
                       MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
 
-
   # get names of parameters
   ssPars <- names ( ssRE )
   msPars <- names ( msRE )
@@ -481,16 +518,16 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
                                   c("2.5%","50%","97.5%"), 
                                   pars,
                                   c("ss","ms") )
+
   # populate table
   for ( s in 1:nS )
   {
-    for (par in 1:length(pars))
+    for (p in 1:length(pars))
     {
-      quantiles[s,,par,1] <- ssQuant[ssPars[par]][[1]][s,]
-      quantiles[s,,par,2] <- msQuant[msPars[par]][[1]][s,]
+      quantiles[s,,p,1] <- ssQuant[pars[p]][[1]][s,]
+      quantiles[s,,p,2] <- msQuant[pars[p]][[1]][s,]
     }
   }
-  
   # Set plotting window
   par (mfrow = c(1,3), mar = c(3,0,1,1), oma = c(3,0,2,0) )
 
@@ -502,17 +539,16 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
 
     # Plot main dotchart
     plotTitle <- specNames[s]
-    if ( s == 1) dotchart ( x = t(med), xlim = c(-1.5,1.5
-      ),main=plotTitle,
+    if ( s == 1) dotchart ( x = t(med), xlim = c(-1.5,1.5), main=plotTitle,
                             pch = 16)
     else dotchart ( x = t(med), xlim = c(-1.5,1.5), main = plotTitle,
                     pch = 16)
     
     # Now add segments
-    for ( par in length(pars):1)
+    for ( p in length(pars):1)
     {
-      parIdx <- length(pars) - par + 1
-      plotY <- 2 * par + 2 * (par-1)
+      parIdx <- length(pars) - p + 1
+      plotY <- 2 * p + 2 * (p-1)
       segments( q025[pars[parIdx],"ss"],plotY-1,q975[pars[parIdx],"ss"],plotY-1,lty=1,col="grey60", lwd=2)  
       segments( q025[pars[parIdx],"ms"],plotY,q975[pars[parIdx],"ms"],plotY,lty=1,col="grey60", lwd=2)  
     }
