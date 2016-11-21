@@ -335,11 +335,6 @@ FUNCTION calcLikelihoods
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
   totalLike += sum(obsLike);
 
-  if ( nS == 1 & phz_omegat > 0)
-  {
-    
-  }
-
   // compute shared effects penalty (on standard normal devs)
   if (phz_omegat > 0)
   {
