@@ -9,35 +9,33 @@
 #
 # --------------------------------------------------------------------------
 
-# plotContours()
-# Function to plot the performance contours over two variables
-# 
-# plotContours <- function (  table   = "statTable.csv", 
-#                             pars    = c("BnT", "Umsy" ),
-#                             mpLabel = "informedPriors" )
-# {
-#   # Load stat table
-#   tablePath <- file.path ( getwd(),"project/Statistics",table)
-#   table <- read.csv (tablePath, header=TRUE)
+# plotPerfMatrix()
+# Function to plot performance matrices for each species and scenario
+plotPerfMatrix <- function (  table   = "statTable.csv", 
+                              pars    = c("BnT", "Umsy" ),
+                              mpLabel = "informedPriors" )
+{
+  # Load stat table
+  tablePath <- file.path ( getwd(),"project/Statistics",table)
+  table <- read.csv (tablePath, header=TRUE)
 
-#   # reduce to the correct MP
-#   table <- table [ which(table$mp == mpLabel ),]
+  # reduce to the correct MP
+  table <- table [ which(table$mp == mpLabel ),]
 
-#   table <- table  %>% filter(mp==mpLabel)  
-#                   %>% mutate (  reRatio = sqrt(kappa2True/Sigma2True) )
+  table <- table  %>% filter(mp==mpLabel)  
 
-#   # Set up plotting environment
-#   nrows <- 2 * length(pars)
-#   nS    <- length(unique(table$species))
-#   par (mfrow c(nrows,nS), mar = c(1,1,1,1), oma = c(1,1,1,1) )
-
-#   for (s in 1:nS)
-#   {
-#     for ()
-#   }
+  # Set up plotting environment
+  nrows <- 2 * length(pars)
+  nS    <- length(unique(table$species))
+  par (mfrow=c(nrows,nS), mar = c(1,1,1,1), oma = c(1,1,1,1) )
+  for (s in 1:nS)
+  {
+    scenarios <- table$scenario
+    # for ()
+  }
 
 
-# }
+}
 
 # plotMCMCpar()
 # Function that will plot MCMC output from ADMB models for a nominated
@@ -254,7 +252,7 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
   nT <- blob$opMod$nT
 
   # Species names
-  specNames <- blob$ctrl$specNames
+  specNames <- blob$ctrl$speciesNames
 
   # True OM quantities
   omBt  <- blob$om$Bt[rep,,]
@@ -304,7 +302,7 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
   msCol <- "salmon"
 
   # Set up plot window
-  par ( mfrow = c(3,nS), mar = c(1,4,1,0), oma = c(3,0,1,0.5) )
+  par ( mfrow = c(3,nS), mar = c(1,4,2,0), oma = c(3,0,2,0.5) )
   # Plot biomass, actual and estimated, including 2 index series,
   # scaled by model estimated q
   for ( s in 1:nS )
@@ -489,8 +487,10 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
   specNames <- blob$ctrl$specNames
 
   # Recover relative error distributions
-  ssRE <- blob$am$ss$err.mle
-  msRE <- blob$am$ms$err.mle
+  ssRE <- blob$am$ss$err.mle[pars]
+  msRE <- blob$am$ms$err.mle[pars]
+
+  browser()
 
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )

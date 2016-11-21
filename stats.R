@@ -57,9 +57,10 @@
                   "Sigma2True", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssMSY","msMSY","ssDep","msDep",
                   "ssq","msq" )
+  
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
   
-  colnames(statTable) <- colLabels
+  colnames(statTable)   <- colLabels
   statTable             <- as.data.frame(statTable)
 
   # get multiplier for shared effects
@@ -145,7 +146,7 @@
                 Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 kappa2= matrix ( NA, nrow=nReps, ncol=1),
                 Sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
-                tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
+                tau2  = matrix ( NA, nrow = nReps, ncol = 1 ),
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
                 mlnq  = matrix ( NA, nrow = nReps, ncol = 1 ),
                 dep   = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -182,7 +183,7 @@
     ms$err.mle$Bmsy[,s]   <- (ms$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
     ms$err.mle$Umsy[,s]   <- (ms$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
     ms$err.mle$Sigma2[,s] <- (ms$Sigma2[,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
-    ms$err.mle$tau2[,s]   <- (ms$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
+    ms$err.mle$tau2       <- (ms$tau2 - opMod$tau2)/opMod$tau2
     ms$err.mle$q[,s]      <- (ms$q[,s] - opMod$q[s])/opMod$q[s]
     ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
     ms$err.mle$BnT[,s]    <- (ms$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]

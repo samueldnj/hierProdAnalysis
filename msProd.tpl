@@ -322,6 +322,7 @@ FUNCTION obsModel
 // Subroutine to compute negative log likelihoods for obs and proc errors
 FUNCTION calcLikelihoods
   // Initialise NLL variables
+  totalLike.initialize();
   obsLike.initialize(); 
   omegaLike.initialize();
   zetaLike.initialize(); 
@@ -332,13 +333,19 @@ FUNCTION calcLikelihoods
   // compute likelihood
   //obsLike = 0.5*nT*log(ss); //concentrated obs error var
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
+  totalLike += sum(obsLike);
+
+  if ( nS == 1 & phz_omegat > 0)
+  {
+    
+  }
 
   // compute shared effects penalty (on standard normal devs)
   if (phz_omegat > 0)
   {
     omegaLike = 0.5*nT*log(kappa2) + 0.5*norm2(omegat)/kappa2;
     // add single species likelihoods
-    totalLike = sum(obsLike) + omegaLike;
+    totalLike += omegaLike;
   }
 
   // and if nS>1 then compute species specific effects penalty and add
@@ -417,15 +424,15 @@ FUNCTION calcPriors
   // beta pars
   if ( active(beta_kappa) )
   {
-    totalPrior += 1/beta_kappa;
+    totalPrior += beta_kappa;
   }
   if (active(beta_Sigma))
   {
-   totalPrior += sum(1/beta_Sigma); 
+   totalPrior += sum(beta_Sigma); 
   }
   if (active(beta_tau) )
   {
-    totalPrior += 1/beta_tau;
+    totalPrior += beta_tau;
   }
 
 FUNCTION mcDumpOut
