@@ -1,6 +1,6 @@
 ### Base control file for coastWideMS simulation estimation procedure
 parameter value
-ctrl$scenarioName "fullModel"
+ctrl$scenarioName "base"
 ctrl$mpLabel "obsModel"
 ctrl$nReps 10
 ctrl$rSeed 1
@@ -31,14 +31,14 @@ assess$Sigma2 c(0.05,0.05,0.05)
 assess$phz_Bmsy 1
 assess$phz_Umsy 1
 assess$phz_tau 5
-assess$phz_kappa 2
-assess$phz_Sigma 3
+assess$phz_kappa -2
+assess$phz_Sigma -3
 assess$phz_q 5
 assess$phz_mlnq 5
 assess$phz_slnq -3
 assess$phz_IGpriors -1
-assess$phz_omegat 2
-assess$phz_zetat 3
+assess$phz_omegat -2
+assess$phz_zetat -3
 assess$phz_AR -1
 assess$phz_chol -4
 assess$mBmsy c(200,400,800)
