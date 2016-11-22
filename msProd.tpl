@@ -56,10 +56,12 @@ DATA_SECTION
     if (nS == 1)
     {
       // if only one species, estimate only the shared REs
-      phz_zetat = -1;
-      phz_chol  = -1;
-      phz_Sigma = -1;
-      phz_tau2qs= -1;
+      phz_omegat  = phz_zetat;
+      phz_kappa   = phz_Sigma;
+      phz_zetat   = -1;
+      phz_chol    = -1;
+      phz_Sigma   = -1;
+      phz_tau2qs  = -1;
     }
 
 PARAMETER_SECTION
@@ -85,7 +87,7 @@ PARAMETER_SECTION
   vector Sigma(1,nS);
 
   // Covariance parameters
-  init_bounded_number gamma(0,1,phz_AR);            // auto-regression factor
+  init_bounded_number gamma(0,0.99,phz_AR);            // auto-regression factor
   init_bounded_vector c(1,cEntries,-1,1,phz_chol);  // cholesky factor off-diag entries
   matrix chol(1,nS,1,nS);                           // Matrix to hold cholesky factor
 
@@ -212,17 +214,19 @@ FUNCTION stateDynamics
   zetatc.initialize();
   tau2.initialize();
 
-  // variance pars
-  kappa2    = mfexp(lnkappa2);
+  // variance pars //
+  // Obs error variance
   tau2      = mfexp(lnTau2);
-
-  // Compute stds
   tau     = mfexp(lnTau2*0.5);
-  kappa   = mfexp(lnkappa2*0.5);
-
-  //omegat = omegat_st * kappa;
-
-  // multispecies model
+  
+  // shared effects
+  if (phz_kappa > 0) 
+  {
+    kappa2    = mfexp(lnkappa2);
+    kappa   = mfexp(lnkappa2*0.5);
+  }
+  
+  // Species specific effects
   if ( phz_zetat > 0 ) 
   { 
     Sigma2  = mfexp(lnSigma2);
@@ -347,9 +351,17 @@ FUNCTION calcLikelihoods
   // to likelihood
   if (phz_zetat>0) 
   {
-    for (int s=1;s<=nS;s++) zetaLike(s) = 0.5*nT*log(Sigma2(s)) + 0.5*norm2(zetat(s))/Sigma2(s);
+    for (int s=1;s<=nS;s++)
+    {
+      zetaLike(s) = 0.5*nT*log(Sigma2(s)) + 0.5*norm2(row(zetatc,s))/Sigma2(s);
+    } 
     totalLike += sum(zetaLike);
   }
+
+  /*
+
+  
+  */
 
 // Subroutine to compute prior densities to add to posterior
 FUNCTION calcPriors
@@ -367,7 +379,7 @@ FUNCTION calcPriors
   // msy
   if ( phz_Bmsy > 0)
   {
-    BmsyPrior = elem_div(pow ( Bmsy - mBmsy, 2 ), pow(sBmsy,2)) / 2.;  
+    BmsyPrior = elem_div(pow ( Bmsy - mBmsy, 2 ), pow(sBmsy,2))*0.5;  
   }
   //cout << "mBmsy = " << mBmsy << endl;
   //cout << "BmsyPrior = " << BmsyPrior << endl;
@@ -375,8 +387,9 @@ FUNCTION calcPriors
   // Then Fmsy
   if (phz_Umsy > 0)
   {
-    UmsyPrior = elem_div(pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2)) / 2.;  
+    UmsyPrior = elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2)) * 0.5;  
   }
+  //cout << "UmsyPrior = " << UmsyPrior << endl;
   
   // lnq prior (shared)
   if (phz_mlnq > 0)
@@ -384,20 +397,21 @@ FUNCTION calcPriors
     if (nS == 1) lnqPrior = pow ( lnqhatSpec - mlnq, 2 ) / s2lnq /2;
     else {
       lnqPrior = 0.5*log(mfexp(lnTau2_qs)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lnTau2_qs);
-      lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
+      if ( lnqbar != mlnq ) lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
     }
   }
 
-  // sum up the t
+  // total the schaefer model priors
   totalPrior = sum(BmsyPrior) + sum(UmsyPrior) + sum ( lnqPrior );
+  if ( verbose ) cout << "Added total Schaefer Priors" << endl;
   
-  // Now the total PE variance (IG(alpha,beta)) if lnkappa2 is active
+  // Now the shared effects variance (IG(alpha,beta)) if lnkappa2 is active
   if (active(lnkappa2))
   {
     kappaPrior = (alpha_kappa+1)*lnkappa2+beta_kappa/kappa2;
     totalPrior += kappaPrior;
   }
-
+  // species specific effects variance
   if (active(lnSigma2))
   {
     SigmaPrior = elem_prod(alpha_Sigma+1,lnSigma2) + elem_div(beta_Sigma,Sigma2);
@@ -407,9 +421,9 @@ FUNCTION calcPriors
   // tau2 prior if estimated
   if (active(lnTau2))
   {
-    //tauPrior = (alpha_tau+1)*log(tau2)+beta_tau/tau2;
-    //totalPrior += sum(tauPrior);
-    totalPrior += lnTau2;
+    tauPrior = (alpha_tau+1)*log(tau2)+beta_tau/tau2;
+    totalPrior += sum(tauPrior);
+    //totalPrior += lnTau2;
   }
 
   // Apply a Jeffries prior to msy
@@ -467,7 +481,7 @@ FUNCTION mcDumpOut
 REPORT_SECTION
   // Output estimates and derived variables for comparison to true
   // values in sim-est experiments
-  report << "## Single Species Production Model Results" << endl;
+  report << "## msProd Results" << endl;
   report << "## Parameter estimates (leading and concentrated) " << endl;
   report << "# Bmsy" << endl;
   report << Bmsy << endl;
@@ -509,6 +523,11 @@ REPORT_SECTION
   report << msy << endl;
   report <<"# q" << endl;
   report << mfexp(lnqhatSpec) <<endl;
+  if (nS > 1)
+  {
+    report <<"# qbar" << endl;
+    report << mfexp(lnqbar) <<endl;  
+  }
   report << "# D" << endl;
   report << dep_bar << endl;
   report << "# UnT" << endl;

@@ -160,6 +160,8 @@
   # now append Sigma2 to the err list
   ms$err.mle <- msErr
 
+  browser()
+
   # Fill in ss MLE relative errors
   for ( s in 1:nS )
   {

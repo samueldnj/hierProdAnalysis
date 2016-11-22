@@ -235,7 +235,8 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
 #           folder=name of folder/blob file (supercedes sim number)
 # output:   NULL
 # usage:    post-simulation run, plotting performance
-plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
+plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
+                      data = FALSE, labSize = 2, tickSize = 1.2 )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -302,25 +303,26 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
   msCol <- "salmon"
 
   # Set up plot window
-  par ( mfrow = c(3,nS), mar = c(1,4,2,0), oma = c(3,0,2,0.5) )
+  par ( mfrow = c(3,nS), mar = c(1,4.5,2,0), oma = c(3,1,2,0.5),
+        las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
   # Plot biomass, actual and estimated, including 2 index series,
   # scaled by model estimated q
   for ( s in 1:nS )
   {
     if ( s == 1 ) yLab <- "Biomass (t)" else yLab <- ""
-    maxBt <- 1.05*max ( omBt[s,], ssBt[s,], msBt[s,])
+    maxBt <- 1.2*max ( omBt[s,],na.rm=TRUE)
     plot    ( x = c(1,nT), y = c(0,maxBt), type = "n",
               ylim = c(0,maxBt), ylab = yLab, las = 1, xlab = "" ,
               main = specNames[s] )
     if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
                             col=c(ssCol,msCol), lty = c(2,2), 
-                            lwd = c(2,2), cex=c(0.7), bty="n" )
-    if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=1)
-    if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1)
-    if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=1)
-    if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1)
-    points  ( x = 1:nT, y = It[s,]/ssq[s], pch = 2, cex = 0.6, col="grey70" )
-    points  ( x = 1:nT, y = It[s,]/msq[s], pch = 5, cex = 0.6, col="grey70" )
+                            lwd = c(2,2), cex=c(1), bty="n" )
+    if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=1.1)
+    if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1.1)
+    if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=1.1)
+    if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1.1)
+    if ( data ) points  ( x = 1:nT, y = It[s,]/ssq[s], pch = 2, cex = 0.6, col="grey70" )
+    if ( data ) points  ( x = 1:nT, y = It[s,]/msq[s], pch = 5, cex = 0.6, col="grey70" )
     lines   ( x = 1:nT, y = omBt[s,], col = "black", lwd = 2)
     lines   ( x = 1:nT, y = ssBt[s,], col = ssCol, lwd = 2, lty = 2 )
     lines   ( x = 1:nT, y = msBt[s,], col = msCol, lwd = 2, lty = 2 )
@@ -336,7 +338,7 @@ plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
   # Now F
   for ( s in 1:nS )
   {
-    if ( s == 1 ) yLab <- "Fishing Mortality" else yLab <- ""
+    if ( s == 1 ) yLab <- "Exploitation Rate" else yLab <- ""
     maxUt <- max ( Ut[s,])
     plot  ( x = 1:nT, y = Ut[s,], col = "black", lwd = 2, type = "l",
             ylim = c(0,maxUt), ylab = yLab, las = 1, xlab = "" )
@@ -490,7 +492,6 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
   ssRE <- blob$am$ss$err.mle[pars]
   msRE <- blob$am$ms$err.mle[pars]
 
-  browser()
 
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )

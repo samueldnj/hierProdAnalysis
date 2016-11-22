@@ -25,7 +25,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Run simEst Procedure
   blob <- .simEstProc( obj = controlList, quiet )
   # Make error distributions
-  #blob <- .makeRelErrorDists ( blob )
+  blob <- .makeRelErrorDists ( blob )
   
   # save output to project folder
   # First, if a folder name isn't nominated, create a default sim folder
@@ -202,13 +202,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           phz_Umsy    = obj$assess$phz_Umsy,
                           phz_tau     = obj$assess$phz_tau,
                           phz_kappa   = obj$assess$phz_kappa,
-                          phz_Sigma   = -1,
+                          phz_Sigma   = obj$assess$phz_Sigma,
                           phz_q       = -1,
                           phz_mlnq    = obj$assess$phz_mlnq,
                           phz_slnq    = obj$assess$phz_slnq,
                           phz_IGpriors= obj$assess$phz_IGpriors,
                           phz_omegat  = obj$assess$phz_omegat,
-                          phz_zetat   = -1,
+                          phz_zetat   = obj$assess$phz_zetat,
                           phz_AR      = obj$assess$phz_AR,
                           phz_chol    = -1,
                           dumm        =  999 )
@@ -266,7 +266,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnSigma2    = log(obj$assess$Sigma2),
                   gamma       = obj$assess$gamma,
                   c           = rep(0,nS*(nS-1)/2),
-                  # lnq         = log(obj$om$q),
+                  # lnq       = log(obj$om$q),
                   mBmsy       = obj$assess$mBmsy,
                   sBmsy       = obj$assess$sBmsy,
                   mUmsy       = obj$assess$mUmsy,
