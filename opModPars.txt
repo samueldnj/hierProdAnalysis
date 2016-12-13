@@ -8,20 +8,20 @@
 200 400 800
 
 # Umsy
-0.2 0.25 0.3
+0.25 0.2 0.15
 
 ## Process Error ##
 ## Environmental process error (applied to all species)
 # kappa2
-0.05
+0.02
 
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.8 0.8 
-0.8 1 0.8 
-0.8 0.8 1
+1 0.2 0.2 
+0.2 1 -0.2 
+0.2 -0.2 1
 
 ## MS proc error sd
 # Sigma2
-0.05 0.05 0.05
+0.02 0.02 0.02

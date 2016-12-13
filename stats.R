@@ -56,7 +56,7 @@
   colLabels <- c( "scenario","mp","species","kappa2True",
                   "Sigma2True", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssMSY","msMSY","ssDep","msDep",
-                  "ssq","msq" )
+                  "ssq","msq", "msHessPD", "ssHessPD" )
   
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
   
@@ -79,20 +79,21 @@
   # Now errors
   for (s in 1:nS)
   {
-    statTable[s,"ssBnT"]  <- mean ( (ss$Bt[,s,nT] - om$Bt[,s,nT])^2)
-    statTable[s,"msBnT"]  <- mean ( (ms$Bt[,s,nT] - om$Bt[,s,nT])^2)
-    statTable[s,"ssUmsy"] <- mean ( (ss$Umsy[,s] - pars$Umsy[s])^2)
-    statTable[s,"msUmsy"] <- mean ( (ms$Umsy[,s] - pars$Umsy[s])^2)
-    statTable[s,"ssBmsy"] <- mean ( (ss$Bmsy[,s] - pars$Bmsy[s])^2)
-    statTable[s,"msBmsy"] <- mean ( (ms$Bmsy[,s] - pars$Bmsy[s])^2)
-    statTable[s,"ssMSY"]  <- mean ( (ss$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
-    statTable[s,"msMSY"]  <- mean ( (ms$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
-    statTable[s,"ssDep"]  <- mean ( (ss$dep[,s] -  om$dep[,s])^2)
-    statTable[s,"msDep"]  <- mean ( (ms$dep[,s] -  om$dep[,s])^2)
-    statTable[s,"ssq"]    <- mean ( (ss$q[,s]   -  opMod$q[s])^2)
-    statTable[s,"msq"]    <- mean ( (ms$q[,s]   -  opMod$q[s])^2)
+    statTable[s,"ssBnT"]    <- mean ( (ss$Bt[,s,nT] - om$Bt[,s,nT])^2)
+    statTable[s,"msBnT"]    <- mean ( (ms$Bt[,s,nT] - om$Bt[,s,nT])^2)
+    statTable[s,"ssUmsy"]   <- mean ( (ss$Umsy[,s] - pars$Umsy[s])^2)
+    statTable[s,"msUmsy"]   <- mean ( (ms$Umsy[,s] - pars$Umsy[s])^2)
+    statTable[s,"ssBmsy"]   <- mean ( (ss$Bmsy[,s] - pars$Bmsy[s])^2)
+    statTable[s,"msBmsy"]   <- mean ( (ms$Bmsy[,s] - pars$Bmsy[s])^2)
+    statTable[s,"ssMSY"]    <- mean ( (ss$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
+    statTable[s,"msMSY"]    <- mean ( (ms$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
+    statTable[s,"ssDep"]    <- mean ( (ss$dep[,s] -  om$dep[,s])^2)
+    statTable[s,"msDep"]    <- mean ( (ms$dep[,s] -  om$dep[,s])^2)
+    statTable[s,"ssq"]      <- mean ( (ss$q[,s]   -  opMod$q[s])^2)
+    statTable[s,"msq"]      <- mean ( (ms$q[,s]   -  opMod$q[s])^2)
+    statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s] )
+    statTable[s,"msHessPD"] <- mean ( ms$hesspd )
   }
-  
   
   # return
   statTable
@@ -159,8 +160,6 @@
 
   # now append Sigma2 to the err list
   ms$err.mle <- msErr
-
-  browser()
 
   # Fill in ss MLE relative errors
   for ( s in 1:nS )

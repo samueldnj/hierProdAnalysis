@@ -66,16 +66,16 @@ DATA_SECTION
 
 PARAMETER_SECTION
   // leading biological pars
-  init_bounded_vector lnBmsy(1,nS,2,10,phz_Bmsy);     // Bmsy - log scale
-  init_bounded_vector lnUmsy(1,nS,-5,0,phz_Umsy);     // Umsy - log scale
-  //init_bounded_vector lnq(1,nS,-5,2,phz_lnq);         // q log scale
+  init_vector lnBmsy(1,nS,phz_Bmsy);     // Bmsy - log scale
+  init_vector lnUmsy(1,nS,phz_Umsy);     // Umsy - log scale
+  //init_vector lnq(1,nS,-5,2,phz_lnq);         // q log scale
   vector Bmsy(1,nS);        
   vector Umsy(1,nS);
 
   // variance terms
-  init_bounded_number lnTau2(-5,2,phz_tau);           // shared osb error var
-  init_bounded_number lnkappa2(-2,2,phz_kappa);       // shared RE variance
-  init_bounded_vector lnSigma2(1,nS,-2,2,phz_Sigma);  // species spec RE var
+  init_number lnTau2(phz_tau);           // shared osb error var
+  init_number lnkappa2(phz_kappa);       // shared RE variance
+  init_vector lnSigma2(1,nS,phz_Sigma);  // species spec RE var
 
   number tau2;
   number kappa2;
@@ -97,11 +97,11 @@ PARAMETER_SECTION
   init_vector mUmsy(1,nS,-1);       // lnUmsy prior mean (species spec)
   init_vector sUmsy(1,nS,-1);       // lnUmsy priod sd (species spec)
   init_bounded_number alpha_kappa(1,10,phz_varPriors);    // kappa shape (shared)
-  init_bounded_number beta_kappa(0.1,4,phz_varPriors);    // kappa scale (shared)
+  init_bounded_number beta_kappa(0.01,4,phz_varPriors);    // kappa scale (shared)
   init_bounded_vector alpha_Sigma(1,nS,1,10,phz_varPriors); // Sigma prior shape (shared)
-  init_bounded_vector beta_Sigma(1,nS,0.1,4,phz_varPriors); // Sigma prior scale (shared)
+  init_bounded_vector beta_Sigma(1,nS,0.01,4,phz_varPriors); // Sigma prior scale (shared)
   init_bounded_number alpha_tau(1,10,phz_varPriors); // tau prior shape (shared)
-  init_bounded_number beta_tau(0.1,4,phz_varPriors); // tau prior scale (shared)
+  init_bounded_number beta_tau(0.01,4,phz_varPriors); // tau prior scale (shared)
 
   init_bounded_number mlnq(-3.,3.,phz_mlnq);      // logq prior mean (shared)
   init_number s2lnq(-1);                          // logq prior sd (shared)
@@ -109,12 +109,12 @@ PARAMETER_SECTION
   init_bounded_number lnTau2_qs(-5,2,phz_tau2qs); // logqs prior var
 
   // process error deviations
-  init_bounded_vector omegat(1,nT,-3.,3.,phz_omegat); // environmental proc error
-  init_bounded_matrix zetat(1,nS,1,nT,-3.,3.,phz_zetat); // species-specific proc error
+  init_bounded_dev_vector omegat(1,nT,-3.,3.,phz_omegat);   // year effect
+  init_bounded_matrix zetat(1,nS,1,nT,-3.,3.,phz_zetat);    // proc error
   // might be able to use dvector later for the following
   //vector omegat(1,nT);
   //matrix zetat(1,nS,1,nT);
-  vector epst(1,nT);        // built using gamma and omegat
+  vector epst(1,nT);        // auto-correlated year effect
   matrix zetatc(1,nS,1,nT); // correlated zetat values (using chol)
 
 
@@ -137,8 +137,8 @@ PARAMETER_SECTION
   vector ss(1,nS);          // sum of squared residuals for each species
   vector validObs(1,nS);    // counter for valid observations for each species
   vector obsLike(1,nS);     // NLL for observation error
-  number omegaLike;         // NLL for shared environmental proc error
-  vector zetaLike(1,nS);    // NLL for species spec REs
+  //number omegaLike;         // NLL for shared environmental proc error
+  vector procLike(1,nS);    // NLL for species spec REs
   number totalLike;         // total nll (sum of 3 likelihoods)
   // penalisers
   number fpen;               // penalty to obj function for bad dynamics
@@ -216,21 +216,29 @@ FUNCTION stateDynamics
 
   // variance pars //
   // Obs error variance
-  tau2      = mfexp(lnTau2);
+  tau2    = mfexp(lnTau2);
   tau     = mfexp(lnTau2*0.5);
+  //cout << "lnTau2 = " << lnTau2 << endl;
   
   // shared effects
   if (phz_kappa > 0) 
   {
-    kappa2    = mfexp(lnkappa2);
+    kappa2  = mfexp(lnkappa2);
     kappa   = mfexp(lnkappa2*0.5);
+    //cout << "lnkappa2 = " << lnkappa2 << endl;
   }
   
+  //cout << "SS variances are good" << endl;
+
   // Species specific effects
-  if ( phz_zetat > 0 ) 
+  if (nS > 1 & phz_zetat > 0 ) 
   { 
+    // (apply zero mean constraint for shared and specific effects)
+    omegat = omegat-mean(omegat);
+    
     Sigma2  = mfexp(lnSigma2);
     Sigma   = mfexp(0.5*lnSigma2);
+    //cout << "lnSigma2 = " << lnSigma2 << endl; 
   
     // Start constructing cholesky factor of correlation mtx
     chol(1,1) = 1.;
@@ -245,12 +253,13 @@ FUNCTION stateDynamics
       chol(i)(1,i) /= norm(chol(i)(1,i));
     }
 
-  //for (int s=1;s<=nS;s++) zetat(s) = zetat_st(s) * Sigma(s);
-
-  // Compute correlated zetat values
-  zetatc = chol * zetat;
+    // Compute correlated zetat values
+    zetatc = chol * zetat;
   }
   
+
+  //cout << "Starting Pop Dyn" << endl;
+
   // Run a loop for population dynamics of each stock
   // Assume stocks are at equilibrium initially ( B1 = B0e^delta1 )
   for (int s=1;s<=nS;s++)
@@ -258,6 +267,7 @@ FUNCTION stateDynamics
     // start AR(1) process
     epst(1) = omegat(1);
     Bt(s,1) = ( 2. * Bmsy(s) ) * mfexp(epst(1));
+    
     if (phz_zetat > 0) Bt(s,1) *= mfexp(zetatc(s,1));
     // loop over time periods to build dynamic model for t > 1
     for(int t=1; t<nT; t++)
@@ -278,6 +288,7 @@ FUNCTION stateDynamics
     }
   }
   //cout << "Bt = " <<  Bt <<  endl;
+  //cout << "epst = " <<  epst <<  endl;
   
   // compute derived management quantities
   dep_bar = elem_div(column(Bt,nT),Bmsy) / 2;      // depletion estimate
@@ -328,8 +339,8 @@ FUNCTION calcLikelihoods
   // Initialise NLL variables
   totalLike.initialize();
   obsLike.initialize(); 
-  omegaLike.initialize();
-  zetaLike.initialize(); 
+  //omegaLike.initialize();
+  procLike.initialize(); 
   
   // compute observation model likelihood (obs error variance concentrated)
   // concentrate tau2
@@ -339,6 +350,18 @@ FUNCTION calcLikelihoods
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
   totalLike += sum(obsLike);
 
+  if (phz_omegat > 0 | phz_zetat > 0 )
+  {
+    if (phz_omegat==0) kappa2 = 0;
+    if (phz_zetat ==0) Sigma2 = 0;
+    for (int s=1; s<=nS; s++)
+    {
+      procLike(s) = 0.5*nT*log(kappa2 + Sigma2(s)) + 0.5*norm2(omegat+zetat(s))/(kappa2 + Sigma2(s));
+    }
+    totalLike += sum(procLike);
+  }
+
+  /*
   // compute shared effects penalty (on standard normal devs)
   if (phz_omegat > 0)
   {
@@ -353,14 +376,10 @@ FUNCTION calcLikelihoods
   {
     for (int s=1;s<=nS;s++)
     {
-      zetaLike(s) = 0.5*nT*log(Sigma2(s)) + 0.5*norm2(row(zetatc,s))/Sigma2(s);
+      zetaLike(s) = 0.5*nT*log(Sigma2(s)) + 0.5*norm2(zetatc(s))/Sigma2(s);
     } 
     totalLike += sum(zetaLike);
   }
-
-  /*
-
-  
   */
 
 // Subroutine to compute prior densities to add to posterior
@@ -397,7 +416,10 @@ FUNCTION calcPriors
     if (nS == 1) lnqPrior = pow ( lnqhatSpec - mlnq, 2 ) / s2lnq /2;
     else {
       lnqPrior = 0.5*log(mfexp(lnTau2_qs)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lnTau2_qs);
-      if ( lnqbar != mlnq ) lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
+      if ( value(lnqbar) != value(mlnq) ) 
+      {
+        lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
+      }
     }
   }
 
@@ -584,10 +606,10 @@ REPORT_SECTION
   report << validObs << endl;
   report << "# ss" << endl;
   report << ss << endl;
-  report << "# omegaLike" << endl;
-  report << omegaLike << endl;
-  report << "# zetaLike" << endl;
-  report << zetaLike << endl;
+  //report << "# omegaLike" << endl;
+  //report << omegaLike << endl;
+  report << "# procLike" << endl;
+  report << procLike << endl;
   report << "# totalPrior" << endl;
   report << totalPrior << endl;
   report << "# BmsyPrior" << endl;
