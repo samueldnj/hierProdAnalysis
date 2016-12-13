@@ -72,22 +72,23 @@ PARAMETER_SECTION
   vector Bmsy(1,nS);        
   vector Umsy(1,nS);
 
-  // variance terms
+  // log-variance parameters
   init_number lnTau2(phz_tau);           // shared osb error var
   init_number lnkappa2(phz_kappa);       // shared RE variance
-  init_vector lnSigma2(1,nS,phz_Sigma);  // species spec RE var
+  init_number lnSigma2(phz_Sigma);  // species spec RE var
 
+  // normal scale variance
   number tau2;
   number kappa2;
-  vector Sigma2(1,nS);
+  number Sigma2;
   
-  // sd pars (transformed from variances)
+  // sd derived pars (transformed from variances)
   number tau;
   number kappa;
-  vector Sigma(1,nS);
+  number Sigma;
 
   // Covariance parameters
-  init_bounded_number gamma(0,0.99,phz_AR);            // auto-regression factor
+  init_bounded_number gamma(0,0.99,phz_AR);         // auto-regression factor
   init_bounded_vector c(1,cEntries,-1,1,phz_chol);  // cholesky factor off-diag entries
   matrix chol(1,nS,1,nS);                           // Matrix to hold cholesky factor
 
@@ -98,8 +99,8 @@ PARAMETER_SECTION
   init_vector sUmsy(1,nS,-1);       // lnUmsy priod sd (species spec)
   init_bounded_number alpha_kappa(1,10,phz_varPriors);    // kappa shape (shared)
   init_bounded_number beta_kappa(0.01,4,phz_varPriors);    // kappa scale (shared)
-  init_bounded_vector alpha_Sigma(1,nS,1,10,phz_varPriors); // Sigma prior shape (shared)
-  init_bounded_vector beta_Sigma(1,nS,0.01,4,phz_varPriors); // Sigma prior scale (shared)
+  init_bounded_number alpha_Sigma(1,10,phz_varPriors); // Sigma prior shape (shared)
+  init_bounded_number beta_Sigma(0.01,4,phz_varPriors); // Sigma prior scale (shared)
   init_bounded_number alpha_tau(1,10,phz_varPriors); // tau prior shape (shared)
   init_bounded_number beta_tau(0.01,4,phz_varPriors); // tau prior scale (shared)
 
@@ -150,7 +151,7 @@ PARAMETER_SECTION
   vector UmsyPrior(1,nS);   // Umsy normal prior
   number kappaPrior;        // total RE variance prior
   vector tauPrior(1,nS);    // observation error variance prior
-  vector SigmaPrior(1,nS);  //
+  number SigmaPrior;        //
   vector lnqPrior(1,nS);    // shared lnq prior density
 
 
@@ -233,9 +234,6 @@ FUNCTION stateDynamics
   // Species specific effects
   if (nS > 1 & phz_zetat > 0 ) 
   { 
-    // (apply zero mean constraint for shared and specific effects)
-    omegat = omegat-mean(omegat);
-    
     Sigma2  = mfexp(lnSigma2);
     Sigma   = mfexp(0.5*lnSigma2);
     //cout << "lnSigma2 = " << lnSigma2 << endl; 
@@ -350,16 +348,36 @@ FUNCTION calcLikelihoods
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
   totalLike += sum(obsLike);
 
-  if (phz_omegat > 0 | phz_zetat > 0 )
+  // both error components estimated
+  if ((phz_omegat > 0) & (phz_zetat > 0) )
   {
-    if (phz_omegat==0) kappa2 = 0;
-    if (phz_zetat ==0) Sigma2 = 0;
     for (int s=1; s<=nS; s++)
     {
-      procLike(s) = 0.5*nT*log(kappa2 + Sigma2(s)) + 0.5*norm2(omegat+zetat(s))/(kappa2 + Sigma2(s));
+      procLike(s) = 0.5*nT*log(Sigma2) + 0.5*norm2(zetatc(s) - Sigma/kappa*epst)/(2*Sigma2);
+    }
+    totalLike += sum(procLike) + 0.5*nT*(log(nS + Sigma2/kappa2) - log(Sigma2/kappa2));
+  }
+
+  // Just shared effect estimated
+  if ((phz_omegat > 0) & (phz_zetat < 0) )
+  {
+    for (int s=1; s<=nS; s++)
+    {
+      procLike(s) = 0.5*nT*log(kappa2) + 0.5*norm2(epst)/(2*kappa2);
     }
     totalLike += sum(procLike);
   }
+
+  // Just species specific effect estimated
+  if ((phz_omegat < 0) & (phz_zetat > 0) )
+  {
+    for (int s=1; s<=nS; s++)
+    {
+      procLike(s) = 0.5*nT*log(Sigma2) + 0.5*norm2(zetatc(s))/(2*Sigma2);
+    }
+    totalLike += sum(procLike);
+  }
+
 
   /*
   // compute shared effects penalty (on standard normal devs)
@@ -436,8 +454,8 @@ FUNCTION calcPriors
   // species specific effects variance
   if (active(lnSigma2))
   {
-    SigmaPrior = elem_prod(alpha_Sigma+1,lnSigma2) + elem_div(beta_Sigma,Sigma2);
-    totalPrior += sum(SigmaPrior);
+    SigmaPrior = alpha_Sigma+1*lnSigma2 + beta_Sigma/Sigma2;
+    totalPrior += SigmaPrior;
   }
 
   // tau2 prior if estimated
@@ -459,7 +477,7 @@ FUNCTION calcPriors
   }
   if (active(beta_Sigma))
   {
-   totalPrior += sum(beta_Sigma); 
+   totalPrior += beta_Sigma; 
   }
   if (active(beta_tau) )
   {
@@ -476,7 +494,7 @@ FUNCTION mcDumpOut
     {
       // Output the parameter values for this replicate
       mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnqhatSpec(s));
-      mcoutpar <<" "<< Sigma2(s) <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
+      mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
       mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
 
       // Output the biomass estimates for this MC evaluation
@@ -492,7 +510,7 @@ FUNCTION mcDumpOut
     {
       // Output the parameter values for this replicate
       mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnqhatSpec(s));
-      mcoutpar <<" "<< Sigma2(s) <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
+      mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
       mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
 
       // Output the biomass estimates for this MC evaluation
@@ -560,9 +578,8 @@ REPORT_SECTION
   report << Bt << endl;
   report << "# Ut" << endl;
   report << elem_div(katch,Bt) << endl;
+  report << endl;
   
-  
-
   report << "## Prior Hyperparameters" << endl;
   report << "# mBmsy" << endl;  
   report << mBmsy << endl;

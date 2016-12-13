@@ -195,11 +195,11 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
   msFill <- rgb(msFill[1],msFill[2],msFill[3],alpha=0.5)
 
   # Now plot!
-  par(mfrow = c(3,1), mar = c(1,1,1,1), oma=c(1,1,1,1))
+  par(mfrow = c(nS,1), mar = c(1,1,1,1), oma=c(1,1,1,1))
   for (s in 1:nS)
   {
     # Compute max B value
-    yLim <- 1.3*max (omBio[s,])
+    yLim <- 2*max (omBio[s,])
     # Blank plot
     plot (  x=c(1,nT), y =c(1,yLim), type = "n", xlab = "", ylab = "Biomass (t)",
             las=1 )
@@ -530,7 +530,7 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
     }
   }
   # Set plotting window
-  par (mfrow = c(1,3), mar = c(3,0,1,1), oma = c(3,0,2,0) )
+  par (mfrow = c(1,nS), mar = c(3,0,1,1), oma = c(3,0,2,0) )
 
   for ( s in 1:nS )
   {

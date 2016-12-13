@@ -5,10 +5,10 @@
 
 ## Leading parameter values for multispecies OM
 # Bmsy
-200 400 800
+400 800
 
 # Umsy
-0.25 0.2 0.15
+0.2 0.15
 
 ## Process Error ##
 ## Environmental process error (applied to all species)
@@ -18,10 +18,9 @@
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.2 0.2 
-0.2 1 -0.2 
-0.2 -0.2 1
+1 0
+0 1
 
 ## MS proc error sd
 # Sigma2
-0.02 0.02 0.02
+0.02 0.02

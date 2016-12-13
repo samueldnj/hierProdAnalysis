@@ -22,6 +22,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # read in control file
   controlList <- .readParFile ( ctlFile )
   controlList <- .createList  ( controlList )
+
   # Run simEst Procedure
   blob <- .simEstProc( obj = controlList, quiet )
   # Make error distributions
@@ -216,7 +217,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
                           lnUmsy      = log(om$Umsy[s]),
                           lnTau2      = log(obj$assess$tau2),
-                          lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2[s]),
+                          lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
                           # c           = 0,
@@ -227,8 +228,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           sUmsy       = obj$assess$sUmsy[s],
                           alpha_kappa = obj$assess$alpha_kappa, 
                           beta_kappa  = obj$assess$beta_kappa,
-                          alpha_Sigma = obj$assess$alpha_Sigma[s], 
-                          beta_Sigma  = obj$assess$beta_Sigma[s],
+                          alpha_Sigma = obj$assess$alpha_Sigma, 
+                          beta_Sigma  = obj$assess$beta_Sigma,
                           alpha_tau   = obj$assess$alpha_tau,
                           beta_tau    = obj$assess$beta_tau,
                           mlnq        = obj$assess$mlnq,
