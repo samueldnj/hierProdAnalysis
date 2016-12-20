@@ -195,7 +195,7 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
   msFill <- rgb(msFill[1],msFill[2],msFill[3],alpha=0.5)
 
   # Now plot!
-  par(mfrow = c(nS,1), mar = c(1,1,1,1), oma=c(1,1,1,1))
+  par(mfrow = c(nS,1), mar = c(2,4,1,1), oma=c(4,4,1,1))
   for (s in 1:nS)
   {
     # Compute max B value

@@ -73,9 +73,9 @@ PARAMETER_SECTION
   vector Umsy(1,nS);
 
   // log-variance parameters
-  init_number lnTau2(phz_tau);           // shared osb error var
-  init_number lnkappa2(phz_kappa);       // shared RE variance
-  init_number lnSigma2(phz_Sigma);  // species spec RE var
+  init_number lnTau2(phz_tau);          // shared osb error var
+  init_number lnkappa2(phz_kappa);      // year effect variance
+  init_number lnSigma2(phz_Sigma);      // species effect var
 
   // normal scale variance
   number tau2;
@@ -103,6 +103,7 @@ PARAMETER_SECTION
   init_bounded_number beta_Sigma(0.01,4,phz_varPriors); // Sigma prior scale (shared)
   init_bounded_number alpha_tau(1,10,phz_varPriors); // tau prior shape (shared)
   init_bounded_number beta_tau(0.01,4,phz_varPriors); // tau prior scale (shared)
+  init_matrix wishartV(1,nS,1,nS,phz_varPriors);      // Wishart V parameter for combined REs
 
   init_bounded_number mlnq(-3.,3.,phz_mlnq);      // logq prior mean (shared)
   init_number s2lnq(-1);                          // logq prior sd (shared)
@@ -110,14 +111,14 @@ PARAMETER_SECTION
   init_bounded_number lnTau2_qs(-5,2,phz_tau2qs); // logqs prior var
 
   // process error deviations
-  init_bounded_dev_vector omegat(1,nT,-3.,3.,phz_omegat);   // year effect
-  init_bounded_matrix zetat(1,nS,1,nT,-3.,3.,phz_zetat);    // proc error
+  init_vector omegat(1,nT,phz_omegat);   // year effect
+  init_matrix zetat(1,nS,1,nT,phz_zetat);    // proc error
+  
   // might be able to use dvector later for the following
   //vector omegat(1,nT);
   //matrix zetat(1,nS,1,nT);
   vector epst(1,nT);        // auto-correlated year effect
   matrix zetatc(1,nS,1,nT); // correlated zetat values (using chol)
-
 
   //objective function value
   objective_function_value f;
@@ -138,9 +139,10 @@ PARAMETER_SECTION
   vector ss(1,nS);          // sum of squared residuals for each species
   vector validObs(1,nS);    // counter for valid observations for each species
   vector obsLike(1,nS);     // NLL for observation error
-  //number omegaLike;         // NLL for shared environmental proc error
-  vector procLike(1,nS);    // NLL for species spec REs
+  vector procLike(1,nS);    // NLL for REs
   number totalLike;         // total nll (sum of 3 likelihoods)
+  matrix vCov(1,nS,1,nS);   // covariance matrix for combined effects
+  
   // penalisers
   number fpen;               // penalty to obj function for bad dynamics
   number pospen;             // penalty to add to fpen if biomass dips
@@ -237,8 +239,11 @@ FUNCTION stateDynamics
     Sigma2  = mfexp(lnSigma2);
     Sigma   = mfexp(0.5*lnSigma2);
     //cout << "lnSigma2 = " << lnSigma2 << endl; 
+
+    // Restrict shared effect to have mean 0
+    //omegat -= mean(omegat);
   
-    // Start constructing cholesky factor of correlation mtx
+    // Construct Cholesky factor of correlation mtx
     chol(1,1) = 1.;
     int k=1;
     for (int i=2;i<=nS;i++)
@@ -338,7 +343,7 @@ FUNCTION calcLikelihoods
   totalLike.initialize();
   obsLike.initialize(); 
   //omegaLike.initialize();
-  procLike.initialize(); 
+  procLike.initialize();
   
   // compute observation model likelihood (obs error variance concentrated)
   // concentrate tau2
@@ -348,57 +353,54 @@ FUNCTION calcLikelihoods
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
   totalLike += sum(obsLike);
 
+  /*
   // both error components estimated
   if ((phz_omegat > 0) & (phz_zetat > 0) )
   {
-    for (int s=1; s<=nS; s++)
-    {
-      procLike(s) = 0.5*nT*log(Sigma2) + 0.5*norm2(zetatc(s) - Sigma/kappa*epst)/(2*Sigma2);
-    }
-    totalLike += sum(procLike) + 0.5*nT*(log(nS + Sigma2/kappa2) - log(Sigma2/kappa2));
-  }
+    // create the variance covariance matrix for the combined effects
+    vCov.initialize();
 
-  // Just shared effect estimated
-  if ((phz_omegat > 0) & (phz_zetat < 0) )
-  {
-    for (int s=1; s<=nS; s++)
+    // populate according the Pinheiro and Bates (2000), p66
+    vCov = kappa2/Sigma2;
+    for (int s=1;s<=nS;s++) vCov(s,s) += 1;
+
+    // vector to hold combined effects and an intermediate product in the likelihood
+    dvar_vector effect(1,nS);
+    dvar_vector intEffect(1,nS);
+    effect.initialize();
+    intEffect.initialize();
+    // sum likelihood over each time step
+    for (int t=1;t<=nT;t++)
     {
-      procLike(s) = 0.5*nT*log(kappa2) + 0.5*norm2(epst)/(2*kappa2);
+      effect += omegat(t) + column(zetat,t);
+      // variance terms
+      procLike(t) += 0.5*ln_det(vCov) + 0.5*lnSigma2 ;
+      // residues (effects) - done one multiplication at a time
+      // because I couldn't figure out the intricacies of C++ matrix
+      // multiplication
+      intEffect = solve(vCov,effect);
+      procLike(t) += 0.5*sum(elem_prod(intEffect,effect))/Sigma2; 
     }
     totalLike += sum(procLike);
-  }
-
-  // Just species specific effect estimated
-  if ((phz_omegat < 0) & (phz_zetat > 0) )
-  {
-    for (int s=1; s<=nS; s++)
-    {
-      procLike(s) = 0.5*nT*log(Sigma2) + 0.5*norm2(zetatc(s))/(2*Sigma2);
-    }
-    totalLike += sum(procLike);
-  }
-
-
-  /*
-  // compute shared effects penalty (on standard normal devs)
-  if (phz_omegat > 0)
-  {
-    omegaLike = 0.5*nT*log(kappa2) + 0.5*norm2(omegat)/kappa2;
-    // add single species likelihoods
-    totalLike += omegaLike;
-  }
-
-  // and if nS>1 then compute species specific effects penalty and add
-  // to likelihood
-  if (phz_zetat>0) 
-  {
-    for (int s=1;s<=nS;s++)
-    {
-      zetaLike(s) = 0.5*nT*log(Sigma2(s)) + 0.5*norm2(zetatc(s))/Sigma2(s);
-    } 
-    totalLike += sum(zetaLike);
   }
   */
+
+  // Shared effect estimated
+  if ((phz_omegat > 0) ) //& (phz_zetat<0) )
+  {
+    procLike(1) = 0.5*nT*lnkappa2 + 0.5*norm2(omegat)/(kappa2);
+    totalLike += sum(procLike);
+  }
+
+  // species specific effect estimated
+  if ( (phz_zetat > 0) ) //& (phz_omegat < 0 ) )
+  {
+    for (int s=1; s<=nS; s++)
+    {
+      procLike(s) = 0.5*nT*lnSigma2 + 0.5*norm2(zetat(s))/(Sigma2);
+    }
+    totalLike += sum(procLike);
+  }
 
 // Subroutine to compute prior densities to add to posterior
 FUNCTION calcPriors
@@ -458,16 +460,31 @@ FUNCTION calcPriors
     totalPrior += SigmaPrior;
   }
 
+  /*
+  // combined effect covariance matrix prior
+  if(active(zetat) & active(omegat) )
+  {
+    dvariable vCovPrior;
+    vCovPrior.initialize();
+    vCovPrior = 0.5*log(det(value(vCov)));
+    wishartV = inv(wishartV)*vCov;
+    for(int s=1;s<=nS;s++)
+    {
+      vCovPrior += 0.5*wishartV(s,s);
+    }
+    totalPrior += vCovPrior;
+  }
+  */
+
   // tau2 prior if estimated
   if (active(lnTau2))
   {
     tauPrior = (alpha_tau+1)*log(tau2)+beta_tau/tau2;
     totalPrior += sum(tauPrior);
-    //totalPrior += lnTau2;
   }
 
   // Apply a Jeffries prior to msy
-  totalPrior += sum(1/msy);
+  //totalPrior += sum(1/msy);
 
   // If estimating IG parameters, apply a jeffreys prior to the
   // beta pars

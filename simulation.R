@@ -191,6 +191,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   maxU <- apply ( X = obj$om$Ut, MARGIN=1,FUN=max)
   maxU <- as.numeric(maxU)
 
+  # Make Wishart V matrix
+  vCov0 <- matrix(obj$assess$kappa2,nrow=nS,ncol=nS)
+  diag (vCov0) <- diag(vCov0) + obj$assess$Sigma2
+
   # loop over species
   for (s in 1:nS )
   {
@@ -232,6 +236,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           beta_Sigma  = obj$assess$beta_Sigma,
                           alpha_tau   = obj$assess$alpha_tau,
                           beta_tau    = obj$assess$beta_tau,
+                          wishartV    = 0,
                           mlnq        = obj$assess$mlnq,
                           slnq        = obj$assess$slnq,
                           lnqbar      = 0,
@@ -278,6 +283,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   beta_Sigma  = obj$assess$beta_Sigma,
                   alpha_tau   = obj$assess$alpha_tau,
                   beta_tau    = obj$assess$beta_tau,
+                  wishartV    = vCov0,
                   mlnq        = obj$assess$mlnq,
                   slnq        = obj$assess$slnq,
                   lnqbar      = obj$assess$lnqbar,
