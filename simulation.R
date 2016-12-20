@@ -216,7 +216,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
                           lnUmsy      = log(om$Umsy[s]),
-                          lnTau2      = log(obj$assess$tau2[s]),
+                          lnTau2      = log(obj$assess$tau2),
                           lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
@@ -262,7 +262,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
                   lnUmsy      = log(om$Umsy),
-                  lnTau2      = log(mean(obj$assess$tau2)),
+                  lnTau2      = log(obj$assess$tau2),
                   lnkappa2    = log(obj$assess$kappa2),
                   lnSigma2    = log(obj$assess$Sigma2),
                   gamma       = obj$assess$gamma,
@@ -492,7 +492,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   {
     # recover operating model RE variances
     kappa2 <- obj$om$kappa2
-    Sigma2 <- obj$om$Sigma2
+    Sigma2 <- mean(obj$om$Sigma2)
 
     # Get IG alpha pars from ctl file
     alpha_kappa <- obj$assess$alpha_kappa

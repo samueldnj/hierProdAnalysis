@@ -2,72 +2,97 @@
 parameter value
 # Scenarios
 #
-# Scenario 1: U_p1.0-tUp5
+# Scenario 1: 2S-cM0-km0.5
 #
-scenario$scenario1$ctrl$scenarioName "U_p1.0-tUp5"
-scenario$scenario1$opMod$Umult c(0.2,1,0.8)
-scenario$scenario1$opMod$tUpeak 5
+scenario$scenario1$ctrl$scenarioName "2S-cM0-km0.5"
+scenario$scenario1$ctrl$nReps 200
+scenario$scenario1$ctrl$speciesNames c("Dover","English")
+scenario$scenario1$opMod$tau2 c(0.3,0.3)
+scenario$scenario1$opMod$corrMult 0
+scenario$scenario1$opMod$kappaMult 0.5
 #
-# Scenario 2: U_p1.5-tUp5
+# Scenario 2: 2S-cM0.5-km0.5
 #
-scenario$scenario2$ctrl$scenarioName "F_p1.5-tUp5"
-scenario$scenario2$opMod$Umult c(0.2,1.5,0.8)
-scenario$scenario2$opMod$tUpeak 5
+scenario$scenario2$ctrl$scenarioName "2S-cM0.5-km0.5"
+scenario$scenario2$ctrl$nReps 200
+scenario$scenario2$ctrl$speciesNames c("Dover","English")
+scenario$scenario2$opMod$tau2 c(0.3,0.3)
+scenario$scenario2$opMod$corrMult 0.5
+scenario$scenario2$opMod$kappaMult 0.5
 #
-# Scenario 3: U_p2.0-tUp5
+# Scenario 3: 2S-cM1-km0.5
 #
-scenario$scenario3$ctrl$scenarioName "U_p2.0-tUp5"
-scenario$scenario3$opMod$Umult c(0.2,2.0,0.8)
-scenario$scenario3$opMod$tUpeak 5
+scenario$scenario3$ctrl$scenarioName "2S-cM1-km0.5"
+scenario$scenario3$ctrl$nReps 200
+scenario$scenario3$ctrl$speciesNames c("Dover","English")
+scenario$scenario3$opMod$tau2 c(0.3,0.3)
+scenario$scenario3$opMod$corrMult 1
+scenario$scenario3$opMod$kappaMult 0.5
 #
-# Scenario 4: U_p1.0-tUp10
+# Scenario 4: 2S-cM0-km1
 #
-scenario$scenario4$ctrl$scenarioName "U_p1.0-tUp10"
-scenario$scenario4$opMod$Umult c(0.2,1,0.8)
-scenario$scenario4$opMod$tUpeak 10
+scenario$scenario4$ctrl$scenarioName "2S-cM0-km1"
+scenario$scenario4$ctrl$nReps 200
+scenario$scenario4$ctrl$speciesNames c("Dover","English")
+scenario$scenario4$opMod$tau2 c(0.3,0.3)
+scenario$scenario4$opMod$corrMult 0
+scenario$scenario4$opMod$kappaMult 1
 #
-# Scenario 5: U_p1.5-tUp10
+# Scenario 5: 2S-cM0.5-km1
 #
-scenario$scenario5$ctrl$scenarioName "F_p1.5-tUp10"
-scenario$scenario5$opMod$Umult c(0.2,1.5,0.8)
-scenario$scenario5$opMod$tUpeak 10
+scenario$scenario5$ctrl$scenarioName "2S-cM0.5-km1"
+scenario$scenario5$ctrl$nReps 200
+scenario$scenario5$ctrl$speciesNames c("Dover","English")
+scenario$scenario5$opMod$tau2 c(0.3,0.3)
+scenario$scenario5$opMod$corrMult 0.5
+scenario$scenario5$opMod$kappaMult 1
 #
-# Scenario 6: U_p2.0-tUp10
+# Scenario 6: 2S-cM1-km1
 #
-scenario$scenario6$ctrl$scenarioName "U_p2.0-tUp10"
-scenario$scenario6$opMod$Umult c(0.2,2.0,0.8)
-scenario$scenario6$opMod$tUpeak 10
+scenario$scenario6$ctrl$scenarioName "2S-cM1-km1"
+scenario$scenario6$ctrl$nReps 200
+scenario$scenario6$ctrl$speciesNames c("Dover","English")
+scenario$scenario6$opMod$tau2 c(0.3,0.3)
+scenario$scenario6$opMod$corrMult 1
+scenario$scenario6$opMod$kappaMult 1
 #
-# Scenario 7: U_p1.0-tUp15
+# Scenario 7: 2S-cM0-km2
 #
-scenario$scenario7$ctrl$scenarioName "U_p1.0-tUp-15"
-scenario$scenario7$opMod$Umult c(0.2,1,0.8)
-scenario$scenario7$opMod$tUpeak 15
+scenario$scenario7$ctrl$scenarioName "2S-cM0-km2"
+scenario$scenario7$ctrl$nReps 200
+scenario$scenario7$ctrl$speciesNames c("Dover","English")
+scenario$scenario7$opMod$tau2 c(0.3,0.3)
+scenario$scenario7$opMod$corrMult 0
+scenario$scenario7$opMod$kappaMult 2
 #
-# Scenario 8: U_p1.5-tUp15
+# Scenario 8: 2S-cM0.5-km2
 #
-scenario$scenario8$ctrl$scenarioName "F_p1.5-tUp15"
-scenario$scenario8$opMod$Umult c(0.2,1.5,0.8)
-scenario$scenario8$opMod$tUpeak 15
+scenario$scenario8$ctrl$scenarioName "2S-cM0.5-km2"
+scenario$scenario8$ctrl$nReps 200
+scenario$scenario8$ctrl$speciesNames c("Dover","English")
+scenario$scenario8$opMod$tau2 c(0.3,0.3)
+scenario$scenario8$opMod$corrMult 0.5
+scenario$scenario8$opMod$kappaMult 2
 #
-# Scenario 9: U_p2.0-tUp15
+# Scenario 9: 2S-cM1-km2
 #
-scenario$scenario9$ctrl$scenarioName "U_p2.0-tUp15"
-scenario$scenario9$opMod$Umult c(0.2,2.0,0.8)
-scenario$scenario9$opMod$tUpeak 15
+scenario$scenario9$ctrl$scenarioName "2S-cM1-km2"
+scenario$scenario9$ctrl$nReps 200
+scenario$scenario9$ctrl$speciesNames c("Dover","English")
+scenario$scenario9$opMod$tau2 c(0.3,0.3)
+scenario$scenario9$opMod$corrMult 1
+scenario$scenario9$opMod$kappaMult 2
 #
 # Management Procedures
 #
-# Management Procedure 1: Well Informed
-#
-mp$mp1$ctrl$mpLabel "informedPriors"
+mp$mp1$ctrl$mpLabel "bothEff-fixedIG"
+mp$mp1$assess$mcBurn 50000
+mp$mp1$assess$mcTrials 50000
+mp$mp1$assess$mcSave 50
 mp$mp1$assess$autoIG TRUE
-#
-# Management Procedure 2: Perfect Information
-#
-mp$mp2$ctrl$mpLabel "PerfectInfo"
-mp$mp2$opMod$tau2 c(0,0,0)
-mp$mp2$assess$autoIG TRUE
-mp$mp2$assess$tau2 0.00001
-#
+mp$mp1$assess$tau2 0.3
+mp$mp1$assess$mBmsy c(400,800)
+mp$mp1$assess$sBmsy c(1200,2400)
+mp$mp1$assess$mUmsy c(0.2,0.15)
+mp$mp1$assess$sUmsy c(0.6,0.45)
 # File Ends <not run>.
