@@ -147,7 +147,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             epst = epst,
                             zetat = zetat[s,] )
     obs <- .obsModel (  Bt = bio $ Bt, q = obj$opMod$q[s], nT = nT,
-                        deltat = deltat[s,], tau = tau )
+                        deltat = deltat[s,], tau = tau[s] )
 
     om$Bt[s,]     <- bio$Bt
     om$Ct[s,]     <- bio$Ct
@@ -191,10 +191,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   maxU <- apply ( X = obj$om$Ut, MARGIN=1,FUN=max)
   maxU <- as.numeric(maxU)
 
-  # Make Wishart V matrix
-  vCov0 <- matrix(obj$assess$kappa2,nrow=nS,ncol=nS)
-  diag (vCov0) <- diag(vCov0) + obj$assess$Sigma2
-
   # loop over species
   for (s in 1:nS )
   {
@@ -220,7 +216,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
                           lnUmsy      = log(om$Umsy[s]),
-                          lnTau2      = log(obj$assess$tau2),
+                          lnTau2      = log(obj$assess$tau2[s]),
                           lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
@@ -236,7 +232,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           beta_Sigma  = obj$assess$beta_Sigma,
                           alpha_tau   = obj$assess$alpha_tau,
                           beta_tau    = obj$assess$beta_tau,
-                          wishartV    = 0,
                           mlnq        = obj$assess$mlnq,
                           slnq        = obj$assess$slnq,
                           lnqbar      = 0,
@@ -267,7 +262,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
                   lnUmsy      = log(om$Umsy),
-                  lnTau2      = log(obj$assess$tau2),
+                  lnTau2      = log(mean(obj$assess$tau2)),
                   lnkappa2    = log(obj$assess$kappa2),
                   lnSigma2    = log(obj$assess$Sigma2),
                   gamma       = obj$assess$gamma,
@@ -283,7 +278,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   beta_Sigma  = obj$assess$beta_Sigma,
                   alpha_tau   = obj$assess$alpha_tau,
                   beta_tau    = obj$assess$beta_tau,
-                  wishartV    = vCov0,
                   mlnq        = obj$assess$mlnq,
                   slnq        = obj$assess$slnq,
                   lnqbar      = obj$assess$lnqbar,

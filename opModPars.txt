@@ -11,18 +11,18 @@
 0.2 0.15 0.10 0.175
 
 ## Process Error ##
-## Environmental process error (applied to all species)
+## year effect variance (applied to all species)
 # kappa2
-0.04
+0.02
 
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.6 0.6 0.6
-0.6 1 0.6 0.6
-0.6 0.6 1 0.6
-0.6 0.6 0.6 1
+1 0.1 0.1 0.1
+0.1 1 0.1 0.1
+0.1 0.1 1 0.1
+0.1 0.1 0.1 1
 
-## MS proc error sd
+## Species effect variance (species specific)
 # Sigma2
 0.02 0.02 0.02 0.02

@@ -1,19 +1,19 @@
 ### Base control file for coastWideMS simulation estimation procedure
 parameter value
-ctrl$scenarioName "base-hiMort-corr"
+ctrl$scenarioName "base"
 ctrl$mpLabel "bothEff-chol"
 ctrl$nReps 10
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English")
 opMod$nS 4
 opMod$nT 30
-opMod$pars lisread("opModPars.txt")
+opMod$pars lisread("pars2Spec.txt")
 opMod$parFile "opModPars.txt"
 opMod$Umult c(0.2,2,0.8)
 opMod$tUpeak 5
-opMod$q c(0.9,1.2,0.8,1.0)
+opMod$q c(0.9,1.2)
 opMod$gamma 0
-opMod$tau2 0.2
+opMod$tau2 c(0.3,0.6)
 opMod$corrMult 1
 opMod$kappaMult 1
 assess$autoIG FALSE
@@ -25,7 +25,7 @@ assess$mcDiag FALSE
 assess$mcSave 20
 assess$nParMS 10
 assess$gamma 0
-assess$tau2 0.1
+assess$tau2 c(0.2,0.2,0.2,0.2)
 assess$kappa2 0.04
 assess$Sigma2 0.02
 assess$phz_Bmsy 1
@@ -54,4 +54,4 @@ assess$beta_kappa 0.06
 assess$alpha_Sigma 2
 assess$beta_Sigma 0.06
 assess$alpha_tau 2
-assess$beta_tau 0.3
+assess$beta_tau 0.6

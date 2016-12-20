@@ -226,7 +226,7 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
   return()
 }
 
-# plotRepBCU()
+# plotBCU()
 # Function that will open a supplied saved blob object and plot a 
 # given replicate's true and estimated time series of biomass, 
 # catch, exploitation and IoA data. 
@@ -473,7 +473,8 @@ plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
+plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1, 
+                          est="MLE" )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -489,10 +490,17 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1 )
   specNames <- blob$ctrl$specNames
 
   # Recover relative error distributions
-  ssRE <- blob$am$ss$err.mle[pars]
-  msRE <- blob$am$ms$err.mle[pars]
-
-
+  if (est == "MLE")
+  {
+    ssRE <- blob$am$ss$err.mle[pars]
+    msRE <- blob$am$ms$err.mle[pars]
+  }
+  if (est == "MCMC")
+  {
+    ssRE <- blob$am$ss$err.post[pars]
+    msRE <- blob$am$ms$err.post[pars]
+  }
+  
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )
   {

@@ -103,7 +103,6 @@ PARAMETER_SECTION
   init_bounded_number beta_Sigma(0.01,4,phz_varPriors); // Sigma prior scale (shared)
   init_bounded_number alpha_tau(1,10,phz_varPriors); // tau prior shape (shared)
   init_bounded_number beta_tau(0.01,4,phz_varPriors); // tau prior scale (shared)
-  init_matrix wishartV(1,nS,1,nS,phz_varPriors);      // Wishart V parameter for combined REs
 
   init_bounded_number mlnq(-3.,3.,phz_mlnq);      // logq prior mean (shared)
   init_number s2lnq(-1);                          // logq prior sd (shared)
@@ -241,7 +240,7 @@ FUNCTION stateDynamics
     //cout << "lnSigma2 = " << lnSigma2 << endl; 
 
     // Restrict shared effect to have mean 0
-    //omegat -= mean(omegat);
+    ///omegat -= mean(omegat);
   
     // Construct Cholesky factor of correlation mtx
     chol(1,1) = 1.;
@@ -345,45 +344,9 @@ FUNCTION calcLikelihoods
   //omegaLike.initialize();
   procLike.initialize();
   
-  // compute observation model likelihood (obs error variance concentrated)
-  // concentrate tau2
-  //tau2 = elem_div(ss,validObs);
-  // compute likelihood
-  //obsLike = 0.5*nT*log(ss); //concentrated obs error var
+  // compute observation likelihood
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
   totalLike += sum(obsLike);
-
-  /*
-  // both error components estimated
-  if ((phz_omegat > 0) & (phz_zetat > 0) )
-  {
-    // create the variance covariance matrix for the combined effects
-    vCov.initialize();
-
-    // populate according the Pinheiro and Bates (2000), p66
-    vCov = kappa2/Sigma2;
-    for (int s=1;s<=nS;s++) vCov(s,s) += 1;
-
-    // vector to hold combined effects and an intermediate product in the likelihood
-    dvar_vector effect(1,nS);
-    dvar_vector intEffect(1,nS);
-    effect.initialize();
-    intEffect.initialize();
-    // sum likelihood over each time step
-    for (int t=1;t<=nT;t++)
-    {
-      effect += omegat(t) + column(zetat,t);
-      // variance terms
-      procLike(t) += 0.5*ln_det(vCov) + 0.5*lnSigma2 ;
-      // residues (effects) - done one multiplication at a time
-      // because I couldn't figure out the intricacies of C++ matrix
-      // multiplication
-      intEffect = solve(vCov,effect);
-      procLike(t) += 0.5*sum(elem_prod(intEffect,effect))/Sigma2; 
-    }
-    totalLike += sum(procLike);
-  }
-  */
 
   // Shared effect estimated
   if ((phz_omegat > 0) ) //& (phz_zetat<0) )
@@ -459,23 +422,7 @@ FUNCTION calcPriors
     SigmaPrior = alpha_Sigma+1*lnSigma2 + beta_Sigma/Sigma2;
     totalPrior += SigmaPrior;
   }
-
-  /*
-  // combined effect covariance matrix prior
-  if(active(zetat) & active(omegat) )
-  {
-    dvariable vCovPrior;
-    vCovPrior.initialize();
-    vCovPrior = 0.5*log(det(value(vCov)));
-    wishartV = inv(wishartV)*vCov;
-    for(int s=1;s<=nS;s++)
-    {
-      vCovPrior += 0.5*wishartV(s,s);
-    }
-    totalPrior += vCovPrior;
-  }
-  */
-
+  
   // tau2 prior if estimated
   if (active(lnTau2))
   {
