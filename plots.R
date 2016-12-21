@@ -34,7 +34,35 @@ plotPerfMatrix <- function (  table   = "statTable.csv",
     # for ()
   }
 
+}
 
+# plotRepScan()
+# Scans through BCU plots for every replicate in a simulation
+# blob. Good for checking the single reps 
+# inputs:   sim=number of the simulation in the project folder (alphabetical)
+#           rep=optional number of replicate to start scanning from
+#           est=character indicating which esitimates for plotting (MLE or MCMC)
+plotRepScan <- function ( sim =1, rep = 1, est = "MCMC")
+{
+  # First load the simulation
+  .loadSim(sim)
+
+  # Recover number of reps
+  nReps <- blob$ctrl$nReps
+
+  if (rep > nReps ) 
+  {
+    cat ( "(Error MSG) Starting rep too high, this sim has ",
+          nReps, " replicates.", sep = "")
+    return()
+  }
+
+  for (r in rep:nReps)
+  {
+    plotBCU(r,est)
+    invisible(readline(prompt="Press [enter] for the next plot."))
+  }
+  return(invisible())
 }
 
 # plotMCMCpar()
@@ -275,16 +303,16 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
   if ( est == "MCMC" )
   {
     # single species
-    mcBioSSMed <- apply(X=blob$am$ss$mcBio,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
-    mcParSSMed <- apply(X=blob$am$ss$mcPar,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
-    ssBt       <- mcBioSSMed[rep,,]
-    ssq        <- mcParSSMed[rep,,"q"]
+    mcBioSSMed <- apply(X=blob$am$ss$mcBio[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
+    mcParSSMed <- apply(X=blob$am$ss$mcPar[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
+    ssBt       <- mcBioSSMed
+    ssq        <- mcParSSMed[,"q"]
 
     # multispeces
-    mcBioMSMed <- apply(X=blob$am$ms$mcBio,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
-    mcParMSMed <- apply(X=blob$am$ms$mcPar,FUN=quantile,MARGIN=c(1,2,4),na.rm=TRUE,probs=0.5)
-    msBt       <- mcBioMSMed[rep,,]
-    msq        <- mcParMSMed[rep,,"q"]
+    mcBioMSMed <- apply(X=blob$am$ms$mcBio[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
+    mcParMSMed <- apply(X=blob$am$ms$mcPar[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
+    msBt       <- mcBioMSMed
+    msq        <- mcParMSMed[,"q"]
   }
 
   # Estimated Ut

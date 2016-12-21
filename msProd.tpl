@@ -66,9 +66,8 @@ DATA_SECTION
 
 PARAMETER_SECTION
   // leading biological pars
-  init_vector lnBmsy(1,nS,phz_Bmsy);     // Bmsy - log scale
-  init_vector lnUmsy(1,nS,phz_Umsy);     // Umsy - log scale
-  //init_vector lnq(1,nS,-5,2,phz_lnq);         // q log scale
+  init_vector lnBmsy(1,nS,phz_Bmsy);      // Bmsy - log scale
+  init_vector lnUmsy(1,nS,phz_Umsy);      // Umsy - log scale
   vector Bmsy(1,nS);        
   vector Umsy(1,nS);
 
@@ -93,24 +92,27 @@ PARAMETER_SECTION
   matrix chol(1,nS,1,nS);                           // Matrix to hold cholesky factor
 
   // Prior hyperparameters
+  // Biomass
   init_vector mBmsy(1,nS,-1);       // msy prior mean (species spec)
   init_vector sBmsy(1,nS,-1);       // msy prior SD (species spec)
+  // Productivity
   init_vector mUmsy(1,nS,-1);       // lnUmsy prior mean (species spec)
   init_vector sUmsy(1,nS,-1);       // lnUmsy priod sd (species spec)
+  // Variance
   init_bounded_number alpha_kappa(1,10,phz_varPriors);    // kappa shape (shared)
   init_bounded_number beta_kappa(0.01,4,phz_varPriors);    // kappa scale (shared)
   init_bounded_number alpha_Sigma(1,10,phz_varPriors); // Sigma prior shape (shared)
   init_bounded_number beta_Sigma(0.01,4,phz_varPriors); // Sigma prior scale (shared)
   init_bounded_number alpha_tau(1,10,phz_varPriors); // tau prior shape (shared)
   init_bounded_number beta_tau(0.01,4,phz_varPriors); // tau prior scale (shared)
-
+  // Catchability
   init_bounded_number mlnq(-3.,3.,phz_mlnq);      // logq prior mean (shared)
   init_number s2lnq(-1);                          // logq prior sd (shared)
   init_bounded_number lnqbar(-5,2,phz_lnq);       // mean lnq across species
   init_bounded_number lnTau2_qs(-5,2,phz_tau2qs); // logqs prior var
 
   // process error deviations
-  init_vector omegat(1,nT,phz_omegat);   // year effect
+  init_bounded_vector omegat(1,nT,-3.,3.,phz_omegat);   // year effect
   init_matrix zetat(1,nS,1,nT,phz_zetat);    // proc error
   
   // might be able to use dvector later for the following
@@ -151,7 +153,7 @@ PARAMETER_SECTION
   vector BmsyPrior(1,nS);   // Bmsy normal prior
   vector UmsyPrior(1,nS);   // Umsy normal prior
   number kappaPrior;        // total RE variance prior
-  vector tauPrior(1,nS);    // observation error variance prior
+  number tauPrior;    // observation error variance prior
   number SigmaPrior;        //
   vector lnqPrior(1,nS);    // shared lnq prior density
 
@@ -383,15 +385,12 @@ FUNCTION calcPriors
   {
     BmsyPrior = elem_div(pow ( Bmsy - mBmsy, 2 ), pow(sBmsy,2))*0.5;  
   }
-  //cout << "mBmsy = " << mBmsy << endl;
-  //cout << "BmsyPrior = " << BmsyPrior << endl;
-  //exit(1);
+  
   // Then Fmsy
   if (phz_Umsy > 0)
   {
     UmsyPrior = elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2)) * 0.5;  
   }
-  //cout << "UmsyPrior = " << UmsyPrior << endl;
   
   // lnq prior (shared)
   if (phz_mlnq > 0)
@@ -427,7 +426,7 @@ FUNCTION calcPriors
   if (active(lnTau2))
   {
     tauPrior = (alpha_tau+1)*log(tau2)+beta_tau/tau2;
-    totalPrior += sum(tauPrior);
+    totalPrior += tauPrior;
   }
 
   // Apply a Jeffries prior to msy

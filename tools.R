@@ -127,7 +127,7 @@ doBatchRun <- function( batchFolderName )
 # Side Effects: A simulation folder containing *.info and *.Rdata file (blob) and
 #               for each row of the design dataframe, i.e., for each simulation.
 # Source:       A.R. Kronlund
-.runBatchJob <- function( batchDesign=NULL, par=FALSE,prefix="NULL" )
+.runBatchJob <- function( batchDesign=NULL, par=FALSE,prefix=NULL )
 {
   # Runs simulations from the design data.frame specified in batchDesign object.
   # 1. Does the mseR input parameter file exist? If YES then read the file.
