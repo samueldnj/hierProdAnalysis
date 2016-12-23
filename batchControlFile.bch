@@ -2,86 +2,86 @@
 parameter value
 # Scenarios
 #
-## Scenario 1: 2S-cM0-km0.5
-##
-#scenario$scenario1$ctrl$scenarioName "2S-cM0-km0.5"
-#scenario$scenario1$ctrl$nReps 200
-#scenario$scenario1$ctrl$speciesNames c("Dover","English")
-#scenario$scenario1$opMod$tau2 c(0.3,0.3)
-#scenario$scenario1$opMod$corrMult 0
-#scenario$scenario1$opMod$kappaMult 0.5
-##
-## Scenario 2: 2S-cM0.5-km0.5
-##
-#scenario$scenario2$ctrl$scenarioName "2S-cM0.5-km0.5"
-#scenario$scenario2$ctrl$nReps 200
-#scenario$scenario2$ctrl$speciesNames c("Dover","English")
-#scenario$scenario2$opMod$tau2 c(0.3,0.3)
-#scenario$scenario2$opMod$corrMult 0.5
-#scenario$scenario2$opMod$kappaMult 0.5
-##
-## Scenario 3: 2S-cM1-km0.5
-##
-#scenario$scenario3$ctrl$scenarioName "2S-cM1-km0.5"
-#scenario$scenario3$ctrl$nReps 200
-#scenario$scenario3$ctrl$speciesNames c("Dover","English")
-#scenario$scenario3$opMod$tau2 c(0.3,0.3)
-#scenario$scenario3$opMod$corrMult 1
-#scenario$scenario3$opMod$kappaMult 0.5
-##
-## Scenario 4: 2S-cM0-km1
-##
-#scenario$scenario4$ctrl$scenarioName "2S-cM0-km1"
-#scenario$scenario4$ctrl$nReps 200
-#scenario$scenario4$ctrl$speciesNames c("Dover","English")
-#scenario$scenario4$opMod$tau2 c(0.3,0.3)
-#scenario$scenario4$opMod$corrMult 0
-#scenario$scenario4$opMod$kappaMult 1
-##
-## Scenario 5: 2S-cM0.5-km1
-##
-#scenario$scenario5$ctrl$scenarioName "2S-cM0.5-km1"
-#scenario$scenario5$ctrl$nReps 200
-#scenario$scenario5$ctrl$speciesNames c("Dover","English")
-#scenario$scenario5$opMod$tau2 c(0.3,0.3)
-#scenario$scenario5$opMod$corrMult 0.5
-#scenario$scenario5$opMod$kappaMult 1
-##
-## Scenario 6: 2S-cM1-km1
-##
-#scenario$scenario6$ctrl$scenarioName "2S-cM1-km1"
-#scenario$scenario6$ctrl$nReps 200
-#scenario$scenario6$ctrl$speciesNames c("Dover","English")
-#scenario$scenario6$opMod$tau2 c(0.3,0.3)
-#scenario$scenario6$opMod$corrMult 1
-#scenario$scenario6$opMod$kappaMult 1
-##
-# Scenario 1: 2S-cM0-km2
+# Scenario 1: 4S-cM0-km0.5
 #
-scenario$scenario1$ctrl$scenarioName "2S-cM0-km2"
+scenario$scenario1$ctrl$scenarioName "4S-cM0-km0.5"
 scenario$scenario1$ctrl$nReps 200
 scenario$scenario1$ctrl$speciesNames c("Dover","English")
-scenario$scenario1$opMod$tau2 c(0.3,0.3)
+scenario$scenario1$opMod$tau2 c(0.3,0.3,0.3,0.3)
 scenario$scenario1$opMod$corrMult 0
-scenario$scenario1$opMod$kappaMult 2
+scenario$scenario1$opMod$kappaMult 0.5
 #
-# Scenario 2: 2S-cM0.5-km2
+# Scenario 2: 4S-cM0.5-km0.5
 #
-scenario$scenario2$ctrl$scenarioName "2S-cM0.5-km2"
+scenario$scenario2$ctrl$scenarioName "4S-cM0.5-km0.5"
 scenario$scenario2$ctrl$nReps 200
 scenario$scenario2$ctrl$speciesNames c("Dover","English")
 scenario$scenario2$opMod$tau2 c(0.3,0.3)
 scenario$scenario2$opMod$corrMult 0.5
-scenario$scenario2$opMod$kappaMult 2
+scenario$scenario2$opMod$kappaMult 0.5
 #
-# Scenario 3: 2S-cM1-km2
+# Scenario 3: 4S-cM1-km0.5
 #
-scenario$scenario3$ctrl$scenarioName "2S-cM1-km2"
+scenario$scenario3$ctrl$scenarioName "4S-cM1-km0.5"
 scenario$scenario3$ctrl$nReps 200
 scenario$scenario3$ctrl$speciesNames c("Dover","English")
 scenario$scenario3$opMod$tau2 c(0.3,0.3)
 scenario$scenario3$opMod$corrMult 1
-scenario$scenario3$opMod$kappaMult 2
+scenario$scenario3$opMod$kappaMult 0.5
+#
+# Scenario 4: 4S-cM0-km1
+#
+scenario$scenario4$ctrl$scenarioName "4S-cM0-km1"
+scenario$scenario4$ctrl$nReps 200
+scenario$scenario4$ctrl$speciesNames c("Dover","English")
+scenario$scenario4$opMod$tau2 c(0.3,0.3)
+scenario$scenario4$opMod$corrMult 0
+scenario$scenario4$opMod$kappaMult 1
+#
+# Scenario 5: 4S-cM0.5-km1
+#
+scenario$scenario5$ctrl$scenarioName "4S-cM0.5-km1"
+scenario$scenario5$ctrl$nReps 200
+scenario$scenario5$ctrl$speciesNames c("Dover","English")
+scenario$scenario5$opMod$tau2 c(0.3,0.3)
+scenario$scenario5$opMod$corrMult 0.5
+scenario$scenario5$opMod$kappaMult 1
+#
+# Scenario 6: 4S-cM1-km1
+#
+scenario$scenario6$ctrl$scenarioName "4S-cM1-km1"
+scenario$scenario6$ctrl$nReps 200
+scenario$scenario6$ctrl$speciesNames c("Dover","English")
+scenario$scenario6$opMod$tau2 c(0.3,0.3)
+scenario$scenario6$opMod$corrMult 1
+scenario$scenario6$opMod$kappaMult 1
+#
+# Scenario 7: 4S-cM0-km1.5
+#
+scenario$scenario7$ctrl$scenarioName "4S-cM0-km1.5"
+scenario$scenario7$ctrl$nReps 200
+scenario$scenario7$ctrl$speciesNames c("Dover","English")
+scenario$scenario7$opMod$tau2 c(0.3,0.3)
+scenario$scenario7$opMod$corrMult 0
+scenario$scenario7$opMod$kappaMult 1.5
+#
+# Scenario 8: 4S-cM0.5-km1.5
+#
+scenario$scenario8$ctrl$scenarioName "4S-cM0.5-km1.5"
+scenario$scenario8$ctrl$nReps 200
+scenario$scenario8$ctrl$speciesNames c("Dover","English")
+scenario$scenario8$opMod$tau2 c(0.3,0.3)
+scenario$scenario8$opMod$corrMult 0.5
+scenario$scenario8$opMod$kappaMult 1.5
+#
+# Scenario 9: 4S-cM1-km1.5
+#
+scenario$scenario9$ctrl$scenarioName "4S-cM1-km1.5"
+scenario$scenario9$ctrl$nReps 200
+scenario$scenario9$ctrl$speciesNames c("Dover","English")
+scenario$scenario9$opMod$tau2 c(0.3,0.3)
+scenario$scenario9$opMod$corrMult 1
+scenario$scenario9$opMod$kappaMult 1.5
 #
 # Management Procedures
 #

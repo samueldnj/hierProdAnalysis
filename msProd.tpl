@@ -242,7 +242,7 @@ FUNCTION stateDynamics
     //cout << "lnSigma2 = " << lnSigma2 << endl; 
 
     // Restrict shared effect to have mean 0
-    ///omegat -= mean(omegat);
+    //omegat -= mean(omegat);
   
     // Construct Cholesky factor of correlation mtx
     chol(1,1) = 1.;
@@ -353,7 +353,7 @@ FUNCTION calcLikelihoods
   // Shared effect estimated
   if ((phz_omegat > 0) ) //& (phz_zetat<0) )
   {
-    procLike(1) = 0.5*nT*lnkappa2 + 0.5*norm2(omegat)/(kappa2);
+    procLike(1) = 0.5*nT*lnkappa2 + 0.5*norm2(omegat)/(kappa2) + sum(omegat);
     totalLike += sum(procLike);
   }
 
@@ -362,7 +362,7 @@ FUNCTION calcLikelihoods
   {
     for (int s=1; s<=nS; s++)
     {
-      procLike(s) = 0.5*nT*lnSigma2 + 0.5*norm2(zetat(s))/(Sigma2);
+      procLike(s) = 0.5*nT*lnSigma2 + 0.5*norm2(zetat(s))/(Sigma2) + sum(zetat(s));
     }
     totalLike += sum(procLike);
   }
