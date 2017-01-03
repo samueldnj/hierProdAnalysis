@@ -501,7 +501,7 @@ plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","kappa2"), sim=1, 
+plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1, 
                           est="MLE" )
 {
   # Blob should be loaded in global environment automatically,
@@ -542,8 +542,6 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","kappa2"), sim=
                       MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
   msQuant <- lapply ( X = seq_along(msRE), FUN = quantWrap, x=msRE, 
                       MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
-
-  browser()
 
   # get names of parameters
   ssPars <- names ( ssRE )
