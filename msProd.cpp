@@ -49,13 +49,15 @@ Type objective_function<Type>::operator() ()
   PARAMETER(lnsigUmsy2);                // shared prior Umsy variance
   PARAMETER(mlnUmsy);                   // hyperprior mean Umsy
   PARAMETER(s2lnUmsy);                  // hyperprior Umsy variance
+  PARAMETER_VECTOR(mlnBmsy);            // prior mean eqbm biomass
+  PARAMETER_VECTOR(s2lnBmsy);           // prior eqbm biomass var
   // Random Effects
   PARAMETER_VECTOR(eps_t);              // year effect
   PARAMETER(lnkappa2);                  // year effect uncorrelated variance
-  PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect
+  //PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect
   PARAMETER_ARRAY(zeta_st);             // species effect
   PARAMETER_VECTOR(lnSigmaDiag);        // Species effect cov matrix diag
-  PARAMETER_VECTOR(lnSigmaOffDiag);     // Species effect cov chol off diag
+  //PARAMETER_VECTOR(lnSigmaOffDiag);     // Species effect cov chol off diag
 
   // derived vars //
   // indexing variables
@@ -66,15 +68,17 @@ Type objective_function<Type>::operator() ()
   // Leading parameters
   vector<Type> Bmsy = exp(lnBmsy);
   vector<Type> Umsy = exp(lnUmsy);
+  Type Umsybar      = exp(lnUmsybar);
   vector<Type> tau2 = exp(lntau2);
   vector<Type> q    = exp(lnq);
+  Type qbar         = exp(lnqbar);
   // Prior hyperpars
   Type tauq2    = exp(lntauq2);
   Type sigUmsy2 = exp(lnsigUmsy2);
   // Random Effects
   Type kappa2  = exp(lnkappa2);
-  Type gammaYr = invLogit(logit_gammaYr,Type(2.),Type(1.));
-  //matrix<Type> Sigma(nS,nS);
+  //Type gammaYr = invLogit(logit_gammaYr,Type(2.),Type(1.));
+  matrix<Type> Sigma(nS,nS);
   // Scalars
   Type obj    = 0.0;   // objective function (neg log likelihood)
   Type pospen = 0.0;   // posfun penalty
@@ -82,8 +86,11 @@ Type objective_function<Type>::operator() ()
   /*procedure section*/
   // First, create correlation component of Sigma
   using namespace density;
-  UNSTRUCTURED_CORR_t<Type> Sigma(exp(lnSigmaOffDiag));
-
+  // UNSTRUCTURED_CORR_t<Type> Sigma(exp(lnSigmaOffDiag));
+  // matrix<Type> Sigma(nS,nS);
+  Sigma.fill(0.0);
+  Sigma.diagonal() = exp(lnSigmaDiag);
+  MVNORM_t<Type> specEffNLL(Sigma);
   // Compute state values, add residues to likelihood
   for (int t=0;t<nT;t++)
   {
@@ -97,24 +104,31 @@ Type objective_function<Type>::operator() ()
     }
     vector<Type> epst(nS);
     epst.fill(eps_t(t));
-    lnBt.col(t) = log(Bpred) + epst + zeta_st.col(t);
+    lnBt.col(t) = log(Bpred) + epst; // + zeta_st.col(t);
     // Add species effect contribution to likelihood
-    obj += VECSCALE(Sigma,exp(Type(0.5)*lnSigmaDiag))(zeta_st.col(t));
+    obj += specEffNLL(zeta_st.col(t));
+    //obj += VECSCALE(Sigma,exp(Type(0.5)*lnSigmaDiag))(zeta_st.col(t));
+    // Add uncorrelated year effect
+    obj -= dnorm(eps_t(t),Type(0),sqrt(kappa2),true);
   }
   // Add year effect contribution to likelihood
-  obj += SCALE(AR1(gammaYr),sqrt(kappa2))(eps_t);
+  //obj += SCALE(AR1(gammaYr),sqrt(kappa2))(eps_t);
 
   // Compute observation likelihood
   // First create a diagonal covariance matrix for the observations
-  matrix<Type> Tau(nS,nS);
-  Tau.fill(0.0);
-  Tau.diagonal() = tau2;
-  // Now create MV normal distribution with Tau as cov mtx
-  MVNORM_t<Type> obs_nll(Tau);
+  // matrix<Type> Tau(nS,nS);
+  // Tau.fill(0.0);
+  // Tau.diagonal() = tau2;
+  // // Now create MV normal distribution with Tau as cov mtx
+  // MVNORM_t<Type> obs_nll(Tau);
   for (int t = 0; t< nT; t++)
   {
-    // This should actually be an MVNORM call, let's try with the vector
-    obj += obsnll(log(It.col(t)) - (lnq + lnBt.col(t)));
+    // This should actually be an MVNORM call, let's try species wise
+    for (int s=0;s<nS;s++)
+    {
+      if (It(s,t) > 0 ) obj -= dnorm(log(It(s,t)),lnq(s)+lnBt(s,t),tau2(s),true);
+    }
+    // obj += obs_nll(log(It.col(t)) - (lnq + lnBt.col(t)));
   }
   // Shared priors
   for (int s=0; s<nS;s++)
@@ -123,6 +137,8 @@ Type objective_function<Type>::operator() ()
     obj -= dnorm(lnq(s),lnqbar,sqrt(tauq2),true);
     // productivity
     obj -= dnorm(lnUmsy(s),lnUmsybar,sqrt(sigUmsy2),true);
+    // equlibrium biomass
+    obj -= dnorm(lnBmsy(s),mlnBmsy(s),sqrt(s2lnBmsy(s)),true);
   }
   // Hyperpriors
   // catchability
@@ -134,12 +150,14 @@ Type objective_function<Type>::operator() ()
   // Reporting variables
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
+  ADREPORT(Umsybar);
   ADREPORT(q);
+  ADREPORT(qbar);
   ADREPORT(tau2);
   ADREPORT(kappa2);
-  REPORT(Sigma.cov());
-  ADREPORT(lnSigmaDiag);
-  ADREPORT(lnSigmaOffDiag);
+  // REPORT(Sigma);
+  // ADREPORT(lnSigmaDiag);
+  //ADREPORT(lnSigmaOffDiag);
   ADREPORT(Bt);
 
   return obj;
