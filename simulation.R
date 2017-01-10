@@ -292,10 +292,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             fitTrials = 3, maxfn = 10000,
                             quiet = TRUE, TMBlib="msProd",
                             RE = c("eps_t","lnq","lnUmsy","zeta_st") )
-{ 
-  # First, load the dynamic library object
-  dyn.load(dynlib("msProd"))
-    
+{   
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
