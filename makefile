@@ -2,17 +2,18 @@
 # (currently only for a mac - will improve later)
 
 # First, let's make sure we know where all the bits are
-ADMB="/usr/local/bin/admb"
+RSCRIPT="Rscript"
 PROJECT="project"
 FORENSICS="badfits"
+INIT="Rscript ./init.R"
 
 install: 
-	make ADMB
+	make TMB
 	make dirs
 
 # Run ADMB to set up executables
-ADMB:
-	$(ADMB) msProdCV.tpl
+TMB:
+	$(RSCRIPT) init.R
 
 # Create directories to hold project files and forensics
 dirs:
