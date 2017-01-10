@@ -42,7 +42,7 @@ plotPerfMatrix <- function (  table   = "statTable.csv",
 # inputs:   sim=number of the simulation in the project folder (alphabetical)
 #           rep=optional number of replicate to start scanning from
 #           est=character indicating which esitimates for plotting (MLE or MCMC)
-plotRepScan <- function ( sim =1, rep = 1, est = "MCMC")
+plotRepScan <- function ( sim =1, rep = 1, est = "MLE")
 {
   # First load the simulation
   .loadSim(sim)
@@ -263,7 +263,7 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
 #           folder=name of folder/blob file (supercedes sim number)
 # output:   NULL
 # usage:    post-simulation run, plotting performance
-plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
+plotBCU <- function ( rep = 1, est="MLE", sim=1, legend=TRUE,
                       data = FALSE, labSize = 2, tickSize = 1.2 )
 {
   # Blob should be loaded in global environment automatically,
@@ -300,20 +300,6 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
     msBt  <- blob$am$ms$Bt[rep,,]
     msq   <- blob$am$ms$q[rep,]  
   }
-  if ( est == "MCMC" )
-  {
-    # single species
-    mcBioSSMed <- apply(X=blob$am$ss$mcBio[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    mcParSSMed <- apply(X=blob$am$ss$mcPar[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    ssBt       <- mcBioSSMed
-    ssq        <- mcParSSMed[,"q"]
-
-    # multispeces
-    mcBioMSMed <- apply(X=blob$am$ms$mcBio[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    mcParMSMed <- apply(X=blob$am$ms$mcPar[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    msBt       <- mcBioMSMed
-    msq        <- mcParMSMed[,"q"]
-  }
 
   # Estimated Ut
   ssUt <- Ct / ssBt
@@ -322,9 +308,9 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
   
   # Recover diagnostics for the fits
   hpdSS <- blob$am$ss$hesspd[rep,]
-  minSS <- blob$am$ss$locmin[rep,]
+  grdSS <- blob$am$ss$maxGrad[rep,]
   hpdMS <- blob$am$ms$hesspd[rep]
-  minMS <- blob$am$ms$locmin[rep]
+  grdMS <- blob$am$ms$maxGrad[rep]
 
   # Set colours for each model
   ssCol <- "steelblue"
@@ -345,9 +331,9 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
     if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
                             col=c(ssCol,msCol), lty = c(2,2), 
                             lwd = c(2,2), cex=c(1), bty="n" )
-    if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=1.1)
+    # if ( minSS[s] ) panLab (x=0.85,y=0.9,txt="c",col=ssCol,cex=1.1)
     if ( hpdSS[s] ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1.1)
-    if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=1.1)
+    # if ( minMS ) panLab (x=0.85,y=0.85,txt="c",col=msCol,cex=1.1)
     if ( hpdMS ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1.1)
     if ( data ) points  ( x = 1:nT, y = It[s,]/ssq[s], pch = 2, cex = 0.6, col="grey70" )
     if ( data ) points  ( x = 1:nT, y = It[s,]/msq[s], pch = 5, cex = 0.6, col="grey70" )
@@ -522,11 +508,6 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1,
   {
     ssRE <- blob$am$ss$err.mle[pars]
     msRE <- blob$am$ms$err.mle[pars]
-  }
-  if (est == "MCMC")
-  {
-    ssRE <- blob$am$ss$err.post[pars]
-    msRE <- blob$am$ms$err.post[pars]
   }
   
   # Create a wrapper function for generating quantiles

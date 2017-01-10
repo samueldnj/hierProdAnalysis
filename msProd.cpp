@@ -71,16 +71,18 @@ Type objective_function<Type>::operator() ()
   
   // State variables
   array<Type> lnBt(nS,nT);
+  array<Type> Ut(nS,nT);
   // Leading parameters
   vector<Type> Bmsy = exp(lnBmsy);
   vector<Type> Umsy = exp(lnUmsy);
+  vector<Type> msy  = Bmsy*Umsy;
   Type Umsybar      = exp(lnUmsybar);
   Type tau2         = exp(lntau2);
   vector<Type> q    = exp(lnq);
   Type qbar         = exp(lnqbar);
   // Prior hyperpars
-  Type tauq2    = exp(lntauq2);
-  Type sigUmsy2 = exp(lnsigUmsy2);
+  Type tauq2        = exp(lntauq2);
+  Type sigUmsy2     = exp(lnsigUmsy2);
   // Random Effects
   Type kappa2   = exp(lnkappa2);
   Type gammaYr = Type(2.) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(1.);
@@ -144,12 +146,15 @@ Type objective_function<Type>::operator() ()
   // productivity
   obj -= dnorm(lnUmsybar,mlnUmsy,sqrt(s2lnUmsy),true);
 
-  vector<Type> Bt = exp(lnBt);
+  array<Type> Bt(nS,nT);
+  Bt = exp(lnBt);
+  Ut = Ct / Bt;
   // Reporting variables
   ADREPORT(Bt);
   ADREPORT(q);
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
+  ADREPORT(msy);
   ADREPORT(Umsybar);
   ADREPORT(qbar);
   ADREPORT(tau2);
@@ -157,9 +162,10 @@ Type objective_function<Type>::operator() ()
   ADREPORT(SigmaDiag);    
   ADREPORT(SigmaOffDiag);
   ADREPORT(gammaYr);
+  REPORT(Ut);
 
   // still haven't figured out how to use report
-  REPORT(specEffCorr.cov());
+  // REPORT(specEffCorr.cov());
 
   return obj;
 }

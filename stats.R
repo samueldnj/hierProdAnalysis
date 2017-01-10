@@ -187,51 +187,9 @@
     ms$err.mle$Sigma2[,s] <- (ms$Sigma2[,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
     
     ms$err.mle$q[,s]      <- (ms$q[,s] - opMod$q[s])/opMod$q[s]
-    ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
+    # ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
     ms$err.mle$BnT[,s]    <- (ms$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
   }
-
-  # Now get errors from posterior estimates
-  ss$err.post <- ssErr
-  ms$err.post <- msErr
-  # first calculate SS posterior mean and median
-  ssMCMC <- ss$mcPar
-  ssMCMC <- apply ( X = ssMCMC, FUN = mean, MARGIN = c(1,2,4))
-  # then MS
-  msMCMC <- ms$mcPar
-  msMCMC <- apply ( X = msMCMC, FUN = mean, MARGIN = c(1,2,4))
-
-  # Then load into the blob error distributions. These contain
-  # NAs, which will have to be cleared up in the plotting
-  for (s in 1:nS)
-  {
-    ss$err.post$Bmsy[,s]   <- (ssMCMC[,s,"Bmsy"] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-    ss$err.post$Umsy[,s]   <- (ssMCMC[,s,"Umsy"] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-    ss$err.post$kappa2[,s] <- (ssMCMC[,s,"kappa2"] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
-    ss$err.post$tau2[,s]   <- (ssMCMC[,s,"tau2"] - opMod$tau2[s])/opMod$tau2[s]
-    ss$err.post$q[,s]      <- (ssMCMC[,s,"q"] - opMod$q[s])/opMod$q[s]
-    # ss$err.post$mlnq[,s]   <- (ss$mlnq[,s] - mean(log(opMod$q)))
-    ss$err.post$dep[,s]    <- (ssMCMC[,s,"dep_bar"] - om$dep[,s])/om$dep[,s]
-    ss$err.post$BnT[,s]    <- (ssMCMC[,s,"BnT"] - om$Bt[,s,nT])/om$Bt[,s,nT]
-
-    # Now fill in ms MLE relative errors
-    # some are only estimated once (instead of nS times)
-    if (s == 1)
-    {
-      ms$err.post$kappa2     <- (msMCMC[,s,"kappa2"] - opMod$pars$kappa2)/opMod$pars$kappa2
-      ms$err.post$Sigma2     <- (msMCMC[,s,"Sigma2"] - mean(opMod$pars$Sigma2))/mean(opMod$pars$Sigma2)
-      ms$err.post$tau2       <- (msMCMC[,s,"tau2"] - mean(opMod$tau2))/mean(opMod$tau2)
-      # ms$err.post$mlnq       <- t(ms$mlnq - mean(log(opMod$q)))
-    }
-
-    ms$err.post$Bmsy[,s]   <- (msMCMC[,s,"Bmsy"] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-    ms$err.post$Umsy[,s]   <- (msMCMC[,s,"Umsy"] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-    ms$err.post$q[,s]      <- (msMCMC[,s,"q"] - opMod$q[s])/opMod$q[s]
-    # ms$err.post$mlnq[,s]   <- (ms$mlnq[,s] - mean(log(opMod$q)))
-    ms$err.post$dep[,s]    <- (msMCMC[,s,"dep_bar"] - om$dep[,s])/om$dep[,s]
-    ms$err.post$BnT[,s]    <- (msMCMC[,s,"BnT"] - om$Bt[,s,nT])/om$Bt[,s,nT]
-  }
-
 
   # Append these to blob
   blob$am$ss <- ss
