@@ -288,7 +288,7 @@ FUNCTION stateDynamics
       Bt(s,t+1) = posfun ( Bt(s,t+1), katch(s,t+1)+10, pospen );
       
       // Increment function penaliser variable
-      fpen += 1000. * pospen;
+      fpen += 100. * pospen;
     }
   }
   //cout << "Bt = " <<  Bt <<  endl;
