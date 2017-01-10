@@ -98,20 +98,16 @@ makeBatch <- function ( batchCtl = "batchControlFile.bch", prjFld = "project",
 
 # Calls runSimEst in parallel inside a separate copy of the
 # working directory, allowing for parallel system calls
-doBatchRun <- function( batchFolderName )
+doBatchRun <- function( arg )
 {
   require(tools)
-  cat("Running batchjob:",batchFolderName,"\n")
-  # source mseR
+  cat("Running batchjob:", arg[1],"\n")
+  # source control script to load DLL
   source("control.r")
-  # because this is sourced in the main WD, 
-  # the entire WD doesn't need to be duplicated...
-  # Might be some efficiency to be gained, here
-  # set working directory to batchFolder
-  setwd(batchFolderName)
+  
   # runMSE with the batch file
   # add random delay to offset simFolder names
-  runSimEst(ctlFile="simCtlFile.txt", folder=basename(batchFolderName))
+  runSimEst(ctlFile=arg[1], folder=arg[2])
 }
 
 
@@ -141,7 +137,7 @@ doBatchRun <- function( batchFolderName )
   } 
 
   # Vector of simCtlFile names, like simCtlFile1.txt, simCtlFile2.txt, etc.
-  batchParFile <- file.path( .PRJFLD, .DEFBATFLD, basename( batchDesign$parFile ) )
+  batchParFile <- file.path( getwd(),.PRJFLD, .DEFBATFLD, basename( batchDesign$parFile ) )
   blobName     <- batchDesign$blobName  # Vector of blobNames.
   nSims        <- length(blobName)      # Number of blobs (i.e., simulations).
 
@@ -164,26 +160,18 @@ doBatchRun <- function( batchFolderName )
     # turn off squawking
     options(warn=-1)
     # Get number of batch runs
-    nBatchFiles <- nrow(batchDesign)
+    nBatchFiles   <- length(batchParFile)
 
-    # Get list of current files (we don't want to unnecessary duplication)
-    wdContents <- list.files("./")
     # Create folder names for batch running
     batchFolderNames <- paste("parBat",prefix,1:nBatchFiles,sep="")
-    simFolderNames <- paste("sim_",batchFolderNames,sep="")
-    for (i in 1:nBatchFiles)
+    
+    # combine folder and control file names
+    parBatchArgList <- vector(mode = "list", length = length(batchParFile))
+    for(i in 1:length(batchParFile))
     {
-      # Create duplicate directory for experiment
-      dir.create(batchFolderNames[i])
-      # Copy necessary contents (there are some efficiency gains to be made
-      # here)
-      file.copy ( from = wdContents,
-                  to = batchFolderNames[i],
-                  recursive = TRUE )
-      # copy batch control in to the new batch folder as the base simctl
-      simCtlFile <- file.path(getwd(),batchFolderNames[i],"simCtlFile.txt")
-      file.copy (batchParFile[i],simCtlFile,overwrite=TRUE)
+      parBatchArgList[[i]] <- c( batchParFile[i],batchFolderNames[i])
     }
+
     # Now set # of cores and make a cluster
     nCores  <- min(nBatchFiles,detectCores()-1)
     cl      <- makePSOCKcluster(nCores)
@@ -192,39 +180,11 @@ doBatchRun <- function( batchFolderName )
           nCores, " cores.\n", sep = "" )
     tBegin    <- proc.time()
     startDate <- date()
-    # append main WD path to the front of the batchFolderNames
-    batchFolderNames <- file.path(getwd(),batchFolderNames)
-
-    tmp     <- clusterApply(cl, x=batchFolderNames, fun=doBatchRun)
-    # tmp <-lapply(X=file.path(getwd(),batchFolderNames), FUN=doBatchRun)
+    tmp     <- clusterApply(cl, x=parBatchArgList, fun=doBatchRun)
+    # tmp <-lapply(X=parBatchArgList, FUN=doBatchRun)
     stopCluster(cl)
 
-    ### Make a vectorised function later!! ###
-
-    # # Find the sim output folder in the project file
-    # batchDir <- file.path(getwd(),batchFolderNames[i],"project",simFolderNames[i])
-    # # Set up the destination
-    # destination <- file.path(getwd(),"project")
-
     # Now copy the contents of each batchFolderName to the project folder
-    require(stringr)
-    for (i in 1:nBatchFiles)
-    {
-      # Find the sim output folder in the project file
-      batchDir <- file.path(batchFolderNames[i],"project",simFolderNames[i])
-      # Set up the destination
-      destination <- file.path(getwd(),"project")
-
-      cat("\n", "Moving simulation ",i," sim folder to: ","\n",
-        paste(getwd(),"/project/",sep=""),"\n", sep="")
-
-      # Now copy the completed simulation
-      file.copy(from=batchDir,to=destination,recursive=TRUE)
-
-      cat("Removing folder ", batchFolderNames[i], "\n", sep="")
-      system(command=paste("rm -d -R ",batchFolderNames[i],sep=""))
-      options(warn=1)
-    }
     elapsed <- (proc.time() - tBegin)[ "elapsed" ]
     cat( "\nMSG (.runBatchJob): Elapsed time for parallel batch = ",
       round(elapsed/60.0,digits=2)," minutes.\n" )

@@ -1,7 +1,7 @@
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 // msProd_TMB.cpp
 // 
-// TMB version of the ADMB model in msProd.tpl
+// TMB version of of the multispecies production model
 // 
 // Author: Samuel Johnson
 // Date: August 25, 2014                    
@@ -47,7 +47,8 @@ Type objective_function<Type>::operator() ()
   // Leading Parameters
   PARAMETER_VECTOR(lnBmsy);             // Biomass at MSY
   PARAMETER_VECTOR(lnUmsy);             // Optimal exploitation rate
-  PARAMETER(lntau2);                    // Species specific Obs error variance
+  PARAMETER(lntau2);                    // Obs error variance
+  PARAMETER_VECTOR(tau2mult);           // species mults for observation error
   PARAMETER_VECTOR(lnq);                // Species specific catchability
   // Priors
   PARAMETER(lnqbar);                    // prior mean catchability
@@ -66,16 +67,15 @@ Type objective_function<Type>::operator() ()
   PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect
   PARAMETER_ARRAY(zeta_st);             // species effect
   PARAMETER(lnSigmaDiag);               // Species effect cov matrix diag
+  PARAMETER_VECTOR(SigmaDiagMult);      // Sigma diagonal mults
   PARAMETER_VECTOR(logitSigmaOffDiag);  // Species effect corr chol factor off diag  
   
   
   // State variables
   array<Type> lnBt(nS,nT);
-  array<Type> Ut(nS,nT);
   // Leading parameters
   vector<Type> Bmsy = exp(lnBmsy);
   vector<Type> Umsy = exp(lnUmsy);
-  vector<Type> msy  = Bmsy*Umsy;
   Type Umsybar      = exp(lnUmsybar);
   Type tau2         = exp(lntau2);
   vector<Type> q    = exp(lnq);
@@ -84,18 +84,22 @@ Type objective_function<Type>::operator() ()
   Type tauq2        = exp(lntauq2);
   Type sigUmsy2     = exp(lnsigUmsy2);
   // Random Effects
-  Type kappa2   = exp(lnkappa2);
-  Type gammaYr = Type(2.) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(1.);
-  vector<Type> SigmaOffDiag;   SigmaOffDiag = Type(2.) / (Type(1.) + exp(Type(-2.)*logitSigmaOffDiag) ) - Type(1.);  
+  Type kappa2       = exp(lnkappa2);
+  Type gammaYr      = Type(2.) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(1.);
+  vector<Type> SigmaOffDiag(nS*(nS-1)/2);  
+  SigmaOffDiag      = Type(2.) / (Type(1.) + exp(Type(-2.)*logitSigmaOffDiag) ) - Type(1.);     
   // Scalars
   Type obj    = 0.0;   // objective function (neg log likelihood)
   Type pospen = 0.0;   // posfun penalty
+  // Derived Parameters
+  array<Type>   Ut(nS,nT);
+  vector<Type>  msy = Bmsy * Umsy;
 
   /*procedure section*/
   // First, create correlation component of Sigma
   UNSTRUCTURED_CORR_t<Type> specEffCorr(SigmaOffDiag);
   vector<Type> SigmaDiag(nS);
-  SigmaDiag.fill(exp(lnSigmaDiag));
+  SigmaDiag = SigmaDiagMult*exp(lnSigmaDiag);    
   // Compute state values, add residues to likelihood
   for (int t=0;t<nT;t++)
   {
@@ -109,10 +113,9 @@ Type objective_function<Type>::operator() ()
     }
     vector<Type> epst(nS);
     epst.fill(eps_t(t));
-    lnBt.col(t) = log(Bpred) + epst;
-    lnBt.col(t) += zeta_st.col(t);
+    lnBt.col(t) = log(Bpred) + epst + zeta_st.col(t);
     // Add correlated species effects contribution to likelihood
-    obj += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t));
+    if (nS > 1) obj += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t));
   }
   // Add AR1 year effect contribution to likelihood
   obj += SCALE(AR1(gammaYr),sqrt(kappa2))(eps_t);
@@ -121,9 +124,7 @@ Type objective_function<Type>::operator() ()
   // First create a diagonal covariance matrix for the observations
   matrix<Type> Tau(nS,nS);
   Tau.fill(0.0);
-  vector<Type> TauDiag(nS);
-  TauDiag.fill(exp(lntau2));
-  Tau.diagonal() = TauDiag;
+  Tau.diagonal() = tau2 * tau2mult;
   // Now create MV normal distribution with Tau as cov mtx
   MVNORM_t<Type> obs_nll(Tau);
   for (int t = 0; t< nT; t++)
@@ -159,10 +160,13 @@ Type objective_function<Type>::operator() ()
   ADREPORT(qbar);
   ADREPORT(tau2);
   ADREPORT(kappa2);
-  ADREPORT(SigmaDiag);    
-  ADREPORT(SigmaOffDiag);
+  if (nS > 1 )
+  {
+    ADREPORT(SigmaDiag);    
+    ADREPORT(SigmaOffDiag); 
+  }
   ADREPORT(gammaYr);
-  REPORT(Ut);
+  ADREPORT(Ut);
 
   // still haven't figured out how to use report
   // REPORT(specEffCorr.cov());

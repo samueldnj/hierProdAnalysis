@@ -42,7 +42,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Save blob
   .saveSim(blob=blob, name=folder, path = path)
   # Copy control file and ms par file to folder for posterity
-  file.copy(from=ctlFile,to=file.path(path,ctlFile))
+  file.copy(from=ctlFile,to=file.path(path,"simCtlFile.txt"))
   file.copy(from=blob$opMod$parFile,to=file.path(path,blob$opMod$parFile))
   # Done
 }
@@ -200,9 +200,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssDat[[s]] <- list (  It = matrix(obj$om$It[s,], nrow=1),
                           Ct = matrix(obj$om$Ct[s,], nrow=1) )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy            = log(obj$assess$Bmsy[s]),
+    ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
                           lntau2            = log(obj$assess$tau2),
+                          tau2mult          = 1,
                           lnq               = rep( -1, 1 ) ,
                           lnqbar            = obj$assess$lnqbar,
                           lntauq2           = obj$assess$lntauq2,
@@ -219,6 +220,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           logit_gammaYr     = obj$assess$logit_gammaYr,
                           zeta_st           = matrix( 0, nrow = 1, ncol = nT ),
                           lnSigmaDiag       = 0,
+                          SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 )
                         )
     ssMap     <-  list(   s2lnq         = factor( NA ),
@@ -230,17 +232,20 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           mlnUmsy       = factor( NA ),
                           mlnq          = factor( NA ),
                           zeta_st       = factor( rep( NA, nT ) ),
-                          lnSigmaDiag   = factor( NA)  )
+                          lnSigmaDiag   = factor( NA),
+                          tau2mult      = factor( NA ),
+                          SigmaDiagMult = factor( NA )  )
   }
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It = obj$om$It,
                   Ct = obj$om$Ct
                 )
 
-  msPar <- list ( lnBmsy            = log(obj$assess$Bmsy),
+  msPar <- list ( lnBmsy            = log(sumCat/2),
                   lnUmsy            = log(obj$assess$Umsy),
                   lntau2            = log(obj$assess$tau2),
-                  lnq               = rep(-1, nS),
+                  tau2mult          = obj$assess$tau2mult,
+                  lnq               = rep(0, nS),
                   lnqbar            = obj$assess$lnqbar,
                   lntauq2           = obj$assess$lntauq2,
                   mlnq              = obj$assess$mlnq,
@@ -256,17 +261,20 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   logit_gammaYr     = obj$assess$logit_gammaYr,
                   zeta_st           = matrix(0, nrow = nS, ncol = nT),
                   lnSigmaDiag       = 0,
+                  SigmaDiagMult     = obj$assess$SigmaDiagMult,
                   logitSigmaOffDiag = numeric( length = nS*(nS-1)/2 )
                 )
 
-  msMap <- list ( s2lnq       = factor( NA ),
-                  s2lnUmsy    = factor( NA ),
-                  lntauq2     = factor( NA ),
-                  lnsigUmsy2  = factor( NA ),
-                  mlnBmsy     = factor( rep( NA, nS ) ),
-                  s2lnBmsy    = factor( rep( NA, nS ) ),
-                  mlnUmsy     = factor( NA ),
-                  mlnq        = factor( NA ) )
+  msMap <- list ( s2lnq         = factor( NA ),
+                  s2lnUmsy      = factor( NA ),
+                  lntauq2       = factor( NA ),
+                  lnsigUmsy2    = factor( NA ),
+                  mlnBmsy       = factor( rep( NA, nS ) ),
+                  s2lnBmsy      = factor( rep( NA, nS ) ),
+                  mlnUmsy       = factor( NA ),
+                  mlnq          = factor( NA ),
+                  tau2mult      = factor( rep( NA, nS ) ),
+                  SigmaDiagMult = factor( rep( NA, nS ) ) )
   # return list of dat and pin objects for running estimators
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar,
@@ -296,7 +304,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
-
+  # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
 
   # optimise the model
@@ -304,6 +312,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         objective = obj$fn,
                         gradient = obj$gr,
                         control = ctrl ) )
+
+
 
   # Run SD report on the fit if it works
   if( class ( fit ) == "try-error" ) fitrep <- NA
@@ -448,7 +458,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   mlnq    = vector("numeric",length=nReps),
                   slnq    = vector("numeric",length=nReps),
                   hesspd  = vector(mode="logical",length=nReps),
-                  maxGrad = vector(mode="logical",length=nReps))
+                  maxGrad = vector(mode="logical",length=nReps),
+                  rep     = vector(mode = "list", length=nReps))
 
 
   # The BLOOOOOOBBBBBB
@@ -482,6 +493,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
     # Save AM results
     # Loop over single species
+    # blob$am$ss$rep <- vector(mode = "list", length = nS)
     for ( s in 1:nS )
     {
       if (  !is.na(simEst$ssFit[[s]]) )
@@ -507,6 +519,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         # Estimator performance flags
         blob$am$ss$maxGrad[i,s]     <- max(fitrep$gradient.fixed)
         blob$am$ss$hesspd[i,s]      <- fitrep$pdHess
+        # blob$am$ss$rep[[i]][[s]]    <- fitrep
       }
      
     }
@@ -538,6 +551,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Estimator Performance Flags
       blob$am$ms$hesspd[i]          <- fitrep$pdHess
       blob$am$ms$maxGrad[i]         <- max(fitrep$gradient.fixed)
+      # blob$am$ms$rep[[i]]           <- fitrep
     }
   }
 
