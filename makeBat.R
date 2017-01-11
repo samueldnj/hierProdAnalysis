@@ -5,7 +5,7 @@
 # of parameters and different values at which to test them.
 # Function below also requires abbreviations of the 
 
-parList <- list( "opMod$corrMult" = seq(0,1,by=0.2),
+parList <- list( "opMod$corrMult" = seq(-1,-0.2,by=0.2),
                  "opMod$kappaMult" = seq(0.2,2,by=0.2)
                            )
 labels <- c("cM","vM")
