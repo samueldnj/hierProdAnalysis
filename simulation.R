@@ -214,8 +214,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           phz_chol    = -1,
                           dumm        =  999 )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy      = log(1.2*om$Bmsy[s]),
-                          lnUmsy      = log(om$Umsy[s]),
+    ssPar[[s]] <- list (  lnBmsy      = log(sumCat[s]/2),
+                          lnUmsy      = -1,
                           lnTau2      = log(obj$assess$tau2),
                           lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2),
                           lnSigma2    = 0,
@@ -260,8 +260,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   phz_chol    = obj$assess$phz_chol,
                   dumm        =  999 )
 
-  msPar <- list ( lnBmsy      = log(1.2*om$Bmsy),
-                  lnUmsy      = log(om$Umsy),
+  msPar <- list ( lnBmsy      = log(sumCat/2),
+                  lnUmsy      = rep(-1,nS),
                   lnTau2      = log(obj$assess$tau2),
                   lnkappa2    = log(obj$assess$kappa2),
                   lnSigma2    = log(obj$assess$Sigma2),

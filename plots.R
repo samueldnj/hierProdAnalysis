@@ -9,32 +9,6 @@
 #
 # --------------------------------------------------------------------------
 
-# plotPerfMatrix()
-# Function to plot performance matrices for each species and scenario
-plotPerfMatrix <- function (  table   = "statTable.csv", 
-                              pars    = c("BnT", "Umsy" ),
-                              mpLabel = "informedPriors" )
-{
-  # Load stat table
-  tablePath <- file.path ( getwd(),"project/Statistics",table)
-  table <- read.csv (tablePath, header=TRUE)
-
-  # reduce to the correct MP
-  table <- table [ which(table$mp == mpLabel ),]
-
-  table <- table  %>% filter(mp==mpLabel)  
-
-  # Set up plotting environment
-  nrows <- 2 * length(pars)
-  nS    <- length(unique(table$species))
-  par (mfrow=c(nrows,nS), mar = c(1,1,1,1), oma = c(1,1,1,1) )
-  for (s in 1:nS)
-  {
-    scenarios <- table$scenario
-    # for ()
-  }
-
-}
 
 # plotRepScan()
 # Scans through BCU plots for every replicate in a simulation

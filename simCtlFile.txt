@@ -2,7 +2,7 @@
 parameter value
 ctrl$scenarioName "4S-cM1-km1"
 ctrl$mpLabel "bothEff-fixedIG"
-ctrl$nReps 200
+ctrl$nReps 3
 ctrl$rSeed 146
 ctrl$speciesNames c("Dover","English","Rock","Petrale")
 opMod$nS 4
