@@ -109,7 +109,7 @@ Type objective_function<Type>::operator() ()
     for(int s=0;s<nS;s++) 
     {
       Bpred(s) = posfun(Bpred(s), Ct(s,t), pospen);
-      obj += pospen;
+      obj += 10*pospen;
     }
     vector<Type> epst(nS);
     epst.fill(eps_t(t));

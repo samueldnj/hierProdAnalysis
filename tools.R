@@ -20,7 +20,7 @@
 # --------------------------------------------------------------------------
 
 # Should only need to use a couple of times, to fix the naming in blob
-fixkappa <- function ( sim = 1)
+fixBlob <- function ( sim = 1)
 {
   # Check if blob is loaded, if not, load the blooob
   # List directories in project folder, remove "." from list
@@ -36,30 +36,15 @@ fixkappa <- function ( sim = 1)
   load ( file = blobPath )
 
   assign( "blob",blob,pos=1 )
-  cat("MSG (loadSim) Simulation ", folder, " loaded from ./project/\n", sep="" )
+  cat("MSG (fixBlob) Simulation ", folder, " loaded from ./project/\n", sep="" )
   
-  cat("MSG (fixM) Fixing blob names\n", sep="" )
+  cat("MSG (fixBlob) Fixing blob names\n", sep="" )
   
   reps  <- blob$ctrl$nReps
   nT    <- length(blob$opMod$rep$yr)
 
   ss <- blob$am$ss
   ms <- blob$am$ms
-  
-  rename <- function ( list, from, to)
-  {
-    names <- names(list)
-    if ( from %in% names )
-    {
-      idx <- which (names == from)
-      names(list)[idx] <- to
-    } 
-    return(list)
-  }
-
-  blob$am$ss <- rename(ss, "sigma2", "kappa2")
-  blob$am$ms <- rename(ms, "sigma2", "kappa2")
-
   
   blob <- .makeRelErrorDists(blob)
 

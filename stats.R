@@ -10,6 +10,12 @@
 #
 # --------------------------------------------------------------------------
 
+# rerunRelErrors()
+# sometimes used function to update relative error distribution
+# calculations on old blobs
+# inputs:   sims = integer vector indicating simulations to be updated
+
+
 #.statTable()
 # Wrapper for .simStats, produces stacked tables of stats for a group
 # of simulations.
@@ -79,20 +85,20 @@
   # Now errors
   for (s in 1:nS)
   {
-    statTable[s,"ssBnT"]    <- mean ( (ss$Bt[,s,nT] - om$Bt[,s,nT])^2)
-    statTable[s,"msBnT"]    <- mean ( (ms$Bt[,s,nT] - om$Bt[,s,nT])^2)
-    statTable[s,"ssUmsy"]   <- mean ( (ss$Umsy[,s] - pars$Umsy[s])^2)
-    statTable[s,"msUmsy"]   <- mean ( (ms$Umsy[,s] - pars$Umsy[s])^2)
-    statTable[s,"ssBmsy"]   <- mean ( (ss$Bmsy[,s] - pars$Bmsy[s])^2)
-    statTable[s,"msBmsy"]   <- mean ( (ms$Bmsy[,s] - pars$Bmsy[s])^2)
-    statTable[s,"ssMSY"]    <- mean ( (ss$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
-    statTable[s,"msMSY"]    <- mean ( (ms$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
-    statTable[s,"ssDep"]    <- mean ( (ss$dep[,s] -  om$dep[,s])^2)
-    statTable[s,"msDep"]    <- mean ( (ms$dep[,s] -  om$dep[,s])^2)
-    statTable[s,"ssq"]      <- mean ( (ss$q[,s]   -  opMod$q[s])^2)
-    statTable[s,"msq"]      <- mean ( (ms$q[,s]   -  opMod$q[s])^2)
-    statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s] )
-    statTable[s,"msHessPD"] <- mean ( ms$hesspd )
+    statTable[s,"ssBnT"]    <- mean ( (ss$Bt[,s,nT] - om$Bt[,s,nT])^2, na.rm=TRUE)
+    statTable[s,"msBnT"]    <- mean ( (ms$Bt[,s,nT] - om$Bt[,s,nT])^2, na.rm=TRUE)
+    statTable[s,"ssUmsy"]   <- mean ( (ss$Umsy[,s] - pars$Umsy[s])^2, na.rm=TRUE)
+    statTable[s,"msUmsy"]   <- mean ( (ms$Umsy[,s] - pars$Umsy[s])^2, na.rm=TRUE)
+    statTable[s,"ssBmsy"]   <- mean ( (ss$Bmsy[,s] - pars$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"msBmsy"]   <- mean ( (ms$Bmsy[,s] - pars$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"ssMSY"]    <- mean ( (ss$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"msMSY"]    <- mean ( (ms$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"ssDep"]    <- mean ( (ss$dep[,s,nT] -  om$dep[,s,nT])^2, na.rm=TRUE)
+    statTable[s,"msDep"]    <- mean ( (ms$dep[,s,nT] -  om$dep[,s,nT])^2, na.rm=TRUE)
+    statTable[s,"ssq"]      <- mean ( (ss$q[,s]   -  opMod$q[s])^2, na.rm=TRUE)
+    statTable[s,"msq"]      <- mean ( (ms$q[,s]   -  opMod$q[s])^2, na.rm=TRUE)
+    statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s] , na.rm=TRUE)
+    statTable[s,"msHessPD"] <- mean ( ms$hesspd , na.rm=TRUE)
   }
   
   # return
@@ -139,19 +145,21 @@
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
                 mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
                 dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                BnT   = matrix ( NA, nrow = nReps, ncol = nS )
+                BnT   = matrix ( NA, nrow = nReps, ncol = nS ),
+                totRE = matrix ( NA, nrow = nReps, ncol = nS )
               )
   # Slightly difference structure for MS model
   msErr <- list ( 
                 Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                kappa2= matrix ( NA, nrow=nReps, ncol=1),
+                kappa2= matrix ( NA, nrow = nReps, ncol = 1 ),
                 Sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
-                tau2  = matrix ( NA, nrow = nReps, ncol = 1 ),
+                tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
                 mlnq  = matrix ( NA, nrow = nReps, ncol = 1 ),
                 dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                BnT   = matrix ( NA, nrow = nReps, ncol = nS )
+                BnT   = matrix ( NA, nrow = nReps, ncol = nS ),
+                totRE = matrix ( NA, nrow = nReps, ncol = nS )
               )
 
   # append error lists to blob
@@ -170,25 +178,30 @@
     ss$err.mle$tau2[,s]   <- (ss$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
     ss$err.mle$q[,s]      <- (ss$q[,s] - opMod$q[s])/opMod$q[s]
     ss$err.mle$mlnq[,s]   <- (ss$mlnq[,s] - mean(log(opMod$q)))
-    ss$err.mle$dep[,s]    <- (ss$dep[,s] - om$dep[,s])/om$dep[,s]
+    ss$err.mle$dep[,s]    <- (ss$dep[,s,nT] - om$dep[,s,nT])/om$dep[,s,nT]
     ss$err.mle$BnT[,s]    <- (ss$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
+    ss$err.mle$totRE[,s]  <- ss$err.mle$kappa2[,s]
 
     # Now fill in ms MLE relative errors
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
       ms$err.mle$kappa2     <- t(ms$kappa2 - opMod$pars$kappa2)/opMod$pars$kappa2
-      ms$err.mle$mlnq       <- t(ms$mlnq - mean(log(opMod$q)))
-      ms$err.mle$tau2       <- (ms$tau2 - mean(opMod$tau2))/mean(opMod$tau2)
+      ms$err.mle$mlnq       <- t(ms$lnqbar - mean(log(opMod$q))) 
     }
     # Now the rest of the pars
-    ms$err.mle$Bmsy[,s]   <- (ms$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-    ms$err.mle$Umsy[,s]   <- (ms$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
     ms$err.mle$Sigma2[,s] <- (ms$Sigma2[,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
-    
+    ms$err.mle$tau2[,s]   <- (ms$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
+    ms$err.mle$Bmsy[,s]   <- (ms$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
+    ms$err.mle$Umsy[,s]   <- (ms$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]    
     ms$err.mle$q[,s]      <- (ms$q[,s] - opMod$q[s])/opMod$q[s]
-    # ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
+    ms$err.mle$dep[,s]    <- (ms$dep[,s,nT] - om$dep[,s,nT])/om$dep[,s,nT]
     ms$err.mle$BnT[,s]    <- (ms$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
+
+    # calculate total RE variance
+    totVarFit <- ms$kappa2 + ms$Sigma2[,s]
+    totVarOM  <- opMod$pars$kappa2 + opMod$pars$Sigma2[s]
+    ms$err.mle$totRE[,s]  <- (totVarFit - totVarOM) / totVarOM
   }
 
   # Append these to blob

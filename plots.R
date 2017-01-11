@@ -11,29 +11,101 @@
 
 # plotPerfMatrix()
 # Function to plot performance matrices for each species and scenario
-plotPerfMatrix <- function (  table   = "statTable.csv", 
-                              pars    = c("BnT", "Umsy" ),
-                              mpLabel = "informedPriors" )
+plotCorrContour <- function ( table     = "statTable.csv", 
+                              mpLabel   = "bothEff" )
 {
   # Load stat table
   tablePath <- file.path ( getwd(),"project/Statistics",table)
-  table <- read.csv (tablePath, header=TRUE)
+  table <- read.csv (tablePath, header=TRUE, stringsAsFactors=FALSE)
 
   # reduce to the correct MP
   table <- table [ which(table$mp == mpLabel ),]
 
-  table <- table  %>% filter(mp==mpLabel)  
+  table <- table  %>% filter( mp == mpLabel ) %>%
+                      mutate( varMult = kappa2True/Sigma2True,
+                              BnT     = log2(ssBnT/msBnT),
+                              Umsy    = log2(ssUmsy/msUmsy) )
 
-  # Set up plotting environment
-  nrows <- 2 * length(pars)
-  nS    <- length(unique(table$species))
-  par (mfrow=c(nrows,nS), mar = c(1,1,1,1), oma = c(1,1,1,1) )
+  # Now make a pallette for the colours
+  colScaleHi  <- brewer.pal( 5, "Greens" )
+  colScaleLo  <- brewer.pal( 5, "Reds" )
+  colScale    <- c( colScaleLo[ 5:1 ],"white", colScaleHi[ 1:5 ] )
+  colBreaks   <- seq( -3.2, 3.2, length =12 )
+
+
+  species   <- as.character(unique( table$species))
+  nS <- length(species)
+  specList  <- vector( mode="list", length=length(species))
+
   for (s in 1:nS)
   {
-    scenarios <- table$scenario
-    # for ()
+    spec <- species[s]
+    specTab <- table %>% filter (species == spec )
+    x <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
+    y <- unique(specTab$varMult)[order(unique(specTab$varMult))]
+    z <- array( NA, dim=c(2,length(y),length(x)),
+                dimnames=list(c("BnT","Umsy"),paste("vM",y,sep=""),paste("cM",x,sep="")))
+
+    for (xIdx in 1:length(x))
+    {
+      for (yIdx in 1:length(y))
+      {
+
+        # Get x and y values
+        xVal <- x[xIdx]
+        yVal <- y[yIdx]
+        MSE <- specTab  %>% filter( corrMult == xVal,
+                                    varMult  == yVal ) %>%
+                            dplyr::select( BnT, Umsy)
+        z[,yIdx,xIdx] <- as.numeric(MSE)
+      }
+    } 
+
+    specList[[s]] <- list( x = x, y = y, z = z )
+  }
+  names(specList) <- species
+
+  par(mfrow = c(nS,2), mar = c(3,3,3,3), oma = c(4,4,4,4))
+  for (s in 1:nS)
+  {
+    # Create a raster from the stat table info 
+    bioRastObj <- list (  x = specList[[s]]$x,
+                          y = specList[[s]]$y,
+                          z = t(specList[[s]]$z[1,,]))
+    prodRastObj <- list ( x = specList[[s]]$x,
+                          y = specList[[s]]$y,
+                          z = t(specList[[s]]$z[2,,]))
+    bioRast <- raster(bioRastObj)
+    prodRast <- raster(prodRastObj)
+
+    # Make titles for the plots
+    bioTitle <- paste("BnT ", species[s], sep = "" )
+    prodTitle <- paste("Umsy ", species[s], sep = "" )
+
+    # plot the rasters, without legends
+    plot( bioRast,main = bioTitle, legend = FALSE, 
+          breaks = colBreaks, col=colScale )
+    plot(prodRast,main = prodTitle,  legend = FALSE, 
+          breaks = colBreaks, col=colScale)
+    # Plot the legends
+    if (s == nS)
+      plot( prodRast, legend.only=TRUE, col=colScale, fill=colScale,
+            legend.width=1, legend.shrink=0.75,
+            axis.args = list( at = colBreaks,
+                              labels = round(colBreaks,2),
+                              cex.axis = 0.6),
+            zlim = c(-3,3),
+            legend.args = list( text="log2(ssMSE/msMSE)", 
+                                side=4, font=2, 
+                                line=3, cex=0.75) )
   }
 
+  grid.text(  "Species Effect Correlation", 
+              x=unit(0.5, "npc"), y=unit(0.05, "npc"), rot=0)
+  grid.text(  "Relative Magnitude of Year Effect", 
+              x=unit(0.05, "npc"), y=unit(0.5, "npc"), rot=90)
+  grid.text(  "Relative MSE of models", 
+              x=unit(0.5, "npc"), y=unit(0.95, "npc"), rot=0)
 }
 
 # plotRepScan()
@@ -487,7 +559,7 @@ plotBCF <- function ( rep = 1, est="MLE", sim=1, legend=TRUE )
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1, 
+plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE"), sim=1, 
                           est="MLE" )
 {
   # Blob should be loaded in global environment automatically,
@@ -537,6 +609,8 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1,
                                   c("2.5%","50%","97.5%"), 
                                   pars,
                                   c("ss","ms") )
+
+
 
   # populate table
   for ( s in 1:nS )

@@ -10,9 +10,13 @@
 # --------------------------------------------------------------------------
 
 # Load packages
-library ( "coda" )
-library ( "dplyr" )
-library ( "TMB" )
+library( "coda" )
+library( "dplyr" )
+library( "TMB" )
+library( "raster" )
+library( "grid" )
+library( "RColorBrewer" )
+
 
 # compile and load msProd objective function.
 compile ("msProd.cpp")

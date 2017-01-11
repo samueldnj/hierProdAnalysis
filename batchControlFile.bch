@@ -2,96 +2,187 @@
 parameter value
 # Scenarios
 #
-# Scenario 1: 2S-cM0-km0.5
+# Scenario 1 : corrM0varM0.1
 #
-scenario$scenario1$ctrl$scenarioName "2S-cM0-km0.5"
-scenario$scenario1$ctrl$nReps 200
+scenario$scenario1$ctrl$scenarioName 'corrM0varM0.1'
 scenario$scenario1$opMod$corrMult 0
-scenario$scenario1$opMod$kappaMult 0.5
-scenario$scenario1$opMod$q c(0.9,1.2)
-scenario$scenario1$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario1$opMod$parFile "pars2Spec.txt"
+scenario$scenario1$opMod$kappaMult 0.1
 #
-# Scenario 2: 2S-cM0.5-km0.5
+# Scenario 2 : corrM0.2varM0.1
 #
-scenario$scenario2$ctrl$scenarioName "2S-cM0.5-km0.5"
-scenario$scenario2$ctrl$nReps 200
-scenario$scenario2$opMod$corrMult 0.5
-scenario$scenario2$opMod$kappaMult 0.5
-scenario$scenario2$opMod$q c(0.9,1.2)
-scenario$scenario2$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario2$opMod$parFile "pars2Spec.txt"
+scenario$scenario2$ctrl$scenarioName 'corrM0.2varM0.1'
+scenario$scenario2$opMod$corrMult 0.2
+scenario$scenario2$opMod$kappaMult 0.1
 #
-# Scenario 3: 2S-cM1-km0.5
+# Scenario 3 : corrM0.4varM0.1
 #
-scenario$scenario3$ctrl$scenarioName "2S-cM1-km0.5"
-scenario$scenario3$ctrl$nReps 200
-scenario$scenario3$opMod$corrMult 1
-scenario$scenario3$opMod$kappaMult 0.5
-scenario$scenario3$opMod$q c(0.9,1.2)
-scenario$scenario3$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario3$opMod$parFile "pars2Spec.txt"
+scenario$scenario3$ctrl$scenarioName 'corrM0.4varM0.1'
+scenario$scenario3$opMod$corrMult 0.4
+scenario$scenario3$opMod$kappaMult 0.1
 #
-# Scenario 4: 2S-cM0-km1
+# Scenario 4 : corrM0.6varM0.1
 #
-scenario$scenario4$ctrl$scenarioName "2S-cM0-km1"
-scenario$scenario4$ctrl$nReps 200
-scenario$scenario4$opMod$corrMult 0
-scenario$scenario4$opMod$kappaMult 1
-scenario$scenario4$opMod$q c(0.9,1.2)
-scenario$scenario4$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario4$opMod$parFile "pars2Spec.txt"
+scenario$scenario4$ctrl$scenarioName 'corrM0.6varM0.1'
+scenario$scenario4$opMod$corrMult 0.6
+scenario$scenario4$opMod$kappaMult 0.1
 #
-# Scenario 5: 2S-cM0.5-km1
+# Scenario 5 : corrM0.8varM0.1
 #
-scenario$scenario5$ctrl$scenarioName "2S-cM0.5-km1"
-scenario$scenario5$ctrl$nReps 200
-scenario$scenario5$opMod$corrMult 0.5
-scenario$scenario5$opMod$kappaMult 1
-scenario$scenario5$opMod$q c(0.9,1.2)
-scenario$scenario4$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario4$opMod$parFile "pars2Spec.txt"
+scenario$scenario5$ctrl$scenarioName 'corrM0.8varM0.1'
+scenario$scenario5$opMod$corrMult 0.8
+scenario$scenario5$opMod$kappaMult 0.1
 #
-# Scenario 6: 2S-cM1-km1
+# Scenario 6 : corrM1varM0.1
 #
-scenario$scenario6$ctrl$scenarioName "2S-cM1-km1"
-scenario$scenario6$ctrl$nReps 200
+scenario$scenario6$ctrl$scenarioName 'corrM1varM0.1'
 scenario$scenario6$opMod$corrMult 1
-scenario$scenario6$opMod$kappaMult 1
-scenario$scenario1$opMod$q c(0.9,1.2)
-scenario$scenario4$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario4$opMod$parFile "pars2Spec.txt"
+scenario$scenario6$opMod$kappaMult 0.1
 #
-# Scenario 7: 2S-cM0-km1.5
+# Scenario 7 : corrM0varM0.5
 #
-scenario$scenario7$ctrl$scenarioName "2S-cM0-km1.5"
-scenario$scenario7$ctrl$nReps 200
+scenario$scenario7$ctrl$scenarioName 'corrM0varM0.5'
 scenario$scenario7$opMod$corrMult 0
-scenario$scenario7$opMod$kappaMult 1.5
-scenario$scenario1$opMod$q c(0.9,1.2)
-scenario$scenario4$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario4$opMod$parFile "pars2Spec.txt"
+scenario$scenario7$opMod$kappaMult 0.5
 #
-# Scenario 8: 2S-cM0.5-km1.5
+# Scenario 8 : corrM0.2varM0.5
 #
-scenario$scenario8$ctrl$scenarioName "2S-cM0.5-km1.5"
-scenario$scenario8$ctrl$nReps 200
-scenario$scenario8$opMod$corrMult 0.5
-scenario$scenario8$opMod$kappaMult 1.5
-scenario$scenario1$opMod$q c(0.9,1.2)
-scenario$scenario4$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario4$opMod$parFile "pars2Spec.txt"
+scenario$scenario8$ctrl$scenarioName 'corrM0.2varM0.5'
+scenario$scenario8$opMod$corrMult 0.2
+scenario$scenario8$opMod$kappaMult 0.5
 #
-# Scenario 9: 2S-cM1-km1.5
+# Scenario 9 : corrM0.4varM0.5
 #
-scenario$scenario9$ctrl$scenarioName "2S-cM1-km1.5"
-scenario$scenario9$ctrl$nReps 200
-scenario$scenario9$opMod$corrMult 1
-scenario$scenario9$opMod$kappaMult 1.5
-scenario$scenario1$opMod$q c(0.9,1.2)
-scenario$scenario4$opMod$pars lisread("pars2Spec.txt")
-scenario$scenario4$opMod$parFile "pars2Spec.txt"
+scenario$scenario9$ctrl$scenarioName 'corrM0.4varM0.5'
+scenario$scenario9$opMod$corrMult 0.4
+scenario$scenario9$opMod$kappaMult 0.5
 #
+# Scenario 10 : corrM0.6varM0.5
+#
+scenario$scenario10$ctrl$scenarioName 'corrM0.6varM0.5'
+scenario$scenario10$opMod$corrMult 0.6
+scenario$scenario10$opMod$kappaMult 0.5
+#
+# Scenario 11 : corrM0.8varM0.5
+#
+scenario$scenario11$ctrl$scenarioName 'corrM0.8varM0.5'
+scenario$scenario11$opMod$corrMult 0.8
+scenario$scenario11$opMod$kappaMult 0.5
+#
+# Scenario 12 : corrM1varM0.5
+#
+scenario$scenario12$ctrl$scenarioName 'corrM1varM0.5'
+scenario$scenario12$opMod$corrMult 1
+scenario$scenario12$opMod$kappaMult 0.5
+#
+# Scenario 13 : corrM0varM1
+#
+scenario$scenario13$ctrl$scenarioName 'corrM0varM1'
+scenario$scenario13$opMod$corrMult 0
+scenario$scenario13$opMod$kappaMult 1
+#
+# Scenario 14 : corrM0.2varM1
+#
+scenario$scenario14$ctrl$scenarioName 'corrM0.2varM1'
+scenario$scenario14$opMod$corrMult 0.2
+scenario$scenario14$opMod$kappaMult 1
+#
+# Scenario 15 : corrM0.4varM1
+#
+scenario$scenario15$ctrl$scenarioName 'corrM0.4varM1'
+scenario$scenario15$opMod$corrMult 0.4
+scenario$scenario15$opMod$kappaMult 1
+#
+# Scenario 16 : corrM0.6varM1
+#
+scenario$scenario16$ctrl$scenarioName 'corrM0.6varM1'
+scenario$scenario16$opMod$corrMult 0.6
+scenario$scenario16$opMod$kappaMult 1
+#
+# Scenario 17 : corrM0.8varM1
+#
+scenario$scenario17$ctrl$scenarioName 'corrM0.8varM1'
+scenario$scenario17$opMod$corrMult 0.8
+scenario$scenario17$opMod$kappaMult 1
+#
+# Scenario 18 : corrM1varM1
+#
+scenario$scenario18$ctrl$scenarioName 'corrM1varM1'
+scenario$scenario18$opMod$corrMult 1
+scenario$scenario18$opMod$kappaMult 1
+#
+# Scenario 19 : corrM0varM1.5
+#
+scenario$scenario19$ctrl$scenarioName 'corrM0varM1.5'
+scenario$scenario19$opMod$corrMult 0
+scenario$scenario19$opMod$kappaMult 1.5
+#
+# Scenario 20 : corrM0.2varM1.5
+#
+scenario$scenario20$ctrl$scenarioName 'corrM0.2varM1.5'
+scenario$scenario20$opMod$corrMult 0.2
+scenario$scenario20$opMod$kappaMult 1.5
+#
+# Scenario 21 : corrM0.4varM1.5
+#
+scenario$scenario21$ctrl$scenarioName 'corrM0.4varM1.5'
+scenario$scenario21$opMod$corrMult 0.4
+scenario$scenario21$opMod$kappaMult 1.5
+#
+# Scenario 22 : corrM0.6varM1.5
+#
+scenario$scenario22$ctrl$scenarioName 'corrM0.6varM1.5'
+scenario$scenario22$opMod$corrMult 0.6
+scenario$scenario22$opMod$kappaMult 1.5
+#
+# Scenario 23 : corrM0.8varM1.5
+#
+scenario$scenario23$ctrl$scenarioName 'corrM0.8varM1.5'
+scenario$scenario23$opMod$corrMult 0.8
+scenario$scenario23$opMod$kappaMult 1.5
+#
+# Scenario 24 : corrM1varM1.5
+#
+scenario$scenario24$ctrl$scenarioName 'corrM1varM1.5'
+scenario$scenario24$opMod$corrMult 1
+scenario$scenario24$opMod$kappaMult 1.5
+#
+# Scenario 25 : corrM0varM2
+#
+scenario$scenario25$ctrl$scenarioName 'corrM0varM2'
+scenario$scenario25$opMod$corrMult 0
+scenario$scenario25$opMod$kappaMult 2
+#
+# Scenario 26 : corrM0.2varM2
+#
+scenario$scenario26$ctrl$scenarioName 'corrM0.2varM2'
+scenario$scenario26$opMod$corrMult 0.2
+scenario$scenario26$opMod$kappaMult 2
+#
+# Scenario 27 : corrM0.4varM2
+#
+scenario$scenario27$ctrl$scenarioName 'corrM0.4varM2'
+scenario$scenario27$opMod$corrMult 0.4
+scenario$scenario27$opMod$kappaMult 2
+#
+# Scenario 28 : corrM0.6varM2
+#
+scenario$scenario28$ctrl$scenarioName 'corrM0.6varM2'
+scenario$scenario28$opMod$corrMult 0.6
+scenario$scenario28$opMod$kappaMult 2
+#
+# Scenario 29 : corrM0.8varM2
+#
+scenario$scenario29$ctrl$scenarioName 'corrM0.8varM2'
+scenario$scenario29$opMod$corrMult 0.8
+scenario$scenario29$opMod$kappaMult 2
+#
+# Scenario 30 : corrM1varM2
+#
+scenario$scenario30$ctrl$scenarioName 'corrM1varM2'
+scenario$scenario30$opMod$corrMult 1
+scenario$scenario30$opMod$kappaMult 2
+#
+# File Ends <not run>.
 # Management Procedures
 #
 mp$mp1$ctrl$mpLabel "bothEff"

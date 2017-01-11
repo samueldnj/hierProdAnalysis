@@ -73,8 +73,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if (!is.null(obj$opMod$kappaMult)) kappa <- kappa*obj$opMod$kappaMult
 
   # Correlation parameters
-  gamma     <- obj$opMod$gamma          # longitudinal auto-correlation
-  msCorr  <- obj$opMod$pars$msCorr  # ms cross correlation
+  gammaYr <- obj$opMod$gammaYr        # longitudinal auto-correlation
+  msCorr  <- obj$opMod$pars$msCorr    # ms cross correlation
 
   # Multiply the off-diagonal elements of msCorr if desired
   if (!is.null(obj$opMod$corrMult))
@@ -96,12 +96,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 zetat = matrix (NA,nrow=nS, ncol=nT ),
                 deltat= matrix (NA,nrow=nS, ncol=nT ),
                 It    = matrix (NA,nrow=nS, ncol=nT ),
-                dep   = numeric(length = nS),
-                kappa2= kappa*kappa,
-                Sigma2= Sigma*Sigma,
+                dep   = matrix (NA,nrow=nS, ncol=nT ),
+                kappa2= obj$opMod$pars$kappa2,
+                Sigma2= obj$opMod$pars$Sigma2,
                 msCorr= msCorr,
                 gamma = gamma,
-                tau2  = tau*tau,
+                tau2  = obj$opMod$tau2,
                 q     = obj$opMod$q,
                 nT    = nT,
                 nS    = nS,
@@ -110,7 +110,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # Now create epst and zetat vectors using the proc error components
   epst      <- .fillRanWalk(  z=rnorm(n = nT), s=kappa,
-                              gamma=gamma )
+                              gamma=gammaYr )
   zetat     <- matrix  (rnorm ( n = nS*nT ), nrow = nS, ncol = nT)
   zetat     <- .genCorrDevs ( zetat,
                               Mcorr=msCorr,
@@ -148,6 +148,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             nT = nT, Ut = Ust[s,], 
                             epst = epst,
                             zetat = zetat[s,] )
+    if( obj$opMod$identObs & (s > 1) ) deltat[s,] <- deltat[1,]
     obs <- .obsModel (  Bt = bio $ Bt, q = obj$opMod$q[s], nT = nT,
                         deltat = deltat[s,], tau = tau[s] )
 
@@ -158,7 +159,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     om$It[s,]     <- obs$It
     om$zetat[s,]  <- bio$zetat
     om$deltat[s,] <- obs$deltat
-    om$dep[s]     <- bio$dep
+    om$dep[s,]    <- bio$dep
   }
   om$epst         <- epst
 
@@ -223,18 +224,19 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 )
                         )
-    ssMap     <-  list(   s2lnq         = factor( NA ),
-                          s2lnUmsy      = factor( NA ),
-                          lntauq2       = factor( NA ),
-                          lnsigUmsy2    = factor( NA ),
-                          mlnBmsy       = factor( rep( NA, 1 ) ),
-                          s2lnBmsy      = factor( rep( NA, 1 ) ),
-                          mlnUmsy       = factor( NA ),
-                          mlnq          = factor( NA ),
-                          zeta_st       = factor( rep( NA, nT ) ),
-                          lnSigmaDiag   = factor( NA),
-                          tau2mult      = factor( NA ),
-                          SigmaDiagMult = factor( NA )  )
+    ssMap     <-  list(   
+                          s2lnq             = factor( NA ),
+                          s2lnUmsy          = factor( NA ),
+                          lntauq2           = factor( NA ),
+                          lnsigUmsy2        = factor( NA ),
+                          mlnBmsy           = factor( rep( NA, 1 ) ),
+                          s2lnBmsy          = factor( rep( NA, 1 ) ),
+                          mlnUmsy           = factor( NA ),
+                          mlnq              = factor( NA ),
+                          zeta_st           = factor( rep( NA, nT ) ),
+                          lnSigmaDiag       = factor( NA),
+                          tau2mult          = factor( NA ),
+                          SigmaDiagMult     = factor( NA )  )
   }
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It = obj$om$It,
@@ -265,16 +267,17 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   logitSigmaOffDiag = numeric( length = nS*(nS-1)/2 )
                 )
 
-  msMap <- list ( s2lnq         = factor( NA ),
-                  s2lnUmsy      = factor( NA ),
-                  lntauq2       = factor( NA ),
-                  lnsigUmsy2    = factor( NA ),
-                  mlnBmsy       = factor( rep( NA, nS ) ),
-                  s2lnBmsy      = factor( rep( NA, nS ) ),
-                  mlnUmsy       = factor( NA ),
-                  mlnq          = factor( NA ),
-                  tau2mult      = factor( rep( NA, nS ) ),
-                  SigmaDiagMult = factor( rep( NA, nS ) ) )
+  msMap <- list ( 
+                  s2lnq             = factor( NA ),
+                  s2lnUmsy          = factor( NA ),
+                  lntauq2           = factor( NA ),
+                  lnsigUmsy2        = factor( NA ),
+                  mlnBmsy           = factor( rep( NA, nS ) ),
+                  s2lnBmsy          = factor( rep( NA, nS ) ),
+                  mlnUmsy           = factor( NA ),
+                  mlnq              = factor( NA ),
+                  tau2mult          = factor( rep( NA, nS ) ),
+                  SigmaDiagMult     = factor( rep( NA, nS ) ) )
   # return list of dat and pin objects for running estimators
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar,
@@ -407,18 +410,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 deltat= array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 It    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 ItTrue= array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                dep   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                kappa2= NA,
-                Sigma2= NA
+                dep   = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT))
               )
-                # sigma = numeric(length = nReps),
-                # Sigma = numeric(length = nReps),
-                # tau   = numeric(length = nReps),
-                # q     = numeric(length = nReps),
-                # nT    = numeric(length = nReps),
-                # nS    = numeric(length = nReps),
-                # msy   = numeric(length = nReps),
-                # Umsy  = numeric(length = nReps) )
 
   # Now create a list object to ss and ms assessment model outputs
   am <- list ( ss=NULL, ms=NULL)
@@ -430,7 +423,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   kappa2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   tau2    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  dep     = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   epst    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   gamma   = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   Bt      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -447,8 +440,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   kappa2  = rep   (NA,length=nReps),
                   Sigma2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  tau2    = rep   (NA,nReps),
-                  dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  tau2    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  dep     = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   epst    = matrix(NA,nrow=nReps,ncol=nT,dimnames=list(rNames,1:nT)),
                   zetat   = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   gamma   = vector("numeric",length=nReps),
@@ -466,6 +459,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   blob <- obj
   blob$om <- om
   blob$am <- am
+
+  tau2mult      <- blob$assess$tau2mult
+  SigmaDiagMult <- blob$assess$SigmaDiagMult
 
   # Now create a vector of seed values, able to be lapplied over
   seeds <- rSeed + 1:nReps
@@ -486,10 +482,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     blob$om$deltat[i,,]     <- simEst$om$Bt
     blob$om$It[i,,]         <- simEst$om$It
     blob$om$ItTrue[i,,]     <- simEst$om$ItTrue
-    blob$om$dep[i,]         <- simEst$om$dep
-    blob$om$kappa2          <- simEst$om$kappa2
-    blob$om$Sigma2          <- simEst$om$Sigma2
-
+    blob$om$dep[i,,]        <- simEst$om$dep
 
     # Save AM results
     # Loop over single species
@@ -509,11 +502,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ss$q[i,s]           <- exp(estList$lnq)
         blob$am$ss$kappa2[i,s]      <- exp(estList$lnkappa2)
         blob$am$ss$tau2[i,s]        <- exp(estList$lntau2)
-        # blob$am$ss$dep[i,s]         <- simEst$ssFit[[s]]$fitrep$D
+        blob$am$ss$dep[i,s,]        <- fitrep$value[1:nT]/exp(estList$lnBmsy)/2
         blob$am$ss$epst[i,s,]       <- estList$eps_t
         blob$am$ss$gamma[i,s]       <- 2 / ( 1 + exp(-2 * estList$logit_gammaYr)) - 1
         blob$am$ss$Bt[i,s,]         <- fitrep$value[1:nT]
-        # blob$am$ss$Ut[i,s,]         <- blob$om$Ct/fitrep$value[1:nT]
         blob$am$ms$qbar[i]          <- exp(estList$lnqbar)
         blob$am$ms$Umsybar[i]       <- exp(estList$lnUmsybar)
         # Estimator performance flags
@@ -535,23 +527,25 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ms$Umsy[i,]           <- exp(estList$lnUmsy)
       blob$am$ms$msy[i,]            <- fitrep$value["msy"]
       blob$am$ms$q[i,]              <- exp(estList$lnq)
-      blob$am$ms$Sigma2[i,]         <- exp(estList$lnSigmaDiag)
+      blob$am$ms$Sigma2[i,]         <- exp(estList$lnSigmaDiag) * SigmaDiagMult
       blob$am$ms$kappa2[i]          <- exp(estList$lnkappa2)
-      blob$am$ms$tau2[i]            <- exp(estList$lntau2)
-      # blob$am$ms$dep[i,]            <- simEst$msFit$fitrep$D
+      blob$am$ms$tau2[i,]           <- exp(estList$lntau2) * tau2mult
       blob$am$ms$epst[i,]           <- estList$eps_t
       blob$am$ms$zetat[i,,]         <- estList$zeta_st
       blob$am$ms$gamma[i]           <- 2 / ( 1 + exp(-2 * estList$logit_gammaYr)) - 1
-      # blob$am$ms$chol[i,,]          <- simEst$msFit$fitrep$chol
       blob$am$ms$Bt[i,,]            <- matrix(fitrep$value[1:(nS*nT)],nrow=nS,byrow=FALSE)
-      # blob$am$ms$Ut[i,,]            <- blob$om$Ut/matrix(fitrep$value[1:(nS*nT)],nrow=nS,byrow=FALSE)
       blob$am$ms$qbar[i]            <- exp(estList$lnqbar)
       blob$am$ms$Umsybar[i]         <- exp(estList$lnUmsybar)
-    
+      # Some require looping over species
+      for (s in 1:nS)
+      {
+        blob$am$ms$dep[i,s,]        <- blob$am$ms$Bt[i,s,]/exp(estList$lnBmsy)/2
+      }
+
+
       # Estimator Performance Flags
       blob$am$ms$hesspd[i]          <- fitrep$pdHess
       blob$am$ms$maxGrad[i]         <- max(fitrep$gradient.fixed)
-      # blob$am$ms$rep[[i]]           <- fitrep
     }
   }
 
@@ -612,7 +606,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   Ct[nT] <- Ut[nT] * Bt[nT]
 
   # compute depletion value for comparison to model fit
-  dep <- Bt [ nT ] / Bmsy / 2.
+  dep <- Bt / Bmsy / 2
 
   # Return B, C, U and U series and
   # depletion value
