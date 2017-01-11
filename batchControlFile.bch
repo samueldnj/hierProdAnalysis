@@ -2,185 +2,365 @@
 parameter value
 # Scenarios
 #
-# Scenario 1 : corrM0varM0.1
+# Scenario 1 : cM0vM0.2
 #
-scenario$scenario1$ctrl$scenarioName 'corrM0varM0.1'
+scenario$scenario1$ctrl$scenarioName 'cM0vM0.2'
 scenario$scenario1$opMod$corrMult 0
-scenario$scenario1$opMod$kappaMult 0.1
+scenario$scenario1$opMod$kappaMult 0.2
 #
-# Scenario 2 : corrM0.2varM0.1
+# Scenario 2 : cM0.2vM0.2
 #
-scenario$scenario2$ctrl$scenarioName 'corrM0.2varM0.1'
+scenario$scenario2$ctrl$scenarioName 'cM0.2vM0.2'
 scenario$scenario2$opMod$corrMult 0.2
-scenario$scenario2$opMod$kappaMult 0.1
+scenario$scenario2$opMod$kappaMult 0.2
 #
-# Scenario 3 : corrM0.4varM0.1
+# Scenario 3 : cM0.4vM0.2
 #
-scenario$scenario3$ctrl$scenarioName 'corrM0.4varM0.1'
+scenario$scenario3$ctrl$scenarioName 'cM0.4vM0.2'
 scenario$scenario3$opMod$corrMult 0.4
-scenario$scenario3$opMod$kappaMult 0.1
+scenario$scenario3$opMod$kappaMult 0.2
 #
-# Scenario 4 : corrM0.6varM0.1
+# Scenario 4 : cM0.6vM0.2
 #
-scenario$scenario4$ctrl$scenarioName 'corrM0.6varM0.1'
+scenario$scenario4$ctrl$scenarioName 'cM0.6vM0.2'
 scenario$scenario4$opMod$corrMult 0.6
-scenario$scenario4$opMod$kappaMult 0.1
+scenario$scenario4$opMod$kappaMult 0.2
 #
-# Scenario 5 : corrM0.8varM0.1
+# Scenario 5 : cM0.8vM0.2
 #
-scenario$scenario5$ctrl$scenarioName 'corrM0.8varM0.1'
+scenario$scenario5$ctrl$scenarioName 'cM0.8vM0.2'
 scenario$scenario5$opMod$corrMult 0.8
-scenario$scenario5$opMod$kappaMult 0.1
+scenario$scenario5$opMod$kappaMult 0.2
 #
-# Scenario 6 : corrM1varM0.1
+# Scenario 6 : cM1vM0.2
 #
-scenario$scenario6$ctrl$scenarioName 'corrM1varM0.1'
+scenario$scenario6$ctrl$scenarioName 'cM1vM0.2'
 scenario$scenario6$opMod$corrMult 1
-scenario$scenario6$opMod$kappaMult 0.1
+scenario$scenario6$opMod$kappaMult 0.2
 #
-# Scenario 7 : corrM0varM0.5
+# Scenario 7 : cM0vM0.4
 #
-scenario$scenario7$ctrl$scenarioName 'corrM0varM0.5'
+scenario$scenario7$ctrl$scenarioName 'cM0vM0.4'
 scenario$scenario7$opMod$corrMult 0
-scenario$scenario7$opMod$kappaMult 0.5
+scenario$scenario7$opMod$kappaMult 0.4
 #
-# Scenario 8 : corrM0.2varM0.5
+# Scenario 8 : cM0.2vM0.4
 #
-scenario$scenario8$ctrl$scenarioName 'corrM0.2varM0.5'
+scenario$scenario8$ctrl$scenarioName 'cM0.2vM0.4'
 scenario$scenario8$opMod$corrMult 0.2
-scenario$scenario8$opMod$kappaMult 0.5
+scenario$scenario8$opMod$kappaMult 0.4
 #
-# Scenario 9 : corrM0.4varM0.5
+# Scenario 9 : cM0.4vM0.4
 #
-scenario$scenario9$ctrl$scenarioName 'corrM0.4varM0.5'
+scenario$scenario9$ctrl$scenarioName 'cM0.4vM0.4'
 scenario$scenario9$opMod$corrMult 0.4
-scenario$scenario9$opMod$kappaMult 0.5
+scenario$scenario9$opMod$kappaMult 0.4
 #
-# Scenario 10 : corrM0.6varM0.5
+# Scenario 10 : cM0.6vM0.4
 #
-scenario$scenario10$ctrl$scenarioName 'corrM0.6varM0.5'
+scenario$scenario10$ctrl$scenarioName 'cM0.6vM0.4'
 scenario$scenario10$opMod$corrMult 0.6
-scenario$scenario10$opMod$kappaMult 0.5
+scenario$scenario10$opMod$kappaMult 0.4
 #
-# Scenario 11 : corrM0.8varM0.5
+# Scenario 11 : cM0.8vM0.4
 #
-scenario$scenario11$ctrl$scenarioName 'corrM0.8varM0.5'
+scenario$scenario11$ctrl$scenarioName 'cM0.8vM0.4'
 scenario$scenario11$opMod$corrMult 0.8
-scenario$scenario11$opMod$kappaMult 0.5
+scenario$scenario11$opMod$kappaMult 0.4
 #
-# Scenario 12 : corrM1varM0.5
+# Scenario 12 : cM1vM0.4
 #
-scenario$scenario12$ctrl$scenarioName 'corrM1varM0.5'
+scenario$scenario12$ctrl$scenarioName 'cM1vM0.4'
 scenario$scenario12$opMod$corrMult 1
-scenario$scenario12$opMod$kappaMult 0.5
+scenario$scenario12$opMod$kappaMult 0.4
 #
-# Scenario 13 : corrM0varM1
+# Scenario 13 : cM0vM0.6
 #
-scenario$scenario13$ctrl$scenarioName 'corrM0varM1'
+scenario$scenario13$ctrl$scenarioName 'cM0vM0.6'
 scenario$scenario13$opMod$corrMult 0
-scenario$scenario13$opMod$kappaMult 1
+scenario$scenario13$opMod$kappaMult 0.6
 #
-# Scenario 14 : corrM0.2varM1
+# Scenario 14 : cM0.2vM0.6
 #
-scenario$scenario14$ctrl$scenarioName 'corrM0.2varM1'
+scenario$scenario14$ctrl$scenarioName 'cM0.2vM0.6'
 scenario$scenario14$opMod$corrMult 0.2
-scenario$scenario14$opMod$kappaMult 1
+scenario$scenario14$opMod$kappaMult 0.6
 #
-# Scenario 15 : corrM0.4varM1
+# Scenario 15 : cM0.4vM0.6
 #
-scenario$scenario15$ctrl$scenarioName 'corrM0.4varM1'
+scenario$scenario15$ctrl$scenarioName 'cM0.4vM0.6'
 scenario$scenario15$opMod$corrMult 0.4
-scenario$scenario15$opMod$kappaMult 1
+scenario$scenario15$opMod$kappaMult 0.6
 #
-# Scenario 16 : corrM0.6varM1
+# Scenario 16 : cM0.6vM0.6
 #
-scenario$scenario16$ctrl$scenarioName 'corrM0.6varM1'
+scenario$scenario16$ctrl$scenarioName 'cM0.6vM0.6'
 scenario$scenario16$opMod$corrMult 0.6
-scenario$scenario16$opMod$kappaMult 1
+scenario$scenario16$opMod$kappaMult 0.6
 #
-# Scenario 17 : corrM0.8varM1
+# Scenario 17 : cM0.8vM0.6
 #
-scenario$scenario17$ctrl$scenarioName 'corrM0.8varM1'
+scenario$scenario17$ctrl$scenarioName 'cM0.8vM0.6'
 scenario$scenario17$opMod$corrMult 0.8
-scenario$scenario17$opMod$kappaMult 1
+scenario$scenario17$opMod$kappaMult 0.6
 #
-# Scenario 18 : corrM1varM1
+# Scenario 18 : cM1vM0.6
 #
-scenario$scenario18$ctrl$scenarioName 'corrM1varM1'
+scenario$scenario18$ctrl$scenarioName 'cM1vM0.6'
 scenario$scenario18$opMod$corrMult 1
-scenario$scenario18$opMod$kappaMult 1
+scenario$scenario18$opMod$kappaMult 0.6
 #
-# Scenario 19 : corrM0varM1.5
+# Scenario 19 : cM0vM0.8
 #
-scenario$scenario19$ctrl$scenarioName 'corrM0varM1.5'
+scenario$scenario19$ctrl$scenarioName 'cM0vM0.8'
 scenario$scenario19$opMod$corrMult 0
-scenario$scenario19$opMod$kappaMult 1.5
+scenario$scenario19$opMod$kappaMult 0.8
 #
-# Scenario 20 : corrM0.2varM1.5
+# Scenario 20 : cM0.2vM0.8
 #
-scenario$scenario20$ctrl$scenarioName 'corrM0.2varM1.5'
+scenario$scenario20$ctrl$scenarioName 'cM0.2vM0.8'
 scenario$scenario20$opMod$corrMult 0.2
-scenario$scenario20$opMod$kappaMult 1.5
+scenario$scenario20$opMod$kappaMult 0.8
 #
-# Scenario 21 : corrM0.4varM1.5
+# Scenario 21 : cM0.4vM0.8
 #
-scenario$scenario21$ctrl$scenarioName 'corrM0.4varM1.5'
+scenario$scenario21$ctrl$scenarioName 'cM0.4vM0.8'
 scenario$scenario21$opMod$corrMult 0.4
-scenario$scenario21$opMod$kappaMult 1.5
+scenario$scenario21$opMod$kappaMult 0.8
 #
-# Scenario 22 : corrM0.6varM1.5
+# Scenario 22 : cM0.6vM0.8
 #
-scenario$scenario22$ctrl$scenarioName 'corrM0.6varM1.5'
+scenario$scenario22$ctrl$scenarioName 'cM0.6vM0.8'
 scenario$scenario22$opMod$corrMult 0.6
-scenario$scenario22$opMod$kappaMult 1.5
+scenario$scenario22$opMod$kappaMult 0.8
 #
-# Scenario 23 : corrM0.8varM1.5
+# Scenario 23 : cM0.8vM0.8
 #
-scenario$scenario23$ctrl$scenarioName 'corrM0.8varM1.5'
+scenario$scenario23$ctrl$scenarioName 'cM0.8vM0.8'
 scenario$scenario23$opMod$corrMult 0.8
-scenario$scenario23$opMod$kappaMult 1.5
+scenario$scenario23$opMod$kappaMult 0.8
 #
-# Scenario 24 : corrM1varM1.5
+# Scenario 24 : cM1vM0.8
 #
-scenario$scenario24$ctrl$scenarioName 'corrM1varM1.5'
+scenario$scenario24$ctrl$scenarioName 'cM1vM0.8'
 scenario$scenario24$opMod$corrMult 1
-scenario$scenario24$opMod$kappaMult 1.5
+scenario$scenario24$opMod$kappaMult 0.8
 #
-# Scenario 25 : corrM0varM2
+# Scenario 25 : cM0vM1
 #
-scenario$scenario25$ctrl$scenarioName 'corrM0varM2'
+scenario$scenario25$ctrl$scenarioName 'cM0vM1'
 scenario$scenario25$opMod$corrMult 0
-scenario$scenario25$opMod$kappaMult 2
+scenario$scenario25$opMod$kappaMult 1
 #
-# Scenario 26 : corrM0.2varM2
+# Scenario 26 : cM0.2vM1
 #
-scenario$scenario26$ctrl$scenarioName 'corrM0.2varM2'
+scenario$scenario26$ctrl$scenarioName 'cM0.2vM1'
 scenario$scenario26$opMod$corrMult 0.2
-scenario$scenario26$opMod$kappaMult 2
+scenario$scenario26$opMod$kappaMult 1
 #
-# Scenario 27 : corrM0.4varM2
+# Scenario 27 : cM0.4vM1
 #
-scenario$scenario27$ctrl$scenarioName 'corrM0.4varM2'
+scenario$scenario27$ctrl$scenarioName 'cM0.4vM1'
 scenario$scenario27$opMod$corrMult 0.4
-scenario$scenario27$opMod$kappaMult 2
+scenario$scenario27$opMod$kappaMult 1
 #
-# Scenario 28 : corrM0.6varM2
+# Scenario 28 : cM0.6vM1
 #
-scenario$scenario28$ctrl$scenarioName 'corrM0.6varM2'
+scenario$scenario28$ctrl$scenarioName 'cM0.6vM1'
 scenario$scenario28$opMod$corrMult 0.6
-scenario$scenario28$opMod$kappaMult 2
+scenario$scenario28$opMod$kappaMult 1
 #
-# Scenario 29 : corrM0.8varM2
+# Scenario 29 : cM0.8vM1
 #
-scenario$scenario29$ctrl$scenarioName 'corrM0.8varM2'
+scenario$scenario29$ctrl$scenarioName 'cM0.8vM1'
 scenario$scenario29$opMod$corrMult 0.8
-scenario$scenario29$opMod$kappaMult 2
+scenario$scenario29$opMod$kappaMult 1
 #
-# Scenario 30 : corrM1varM2
+# Scenario 30 : cM1vM1
 #
-scenario$scenario30$ctrl$scenarioName 'corrM1varM2'
+scenario$scenario30$ctrl$scenarioName 'cM1vM1'
 scenario$scenario30$opMod$corrMult 1
-scenario$scenario30$opMod$kappaMult 2
+scenario$scenario30$opMod$kappaMult 1
+#
+# Scenario 31 : cM0vM1.2
+#
+scenario$scenario31$ctrl$scenarioName 'cM0vM1.2'
+scenario$scenario31$opMod$corrMult 0
+scenario$scenario31$opMod$kappaMult 1.2
+#
+# Scenario 32 : cM0.2vM1.2
+#
+scenario$scenario32$ctrl$scenarioName 'cM0.2vM1.2'
+scenario$scenario32$opMod$corrMult 0.2
+scenario$scenario32$opMod$kappaMult 1.2
+#
+# Scenario 33 : cM0.4vM1.2
+#
+scenario$scenario33$ctrl$scenarioName 'cM0.4vM1.2'
+scenario$scenario33$opMod$corrMult 0.4
+scenario$scenario33$opMod$kappaMult 1.2
+#
+# Scenario 34 : cM0.6vM1.2
+#
+scenario$scenario34$ctrl$scenarioName 'cM0.6vM1.2'
+scenario$scenario34$opMod$corrMult 0.6
+scenario$scenario34$opMod$kappaMult 1.2
+#
+# Scenario 35 : cM0.8vM1.2
+#
+scenario$scenario35$ctrl$scenarioName 'cM0.8vM1.2'
+scenario$scenario35$opMod$corrMult 0.8
+scenario$scenario35$opMod$kappaMult 1.2
+#
+# Scenario 36 : cM1vM1.2
+#
+scenario$scenario36$ctrl$scenarioName 'cM1vM1.2'
+scenario$scenario36$opMod$corrMult 1
+scenario$scenario36$opMod$kappaMult 1.2
+#
+# Scenario 37 : cM0vM1.4
+#
+scenario$scenario37$ctrl$scenarioName 'cM0vM1.4'
+scenario$scenario37$opMod$corrMult 0
+scenario$scenario37$opMod$kappaMult 1.4
+#
+# Scenario 38 : cM0.2vM1.4
+#
+scenario$scenario38$ctrl$scenarioName 'cM0.2vM1.4'
+scenario$scenario38$opMod$corrMult 0.2
+scenario$scenario38$opMod$kappaMult 1.4
+#
+# Scenario 39 : cM0.4vM1.4
+#
+scenario$scenario39$ctrl$scenarioName 'cM0.4vM1.4'
+scenario$scenario39$opMod$corrMult 0.4
+scenario$scenario39$opMod$kappaMult 1.4
+#
+# Scenario 40 : cM0.6vM1.4
+#
+scenario$scenario40$ctrl$scenarioName 'cM0.6vM1.4'
+scenario$scenario40$opMod$corrMult 0.6
+scenario$scenario40$opMod$kappaMult 1.4
+#
+# Scenario 41 : cM0.8vM1.4
+#
+scenario$scenario41$ctrl$scenarioName 'cM0.8vM1.4'
+scenario$scenario41$opMod$corrMult 0.8
+scenario$scenario41$opMod$kappaMult 1.4
+#
+# Scenario 42 : cM1vM1.4
+#
+scenario$scenario42$ctrl$scenarioName 'cM1vM1.4'
+scenario$scenario42$opMod$corrMult 1
+scenario$scenario42$opMod$kappaMult 1.4
+#
+# Scenario 43 : cM0vM1.6
+#
+scenario$scenario43$ctrl$scenarioName 'cM0vM1.6'
+scenario$scenario43$opMod$corrMult 0
+scenario$scenario43$opMod$kappaMult 1.6
+#
+# Scenario 44 : cM0.2vM1.6
+#
+scenario$scenario44$ctrl$scenarioName 'cM0.2vM1.6'
+scenario$scenario44$opMod$corrMult 0.2
+scenario$scenario44$opMod$kappaMult 1.6
+#
+# Scenario 45 : cM0.4vM1.6
+#
+scenario$scenario45$ctrl$scenarioName 'cM0.4vM1.6'
+scenario$scenario45$opMod$corrMult 0.4
+scenario$scenario45$opMod$kappaMult 1.6
+#
+# Scenario 46 : cM0.6vM1.6
+#
+scenario$scenario46$ctrl$scenarioName 'cM0.6vM1.6'
+scenario$scenario46$opMod$corrMult 0.6
+scenario$scenario46$opMod$kappaMult 1.6
+#
+# Scenario 47 : cM0.8vM1.6
+#
+scenario$scenario47$ctrl$scenarioName 'cM0.8vM1.6'
+scenario$scenario47$opMod$corrMult 0.8
+scenario$scenario47$opMod$kappaMult 1.6
+#
+# Scenario 48 : cM1vM1.6
+#
+scenario$scenario48$ctrl$scenarioName 'cM1vM1.6'
+scenario$scenario48$opMod$corrMult 1
+scenario$scenario48$opMod$kappaMult 1.6
+#
+# Scenario 49 : cM0vM1.8
+#
+scenario$scenario49$ctrl$scenarioName 'cM0vM1.8'
+scenario$scenario49$opMod$corrMult 0
+scenario$scenario49$opMod$kappaMult 1.8
+#
+# Scenario 50 : cM0.2vM1.8
+#
+scenario$scenario50$ctrl$scenarioName 'cM0.2vM1.8'
+scenario$scenario50$opMod$corrMult 0.2
+scenario$scenario50$opMod$kappaMult 1.8
+#
+# Scenario 51 : cM0.4vM1.8
+#
+scenario$scenario51$ctrl$scenarioName 'cM0.4vM1.8'
+scenario$scenario51$opMod$corrMult 0.4
+scenario$scenario51$opMod$kappaMult 1.8
+#
+# Scenario 52 : cM0.6vM1.8
+#
+scenario$scenario52$ctrl$scenarioName 'cM0.6vM1.8'
+scenario$scenario52$opMod$corrMult 0.6
+scenario$scenario52$opMod$kappaMult 1.8
+#
+# Scenario 53 : cM0.8vM1.8
+#
+scenario$scenario53$ctrl$scenarioName 'cM0.8vM1.8'
+scenario$scenario53$opMod$corrMult 0.8
+scenario$scenario53$opMod$kappaMult 1.8
+#
+# Scenario 54 : cM1vM1.8
+#
+scenario$scenario54$ctrl$scenarioName 'cM1vM1.8'
+scenario$scenario54$opMod$corrMult 1
+scenario$scenario54$opMod$kappaMult 1.8
+#
+# Scenario 55 : cM0vM2
+#
+scenario$scenario55$ctrl$scenarioName 'cM0vM2'
+scenario$scenario55$opMod$corrMult 0
+scenario$scenario55$opMod$kappaMult 2
+#
+# Scenario 56 : cM0.2vM2
+#
+scenario$scenario56$ctrl$scenarioName 'cM0.2vM2'
+scenario$scenario56$opMod$corrMult 0.2
+scenario$scenario56$opMod$kappaMult 2
+#
+# Scenario 57 : cM0.4vM2
+#
+scenario$scenario57$ctrl$scenarioName 'cM0.4vM2'
+scenario$scenario57$opMod$corrMult 0.4
+scenario$scenario57$opMod$kappaMult 2
+#
+# Scenario 58 : cM0.6vM2
+#
+scenario$scenario58$ctrl$scenarioName 'cM0.6vM2'
+scenario$scenario58$opMod$corrMult 0.6
+scenario$scenario58$opMod$kappaMult 2
+#
+# Scenario 59 : cM0.8vM2
+#
+scenario$scenario59$ctrl$scenarioName 'cM0.8vM2'
+scenario$scenario59$opMod$corrMult 0.8
+scenario$scenario59$opMod$kappaMult 2
+#
+# Scenario 60 : cM1vM2
+#
+scenario$scenario60$ctrl$scenarioName 'cM1vM2'
+scenario$scenario60$opMod$corrMult 1
+scenario$scenario60$opMod$kappaMult 2
 #
 # File Ends <not run>.
 # Management Procedures

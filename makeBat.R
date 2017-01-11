@@ -8,7 +8,7 @@
 parList <- list( "opMod$corrMult" = seq(0,1,by=0.2),
                  "opMod$kappaMult" = seq(0.2,2,by=0.2)
                            )
-labels <- c("corrM","varM")
+labels <- c("cM","vM")
 
 
 # Function to create batch files from the lists above

@@ -17,7 +17,6 @@ plotCorrContour <- function ( table     = "statTable.csv",
   # Load stat table
   tablePath <- file.path ( getwd(),"project/Statistics",table)
   table <- read.csv (tablePath, header=TRUE, stringsAsFactors=FALSE)
-
   # reduce to the correct MP
   table <- table [ which(table$mp == mpLabel ),]
 
@@ -60,7 +59,6 @@ plotCorrContour <- function ( table     = "statTable.csv",
         z[,yIdx,xIdx] <- as.numeric(MSE)
       }
     } 
-
     specList[[s]] <- list( x = x, y = y, z = z )
   }
   names(specList) <- species
@@ -68,6 +66,7 @@ plotCorrContour <- function ( table     = "statTable.csv",
   par(mfrow = c(nS,2), mar = c(3,3,3,3), oma = c(4,4,4,4))
   for (s in 1:nS)
   {
+    browser()
     # Create a raster from the stat table info 
     bioRastObj <- list (  x = specList[[s]]$x,
                           y = specList[[s]]$y,
