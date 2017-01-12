@@ -433,7 +433,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     {
       repProd <- FALSE
       cat ( activeFileRoot, 
-              " didn't find local min.\n", sep="" )
+              " abruptly stopped optimisation.\n", sep="" )
         cat( "repeat i = ", i+1, ".\n", sep = "")
         # Increment lnBMSY and tighten sBMSY
         par$lnBmsy <- lnBmsy *(1+(i)*0.2)
