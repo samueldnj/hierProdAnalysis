@@ -6,10 +6,9 @@
 # Function below also requires abbreviations of the 
 
 parList <- list( "opMod$corrMult" = seq(0,1,by=0.2),
-                             "opMod$kappaMult" = c(0.1,0.5,1,1.5,2)
+                 "opMod$kappaMult" = seq(0.1,1.5,by=0.2)
                            )
-labels <- c("corrM","varM")
-
+labels <- c("cM","kM")
 
 # Function to create batch files from the lists above
 batCreate <- function ( parList, outFile, label )
@@ -38,4 +37,4 @@ batCreate <- function ( parList, outFile, label )
 }
 
 
-
+batCreate(parList,"autoBat.txt",labels)

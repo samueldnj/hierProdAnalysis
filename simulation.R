@@ -125,13 +125,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   Umult <- obj$opMod$Umult
   # Then get time of peak fishing mortality
   tUpeak <- obj$opMod$tUpeak
+  tUtrough  <- obj$opMod$tUtrough
   # Compute gradients of the pieces
   Ugrad1 <- ( Umult [ 2 ] - Umult [ 1 ] ) / (tUpeak - 1 )
   Ugrad2 <- ( Umult [ 3 ] - Umult [ 2 ] ) / 
-                  ( nT - tUpeak )
+                  ( tUtrough - tUpeak )
   # Populate Ut with multipliers of Umsy
-  UtProp [ 1:tUpeak ]         <- Umult [ 1 ] + 0:(tUpeak - 1) * Ugrad1
-  UtProp [ (tUpeak + 1):nT ]  <- Umult [ 2 ] + 1:(nT - tUpeak) * Ugrad2
+  UtProp [ 1:tUpeak ]                <- Umult [ 1 ] + 0:(tUpeak - 1) * Ugrad1
+  UtProp [ (tUpeak + 1):tUtrough  ]  <- Umult [ 2 ] + 1:(tUtrough - tUpeak) * Ugrad2
+  UtProp [ (tUtrough+1):nT        ]  <- Umult [ 3 ]
 
   # Overwrite Ft with actual F values
   Ust <- matrix ( UtProp, nrow = nS, ncol = nT, byrow = TRUE )
@@ -146,6 +148,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             nT = nT, Ut = Ust[s,], 
                             epst = epst,
                             zetat = zetat[s,] )
+    if( obj$opMod$identObs & (s > 1) ) deltat[s,] <- deltat[1,]
     obs <- .obsModel (  Bt = bio $ Bt, q = obj$opMod$q[s], nT = nT,
                         deltat = deltat[s,], tau = tau[s] )
 

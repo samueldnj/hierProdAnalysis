@@ -29,9 +29,10 @@
 
 # Clean up
 rm (list = ls())
+gc()
 
 ## Okay, let's start by sourcing the other scripts
-source ( "packages.R" )
+source ( "init.R" )
 source ( "simulation.R" )
 source ( "tools.R" )
 source ( "stats.R" )

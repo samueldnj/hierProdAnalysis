@@ -9,5 +9,10 @@
 #
 # --------------------------------------------------------------------------
 
-library ( "coda" )
-library ( "dplyr" )
+# Load packages
+library( "coda" )
+library( "dplyr" )
+library( "TMB" )
+library( "raster" )
+library( "grid" )
+library( "RColorBrewer" )

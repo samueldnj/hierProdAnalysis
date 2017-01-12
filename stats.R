@@ -145,7 +145,7 @@
   msErr <- list ( 
                 Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
                 Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                kappa2= matrix ( NA, nrow=nReps, ncol=1),
+                kappa2= matrix ( NA, nrow = nReps, ncol=1),
                 Sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2  = matrix ( NA, nrow = nReps, ncol = 1 ),
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
