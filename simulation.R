@@ -378,10 +378,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Read in output from em
     mcPar   <- try ( read.table ( mcParFile, header = TRUE), silent=TRUE )
     mcBio   <- try ( read.table (mcBioFile), silent=TRUE )
-    fitrep  <- lisread ( repFile )
+    fitrep  <- try ( lisread ( repFile ),silent=TRUE)
     # Check if there was MCMC output, if not, go down the list of possible 
     # reasons, and rerun the EM
-
     if (class(mcPar) == "try-error")
     {
       hessPosDef <- FALSE
@@ -405,7 +404,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # If the model stopped for another reason, but the max gradient is
       # too high, or the positive penalty was invoked, then Increment
       # lnBmsy and rerun.
-      if ( fitrep$iExit <= 1 & (abs(fitrep$maxGrad) > 1e-4 | fitrep$fpen > 0 ) )
+      if ( fitrep$iExit <= 1 & (abs(fitrep$maxGrad) > 1e-4 | fitrep$fpen > 0 ) |
+            (class(fitrep) == "try-error") )
       {
         localMin <- FALSE
         cat ( activeFileRoot, 
@@ -461,9 +461,18 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     file.copy( datFile, badDatFile, overwrite=TRUE )
   }
 
+
   # Delete output that will trick procedure in the future
   file.remove(mcParFile,mcBioFile)
   if (file.exists(psvFile)) file.remove(psvFile)
+  if (file.exists(repFile)) file.remove(repFile)
+  else {
+    fitrep      <- NA
+    mcPar       <- NA
+    mcBio       <- NA
+    localMin    <- NA
+    hessPosDef  <- NA
+  }
 
   # Return
   out <- list ( fitrep = fitrep, 
@@ -681,6 +690,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Loop over single species
     for ( s in 1:nS )
     {
+      if ( is.na(simEst$ssFit[[s]]$fitrep) ) next
       blob$am$ss$Bmsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Bmsy
       blob$am$ss$Umsy[i,s]        <- simEst$ssFit[[s]]$fitrep$Umsy
       blob$am$ss$msy[i,s]         <- simEst$ssFit[[s]]$fitrep$msy
@@ -709,6 +719,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ss$maxGrad[i,s]     <- simEst$ssFit[[s]]$fitrep$maxGrad
     }
 
+    if (is.na(simEst$msFit$fitrep)) next
     # Now multispecies
     blob$am$ms$Bmsy[i,]           <- simEst$msFit$fitrep$Bmsy
     blob$am$ms$Umsy[i,]           <- simEst$msFit$fitrep$Umsy

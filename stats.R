@@ -18,15 +18,15 @@
 # usage:    to produce output for a project and create .csv tables of 
 #           performance statistics
 # side-eff: creates tables of statistics in ./project/stats/
-.statTableMSE <- function (sims=1,tabName = "statTable.csv")
+.statTableMSE <- function( sims=1, tabName = "statTable.csv" )
 { 
   # call function
   tableList <- lapply ( X = sims, FUN = .simStatMSE )
 
   # now make the table and return
-  statTable <-  do.call("rbind",tableList)
-  savePath <- file.path(getwd(),"project","Statistics",tabName)
-  write.csv ( statTable, file = savePath )
+  statTable <-  do.call( "rbind", tableList )
+  savePath  <- file.path(getwd(),"project","Statistics",tabName)
+  write.csv( statTable, file = savePath )
   statTable
 }
 
@@ -146,8 +146,8 @@
                 Bmsy   = matrix ( NA, nrow = nReps, ncol = nS ),
                 Umsy   = matrix ( NA, nrow = nReps, ncol = nS ),
                 kappa2 = matrix ( NA, nrow = nReps, ncol = 1),
-                Sigma2 = matrix ( NA, nrow = nReps, ncol = 1 ),
-                tau2   = matrix ( NA, nrow = nReps, ncol = 1 ),
+                Sigma2 = matrix ( NA, nrow = nReps, ncol = nS ),
+                tau2   = matrix ( NA, nrow = nReps, ncol = nS ),
                 q      = matrix ( NA, nrow = nReps, ncol = nS ),
                 mlnq   = matrix ( NA, nrow = nReps, ncol = 1 ),
                 dep    = matrix ( NA, nrow = nReps, ncol = nS ),
@@ -160,7 +160,6 @@
 
   # now append Sigma2 to the err list
   ms$err.mle <- msErr
-  browser()
   # Fill in ss MLE relative errors
   for ( s in 1:nS )
   {
@@ -194,7 +193,6 @@
   ss$err.post <- ssErr
   ms$err.post <- msErr
   # first calculate SS posterior mean and median
-  browser()
   ssMCMC <- ss$mcPar
   ssMCMC <- apply ( X = ssMCMC, FUN = mean, MARGIN = c(1,2,4))
   # then MS
@@ -218,16 +216,15 @@
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.post$kappa2     <- (msMCMC[,s,"kappa2"] - opMod$pars$kappa2)/opMod$pars$kappa2
-      ms$err.post$Sigma2     <- (msMCMC[,s,"Sigma2"] - mean(opMod$pars$Sigma2))/mean(opMod$pars$Sigma2)
-      ms$err.post$tau2       <- (msMCMC[,s,"tau2"] - mean(opMod$tau2))/mean(opMod$tau2)
-      # ms$err.post$mlnq       <- t(ms$mlnq - mean(log(opMod$q)))
+      ms$err.post$kappa2[,s]     <- (msMCMC[,s,"kappa2"] - opMod$pars$kappa2)/opMod$pars$kappa2
+      ms$err.post$mlnq[,s]       <- t(ms$mlnq - mean(log(opMod$q)))
     }
 
+    ms$err.post$Sigma2[,s] <- (msMCMC[,s,"Sigma2"] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
+    ms$err.post$tau2[,s]   <- (msMCMC[,s,"tau2"] - opMod$tau2[s])/opMod$tau2[s]
     ms$err.post$Bmsy[,s]   <- (msMCMC[,s,"Bmsy"] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
     ms$err.post$Umsy[,s]   <- (msMCMC[,s,"Umsy"] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
     ms$err.post$q[,s]      <- (msMCMC[,s,"q"] - opMod$q[s])/opMod$q[s]
-    # ms$err.post$mlnq[,s]   <- (ms$mlnq[,s] - mean(log(opMod$q)))
     ms$err.post$dep[,s]    <- (msMCMC[,s,"dep_bar"] - om$dep[,s])/om$dep[,s]
     ms$err.post$BnT[,s]    <- (msMCMC[,s,"BnT"] - om$Bt[,s,nT])/om$Bt[,s,nT]
   }

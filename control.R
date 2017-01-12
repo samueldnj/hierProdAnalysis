@@ -9,21 +9,20 @@
 # Date: 24 August, 2016
 # 
 # Sourcing scripts:
-#   packages.R
+#   init.R
 # 	simulation.R
 # 	tools.R
 #   stats.R
 #   plots.R
 #
 # Estimator executables (ADMB):
-#		ssProdCV
-#		msProdCV
+#		msProd
 #
 # Control file
-#		controlFile.txt
+#		simCtlFile.txt
 #
-# ToDo: 4.	Code TMB models (probably a separate script)
-#       5.  Missing values in msProd and ssProd
+# ToDo: - Shared prior on Umsy?
+#       - 
 # 
 # --------------------------------------------------------------------------
 

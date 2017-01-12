@@ -169,6 +169,7 @@ doBatchRun <- function( batchFolderName )
 
     # Get list of current files (we don't want to unnecessary duplication)
     wdContents <- list.files("./")
+    mainWd <- getwd()
     # Create folder names for batch running
     batchFolderNames <- paste("parBat",prefix,1:nBatchFiles,sep="")
     simFolderNames <- paste("sim_",batchFolderNames,sep="")
@@ -196,8 +197,8 @@ doBatchRun <- function( batchFolderName )
     # append main WD path to the front of the batchFolderNames
     batchFolderNames <- file.path(getwd(),batchFolderNames)
 
-    tmp     <- clusterApply(cl, x=batchFolderNames, fun=doBatchRun)
-    # tmp <-lapply(X=file.path(batchFolderNames), FUN=doBatchRun)
+    # tmp     <- clusterApply(cl, x=batchFolderNames, fun=doBatchRun)
+    tmp <-lapply(X=file.path(batchFolderNames), FUN=doBatchRun)
     stopCluster(cl)
 
     ### Make a vectorised function later!! ###
@@ -214,7 +215,7 @@ doBatchRun <- function( batchFolderName )
       # Find the sim output folder in the project file
       batchDir <- file.path(batchFolderNames[i],"project",simFolderNames[i])
       # Set up the destination
-      destination <- file.path(getwd(),"project")
+      destination <- file.path(mainWD,"project")
 
       cat("\n", "Moving simulation ",i," sim folder to: ","\n",
         paste(getwd(),"/project/",sep=""),"\n", sep="")
