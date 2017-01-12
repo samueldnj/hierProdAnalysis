@@ -106,8 +106,8 @@ PARAMETER_SECTION
   init_bounded_number alpha_tau(1,10,phz_varPriors); // tau prior shape (shared)
   init_bounded_number beta_tau(0.01,4,phz_varPriors); // tau prior scale (shared)
   // Catchability
-  init_bounded_number mlnq(-3.,3.,phz_mlnq);      // logq prior mean (shared)
-  init_number s2lnq(-1);                          // logq prior sd (shared)
+  init_bounded_number mlnq(-1.,1.,phz_mlnq);      // logq prior mean (shared)
+  init_number s2lnq(phz_s2lnq);                          // logq prior sd (shared)
   init_bounded_number lnqbar(-5,2,phz_lnq);       // mean lnq across species
   init_bounded_number lntau2q(-5,2,phz_tau2q); // logqs prior var
 
@@ -123,7 +123,7 @@ PARAMETER_SECTION
   objective_function_value f;
 
   // variables for conditional estimates of lnq(s)
-  vector lnqhatSpec(1,nS);
+  vector lnq_s(1,nS);
   sdreport_vector q(1,nS);
 
   // variables to hold derived values
@@ -300,7 +300,7 @@ FUNCTION stateDynamics
 FUNCTION obsModel
   zSum=0.0;
   validObs.initialize();
-  lnqhatSpec.initialize();
+  lnq_s.initialize();
   ss.initialize();
   //cout << "Inside Observation Model" << endl;
   for ( int s=1;s<=nS;s++)
@@ -318,10 +318,10 @@ FUNCTION obsModel
     }
     //cout << "z = " << z(s) << endl;
     // Compute conditional posterior mode of lnq_hat (BDA3 eq 11.10)
-    if (s == 1) lnqhatSpec(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
+    if (s == 1) lnq_s(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
     if (s > 1)
     {
-      lnqhatSpec(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
+      lnq_s(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
     }
     //lnqhat(s) = zSum(s)/validObs(s); // mean residual for non-hierarchical model
     //cout << "lnqhat = " << lnqhat(s) << endl;
@@ -330,7 +330,7 @@ FUNCTION obsModel
       //cout << "Computing squared residual for time " << t << endl;
       if(It(s,t)>0.0)
       {
-        ss(s) += pow (z(s,t) - lnqhatSpec(s),2.0);
+        ss(s) += pow (z(s,t) - lnq_s(s),2.0);
       }
     }
     //cout << "Species " << s << " obs model complete" << endl;
@@ -377,7 +377,7 @@ FUNCTION calcPriors
   tauPrior.initialize();    // obs error variance prior (vector valued)
   totalPrior.initialize();  // sum of priors
 
-  // First, the priors that are calculated in every phase
+  // First, the Schaefer mode priors
   // msy
   if ( phz_Bmsy > 0)
   {
@@ -391,11 +391,12 @@ FUNCTION calcPriors
   }
   
   // lnq prior (shared)
-  if (phz_mlnq > 0)
+  if (phz_lnq > 0)
   {
-    if (nS == 1) lnqPrior = pow ( lnqhatSpec - mlnq, 2 ) / s2lnq /2;
+    if (nS == 1) lnqPrior = pow ( lnq_s - mlnq, 2 ) / s2lnq /2;
     else {
-      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lntau2q);
+      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnq_s - lnqbar)/mfexp(lntau2q);
+      lnqPrior += lntau2q;
       if ( value(lnqbar) != value(mlnq) ) 
       {
         lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
@@ -454,7 +455,7 @@ FUNCTION mcDumpOut
     for ( int s=1;s<=nS;s++)
     {
       // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnqhatSpec(s));
+      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
       mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
       mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
 
@@ -470,7 +471,7 @@ FUNCTION mcDumpOut
     for ( int s=1;s<=nS;s++)
     {
       // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnqhatSpec(s));
+      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
       mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
       mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
 
@@ -523,7 +524,7 @@ REPORT_SECTION
   report << "# msy" << endl;
   report << msy << endl;
   report <<"# q" << endl;
-  report << mfexp(lnqhatSpec) <<endl;
+  report << mfexp(lnq_s) <<endl;
   if (nS > 1)
   {
     report << "# qbar" << endl;

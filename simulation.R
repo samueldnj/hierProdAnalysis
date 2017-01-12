@@ -26,7 +26,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Run simEst Procedure
   blob <- .simEstProc( obj = controlList, quiet )
   # Make error distributions
-  blob <- .makeRelErrorDists ( blob )
+  # blob <- .makeRelErrorDists ( blob )
   
   # save output to project folder
   # First, if a folder name isn't nominated, create a default sim folder
@@ -630,23 +630,23 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Bmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   msy     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  kappa2  = rep   (NA,length=nReps),
-                  Sigma2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  tau2    = rep   (NA,nReps),
+                  kappa2  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"kappa2")),
+                  Sigma2  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,sNames)),
+                  tau2    = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"tau2")),
                   dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   epst    = matrix(NA,nrow=nReps,ncol=nT,dimnames=list(rNames,1:nT)),
                   zetat   = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  gamma   = vector("numeric",length=nReps),
+                  gamma   = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"gamma")),
                   chol    = array (NA,dim=c(nReps,nS,nS),dimnames=list(rNames,sNames,sNames)),
                   Bt      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  mlnq    = vector("numeric",length=nReps),
-                  slnq    = vector("numeric",length=nReps),
+                  mlnq    = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"mlnq")),
+                  s2lnq   = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"s2lnq")),
                   mcPar   = array (NA,dim=c(nReps,nS,nMC,nMCparMS),dimnames=list(rNames,sNames,mcNo,NULL)),
                   mcBio   = array (NA,dim=c(nReps,nS,nMC,nT),dimnames=list(rNames,sNames,mcNo,mcBt)),
-                  locmin  = vector(mode="logical",length=nReps),
-                  hesspd  = vector(mode="logical",length=nReps),
-                  maxGrad = vector(mode="logical",length=nReps))
+                  locmin  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"locmin")),
+                  hesspd  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"hesspd")),
+                  maxGrad = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"maxGrad")))
 
 
   # The BLOOOOOOBBBBBB
@@ -715,8 +715,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     blob$am$ms$msy[i,]            <- simEst$msFit$fitrep$msy
     blob$am$ms$q[i,]              <- simEst$msFit$fitrep$q
     blob$am$ms$Sigma2[i,]         <- simEst$msFit$fitrep$Sigma2
-    blob$am$ms$kappa2[i]          <- simEst$msFit$fitrep$kappa2
-    blob$am$ms$tau2[i]            <- simEst$msFit$fitrep$tau2
+    blob$am$ms$kappa2[i,]         <- simEst$msFit$fitrep$kappa2
+    blob$am$ms$tau2[i,]           <- simEst$msFit$fitrep$tau2
     blob$am$ms$dep[i,]            <- simEst$msFit$fitrep$D
     blob$am$ms$epst[i,]           <- simEst$msFit$fitrep$epst
     blob$am$ms$zetat[i,,]         <- simEst$msFit$fitrep$zetat
@@ -724,8 +724,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     blob$am$ms$chol[i,,]          <- simEst$msFit$fitrep$chol
     blob$am$ms$Bt[i,,]            <- simEst$msFit$fitrep$Bt
     blob$am$ms$Ut[i,,]            <- simEst$msFit$fitrep$Ut
-    blob$am$ms$mlnq[i]            <- simEst$msFit$fitrep$mlnq
-    blob$am$ms$slnq[i]            <- simEst$msFit$fitrep$slnq
+    blob$am$ms$mlnq[i,]           <- simEst$msFit$fitrep$mlnq
+    blob$am$ms$s2lnq[i,]          <- simEst$msFit$fitrep$slnq
     # Split up mcPar and mcBio for the ms model
     # might have NPD hessian, so leave as NAs if so
     if (simEst$msFit$hessPosDef)
@@ -743,9 +743,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       }
     }
     # Estimator Performance Flags
-    blob$am$ms$locmin[i]          <- simEst$msFit$localMin
-    blob$am$ms$hesspd[i]          <- simEst$msFit$hessPosDef
-    blob$am$ms$maxGrad[i]         <- simEst$msFit$fitrep$maxGrad
+    blob$am$ms$locmin[i,]          <- simEst$msFit$localMin
+    blob$am$ms$hesspd[i,]          <- simEst$msFit$hessPosDef
+    blob$am$ms$maxGrad[i,]         <- simEst$msFit$fitrep$maxGrad
   }
 
   cat ( "Completed ", nReps, " replicates.\n", sep = "" )

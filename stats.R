@@ -132,26 +132,26 @@
 
   # Create a list to hold error values
   ssErr <- list ( 
-                Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                kappa2= matrix ( NA, nrow = nReps, ncol = nS ),
-                tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
-                q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
-                dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                BnT   = matrix ( NA, nrow = nReps, ncol = nS )
+                Bmsy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                Umsy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                kappa2 = matrix ( NA, nrow = nReps, ncol = nS ),
+                tau2   = matrix ( NA, nrow = nReps, ncol = nS ),
+                q      = matrix ( NA, nrow = nReps, ncol = nS ),
+                mlnq   = matrix ( NA, nrow = nReps, ncol = nS ),
+                dep    = matrix ( NA, nrow = nReps, ncol = nS ),
+                BnT    = matrix ( NA, nrow = nReps, ncol = nS )
               )
   # Slightly difference structure for MS model
   msErr <- list ( 
-                Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                kappa2= matrix ( NA, nrow = nReps, ncol=1),
-                Sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
-                tau2  = matrix ( NA, nrow = nReps, ncol = 1 ),
-                q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                mlnq  = matrix ( NA, nrow = nReps, ncol = 1 ),
-                dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                BnT   = matrix ( NA, nrow = nReps, ncol = nS )
+                Bmsy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                Umsy   = matrix ( NA, nrow = nReps, ncol = nS ),
+                kappa2 = matrix ( NA, nrow = nReps, ncol = 1),
+                Sigma2 = matrix ( NA, nrow = nReps, ncol = 1 ),
+                tau2   = matrix ( NA, nrow = nReps, ncol = 1 ),
+                q      = matrix ( NA, nrow = nReps, ncol = nS ),
+                mlnq   = matrix ( NA, nrow = nReps, ncol = 1 ),
+                dep    = matrix ( NA, nrow = nReps, ncol = nS ),
+                BnT    = matrix ( NA, nrow = nReps, ncol = nS )
               )
 
   # append error lists to blob
@@ -160,7 +160,7 @@
 
   # now append Sigma2 to the err list
   ms$err.mle <- msErr
-
+  browser()
   # Fill in ss MLE relative errors
   for ( s in 1:nS )
   {
@@ -177,15 +177,14 @@
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.mle$kappa2     <- t(ms$kappa2 - opMod$pars$kappa2)/opMod$pars$kappa2
-      ms$err.mle$mlnq       <- t(ms$mlnq - mean(log(opMod$q)))
-      ms$err.mle$tau2       <- (ms$tau2 - mean(opMod$tau2))/mean(opMod$tau2)
+      ms$err.mle$kappa2[,s]     <- (ms$kappa2 - opMod$pars$kappa2)/opMod$pars$kappa2
+      ms$err.mle$mlnq[,s]       <- (ms$mlnq - mean(log(opMod$q)))
     }
     # Now the rest of the pars
+    ms$err.mle$tau2[,s]   <- (ms$tau2 - opMod$tau2[s])/opMod$tau2[s]
     ms$err.mle$Bmsy[,s]   <- (ms$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
     ms$err.mle$Umsy[,s]   <- (ms$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-    ms$err.mle$Sigma2[,s] <- (ms$Sigma2[,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
-    
+    ms$err.mle$Sigma2[,s] <- (ms$Sigma2 - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]  
     ms$err.mle$q[,s]      <- (ms$q[,s] - opMod$q[s])/opMod$q[s]
     ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
     ms$err.mle$BnT[,s]    <- (ms$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
@@ -195,6 +194,7 @@
   ss$err.post <- ssErr
   ms$err.post <- msErr
   # first calculate SS posterior mean and median
+  browser()
   ssMCMC <- ss$mcPar
   ssMCMC <- apply ( X = ssMCMC, FUN = mean, MARGIN = c(1,2,4))
   # then MS

@@ -109,8 +109,8 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   beta_Sigma.allocate(0.01,4,phz_varPriors,"beta_Sigma");
   alpha_tau.allocate(1,10,phz_varPriors,"alpha_tau");
   beta_tau.allocate(0.01,4,phz_varPriors,"beta_tau");
-  mlnq.allocate(-3.,3.,phz_mlnq,"mlnq");
-  s2lnq.allocate(-1,"s2lnq");
+  mlnq.allocate(-1.,1.,phz_mlnq,"mlnq");
+  s2lnq.allocate(phz_s2lnq,"s2lnq");
   lnqbar.allocate(-5,2,phz_lnq,"lnqbar");
   lntau2q.allocate(-5,2,phz_tau2q,"lntau2q");
   omegat.allocate(1,nT,-3.,3.,phz_omegat,"omegat");
@@ -126,9 +126,9 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   f.allocate("f");
   prior_function_value.allocate("prior_function_value");
   likelihood_function_value.allocate("likelihood_function_value");
-  lnqhatSpec.allocate(1,nS,"lnqhatSpec");
+  lnq_s.allocate(1,nS,"lnq_s");
   #ifndef NO_AD_INITIALIZE
-    lnqhatSpec.initialize();
+    lnq_s.initialize();
   #endif
   q.allocate(1,nS,"q");
   Bt.allocate(1,nS,1,nT,"Bt");
@@ -344,7 +344,7 @@ void model_parameters::obsModel(void)
 {
   zSum=0.0;
   validObs.initialize();
-  lnqhatSpec.initialize();
+  lnq_s.initialize();
   ss.initialize();
   //cout << "Inside Observation Model" << endl;
   for ( int s=1;s<=nS;s++)
@@ -362,10 +362,10 @@ void model_parameters::obsModel(void)
     }
     //cout << "z = " << z(s) << endl;
     // Compute conditional posterior mode of lnq_hat (BDA3 eq 11.10)
-    if (s == 1) lnqhatSpec(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
+    if (s == 1) lnq_s(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
     if (s > 1)
     {
-      lnqhatSpec(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
+      lnq_s(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
     }
     //lnqhat(s) = zSum(s)/validObs(s); // mean residual for non-hierarchical model
     //cout << "lnqhat = " << lnqhat(s) << endl;
@@ -374,7 +374,7 @@ void model_parameters::obsModel(void)
       //cout << "Computing squared residual for time " << t << endl;
       if(It(s,t)>0.0)
       {
-        ss(s) += pow (z(s,t) - lnqhatSpec(s),2.0);
+        ss(s) += pow (z(s,t) - lnq_s(s),2.0);
       }
     }
     //cout << "Species " << s << " obs model complete" << endl;
@@ -418,7 +418,7 @@ void model_parameters::calcPriors(void)
   SigmaPrior.initialize();  // species specific RE variance prior (vector valued)
   tauPrior.initialize();    // obs error variance prior (vector valued)
   totalPrior.initialize();  // sum of priors
-  // First, the priors that are calculated in every phase
+  // First, the Schaefer mode priors
   // msy
   if ( phz_Bmsy > 0)
   {
@@ -430,11 +430,12 @@ void model_parameters::calcPriors(void)
     UmsyPrior = 0.5*elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2));  
   }
   // lnq prior (shared)
-  if (phz_mlnq > 0)
+  if (phz_lnq > 0)
   {
-    if (nS == 1) lnqPrior = pow ( lnqhatSpec - mlnq, 2 ) / s2lnq /2;
+    if (nS == 1) lnqPrior = pow ( lnq_s - mlnq, 2 ) / s2lnq /2;
     else {
-      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lntau2q);
+      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnq_s - lnqbar)/mfexp(lntau2q);
+      lnqPrior += lntau2q;
       if ( value(lnqbar) != value(mlnq) ) 
       {
         lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
@@ -489,7 +490,7 @@ void model_parameters::mcDumpOut(void)
     for ( int s=1;s<=nS;s++)
     {
       // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnqhatSpec(s));
+      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
       mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
       mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
       // Output the biomass estimates for this MC evaluation
@@ -503,7 +504,7 @@ void model_parameters::mcDumpOut(void)
     for ( int s=1;s<=nS;s++)
     {
       // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnqhatSpec(s));
+      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
       mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
       mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
       // Output the biomass estimates for this MC evaluation
@@ -561,7 +562,7 @@ void model_parameters::report(const dvector& gradients)
   report << "# msy" << endl;
   report << msy << endl;
   report <<"# q" << endl;
-  report << mfexp(lnqhatSpec) <<endl;
+  report << mfexp(lnq_s) <<endl;
   if (nS > 1)
   {
     report << "# qbar" << endl;
