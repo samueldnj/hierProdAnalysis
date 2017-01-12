@@ -5,6 +5,8 @@
 ADMB="/usr/local/bin/admb"
 PROJECT="project"
 FORENSICS="badfits"
+STATS="project/Statistics"
+BATCH="project/Batch"
 
 install: 
 	make ADMB
@@ -18,6 +20,8 @@ ADMB:
 dirs:
 	mkdir $(PROJECT)
 	mkdir $(FORENSICS)
+	mkdir $(BATCH)
+	mkdir $(STATS)
 
 # Dry run of cleaning the directory down to the git index. Will show files to be
 # deleted
