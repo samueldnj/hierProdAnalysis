@@ -197,8 +197,8 @@ doBatchRun <- function( batchFolderName )
     # append main WD path to the front of the batchFolderNames
     batchFolderNames <- file.path(getwd(),batchFolderNames)
 
-    # tmp     <- clusterApply(cl, x=batchFolderNames, fun=doBatchRun)
-    tmp <-lapply(X=file.path(batchFolderNames), FUN=doBatchRun)
+    tmp     <- clusterApply(cl, x=batchFolderNames, fun=doBatchRun)
+    # tmp <-lapply(X=file.path(batchFolderNames), FUN=doBatchRun)
     stopCluster(cl)
 
     ### Make a vectorised function later!! ###
