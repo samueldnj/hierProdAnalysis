@@ -372,8 +372,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   
   for ( i in 0:fitTrials )
   {
-    hessPosDef <- TRUE
-    localMin <- TRUE
+    hessPosDef  <- TRUE
+    localMin    <- TRUE
+    repProd     <- TRUE
       
     # Read in output from em
     mcPar   <- try ( read.table ( mcParFile, header = TRUE), silent=TRUE )
@@ -404,8 +405,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # If the model stopped for another reason, but the max gradient is
       # too high, or the positive penalty was invoked, then Increment
       # lnBmsy and rerun.
-      if ( fitrep$iExit <= 1 & (abs(fitrep$maxGrad) > 1e-4 | fitrep$fpen > 0 ) |
-            (class(fitrep) == "try-error") )
+      if ( fitrep$iExit <= 1 & (abs(fitrep$maxGrad) > 1e-4 | fitrep$fpen > 0 ))
       {
         localMin <- FALSE
         cat ( activeFileRoot, 
@@ -429,6 +429,29 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         next
       }      
     }
+    if (class(fitrep) == "try-error")
+    {
+      repProd <- FALSE
+      cat ( activeFileRoot, 
+              " didn't find local min.\n", sep="" )
+        cat( "repeat i = ", i+1, ".\n", sep = "")
+        # Increment lnBMSY and tighten sBMSY
+        par$lnBmsy <- lnBmsy *(1+(i)*0.2)
+        # Write to pin file 
+        cat ( "## ", activeFileRoot, " initial parameter file, created ", 
+              format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
+              sep = "", file = pinFile, append = FALSE )
+        lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
+                  activeFile=pinFile )
+        # Now run the model and read in rep and MCMC files
+        system (  command = procCall, wait =TRUE, 
+                  ignore.stdout = quiet, intern=FALSE,
+                  ignore.stderr=quiet )
+        system ( command = mcEval, wait =TRUE, 
+                 ignore.stdout = quiet, intern=FALSE,
+                 ignore.stderr=quiet )
+        next
+    }
     # Break if hess Positive definite
     if (hessPosDef) break
     # Otherwise, rerun the model using the par as the pin
@@ -444,6 +467,24 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   }
   # Now check the MLE fit, but don't bother to refit if we've got 
   # a posterior (no matter the quality)
+  if (!repProd){
+    cat(  "\n", activeFileRoot, " did nor optimise and produce rep.\n",
+          "Copying bad pin and dat for forensics.\n", sep="" )
+    # Save the *.pin and *.dat files for forensics.
+    badPinFile <- file.path(  getwd(),"badfits",
+                              paste( activeFileRoot,lab,Sys.time(),".pin", sep="" ) )
+    file.copy( pinFile, badPinFile, overwrite=TRUE )
+    badDatFile <- file.path(  getwd(),"badfits",
+                              paste( activeFileRoot,lab,Sys.time(),".dat", sep="" ) )
+    file.copy( datFile, badDatFile, overwrite=TRUE )
+    # Return
+    out <- list ( fitrep = NA, 
+                  mcPar = NA, 
+                  mcBio = NA,
+                  localMin = NA, 
+                  hessPosDef = NA )
+    return(out)
+  }
   if (fitrep$maxGrad > 1e-4) localMin <- FALSE
 
   # Now if the hessian is NPD, get the posterior for another fit
@@ -466,13 +507,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   file.remove(mcParFile,mcBioFile)
   if (file.exists(psvFile)) file.remove(psvFile)
   if (file.exists(repFile)) file.remove(repFile)
-  else {
-    fitrep      <- NA
-    mcPar       <- NA
-    mcBio       <- NA
-    localMin    <- NA
-    hessPosDef  <- NA
-  }
 
   # Return
   out <- list ( fitrep = fitrep, 
@@ -640,7 +674,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   msy     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   kappa2  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"kappa2")),
-                  Sigma2  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,sNames)),
+                  Sigma2  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"Sigma2")),
                   tau2    = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"tau2")),
                   dep     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   epst    = matrix(NA,nrow=nReps,ncol=nT,dimnames=list(rNames,1:nT)),
