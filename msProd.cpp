@@ -32,7 +32,7 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
   phz_AR.allocate("phz_AR");
   phz_chol.allocate("phz_chol");
   dumm.allocate("dumm");
- phz_tau2qs = phz_lnq;
+ phz_tau2q = phz_lnq;
     if(dumm!=999)
     {
       cout<<"Error reading data.\n Fix it!! \n dumm = " << dumm << endl;
@@ -48,7 +48,7 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
       phz_zetat   = -1;
       phz_chol    = -1;
       phz_Sigma   = -1;
-      phz_tau2qs  = -1;
+      phz_tau2q  = -1;
     }
 }
 
@@ -66,7 +66,7 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   #ifndef NO_AD_INITIALIZE
     Umsy.initialize();
   #endif
-  lnTau2.allocate(phz_tau,"lnTau2");
+  lntau2.allocate(phz_tau,"lntau2");
   lnkappa2.allocate(phz_kappa,"lnkappa2");
   lnSigma2.allocate(phz_Sigma,"lnSigma2");
   tau2.allocate("tau2");
@@ -112,7 +112,7 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   mlnq.allocate(-3.,3.,phz_mlnq,"mlnq");
   s2lnq.allocate(-1,"s2lnq");
   lnqbar.allocate(-5,2,phz_lnq,"lnqbar");
-  lnTau2_qs.allocate(-5,2,phz_tau2qs,"lnTau2_qs");
+  lntau2q.allocate(-5,2,phz_tau2q,"lntau2q");
   omegat.allocate(1,nT,-3.,3.,phz_omegat,"omegat");
   zetat.allocate(1,nS,1,nT,phz_zetat,"zetat");
   epst.allocate(1,nT,"epst");
@@ -273,9 +273,9 @@ void model_parameters::stateDynamics(void)
   tau2.initialize();
   // variance pars //
   // Obs error variance
-  tau2    = mfexp(lnTau2);
-  tau     = mfexp(lnTau2*0.5);
-  //cout << "lnTau2 = " << lnTau2 << endl;
+  tau2    = mfexp(lntau2);
+  tau     = mfexp(lntau2*0.5);
+  //cout << "lntau2 = " << lntau2 << endl;
   // shared effects
   if (phz_kappa > 0) 
   {
@@ -330,7 +330,7 @@ void model_parameters::stateDynamics(void)
       if (phz_zetat > 0) Bt(s,t+1) *= mfexp(zetatc(s,t+1));
       Bt(s,t+1) = posfun ( Bt(s,t+1), katch(s,t+1)+10, pospen );
       // Increment function penaliser variable
-      fpen += 1000. * pospen;
+      fpen += 100. * pospen;
     }
   }
   //cout << "Bt = " <<  Bt <<  endl;
@@ -365,7 +365,7 @@ void model_parameters::obsModel(void)
     if (s == 1) lnqhatSpec(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
     if (s > 1)
     {
-      lnqhatSpec(s) = (zSum(s)/tau2 + lnqbar/mfexp(lnTau2_qs))/(validObs(s)/tau2 + 1/mfexp(lnTau2_qs));
+      lnqhatSpec(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
     }
     //lnqhat(s) = zSum(s)/validObs(s); // mean residual for non-hierarchical model
     //cout << "lnqhat = " << lnqhat(s) << endl;
@@ -422,19 +422,19 @@ void model_parameters::calcPriors(void)
   // msy
   if ( phz_Bmsy > 0)
   {
-    BmsyPrior = elem_div(pow ( Bmsy - mBmsy, 2 ), pow(sBmsy,2))*0.5;  
+    BmsyPrior = 0.5*elem_div(pow ( Bmsy - mBmsy, 2 ), pow(sBmsy,2));  
   }
-  // Then Fmsy
+  // Then Umsy
   if (phz_Umsy > 0)
   {
-    UmsyPrior = elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2)) * 0.5;  
+    UmsyPrior = 0.5*elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2));  
   }
   // lnq prior (shared)
   if (phz_mlnq > 0)
   {
     if (nS == 1) lnqPrior = pow ( lnqhatSpec - mlnq, 2 ) / s2lnq /2;
     else {
-      lnqPrior = 0.5*log(mfexp(lnTau2_qs)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lnTau2_qs);
+      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lntau2q);
       if ( value(lnqbar) != value(mlnq) ) 
       {
         lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
@@ -457,7 +457,7 @@ void model_parameters::calcPriors(void)
     totalPrior += SigmaPrior;
   }
   // tau2 prior if estimated
-  if (active(lnTau2))
+  if (active(lntau2))
   {
     tauPrior = (alpha_tau+1)*log(tau2)+beta_tau/tau2;
     totalPrior += tauPrior;
@@ -564,8 +564,10 @@ void model_parameters::report(const dvector& gradients)
   report << mfexp(lnqhatSpec) <<endl;
   if (nS > 1)
   {
-    report <<"# qbar" << endl;
+    report << "# qbar" << endl;
     report << mfexp(lnqbar) <<endl;  
+    report << "tau2q" << endl;
+    report << mfexp(lntau2q) << endl;
   }
   report << "# D" << endl;
   report << dep_bar << endl;

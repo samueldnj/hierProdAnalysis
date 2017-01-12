@@ -41,8 +41,8 @@ DATA_SECTION
   // Constant for number of free pars in chol matx
   int cEntries;
   int verbose;
-  int phz_tau2qs;
-  !! phz_tau2qs = phz_lnq;
+  int phz_tau2q;
+  !! phz_tau2q = phz_lnq;
 
   // Procedure to exit if not all data is read correctly
   LOC_CALCS
@@ -61,7 +61,7 @@ DATA_SECTION
       phz_zetat   = -1;
       phz_chol    = -1;
       phz_Sigma   = -1;
-      phz_tau2qs  = -1;
+      phz_tau2q  = -1;
     }
 
 PARAMETER_SECTION
@@ -72,7 +72,7 @@ PARAMETER_SECTION
   vector Umsy(1,nS);
 
   // log-variance parameters
-  init_number lnTau2(phz_tau);          // shared osb error var
+  init_number lntau2(phz_tau);          // shared osb error var
   init_number lnkappa2(phz_kappa);      // year effect variance
   init_number lnSigma2(phz_Sigma);      // species effect var
 
@@ -109,15 +109,13 @@ PARAMETER_SECTION
   init_bounded_number mlnq(-3.,3.,phz_mlnq);      // logq prior mean (shared)
   init_number s2lnq(-1);                          // logq prior sd (shared)
   init_bounded_number lnqbar(-5,2,phz_lnq);       // mean lnq across species
-  init_bounded_number lnTau2_qs(-5,2,phz_tau2qs); // logqs prior var
+  init_bounded_number lntau2q(-5,2,phz_tau2q); // logqs prior var
 
   // process error deviations
   init_bounded_vector omegat(1,nT,-3.,3.,phz_omegat);   // year effect
   init_matrix zetat(1,nS,1,nT,phz_zetat);    // proc error
   
   // might be able to use dvector later for the following
-  //vector omegat(1,nT);
-  //matrix zetat(1,nS,1,nT);
   vector epst(1,nT);        // auto-correlated year effect
   matrix zetatc(1,nS,1,nT); // correlated zetat values (using chol)
 
@@ -220,9 +218,9 @@ FUNCTION stateDynamics
 
   // variance pars //
   // Obs error variance
-  tau2    = mfexp(lnTau2);
-  tau     = mfexp(lnTau2*0.5);
-  //cout << "lnTau2 = " << lnTau2 << endl;
+  tau2    = mfexp(lntau2);
+  tau     = mfexp(lntau2*0.5);
+  //cout << "lntau2 = " << lntau2 << endl;
   
   // shared effects
   if (phz_kappa > 0) 
@@ -288,7 +286,7 @@ FUNCTION stateDynamics
       Bt(s,t+1) = posfun ( Bt(s,t+1), katch(s,t+1)+10, pospen );
       
       // Increment function penaliser variable
-      fpen += 1000. * pospen;
+      fpen += 100. * pospen;
     }
   }
   //cout << "Bt = " <<  Bt <<  endl;
@@ -323,7 +321,7 @@ FUNCTION obsModel
     if (s == 1) lnqhatSpec(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
     if (s > 1)
     {
-      lnqhatSpec(s) = (zSum(s)/tau2 + lnqbar/mfexp(lnTau2_qs))/(validObs(s)/tau2 + 1/mfexp(lnTau2_qs));
+      lnqhatSpec(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
     }
     //lnqhat(s) = zSum(s)/validObs(s); // mean residual for non-hierarchical model
     //cout << "lnqhat = " << lnqhat(s) << endl;
@@ -383,13 +381,13 @@ FUNCTION calcPriors
   // msy
   if ( phz_Bmsy > 0)
   {
-    BmsyPrior = elem_div(pow ( Bmsy - mBmsy, 2 ), pow(sBmsy,2))*0.5;  
+    BmsyPrior = 0.5*elem_div(pow ( Bmsy - mBmsy, 2 ), pow(sBmsy,2));  
   }
   
-  // Then Fmsy
+  // Then Umsy
   if (phz_Umsy > 0)
   {
-    UmsyPrior = elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2)) * 0.5;  
+    UmsyPrior = 0.5*elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2));  
   }
   
   // lnq prior (shared)
@@ -397,7 +395,7 @@ FUNCTION calcPriors
   {
     if (nS == 1) lnqPrior = pow ( lnqhatSpec - mlnq, 2 ) / s2lnq /2;
     else {
-      lnqPrior = 0.5*log(mfexp(lnTau2_qs)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lnTau2_qs);
+      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnqhatSpec - lnqbar)/mfexp(lntau2q);
       if ( value(lnqbar) != value(mlnq) ) 
       {
         lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
@@ -423,7 +421,7 @@ FUNCTION calcPriors
   }
   
   // tau2 prior if estimated
-  if (active(lnTau2))
+  if (active(lntau2))
   {
     tauPrior = (alpha_tau+1)*log(tau2)+beta_tau/tau2;
     totalPrior += tauPrior;
@@ -528,8 +526,10 @@ REPORT_SECTION
   report << mfexp(lnqhatSpec) <<endl;
   if (nS > 1)
   {
-    report <<"# qbar" << endl;
+    report << "# qbar" << endl;
     report << mfexp(lnqbar) <<endl;  
+    report << "tau2q" << endl;
+    report << mfexp(lntau2q) << endl;
   }
   report << "# D" << endl;
   report << dep_bar << endl;

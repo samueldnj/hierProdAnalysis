@@ -109,6 +109,7 @@ doBatchRun <- function( batchFolderName )
   # Might be some efficiency to be gained, here
   # set working directory to batchFolder
   setwd(batchFolderName)
+
   # runMSE with the batch file
   # add random delay to offset simFolder names
   runSimEst(ctlFile="simCtlFile.txt", folder=basename(batchFolderName))
@@ -196,7 +197,7 @@ doBatchRun <- function( batchFolderName )
     batchFolderNames <- file.path(getwd(),batchFolderNames)
 
     tmp     <- clusterApply(cl, x=batchFolderNames, fun=doBatchRun)
-    # tmp <-lapply(X=file.path(getwd(),batchFolderNames), FUN=doBatchRun)
+    # tmp <-lapply(X=file.path(batchFolderNames), FUN=doBatchRun)
     stopCluster(cl)
 
     ### Make a vectorised function later!! ###

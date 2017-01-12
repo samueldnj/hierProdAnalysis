@@ -219,7 +219,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(sumCat[s]/2),
                           lnUmsy      = -1,
-                          lnTau2      = log(obj$assess$tau2),
+                          lntau2      = log(obj$assess$tau2),
                           lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
@@ -236,9 +236,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           alpha_tau   = obj$assess$alpha_tau,
                           beta_tau    = obj$assess$beta_tau,
                           mlnq        = obj$assess$mlnq,
-                          slnq        = obj$assess$slnq,
+                          s2lnq       = obj$assess$slnq,
                           lnqbar      = 0,
-                          lnTau2qs    = 0,
+                          lntau2qs    = 0,
                           epst        = rep(0,nT),
                           zetat       = matrix(0,nrow=nS,ncol=nT) )
 
@@ -265,7 +265,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   msPar <- list ( lnBmsy      = log(sumCat/2),
                   lnUmsy      = rep(-1,nS),
-                  lnTau2      = log(obj$assess$tau2),
+                  lntau2      = log(obj$assess$tau2),
                   lnkappa2    = log(obj$assess$kappa2),
                   lnSigma2    = log(obj$assess$Sigma2),
                   gamma       = obj$assess$gamma,
@@ -282,9 +282,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   alpha_tau   = obj$assess$alpha_tau,
                   beta_tau    = obj$assess$beta_tau,
                   mlnq        = obj$assess$mlnq,
-                  slnq        = obj$assess$slnq,
+                  s2lnq       = obj$assess$slnq,
                   lnqbar      = obj$assess$lnqbar,
-                  lnTau2qs    = log(obj$assess$tau2qs),
+                  lntau2qs    = obj$assess$lntau2qs,
                   epst        = rep(0,nT),
                   zetat       = matrix(0,nrow=nS,ncol=nT) )
   # return list of dat and pin objects for running estimators
