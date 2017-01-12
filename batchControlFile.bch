@@ -2,293 +2,365 @@
 parameter value
 # Scenarios
 #
-# Scenario 1 : 2S-cM0kM0.1
+# Scenario 1 : 2S-cM0kM0.2
 #
-scenario$scenario1$ctrl$scenarioName '2S-cM0kM0.1'
+scenario$scenario1$ctrl$scenarioName '2S-cM0kM0.2'
 scenario$scenario1$opMod$corrMult 0
-scenario$scenario1$opMod$kappaMult 0.1
+scenario$scenario1$opMod$kappaMult 0.2
 #
-# Scenario 2 : 2S-cM0.2kM0.1
+# Scenario 2 : 2S-cM0.2kM0.2
 #
-scenario$scenario2$ctrl$scenarioName '2S-cM0.2kM0.1'
+scenario$scenario2$ctrl$scenarioName '2S-cM0.2kM0.2'
 scenario$scenario2$opMod$corrMult 0.2
-scenario$scenario2$opMod$kappaMult 0.1
+scenario$scenario2$opMod$kappaMult 0.2
 #
-# Scenario 3 : 2S-cM0.4kM0.1
+# Scenario 3 : 2S-cM0.4kM0.2
 #
-scenario$scenario3$ctrl$scenarioName '2S-cM0.4kM0.1'
+scenario$scenario3$ctrl$scenarioName '2S-cM0.4kM0.2'
 scenario$scenario3$opMod$corrMult 0.4
-scenario$scenario3$opMod$kappaMult 0.1
+scenario$scenario3$opMod$kappaMult 0.2
 #
-# Scenario 4 : 2S-cM0.6kM0.1
+# Scenario 4 : 2S-cM0.6kM0.2
 #
-scenario$scenario4$ctrl$scenarioName '2S-cM0.6kM0.1'
+scenario$scenario4$ctrl$scenarioName '2S-cM0.6kM0.2'
 scenario$scenario4$opMod$corrMult 0.6
-scenario$scenario4$opMod$kappaMult 0.1
+scenario$scenario4$opMod$kappaMult 0.2
 #
-# Scenario 5 : 2S-cM0.8kM0.1
+# Scenario 5 : 2S-cM0.8kM0.2
 #
-scenario$scenario5$ctrl$scenarioName '2S-cM0.8kM0.1'
+scenario$scenario5$ctrl$scenarioName '2S-cM0.8kM0.2'
 scenario$scenario5$opMod$corrMult 0.8
-scenario$scenario5$opMod$kappaMult 0.1
+scenario$scenario5$opMod$kappaMult 0.2
 #
-# Scenario 6 : 2S-cM1kM0.1
+# Scenario 6 : 2S-cM1kM0.2
 #
-scenario$scenario6$ctrl$scenarioName '2S-cM1kM0.1'
+scenario$scenario6$ctrl$scenarioName '2S-cM1kM0.2'
 scenario$scenario6$opMod$corrMult 1
-scenario$scenario6$opMod$kappaMult 0.1
+scenario$scenario6$opMod$kappaMult 0.2
 #
-# Scenario 7 : 2S-cM0kM0.3
+# Scenario 7 : 2S-cM0kM0.4
 #
-scenario$scenario7$ctrl$scenarioName '2S-cM0kM0.3'
+scenario$scenario7$ctrl$scenarioName '2S-cM0kM0.4'
 scenario$scenario7$opMod$corrMult 0
-scenario$scenario7$opMod$kappaMult 0.3
+scenario$scenario7$opMod$kappaMult 0.4
 #
-# Scenario 8 : 2S-cM0.2kM0.3
+# Scenario 8 : 2S-cM0.2kM0.4
 #
-scenario$scenario8$ctrl$scenarioName '2S-cM0.2kM0.3'
+scenario$scenario8$ctrl$scenarioName '2S-cM0.2kM0.4'
 scenario$scenario8$opMod$corrMult 0.2
-scenario$scenario8$opMod$kappaMult 0.3
+scenario$scenario8$opMod$kappaMult 0.4
 #
-# Scenario 9 : 2S-cM0.4kM0.3
+# Scenario 9 : 2S-cM0.4kM0.4
 #
-scenario$scenario9$ctrl$scenarioName '2S-cM0.4kM0.3'
+scenario$scenario9$ctrl$scenarioName '2S-cM0.4kM0.4'
 scenario$scenario9$opMod$corrMult 0.4
-scenario$scenario9$opMod$kappaMult 0.3
+scenario$scenario9$opMod$kappaMult 0.4
 #
-# Scenario 10 : 2S-cM0.6kM0.3
+# Scenario 10 : 2S-cM0.6kM0.4
 #
-scenario$scenario10$ctrl$scenarioName '2S-cM0.6kM0.3'
+scenario$scenario10$ctrl$scenarioName '2S-cM0.6kM0.4'
 scenario$scenario10$opMod$corrMult 0.6
-scenario$scenario10$opMod$kappaMult 0.3
+scenario$scenario10$opMod$kappaMult 0.4
 #
-# Scenario 11 : 2S-cM0.8kM0.3
+# Scenario 11 : 2S-cM0.8kM0.4
 #
-scenario$scenario11$ctrl$scenarioName '2S-cM0.8kM0.3'
+scenario$scenario11$ctrl$scenarioName '2S-cM0.8kM0.4'
 scenario$scenario11$opMod$corrMult 0.8
-scenario$scenario11$opMod$kappaMult 0.3
+scenario$scenario11$opMod$kappaMult 0.4
 #
-# Scenario 12 : 2S-cM1kM0.3
+# Scenario 12 : 2S-cM1kM0.4
 #
-scenario$scenario12$ctrl$scenarioName '2S-cM1kM0.3'
+scenario$scenario12$ctrl$scenarioName '2S-cM1kM0.4'
 scenario$scenario12$opMod$corrMult 1
-scenario$scenario12$opMod$kappaMult 0.3
+scenario$scenario12$opMod$kappaMult 0.4
 #
-# Scenario 13 : 2S-cM0kM0.5
+# Scenario 13 : 2S-cM0kM0.6
 #
-scenario$scenario13$ctrl$scenarioName '2S-cM0kM0.5'
+scenario$scenario13$ctrl$scenarioName '2S-cM0kM0.6'
 scenario$scenario13$opMod$corrMult 0
-scenario$scenario13$opMod$kappaMult 0.5
+scenario$scenario13$opMod$kappaMult 0.6
 #
-# Scenario 14 : 2S-cM0.2kM0.5
+# Scenario 14 : 2S-cM0.2kM0.6
 #
-scenario$scenario14$ctrl$scenarioName '2S-cM0.2kM0.5'
+scenario$scenario14$ctrl$scenarioName '2S-cM0.2kM0.6'
 scenario$scenario14$opMod$corrMult 0.2
-scenario$scenario14$opMod$kappaMult 0.5
+scenario$scenario14$opMod$kappaMult 0.6
 #
-# Scenario 15 : 2S-cM0.4kM0.5
+# Scenario 15 : 2S-cM0.4kM0.6
 #
-scenario$scenario15$ctrl$scenarioName '2S-cM0.4kM0.5'
+scenario$scenario15$ctrl$scenarioName '2S-cM0.4kM0.6'
 scenario$scenario15$opMod$corrMult 0.4
-scenario$scenario15$opMod$kappaMult 0.5
+scenario$scenario15$opMod$kappaMult 0.6
 #
-# Scenario 16 : 2S-cM0.6kM0.5
+# Scenario 16 : 2S-cM0.6kM0.6
 #
-scenario$scenario16$ctrl$scenarioName '2S-cM0.6kM0.5'
+scenario$scenario16$ctrl$scenarioName '2S-cM0.6kM0.6'
 scenario$scenario16$opMod$corrMult 0.6
-scenario$scenario16$opMod$kappaMult 0.5
+scenario$scenario16$opMod$kappaMult 0.6
 #
-# Scenario 17 : 2S-cM0.8kM0.5
+# Scenario 17 : 2S-cM0.8kM0.6
 #
-scenario$scenario17$ctrl$scenarioName '2S-cM0.8kM0.5'
+scenario$scenario17$ctrl$scenarioName '2S-cM0.8kM0.6'
 scenario$scenario17$opMod$corrMult 0.8
-scenario$scenario17$opMod$kappaMult 0.5
+scenario$scenario17$opMod$kappaMult 0.6
 #
-# Scenario 18 : 2S-cM1kM0.5
+# Scenario 18 : 2S-cM1kM0.6
 #
-scenario$scenario18$ctrl$scenarioName '2S-cM1kM0.5'
+scenario$scenario18$ctrl$scenarioName '2S-cM1kM0.6'
 scenario$scenario18$opMod$corrMult 1
-scenario$scenario18$opMod$kappaMult 0.5
+scenario$scenario18$opMod$kappaMult 0.6
 #
-# Scenario 19 : 2S-cM0kM0.7
+# Scenario 19 : 2S-cM0kM0.8
 #
-scenario$scenario19$ctrl$scenarioName '2S-cM0kM0.7'
+scenario$scenario19$ctrl$scenarioName '2S-cM0kM0.8'
 scenario$scenario19$opMod$corrMult 0
-scenario$scenario19$opMod$kappaMult 0.7
+scenario$scenario19$opMod$kappaMult 0.8
 #
-# Scenario 20 : 2S-cM0.2kM0.7
+# Scenario 20 : 2S-cM0.2kM0.8
 #
-scenario$scenario20$ctrl$scenarioName '2S-cM0.2kM0.7'
+scenario$scenario20$ctrl$scenarioName '2S-cM0.2kM0.8'
 scenario$scenario20$opMod$corrMult 0.2
-scenario$scenario20$opMod$kappaMult 0.7
+scenario$scenario20$opMod$kappaMult 0.8
 #
-# Scenario 21 : 2S-cM0.4kM0.7
+# Scenario 21 : 2S-cM0.4kM0.8
 #
-scenario$scenario21$ctrl$scenarioName '2S-cM0.4kM0.7'
+scenario$scenario21$ctrl$scenarioName '2S-cM0.4kM0.8'
 scenario$scenario21$opMod$corrMult 0.4
-scenario$scenario21$opMod$kappaMult 0.7
+scenario$scenario21$opMod$kappaMult 0.8
 #
-# Scenario 22 : 2S-cM0.6kM0.7
+# Scenario 22 : 2S-cM0.6kM0.8
 #
-scenario$scenario22$ctrl$scenarioName '2S-cM0.6kM0.7'
+scenario$scenario22$ctrl$scenarioName '2S-cM0.6kM0.8'
 scenario$scenario22$opMod$corrMult 0.6
-scenario$scenario22$opMod$kappaMult 0.7
+scenario$scenario22$opMod$kappaMult 0.8
 #
-# Scenario 23 : 2S-cM0.8kM0.7
+# Scenario 23 : 2S-cM0.8kM0.8
 #
-scenario$scenario23$ctrl$scenarioName '2S-cM0.8kM0.7'
+scenario$scenario23$ctrl$scenarioName '2S-cM0.8kM0.8'
 scenario$scenario23$opMod$corrMult 0.8
-scenario$scenario23$opMod$kappaMult 0.7
+scenario$scenario23$opMod$kappaMult 0.8
 #
-# Scenario 24 : 2S-cM1kM0.7
+# Scenario 24 : 2S-cM1kM0.8
 #
-scenario$scenario24$ctrl$scenarioName '2S-cM1kM0.7'
+scenario$scenario24$ctrl$scenarioName '2S-cM1kM0.8'
 scenario$scenario24$opMod$corrMult 1
-scenario$scenario24$opMod$kappaMult 0.7
+scenario$scenario24$opMod$kappaMult 0.8
 #
-# Scenario 25 : 2S-cM0kM0.9
+# Scenario 25 : 2S-cM0kM1
 #
-scenario$scenario25$ctrl$scenarioName '2S-cM0kM0.9'
+scenario$scenario25$ctrl$scenarioName '2S-cM0kM1'
 scenario$scenario25$opMod$corrMult 0
-scenario$scenario25$opMod$kappaMult 0.9
+scenario$scenario25$opMod$kappaMult 1
 #
-# Scenario 26 : 2S-cM0.2kM0.9
+# Scenario 26 : 2S-cM0.2kM1
 #
-scenario$scenario26$ctrl$scenarioName '2S-cM0.2kM0.9'
+scenario$scenario26$ctrl$scenarioName '2S-cM0.2kM1'
 scenario$scenario26$opMod$corrMult 0.2
-scenario$scenario26$opMod$kappaMult 0.9
+scenario$scenario26$opMod$kappaMult 1
 #
-# Scenario 27 : 2S-cM0.4kM0.9
+# Scenario 27 : 2S-cM0.4kM1
 #
-scenario$scenario27$ctrl$scenarioName '2S-cM0.4kM0.9'
+scenario$scenario27$ctrl$scenarioName '2S-cM0.4kM1'
 scenario$scenario27$opMod$corrMult 0.4
-scenario$scenario27$opMod$kappaMult 0.9
+scenario$scenario27$opMod$kappaMult 1
 #
-# Scenario 28 : 2S-cM0.6kM0.9
+# Scenario 28 : 2S-cM0.6kM1
 #
-scenario$scenario28$ctrl$scenarioName '2S-cM0.6kM0.9'
+scenario$scenario28$ctrl$scenarioName '2S-cM0.6kM1'
 scenario$scenario28$opMod$corrMult 0.6
-scenario$scenario28$opMod$kappaMult 0.9
+scenario$scenario28$opMod$kappaMult 1
 #
-# Scenario 29 : 2S-cM0.8kM0.9
+# Scenario 29 : 2S-cM0.8kM1
 #
-scenario$scenario29$ctrl$scenarioName '2S-cM0.8kM0.9'
+scenario$scenario29$ctrl$scenarioName '2S-cM0.8kM1'
 scenario$scenario29$opMod$corrMult 0.8
-scenario$scenario29$opMod$kappaMult 0.9
+scenario$scenario29$opMod$kappaMult 1
 #
-# Scenario 30 : 2S-cM1kM0.9
+# Scenario 30 : 2S-cM1kM1
 #
-scenario$scenario30$ctrl$scenarioName '2S-cM1kM0.9'
+scenario$scenario30$ctrl$scenarioName '2S-cM1kM1'
 scenario$scenario30$opMod$corrMult 1
-scenario$scenario30$opMod$kappaMult 0.9
+scenario$scenario30$opMod$kappaMult 1
 #
-# Scenario 31 : 2S-cM0kM1.1
+# Scenario 31 : 2S-cM0kM1.2
 #
-scenario$scenario31$ctrl$scenarioName '2S-cM0kM1.1'
+scenario$scenario31$ctrl$scenarioName '2S-cM0kM1.2'
 scenario$scenario31$opMod$corrMult 0
-scenario$scenario31$opMod$kappaMult 1.1
+scenario$scenario31$opMod$kappaMult 1.2
 #
-# Scenario 32 : 2S-cM0.2kM1.1
+# Scenario 32 : 2S-cM0.2kM1.2
 #
-scenario$scenario32$ctrl$scenarioName '2S-cM0.2kM1.1'
+scenario$scenario32$ctrl$scenarioName '2S-cM0.2kM1.2'
 scenario$scenario32$opMod$corrMult 0.2
-scenario$scenario32$opMod$kappaMult 1.1
+scenario$scenario32$opMod$kappaMult 1.2
 #
-# Scenario 33 : 2S-cM0.4kM1.1
+# Scenario 33 : 2S-cM0.4kM1.2
 #
-scenario$scenario33$ctrl$scenarioName '2S-cM0.4kM1.1'
+scenario$scenario33$ctrl$scenarioName '2S-cM0.4kM1.2'
 scenario$scenario33$opMod$corrMult 0.4
-scenario$scenario33$opMod$kappaMult 1.1
+scenario$scenario33$opMod$kappaMult 1.2
 #
-# Scenario 34 : 2S-cM0.6kM1.1
+# Scenario 34 : 2S-cM0.6kM1.2
 #
-scenario$scenario34$ctrl$scenarioName '2S-cM0.6kM1.1'
+scenario$scenario34$ctrl$scenarioName '2S-cM0.6kM1.2'
 scenario$scenario34$opMod$corrMult 0.6
-scenario$scenario34$opMod$kappaMult 1.1
+scenario$scenario34$opMod$kappaMult 1.2
 #
-# Scenario 35 : 2S-cM0.8kM1.1
+# Scenario 35 : 2S-cM0.8kM1.2
 #
-scenario$scenario35$ctrl$scenarioName '2S-cM0.8kM1.1'
+scenario$scenario35$ctrl$scenarioName '2S-cM0.8kM1.2'
 scenario$scenario35$opMod$corrMult 0.8
-scenario$scenario35$opMod$kappaMult 1.1
+scenario$scenario35$opMod$kappaMult 1.2
 #
-# Scenario 36 : 2S-cM1kM1.1
+# Scenario 36 : 2S-cM1kM1.2
 #
-scenario$scenario36$ctrl$scenarioName '2S-cM1kM1.1'
+scenario$scenario36$ctrl$scenarioName '2S-cM1kM1.2'
 scenario$scenario36$opMod$corrMult 1
-scenario$scenario36$opMod$kappaMult 1.1
+scenario$scenario36$opMod$kappaMult 1.2
 #
-# Scenario 37 : 2S-cM0kM1.3
+# Scenario 37 : 2S-cM0kM1.4
 #
-scenario$scenario37$ctrl$scenarioName '2S-cM0kM1.3'
+scenario$scenario37$ctrl$scenarioName '2S-cM0kM1.4'
 scenario$scenario37$opMod$corrMult 0
-scenario$scenario37$opMod$kappaMult 1.3
+scenario$scenario37$opMod$kappaMult 1.4
 #
-# Scenario 38 : 2S-cM0.2kM1.3
+# Scenario 38 : 2S-cM0.2kM1.4
 #
-scenario$scenario38$ctrl$scenarioName '2S-cM0.2kM1.3'
+scenario$scenario38$ctrl$scenarioName '2S-cM0.2kM1.4'
 scenario$scenario38$opMod$corrMult 0.2
-scenario$scenario38$opMod$kappaMult 1.3
+scenario$scenario38$opMod$kappaMult 1.4
 #
-# Scenario 39 : 2S-cM0.4kM1.3
+# Scenario 39 : 2S-cM0.4kM1.4
 #
-scenario$scenario39$ctrl$scenarioName '2S-cM0.4kM1.3'
+scenario$scenario39$ctrl$scenarioName '2S-cM0.4kM1.4'
 scenario$scenario39$opMod$corrMult 0.4
-scenario$scenario39$opMod$kappaMult 1.3
+scenario$scenario39$opMod$kappaMult 1.4
 #
-# Scenario 40 : 2S-cM0.6kM1.3
+# Scenario 40 : 2S-cM0.6kM1.4
 #
-scenario$scenario40$ctrl$scenarioName '2S-cM0.6kM1.3'
+scenario$scenario40$ctrl$scenarioName '2S-cM0.6kM1.4'
 scenario$scenario40$opMod$corrMult 0.6
-scenario$scenario40$opMod$kappaMult 1.3
+scenario$scenario40$opMod$kappaMult 1.4
 #
-# Scenario 41 : 2S-cM0.8kM1.3
+# Scenario 41 : 2S-cM0.8kM1.4
 #
-scenario$scenario41$ctrl$scenarioName '2S-cM0.8kM1.3'
+scenario$scenario41$ctrl$scenarioName '2S-cM0.8kM1.4'
 scenario$scenario41$opMod$corrMult 0.8
-scenario$scenario41$opMod$kappaMult 1.3
+scenario$scenario41$opMod$kappaMult 1.4
 #
-# Scenario 42 : 2S-cM1kM1.3
+# Scenario 42 : 2S-cM1kM1.4
 #
-scenario$scenario42$ctrl$scenarioName '2S-cM1kM1.3'
+scenario$scenario42$ctrl$scenarioName '2S-cM1kM1.4'
 scenario$scenario42$opMod$corrMult 1
-scenario$scenario42$opMod$kappaMult 1.3
+scenario$scenario42$opMod$kappaMult 1.4
 #
-# Scenario 43 : 2S-cM0kM1.5
+# Scenario 43 : 2S-cM0kM1.6
 #
-scenario$scenario43$ctrl$scenarioName '2S-cM0kM1.5'
+scenario$scenario43$ctrl$scenarioName '2S-cM0kM1.6'
 scenario$scenario43$opMod$corrMult 0
-scenario$scenario43$opMod$kappaMult 1.5
+scenario$scenario43$opMod$kappaMult 1.6
 #
-# Scenario 44 : 2S-cM0.2kM1.5
+# Scenario 44 : 2S-cM0.2kM1.6
 #
-scenario$scenario44$ctrl$scenarioName '2S-cM0.2kM1.5'
+scenario$scenario44$ctrl$scenarioName '2S-cM0.2kM1.6'
 scenario$scenario44$opMod$corrMult 0.2
-scenario$scenario44$opMod$kappaMult 1.5
+scenario$scenario44$opMod$kappaMult 1.6
 #
-# Scenario 45 : 2S-cM0.4kM1.5
+# Scenario 45 : 2S-cM0.4kM1.6
 #
-scenario$scenario45$ctrl$scenarioName '2S-cM0.4kM1.5'
+scenario$scenario45$ctrl$scenarioName '2S-cM0.4kM1.6'
 scenario$scenario45$opMod$corrMult 0.4
-scenario$scenario45$opMod$kappaMult 1.5
+scenario$scenario45$opMod$kappaMult 1.6
 #
-# Scenario 46 : 2S-cM0.6kM1.5
+# Scenario 46 : 2S-cM0.6kM1.6
 #
-scenario$scenario46$ctrl$scenarioName '2S-cM0.6kM1.5'
+scenario$scenario46$ctrl$scenarioName '2S-cM0.6kM1.6'
 scenario$scenario46$opMod$corrMult 0.6
-scenario$scenario46$opMod$kappaMult 1.5
+scenario$scenario46$opMod$kappaMult 1.6
 #
-# Scenario 47 : 2S-cM0.8kM1.5
+# Scenario 47 : 2S-cM0.8kM1.6
 #
-scenario$scenario47$ctrl$scenarioName '2S-cM0.8kM1.5'
+scenario$scenario47$ctrl$scenarioName '2S-cM0.8kM1.6'
 scenario$scenario47$opMod$corrMult 0.8
-scenario$scenario47$opMod$kappaMult 1.5
+scenario$scenario47$opMod$kappaMult 1.6
 #
-# Scenario 48 : 2S-cM1kM1.5
+# Scenario 48 : 2S-cM1kM1.6
 #
-scenario$scenario48$ctrl$scenarioName '2S-cM1kM1.5'
+scenario$scenario48$ctrl$scenarioName '2S-cM1kM1.6'
 scenario$scenario48$opMod$corrMult 1
-scenario$scenario48$opMod$kappaMult 1.5
+scenario$scenario48$opMod$kappaMult 1.6
+#
+# Scenario 49 : 2S-cM0kM1.8
+#
+scenario$scenario49$ctrl$scenarioName '2S-cM0kM1.8'
+scenario$scenario49$opMod$corrMult 0
+scenario$scenario49$opMod$kappaMult 1.8
+#
+# Scenario 50 : 2S-cM0.2kM1.8
+#
+scenario$scenario50$ctrl$scenarioName '2S-cM0.2kM1.8'
+scenario$scenario50$opMod$corrMult 0.2
+scenario$scenario50$opMod$kappaMult 1.8
+#
+# Scenario 51 : 2S-cM0.4kM1.8
+#
+scenario$scenario51$ctrl$scenarioName '2S-cM0.4kM1.8'
+scenario$scenario51$opMod$corrMult 0.4
+scenario$scenario51$opMod$kappaMult 1.8
+#
+# Scenario 52 : 2S-cM0.6kM1.8
+#
+scenario$scenario52$ctrl$scenarioName '2S-cM0.6kM1.8'
+scenario$scenario52$opMod$corrMult 0.6
+scenario$scenario52$opMod$kappaMult 1.8
+#
+# Scenario 53 : 2S-cM0.8kM1.8
+#
+scenario$scenario53$ctrl$scenarioName '2S-cM0.8kM1.8'
+scenario$scenario53$opMod$corrMult 0.8
+scenario$scenario53$opMod$kappaMult 1.8
+#
+# Scenario 54 : 2S-cM1kM1.8
+#
+scenario$scenario54$ctrl$scenarioName '2S-cM1kM1.8'
+scenario$scenario54$opMod$corrMult 1
+scenario$scenario54$opMod$kappaMult 1.8
+#
+# Scenario 55 : 2S-cM0kM2
+#
+scenario$scenario55$ctrl$scenarioName '2S-cM0kM2'
+scenario$scenario55$opMod$corrMult 0
+scenario$scenario55$opMod$kappaMult 2
+#
+# Scenario 56 : 2S-cM0.2kM2
+#
+scenario$scenario56$ctrl$scenarioName '2S-cM0.2kM2'
+scenario$scenario56$opMod$corrMult 0.2
+scenario$scenario56$opMod$kappaMult 2
+#
+# Scenario 57 : 2S-cM0.4kM2
+#
+scenario$scenario57$ctrl$scenarioName '2S-cM0.4kM2'
+scenario$scenario57$opMod$corrMult 0.4
+scenario$scenario57$opMod$kappaMult 2
+#
+# Scenario 58 : 2S-cM0.6kM2
+#
+scenario$scenario58$ctrl$scenarioName '2S-cM0.6kM2'
+scenario$scenario58$opMod$corrMult 0.6
+scenario$scenario58$opMod$kappaMult 2
+#
+# Scenario 59 : 2S-cM0.8kM2
+#
+scenario$scenario59$ctrl$scenarioName '2S-cM0.8kM2'
+scenario$scenario59$opMod$corrMult 0.8
+scenario$scenario59$opMod$kappaMult 2
+#
+# Scenario 60 : 2S-cM1kM2
+#
+scenario$scenario60$ctrl$scenarioName '2S-cM1kM2'
+scenario$scenario60$opMod$corrMult 1
+scenario$scenario60$opMod$kappaMult 2
 #
 # Management Procedures
 #

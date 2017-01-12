@@ -6,7 +6,7 @@
 # Function below also requires abbreviations of the 
 
 parList <- list( "opMod$corrMult" = seq(0,1,by=0.2),
-                 "opMod$kappaMult" = seq(0.1,1.5,by=0.2)
+                 "opMod$kappaMult" = seq(0.2,2,by=0.2)
                            )
 labels <- c("cM","kM")
 prefix <- "2S-"
