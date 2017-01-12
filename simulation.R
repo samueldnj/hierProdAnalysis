@@ -585,7 +585,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # Create dimension names for arrays
   rNames <- paste("Rep",1:nReps, sep ="")
-  sNames <- obj$ctrl$specNames
+  sNames <- obj$ctrl$speciesNames
   mcNo <- paste("mc",1:nMC,sep="")
   mcBt <- paste("B",1:nT,sep="")
 

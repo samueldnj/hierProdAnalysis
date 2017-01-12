@@ -36,15 +36,30 @@
 # inputs:   sim=int indicating which simulation to compute stats for
 # outputs:  statTable=data.frame of mean squared error BnT and Umsy
 # usage:    in lapply to produce stats for a group of simulations
-.simStatMSE <- function ( sim=1 )
+.simStatMSE <- function ( sim=1, est="MCMC" )
 {
   # First, load blob
   .loadSim(sim)
   om    <- blob$om
   opMod <- blob$opMod
   pars  <- blob$opMod$pars
+  
+  # Get estimates, whether MCMC or MLE
   ss    <- blob$am$ss
   ms    <- blob$am$ms
+
+  if( est == "MCMC" )
+  {
+    ssPar <- blob$am$ss$mcPar
+    ssBio <- blob$am$ss$mcBio
+    msPar <- blob$am$ms$mcPar
+    msBio <- blob$am$ms$mcBio
+
+    ssPar <- apply ( X = ssPar, FUN = mean, MARGIN = c(1,2,4))
+    ssBio <- apply ( X = ssBio, FUN = mean, MARGIN = c(1,2,4))
+    msPar <- apply ( X = msPar, FUN = mean, MARGIN = c(1,2,4))
+    msBio <- apply ( X = msBio, FUN = mean, MARGIN = c(1,2,4))
+  }
   
   # Control info
   nS      <- blob$opMod$nS
@@ -79,20 +94,41 @@
   # Now errors
   for (s in 1:nS)
   {
-    statTable[s,"ssBnT"]    <- mean ( (ss$Bt[,s,nT] - om$Bt[,s,nT])^2)
-    statTable[s,"msBnT"]    <- mean ( (ms$Bt[,s,nT] - om$Bt[,s,nT])^2)
-    statTable[s,"ssUmsy"]   <- mean ( (ss$Umsy[,s] - pars$Umsy[s])^2)
-    statTable[s,"msUmsy"]   <- mean ( (ms$Umsy[,s] - pars$Umsy[s])^2)
-    statTable[s,"ssBmsy"]   <- mean ( (ss$Bmsy[,s] - pars$Bmsy[s])^2)
-    statTable[s,"msBmsy"]   <- mean ( (ms$Bmsy[,s] - pars$Bmsy[s])^2)
-    statTable[s,"ssMSY"]    <- mean ( (ss$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
-    statTable[s,"msMSY"]    <- mean ( (ms$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2)
-    statTable[s,"ssDep"]    <- mean ( (ss$dep[,s] -  om$dep[,s])^2)
-    statTable[s,"msDep"]    <- mean ( (ms$dep[,s] -  om$dep[,s])^2)
-    statTable[s,"ssq"]      <- mean ( (ss$q[,s]   -  opMod$q[s])^2)
-    statTable[s,"msq"]      <- mean ( (ms$q[,s]   -  opMod$q[s])^2)
-    statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s] )
-    statTable[s,"msHessPD"] <- mean ( ms$hesspd )
+    if ( est == "MLE")
+    {
+      statTable[s,"ssBnT"]    <- mean ( (ss$Bt[,s,nT] - om$Bt[,s,nT])^2,na.rm=TRUE)
+      statTable[s,"msBnT"]    <- mean ( (ms$Bt[,s,nT] - om$Bt[,s,nT])^2,na.rm=TRUE)
+      statTable[s,"ssUmsy"]   <- mean ( (ss$Umsy[,s] - pars$Umsy[s])^2,na.rm=TRUE)
+      statTable[s,"msUmsy"]   <- mean ( (ms$Umsy[,s] - pars$Umsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssBmsy"]   <- mean ( (ss$Bmsy[,s] - pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"msBmsy"]   <- mean ( (ms$Bmsy[,s] - pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssMSY"]    <- mean ( (ss$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"msMSY"]    <- mean ( (ms$msy[,s] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssDep"]    <- mean ( (ss$dep[,s] -  om$dep[,s])^2,na.rm=TRUE)
+      statTable[s,"msDep"]    <- mean ( (ms$dep[,s] -  om$dep[,s])^2,na.rm=TRUE)
+      statTable[s,"ssq"]      <- mean ( (ss$q[,s]   -  opMod$q[s])^2,na.rm=TRUE)
+      statTable[s,"msq"]      <- mean ( (ms$q[,s]   -  opMod$q[s])^2,na.rm=TRUE)
+      statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s] )
+      statTable[s,"msHessPD"] <- mean ( ms$hesspd )  
+    }
+    if( est == "MCMC" )
+    {
+      statTable[s,"ssBnT"]    <- mean ( (ssBio[,s,nT] - om$Bt[,s,nT])^2,na.rm=TRUE)
+      statTable[s,"msBnT"]    <- mean ( (msBio[,s,nT] - om$Bt[,s,nT])^2,na.rm=TRUE)
+      statTable[s,"ssUmsy"]   <- mean ( (ssPar[,s,"Umsy"] - pars$Umsy[s])^2,na.rm=TRUE)
+      statTable[s,"msUmsy"]   <- mean ( (msPar[,s,"Umsy"] - pars$Umsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssBmsy"]   <- mean ( (ssPar[,s,"Bmsy"] - pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"msBmsy"]   <- mean ( (msPar[,s,"Bmsy"] - pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssMSY"]    <- mean ( (ssPar[,s,"msy"] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"msMSY"]    <- mean ( (msPar[,s,"msy"] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssDep"]    <- mean ( (ssPar[,s,"dep_bar"] -  om$dep[,s])^2,na.rm=TRUE)
+      statTable[s,"msDep"]    <- mean ( (msPar[,s,"dep_bar"] -  om$dep[,s])^2,na.rm=TRUE)
+      statTable[s,"ssq"]      <- mean ( (ssPar[,s,"q"]   -  opMod$q[s])^2,na.rm=TRUE)
+      statTable[s,"msq"]      <- mean ( (msPar[,s,"q"]   -  opMod$q[s])^2,na.rm=TRUE)
+      statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s], na.rm=TRUE )
+      statTable[s,"msHessPD"] <- mean ( ms$hesspd, na.rm=TRUE )  
+    }
+    
   }
   
   # return

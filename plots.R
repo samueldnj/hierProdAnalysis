@@ -374,16 +374,16 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
   if ( est == "MCMC" )
   {
     # single species
-    mcBioSSMed <- apply(X=blob$am$ss$mcBio[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    mcParSSMed <- apply(X=blob$am$ss$mcPar[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    ssBt       <- mcBioSSMed
-    ssq        <- mcParSSMed[,"q"]
+    mcBioSSMean <- apply(X=blob$am$ss$mcBio[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
+    mcParSSMean <- apply(X=blob$am$ss$mcPar[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
+    ssBt       <- mcBioSSMean
+    ssq        <- mcParSSMean[,"q"]
 
     # multispeces
-    mcBioMSMed <- apply(X=blob$am$ms$mcBio[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    mcParMSMed <- apply(X=blob$am$ms$mcPar[rep,,,],FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=0.5)
-    msBt       <- mcBioMSMed
-    msq        <- mcParMSMed[,"q"]
+    mcBioMSMed <- apply(X=blob$am$ms$mcBio[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
+    mcParMSMed <- apply(X=blob$am$ms$mcPar[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
+    msBt       <- mcBioMSMean
+    msq        <- mcParMSMean[,"q"]
   }
 
   # Estimated Ut
