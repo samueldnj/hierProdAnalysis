@@ -159,8 +159,10 @@
 
   # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
   ssHess <- ss$hesspd
+  ssHess[is.na(ssHess)] <- FALSE
   ssHess <- as.logical(apply ( X = ssHess, FUN = prod, MARGIN = 1 ) )
   msHess <- ms$hesspd
+  msHess[is.na(msHess)] <- FALSE
   ssSuccessful <- which ( ssHess )
   msSuccessful <- which ( msHess )
   success <- intersect ( ssSuccessful, msSuccessful )

@@ -380,6 +380,30 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     mcPar   <- try ( read.table ( mcParFile, header = TRUE), silent=TRUE )
     mcBio   <- try ( read.table (mcBioFile), silent=TRUE )
     fitrep  <- try ( lisread ( repFile ),silent=TRUE)
+
+    if (class(fitrep) == "try-error")
+    {
+      repProd <- FALSE
+      cat ( activeFileRoot, 
+              " abruptly stopped optimisation.\n", sep="" )
+        cat( "repeat i = ", i+1, ".\n", sep = "")
+        # Increment lnBMSY and tighten sBMSY
+        par$lnBmsy <- lnBmsy *(1+(i)*0.2)
+        # Write to pin file 
+        cat ( "## ", activeFileRoot, " initial parameter file, created ", 
+              format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
+              sep = "", file = pinFile, append = FALSE )
+        lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
+                  activeFile=pinFile )
+        # Now run the model and read in rep and MCMC files
+        system (  command = procCall, wait =TRUE, 
+                  ignore.stdout = quiet, intern=FALSE,
+                  ignore.stderr=quiet )
+        system ( command = mcEval, wait =TRUE, 
+                 ignore.stdout = quiet, intern=FALSE,
+                 ignore.stderr=quiet )
+        next
+    }
     # Check if there was MCMC output, if not, go down the list of possible 
     # reasons, and rerun the EM
     if (class(mcPar) == "try-error")
@@ -429,29 +453,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         next
       }      
     }
-    if (class(fitrep) == "try-error")
-    {
-      repProd <- FALSE
-      cat ( activeFileRoot, 
-              " abruptly stopped optimisation.\n", sep="" )
-        cat( "repeat i = ", i+1, ".\n", sep = "")
-        # Increment lnBMSY and tighten sBMSY
-        par$lnBmsy <- lnBmsy *(1+(i)*0.2)
-        # Write to pin file 
-        cat ( "## ", activeFileRoot, " initial parameter file, created ", 
-              format(Sys.time(), "%y-%m-%d %H:%M:%S"), "\n", 
-              sep = "", file = pinFile, append = FALSE )
-        lapply (  X = seq_along(par), FUN = writeADMB, x = par, 
-                  activeFile=pinFile )
-        # Now run the model and read in rep and MCMC files
-        system (  command = procCall, wait =TRUE, 
-                  ignore.stdout = quiet, intern=FALSE,
-                  ignore.stderr=quiet )
-        system ( command = mcEval, wait =TRUE, 
-                 ignore.stdout = quiet, intern=FALSE,
-                 ignore.stderr=quiet )
-        next
-    }
+    
     # Break if hess Positive definite
     if (hessPosDef) break
     # Otherwise, rerun the model using the par as the pin
