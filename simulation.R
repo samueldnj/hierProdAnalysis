@@ -935,7 +935,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Find the Cholesky factor of the correlation matrix
   # cov <- diag(Sigma) %*% Mcorr %*% diag(Sigma)
   Mchol <- chol ( Mcorr )
-
+  
   # create correlated random normals (chol returns UT matrix, so transpose)
   zcorr <- t(Mchol) %*% z
   # Scale by Sigma

@@ -169,7 +169,7 @@ doBatchRun <- function( batchFolderName )
 
     # Get list of current files (we don't want to unnecessary duplication)
     wdContents <- list.files("./")
-    mainWd <- getwd()
+    mainWD <- getwd()
     # Create folder names for batch running
     batchFolderNames <- paste("parBat",prefix,1:nBatchFiles,sep="")
     simFolderNames <- paste("sim_",batchFolderNames,sep="")

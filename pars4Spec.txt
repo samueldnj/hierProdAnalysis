@@ -5,23 +5,23 @@
 
 ## Leading parameter values for multispecies OM
 # Bmsy
-400 800 1200 600
+40 80 30 60
 
 # Umsy
-0.2 0.15 0.10 0.175
+0.3 0.2 0.35 0.25
 
 ## Process Error ##
 ## year effect variance (applied to all species)
 # kappa2
-0.1
+0.05
 
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.99 0.99 0.99
-0.99 1 0.99 0.99
-0.99 0.99 1 0.99
-0.99 0.99 0.99 1
+1 0.6 0.6 0.6
+0.6 1 0.6 0.6
+0.6 0.6 1 0.6
+0.6 0.6 0.6 1
 
 ## Species effect variance (species specific)
 # Sigma2
