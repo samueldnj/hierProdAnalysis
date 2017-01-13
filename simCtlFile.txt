@@ -35,8 +35,9 @@ assess$phz_Umsy 2
 assess$phz_tau 8
 assess$phz_kappa 4
 assess$phz_Sigma 6
-assess$phz_q 7
-assess$phz_mlnq -4
+assess$phz_q 2
+assess$phz_tau2q 3
+assess$phz_mlnq 4
 assess$phz_slnq -3
 assess$phz_IGpriors -1
 assess$phz_omegat 3
@@ -50,7 +51,7 @@ assess$sUmsy c(0.6,0.4,0.7,0.5)
 assess$mlnq 0
 assess$slnq 0.5
 assess$lnqbar 0.001
-assess$lntau2qs -1
+assess$lntau2qs -2
 assess$alpha_kappa 1
 assess$beta_kappa 0.1
 assess$alpha_Sigma 1

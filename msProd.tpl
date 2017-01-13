@@ -27,8 +27,9 @@ DATA_SECTION
   init_int phz_kappa;           // shared RE variance
   init_int phz_Sigma;           // species specific RE variance
   init_int phz_lnq;             // q - survey catchability - concentrated
-  init_int phz_mlnq;            // shared q prior mean
-  init_int phz_s2lnq;           // shared q prior variance
+  init_int phz_tau2q;           // shared q prior variance
+  init_int phz_mlnq;            // lnqbar prior mean
+  init_int phz_s2lnq;           // lnqbar prior variance
   init_int phz_varPriors;       // IG priors on variance terms
   init_int phz_omegat;          // shared envrionmental REs
   init_int phz_zetat;           // species spec REs
@@ -41,8 +42,6 @@ DATA_SECTION
   // Constant for number of free pars in chol matx
   int cEntries;
   int verbose;
-  int phz_tau2q;
-  !! phz_tau2q = phz_lnq;
 
   // Procedure to exit if not all data is read correctly
   LOC_CALCS

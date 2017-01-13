@@ -208,6 +208,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           phz_kappa   = obj$assess$phz_kappa,
                           phz_Sigma   = obj$assess$phz_Sigma,
                           phz_q       = -1,
+                          phz_tau2q   = -1,
                           phz_mlnq    = obj$assess$phz_mlnq,
                           phz_slnq    = obj$assess$phz_slnq,
                           phz_IGpriors= obj$assess$phz_IGpriors,
@@ -254,6 +255,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   phz_kappa   = obj$assess$phz_kappa,
                   phz_Sigma   = obj$assess$phz_Sigma,
                   phz_q       = obj$assess$phz_q,
+                  phz_tau2q   = obj$assess$phz_tau2q,
                   phz_mlnq    = obj$assess$phz_mlnq,
                   phz_slnq    = obj$assess$phz_slnq,
                   phz_IGpriors= obj$assess$phz_IGpriors,
@@ -935,7 +937,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Find the Cholesky factor of the correlation matrix
   # cov <- diag(Sigma) %*% Mcorr %*% diag(Sigma)
   Mchol <- chol ( Mcorr )
-  
+
   # create correlated random normals (chol returns UT matrix, so transpose)
   zcorr <- t(Mchol) %*% z
   # Scale by Sigma

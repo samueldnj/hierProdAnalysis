@@ -24,6 +24,7 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
   phz_kappa.allocate("phz_kappa");
   phz_Sigma.allocate("phz_Sigma");
   phz_lnq.allocate("phz_lnq");
+  phz_tau2q.allocate("phz_tau2q");
   phz_mlnq.allocate("phz_mlnq");
   phz_s2lnq.allocate("phz_s2lnq");
   phz_varPriors.allocate("phz_varPriors");
@@ -32,7 +33,6 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
   phz_AR.allocate("phz_AR");
   phz_chol.allocate("phz_chol");
   dumm.allocate("dumm");
- phz_tau2q = phz_lnq;
     if(dumm!=999)
     {
       cout<<"Error reading data.\n Fix it!! \n dumm = " << dumm << endl;

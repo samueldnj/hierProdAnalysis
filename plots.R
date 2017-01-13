@@ -376,14 +376,14 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
     # single species
     mcBioSSMean <- apply(X=blob$am$ss$mcBio[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
     mcParSSMean <- apply(X=blob$am$ss$mcPar[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
-    ssBt       <- mcBioSSMean
-    ssq        <- mcParSSMean[,"q"]
+    ssBt        <- mcBioSSMean
+    ssq         <- mcParSSMean[,"q"]
 
     # multispeces
-    mcBioMSMed <- apply(X=blob$am$ms$mcBio[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
-    mcParMSMed <- apply(X=blob$am$ms$mcPar[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
-    msBt       <- mcBioMSMean
-    msq        <- mcParMSMean[,"q"]
+    mcBioMSMean <- apply(X=blob$am$ms$mcBio[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
+    mcParMSMean <- apply(X=blob$am$ms$mcPar[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
+    msBt        <- mcBioMSMean
+    msq         <- mcParMSMean[,"q"]
   }
 
   # Estimated Ut
@@ -599,6 +599,8 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1,
     ssRE <- blob$am$ss$err.post[pars]
     msRE <- blob$am$ms$err.post[pars]
   }
+
+  browser()
   
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )
