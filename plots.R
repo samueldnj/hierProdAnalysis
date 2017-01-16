@@ -12,7 +12,8 @@
 # plotPerfMatrix()
 # Function to plot performance matrices for each species and scenario
 plotCorrContour <- function ( table     = "statTable.csv", 
-                              mpLabel   = "bothEff" )
+                              mpLabel   = "bothEff",
+                              base      = 2 )
 {
   # Load stat table
   tablePath <- file.path ( getwd(),"project/Statistics",table)
@@ -22,14 +23,17 @@ plotCorrContour <- function ( table     = "statTable.csv",
 
   table <- table  %>% filter( mp == mpLabel ) %>%
                       mutate( varMult = kappa2True/Sigma2True,
-                              BnT     = log2(ssBnT/msBnT),
-                              Umsy    = log2(ssUmsy/msUmsy) )
+                              BnT     = log(ssBnT/msBnT),
+                              Umsy    = log(ssUmsy/msUmsy) )
+
+  rangeU <- range(table$Umsy)
+  rangeB <- range(table$BnT)
 
   # Now make a pallette for the colours
   colScaleHi  <- brewer.pal( 5, "Greens" )
   colScaleLo  <- brewer.pal( 5, "Reds" )
-  colScale    <- c( colScaleLo[ 5:1 ],"white", colScaleHi[ 1:5 ] )
-  colBreaks   <- seq( -3.2, 3.2, length =12 )
+  colScale    <- c( colScaleLo[ 5:1 ],"grey90", colScaleHi[ 1:5 ] )
+  colBreaks   <- seq( -4.5, 4.5, length = )
 
 
   species   <- as.character(unique( table$species))
@@ -66,7 +70,6 @@ plotCorrContour <- function ( table     = "statTable.csv",
   par(mfrow = c(nS,2), mar = c(3,3,3,3), oma = c(4,4,4,4))
   for (s in 1:nS)
   {
-    browser()
     # Create a raster from the stat table info 
     bioRastObj <- list (  x = specList[[s]]$x,
                           y = specList[[s]]$y,
@@ -93,7 +96,7 @@ plotCorrContour <- function ( table     = "statTable.csv",
             axis.args = list( at = colBreaks,
                               labels = round(colBreaks,2),
                               cex.axis = 0.6),
-            zlim = c(-3,3),
+            zlim = c(-4.5,4,5),
             legend.args = list( text="log2(ssMSE/msMSE)", 
                                 side=4, font=2, 
                                 line=3, cex=0.75) )
@@ -599,8 +602,6 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1,
     ssRE <- blob$am$ss$err.post[pars]
     msRE <- blob$am$ms$err.post[pars]
   }
-
-  browser()
   
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )

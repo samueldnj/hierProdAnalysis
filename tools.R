@@ -20,7 +20,7 @@
 # --------------------------------------------------------------------------
 
 # Should only need to use a couple of times, to fix the naming in blob
-fixkappa <- function ( sim = 1)
+runStats <- function ( sim = 1)
 {
   # Check if blob is loaded, if not, load the blooob
   # List directories in project folder, remove "." from list
@@ -36,30 +36,8 @@ fixkappa <- function ( sim = 1)
   load ( file = blobPath )
 
   assign( "blob",blob,pos=1 )
-  cat("MSG (loadSim) Simulation ", folder, " loaded from ./project/\n", sep="" )
-  
-  cat("MSG (fixM) Fixing blob names\n", sep="" )
-  
-  reps  <- blob$ctrl$nReps
-  nT    <- length(blob$opMod$rep$yr)
-
-  ss <- blob$am$ss
-  ms <- blob$am$ms
-  
-  rename <- function ( list, from, to)
-  {
-    names <- names(list)
-    if ( from %in% names )
-    {
-      idx <- which (names == from)
-      names(list)[idx] <- to
-    } 
-    return(list)
-  }
-
-  blob$am$ss <- rename(ss, "sigma2", "kappa2")
-  blob$am$ms <- rename(ms, "sigma2", "kappa2")
-
+  cat("MSG (runStats) Simulation ", folder, " loaded from ./project/\n", sep="" )
+  cat("MSG (runStats) making relative error distributions.\n", sep="" )
   
   blob <- .makeRelErrorDists(blob)
 
@@ -791,7 +769,7 @@ calcDetFit <- function (fit)
   rDataFile <- paste ( name, ".RData", sep = "" )
   dataFilePath <- file.path ( path, rDataFile )
   save ( blob, file = dataFilePath )
-  cat( "\nMSG (saveSim) Saved ",rDataFile,"in ./project/",name,"/.\n",sep="" )
+  cat( "\nMSG (saveSim) Saved ",rDataFile," in ./project/",name,"/.\n",sep="" )
 }
 
 

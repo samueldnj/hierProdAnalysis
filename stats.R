@@ -266,7 +266,6 @@
     ms$err.post$dep[,s]    <- (msMCMC[,s,"dep_bar"] - om$dep[,s])/om$dep[,s]
     ms$err.post$BnT[,s]    <- (msMCMC[,s,"BnT"] - om$Bt[,s,nT])/om$Bt[,s,nT]
   }
-  browser()
 
   # Append these to blob
   blob$am$ss <- ss

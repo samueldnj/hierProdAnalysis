@@ -2,365 +2,119 @@
 parameter value
 # Scenarios
 #
-# Scenario 1 : 4S-cM0kM0.2
+# Scenario 1 : 2S-LoLoObsCV
+#
+scenario$scenario1$ctrl$scenarioName '2S-2LoObsCV'
 #
-scenario$scenario1$ctrl$scenarioName '4S-cM0kM0.2'
-scenario$scenario1$opMod$corrMult 0
-scenario$scenario1$opMod$kappaMult 0.2
+# Scenario 2 : 2S-LoMedObsCV
 #
-# Scenario 2 : 4S-cM0.2kM0.2
+scenario$scenario2$ctrl$scenarioName '2S-LoMedObsCV'
+scenario$scenario2$opMod$tau2 c(0.04,0.22)
 #
-scenario$scenario2$ctrl$scenarioName '4S-cM0.2kM0.2'
-scenario$scenario2$opMod$corrMult 0.2
-scenario$scenario2$opMod$kappaMult 0.2
-#
-# Scenario 3 : 4S-cM0.4kM0.2
-#
-scenario$scenario3$ctrl$scenarioName '4S-cM0.4kM0.2'
-scenario$scenario3$opMod$corrMult 0.4
-scenario$scenario3$opMod$kappaMult 0.2
-#
-# Scenario 4 : 4S-cM0.6kM0.2
-#
-scenario$scenario4$ctrl$scenarioName '4S-cM0.6kM0.2'
-scenario$scenario4$opMod$corrMult 0.6
-scenario$scenario4$opMod$kappaMult 0.2
-#
-# Scenario 5 : 4S-cM0.8kM0.2
-#
-scenario$scenario5$ctrl$scenarioName '4S-cM0.8kM0.2'
-scenario$scenario5$opMod$corrMult 0.8
-scenario$scenario5$opMod$kappaMult 0.2
-#
-# Scenario 6 : 4S-cM1kM0.2
-#
-scenario$scenario6$ctrl$scenarioName '4S-cM1kM0.2'
-scenario$scenario6$opMod$corrMult 1
-scenario$scenario6$opMod$kappaMult 0.2
-#
-# Scenario 7 : 4S-cM0kM0.4
-#
-scenario$scenario7$ctrl$scenarioName '4S-cM0kM0.4'
-scenario$scenario7$opMod$corrMult 0
-scenario$scenario7$opMod$kappaMult 0.4
-#
-# Scenario 8 : 4S-cM0.2kM0.4
-#
-scenario$scenario8$ctrl$scenarioName '4S-cM0.2kM0.4'
-scenario$scenario8$opMod$corrMult 0.2
-scenario$scenario8$opMod$kappaMult 0.4
-#
-# Scenario 9 : 4S-cM0.4kM0.4
-#
-scenario$scenario9$ctrl$scenarioName '4S-cM0.4kM0.4'
-scenario$scenario9$opMod$corrMult 0.4
-scenario$scenario9$opMod$kappaMult 0.4
-#
-# Scenario 10 : 4S-cM0.6kM0.4
-#
-scenario$scenario10$ctrl$scenarioName '4S-cM0.6kM0.4'
-scenario$scenario10$opMod$corrMult 0.6
-scenario$scenario10$opMod$kappaMult 0.4
-#
-# Scenario 11 : 4S-cM0.8kM0.4
-#
-scenario$scenario11$ctrl$scenarioName '4S-cM0.8kM0.4'
-scenario$scenario11$opMod$corrMult 0.8
-scenario$scenario11$opMod$kappaMult 0.4
-#
-# Scenario 12 : 4S-cM1kM0.4
-#
-scenario$scenario12$ctrl$scenarioName '4S-cM1kM0.4'
-scenario$scenario12$opMod$corrMult 1
-scenario$scenario12$opMod$kappaMult 0.4
-#
-# Scenario 13 : 4S-cM0kM0.6
-#
-scenario$scenario13$ctrl$scenarioName '4S-cM0kM0.6'
-scenario$scenario13$opMod$corrMult 0
-scenario$scenario13$opMod$kappaMult 0.6
-#
-# Scenario 14 : 4S-cM0.2kM0.6
-#
-scenario$scenario14$ctrl$scenarioName '4S-cM0.2kM0.6'
-scenario$scenario14$opMod$corrMult 0.2
-scenario$scenario14$opMod$kappaMult 0.6
-#
-# Scenario 15 : 4S-cM0.4kM0.6
-#
-scenario$scenario15$ctrl$scenarioName '4S-cM0.4kM0.6'
-scenario$scenario15$opMod$corrMult 0.4
-scenario$scenario15$opMod$kappaMult 0.6
-#
-# Scenario 16 : 4S-cM0.6kM0.6
-#
-scenario$scenario16$ctrl$scenarioName '4S-cM0.6kM0.6'
-scenario$scenario16$opMod$corrMult 0.6
-scenario$scenario16$opMod$kappaMult 0.6
-#
-# Scenario 17 : 4S-cM0.8kM0.6
-#
-scenario$scenario17$ctrl$scenarioName '4S-cM0.8kM0.6'
-scenario$scenario17$opMod$corrMult 0.8
-scenario$scenario17$opMod$kappaMult 0.6
-#
-# Scenario 18 : 4S-cM1kM0.6
-#
-scenario$scenario18$ctrl$scenarioName '4S-cM1kM0.6'
-scenario$scenario18$opMod$corrMult 1
-scenario$scenario18$opMod$kappaMult 0.6
-#
-# Scenario 19 : 4S-cM0kM0.8
-#
-scenario$scenario19$ctrl$scenarioName '4S-cM0kM0.8'
-scenario$scenario19$opMod$corrMult 0
-scenario$scenario19$opMod$kappaMult 0.8
-#
-# Scenario 20 : 4S-cM0.2kM0.8
-#
-scenario$scenario20$ctrl$scenarioName '4S-cM0.2kM0.8'
-scenario$scenario20$opMod$corrMult 0.2
-scenario$scenario20$opMod$kappaMult 0.8
-#
-# Scenario 21 : 4S-cM0.4kM0.8
-#
-scenario$scenario21$ctrl$scenarioName '4S-cM0.4kM0.8'
-scenario$scenario21$opMod$corrMult 0.4
-scenario$scenario21$opMod$kappaMult 0.8
-#
-# Scenario 22 : 4S-cM0.6kM0.8
-#
-scenario$scenario22$ctrl$scenarioName '4S-cM0.6kM0.8'
-scenario$scenario22$opMod$corrMult 0.6
-scenario$scenario22$opMod$kappaMult 0.8
-#
-# Scenario 23 : 4S-cM0.8kM0.8
-#
-scenario$scenario23$ctrl$scenarioName '4S-cM0.8kM0.8'
-scenario$scenario23$opMod$corrMult 0.8
-scenario$scenario23$opMod$kappaMult 0.8
-#
-# Scenario 24 : 4S-cM1kM0.8
-#
-scenario$scenario24$ctrl$scenarioName '4S-cM1kM0.8'
-scenario$scenario24$opMod$corrMult 1
-scenario$scenario24$opMod$kappaMult 0.8
-#
-# Scenario 25 : 4S-cM0kM1
-#
-scenario$scenario25$ctrl$scenarioName '4S-cM0kM1'
-scenario$scenario25$opMod$corrMult 0
-scenario$scenario25$opMod$kappaMult 1
-#
-# Scenario 26 : 4S-cM0.2kM1
-#
-scenario$scenario26$ctrl$scenarioName '4S-cM0.2kM1'
-scenario$scenario26$opMod$corrMult 0.2
-scenario$scenario26$opMod$kappaMult 1
-#
-# Scenario 27 : 4S-cM0.4kM1
-#
-scenario$scenario27$ctrl$scenarioName '4S-cM0.4kM1'
-scenario$scenario27$opMod$corrMult 0.4
-scenario$scenario27$opMod$kappaMult 1
-#
-# Scenario 28 : 4S-cM0.6kM1
-#
-scenario$scenario28$ctrl$scenarioName '4S-cM0.6kM1'
-scenario$scenario28$opMod$corrMult 0.6
-scenario$scenario28$opMod$kappaMult 1
-#
-# Scenario 29 : 4S-cM0.8kM1
-#
-scenario$scenario29$ctrl$scenarioName '4S-cM0.8kM1'
-scenario$scenario29$opMod$corrMult 0.8
-scenario$scenario29$opMod$kappaMult 1
-#
-# Scenario 30 : 4S-cM1kM1
-#
-scenario$scenario30$ctrl$scenarioName '4S-cM1kM1'
-scenario$scenario30$opMod$corrMult 1
-scenario$scenario30$opMod$kappaMult 1
-#
-# Scenario 31 : 4S-cM0kM1.2
-#
-scenario$scenario31$ctrl$scenarioName '4S-cM0kM1.2'
-scenario$scenario31$opMod$corrMult 0
-scenario$scenario31$opMod$kappaMult 1.2
-#
-# Scenario 32 : 4S-cM0.2kM1.2
-#
-scenario$scenario32$ctrl$scenarioName '4S-cM0.2kM1.2'
-scenario$scenario32$opMod$corrMult 0.2
-scenario$scenario32$opMod$kappaMult 1.2
-#
-# Scenario 33 : 4S-cM0.4kM1.2
-#
-scenario$scenario33$ctrl$scenarioName '4S-cM0.4kM1.2'
-scenario$scenario33$opMod$corrMult 0.4
-scenario$scenario33$opMod$kappaMult 1.2
-#
-# Scenario 34 : 4S-cM0.6kM1.2
-#
-scenario$scenario34$ctrl$scenarioName '4S-cM0.6kM1.2'
-scenario$scenario34$opMod$corrMult 0.6
-scenario$scenario34$opMod$kappaMult 1.2
-#
-# Scenario 35 : 4S-cM0.8kM1.2
-#
-scenario$scenario35$ctrl$scenarioName '4S-cM0.8kM1.2'
-scenario$scenario35$opMod$corrMult 0.8
-scenario$scenario35$opMod$kappaMult 1.2
-#
-# Scenario 36 : 4S-cM1kM1.2
-#
-scenario$scenario36$ctrl$scenarioName '4S-cM1kM1.2'
-scenario$scenario36$opMod$corrMult 1
-scenario$scenario36$opMod$kappaMult 1.2
-#
-# Scenario 37 : 4S-cM0kM1.4
-#
-scenario$scenario37$ctrl$scenarioName '4S-cM0kM1.4'
-scenario$scenario37$opMod$corrMult 0
-scenario$scenario37$opMod$kappaMult 1.4
-#
-# Scenario 38 : 4S-cM0.2kM1.4
-#
-scenario$scenario38$ctrl$scenarioName '4S-cM0.2kM1.4'
-scenario$scenario38$opMod$corrMult 0.2
-scenario$scenario38$opMod$kappaMult 1.4
-#
-# Scenario 39 : 4S-cM0.4kM1.4
-#
-scenario$scenario39$ctrl$scenarioName '4S-cM0.4kM1.4'
-scenario$scenario39$opMod$corrMult 0.4
-scenario$scenario39$opMod$kappaMult 1.4
-#
-# Scenario 40 : 4S-cM0.6kM1.4
-#
-scenario$scenario40$ctrl$scenarioName '4S-cM0.6kM1.4'
-scenario$scenario40$opMod$corrMult 0.6
-scenario$scenario40$opMod$kappaMult 1.4
-#
-# Scenario 41 : 4S-cM0.8kM1.4
-#
-scenario$scenario41$ctrl$scenarioName '4S-cM0.8kM1.4'
-scenario$scenario41$opMod$corrMult 0.8
-scenario$scenario41$opMod$kappaMult 1.4
-#
-# Scenario 42 : 4S-cM1kM1.4
-#
-scenario$scenario42$ctrl$scenarioName '4S-cM1kM1.4'
-scenario$scenario42$opMod$corrMult 1
-scenario$scenario42$opMod$kappaMult 1.4
-#
-# Scenario 43 : 4S-cM0kM1.6
-#
-scenario$scenario43$ctrl$scenarioName '4S-cM0kM1.6'
-scenario$scenario43$opMod$corrMult 0
-scenario$scenario43$opMod$kappaMult 1.6
-#
-# Scenario 44 : 4S-cM0.2kM1.6
-#
-scenario$scenario44$ctrl$scenarioName '4S-cM0.2kM1.6'
-scenario$scenario44$opMod$corrMult 0.2
-scenario$scenario44$opMod$kappaMult 1.6
-#
-# Scenario 45 : 4S-cM0.4kM1.6
-#
-scenario$scenario45$ctrl$scenarioName '4S-cM0.4kM1.6'
-scenario$scenario45$opMod$corrMult 0.4
-scenario$scenario45$opMod$kappaMult 1.6
-#
-# Scenario 46 : 4S-cM0.6kM1.6
-#
-scenario$scenario46$ctrl$scenarioName '4S-cM0.6kM1.6'
-scenario$scenario46$opMod$corrMult 0.6
-scenario$scenario46$opMod$kappaMult 1.6
-#
-# Scenario 47 : 4S-cM0.8kM1.6
-#
-scenario$scenario47$ctrl$scenarioName '4S-cM0.8kM1.6'
-scenario$scenario47$opMod$corrMult 0.8
-scenario$scenario47$opMod$kappaMult 1.6
-#
-# Scenario 48 : 4S-cM1kM1.6
-#
-scenario$scenario48$ctrl$scenarioName '4S-cM1kM1.6'
-scenario$scenario48$opMod$corrMult 1
-scenario$scenario48$opMod$kappaMult 1.6
-#
-# Scenario 49 : 4S-cM0kM1.8
-#
-scenario$scenario49$ctrl$scenarioName '4S-cM0kM1.8'
-scenario$scenario49$opMod$corrMult 0
-scenario$scenario49$opMod$kappaMult 1.8
-#
-# Scenario 50 : 4S-cM0.2kM1.8
-#
-scenario$scenario50$ctrl$scenarioName '4S-cM0.2kM1.8'
-scenario$scenario50$opMod$corrMult 0.2
-scenario$scenario50$opMod$kappaMult 1.8
-#
-# Scenario 51 : 4S-cM0.4kM1.8
-#
-scenario$scenario51$ctrl$scenarioName '4S-cM0.4kM1.8'
-scenario$scenario51$opMod$corrMult 0.4
-scenario$scenario51$opMod$kappaMult 1.8
-#
-# Scenario 52 : 4S-cM0.6kM1.8
-#
-scenario$scenario52$ctrl$scenarioName '4S-cM0.6kM1.8'
-scenario$scenario52$opMod$corrMult 0.6
-scenario$scenario52$opMod$kappaMult 1.8
-#
-# Scenario 53 : 4S-cM0.8kM1.8
-#
-scenario$scenario53$ctrl$scenarioName '4S-cM0.8kM1.8'
-scenario$scenario53$opMod$corrMult 0.8
-scenario$scenario53$opMod$kappaMult 1.8
-#
-# Scenario 54 : 4S-cM1kM1.8
-#
-scenario$scenario54$ctrl$scenarioName '4S-cM1kM1.8'
-scenario$scenario54$opMod$corrMult 1
-scenario$scenario54$opMod$kappaMult 1.8
-#
-# Scenario 55 : 4S-cM0kM2
-#
-scenario$scenario55$ctrl$scenarioName '4S-cM0kM2'
-scenario$scenario55$opMod$corrMult 0
-scenario$scenario55$opMod$kappaMult 2
-#
-# Scenario 56 : 4S-cM0.2kM2
-#
-scenario$scenario56$ctrl$scenarioName '4S-cM0.2kM2'
-scenario$scenario56$opMod$corrMult 0.2
-scenario$scenario56$opMod$kappaMult 2
-#
-# Scenario 57 : 4S-cM0.4kM2
-#
-scenario$scenario57$ctrl$scenarioName '4S-cM0.4kM2'
-scenario$scenario57$opMod$corrMult 0.4
-scenario$scenario57$opMod$kappaMult 2
-#
-# Scenario 58 : 4S-cM0.6kM2
-#
-scenario$scenario58$ctrl$scenarioName '4S-cM0.6kM2'
-scenario$scenario58$opMod$corrMult 0.6
-scenario$scenario58$opMod$kappaMult 2
-#
-# Scenario 59 : 4S-cM0.8kM2
-#
-scenario$scenario59$ctrl$scenarioName '4S-cM0.8kM2'
-scenario$scenario59$opMod$corrMult 0.8
-scenario$scenario59$opMod$kappaMult 2
-#
-# Scenario 60 : 4S-cM1kM2
-#
-scenario$scenario60$ctrl$scenarioName '4S-cM1kM2'
-scenario$scenario60$opMod$corrMult 1
-scenario$scenario60$opMod$kappaMult 2
+# Scenario 3 : 2S-LoHiObsCV
+#
+scenario$scenario3$ctrl$scenarioName '2S-LoHiObsCV'
+scenario$scenario3$opMod$tau2 c(0.04,0.49)
+#
+# Scenario 4 : 2S-LoObsCV-identObs
+#
+scenario$scenario4$ctrl$scenarioName '2S-LoObsCV-identObs'
+scenario$scenario4$opMode$identObs TRUE
+#
+# Scenario 5 : 2S-MedObsCV-identObs
+#
+scenario$scenario5$ctrl$scenarioName '2S-MedObsCV-identObs'
+scenario$scenario5$opMode$identObs TRUE
+scenario$scenario5$opMod$tau2 c(0.22,0.22)
+#
+# Scenario 6 : 2S-HiObsCV-identObs
+#
+scenario$scenario6$ctrl$scenarioName '2S-HiObsCV-identObs'
+scenario$scenario6$opMode$identObs TRUE
+scenario$scenario6$opMod$tau2 c(0.49,0.49)
+#
+# Scenario 7 : 4S-4LoObsCV
+#
+scenario$scenario7$ctrl$scenarioName '4S-4LoObsCV'
+scenario$scenario7$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario7$opMod$nS 4
+scenario$scenario7$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario7$opMod$tau2 c(0.04,0.04,0.04,0.04)
+scenario$scenario7$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario7$opMod$parFile "pars4Spec.txt"
+#
+# Scenario 8 : 4S-2Lo2MedObsCV
+#
+scenario$scenario8$ctrl$scenarioName '4S-2Lo2MedObsCV'
+scenario$scenario8$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario8$opMod$nS 4
+scenario$scenario8$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario8$opMod$tau2 c(0.04,0.04,0.22,0.22)
+scenario$scenario8$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario8$opMod$parFile "pars4Spec.txt"
+#
+# Scenario 9 : 4S-2Lo1Med1HiObsCV
+#
+scenario$scenario9$ctrl$scenarioName '4S-2Lo1Med1HiObsCV'
+scenario$scenario9$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario9$opMod$nS 4
+scenario$scenario9$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario9$opMod$tau2 c(0.04,0.04,0.22,0.49)
+scenario$scenario9$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario9$opMod$parFile "pars4Spec.txt"
+#
+# Scenario 10 : 4S-1Lo2Med1HiObsCV
+#
+scenario$scenario10$ctrl$scenarioName '4S-2Lo1Med1HiObsCV'
+scenario$scenario10$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario10$opMod$nS 4
+scenario$scenario10$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario10$opMod$tau2 c(0.04,0.22,0.22,0.49)
+scenario$scenario10$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario10$opMod$parFile "pars4Spec.txt"
+#
+# Scenario 11 : 4S-1Lo2Med1HiObsCV
+#
+scenario$scenario11$ctrl$scenarioName '4S-2Lo2HiObsCV'
+scenario$scenario11$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario11$opMod$nS 4
+scenario$scenario11$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario11$opMod$tau2 c(0.04,0.04,0.49,0.49)
+scenario$scenario11$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario11$opMod$parFile "pars4Spec.txt"
+#
+# Scenario 12 : 4S-LoObsCV-identObs
+#
+scenario$scenario12$ctrl$scenarioName '4S-2LoObsCV-identObs'
+scenario$scenario12$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario12$opMod$nS 4
+scenario$scenario12$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario12$opMod$tau2 c(0.04,0.04,0.04,0.04)
+scenario$scenario12$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario12$opMod$parFile "pars4Spec.txt"
+scenario$scenario12$opMod$$identObs TRUE
+#
+# Scenario 13 : 4S-MedObsCV-identObs
+#
+scenario$scenario13$ctrl$scenarioName '4S-MedObsCV-identObs'
+scenario$scenario13$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario13$opMod$nS 4
+scenario$scenario13$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario13$opMod$tau2 c(0.22,0.22,0.22,0.22)
+scenario$scenario13$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario13$opMod$parFile "pars4Spec.txt"
+scenario$scenario13$opMod$$identObs TRUE
+#
+# Scenario 14 : 4S-HiObsCV-identObs
+#
+scenario$scenario14$ctrl$scenarioName '4S-HiObsCV-identObs'
+scenario$scenario14$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario14$opMod$nS 4
+scenario$scenario14$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario14$opMod$tau2 c(0.49,0.49,0.49,0.49)
+scenario$scenario14$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario14$opMod$parFile "pars4Spec.txt"
+scenario$scenario14$opMod$$identObs TRUE
 #
 # Management Procedures
 #
