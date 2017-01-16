@@ -119,5 +119,5 @@ scenario$scenario14$opMod$$identObs TRUE
 # Management Procedures
 #
 mp$mp1$ctrl$mpLabel "bothEff"
-mp$mp1$assess$tau2 0.001
+mp$mp1$assess$tau2 0.01
 # File Ends <not run>.
