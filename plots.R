@@ -602,7 +602,7 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT"), sim=1,
     ssRE <- blob$am$ss$err.post[pars]
     msRE <- blob$am$ms$err.post[pars]
   }
-  
+
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )
   {

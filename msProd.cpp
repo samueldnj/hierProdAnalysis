@@ -2,8 +2,8 @@
   
   int mcHeader=0;
   int mcTrials=0;
-  ofstream mcoutpar("msProdParMC.dat");
-  ofstream mcoutbio("msProdBioMC.dat");
+  ofstream mcout("mcout.dat");
+  //ofstream mcoutbio("msProdBioMC.dat");
 #include <admodel.h>
 #include <contrib.h>
 
@@ -20,10 +20,15 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
   It.allocate(1,nS,1,nT,"It");
   phz_Bmsy.allocate("phz_Bmsy");
   phz_Umsy.allocate("phz_Umsy");
+  phz_Ubar.allocate("phz_Ubar");
+  phz_sig2U.allocate("phz_sig2U");
+  phz_mlnU.allocate("phz_mlnU");
+  phz_s2lnU.allocate("phz_s2lnU");
   phz_tau.allocate("phz_tau");
   phz_kappa.allocate("phz_kappa");
   phz_Sigma.allocate("phz_Sigma");
   phz_lnq.allocate("phz_lnq");
+  phz_qbar.allocate("phz_qbar");
   phz_tau2q.allocate("phz_tau2q");
   phz_mlnq.allocate("phz_mlnq");
   phz_s2lnq.allocate("phz_s2lnq");
@@ -36,6 +41,7 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
     if(dumm!=999)
     {
       cout<<"Error reading data.\n Fix it!! \n dumm = " << dumm << endl;
+      cout<< "phz_AR = " << phz_AR << endl;
       ad_exit(1);
     }
     cEntries=nS*(nS-1)/2;
@@ -43,12 +49,21 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
     if (nS == 1)
     {
       // if only one species, estimate only the shared REs
-      phz_omegat  = phz_zetat;
-      phz_kappa   = phz_Sigma;
+      if ( (phz_zetat > 0 ) & (phz_zetat < phz_omegat) ) 
+      {
+        phz_omegat  = phz_zetat;
+      }
+      if ( (phz_Sigma > 0 ) & (phz_Sigma < phz_kappa) ) 
+      {
+        phz_kappa  = phz_Sigma;
+      }
       phz_zetat   = -1;
       phz_chol    = -1;
       phz_Sigma   = -1;
-      phz_tau2q  = -1;
+      phz_qbar    = -1;
+      phz_tau2q   = -1;
+      phz_Ubar    = -1;
+      phz_sig2U   = -1;
     }
 }
 
@@ -66,6 +81,7 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   #ifndef NO_AD_INITIALIZE
     Umsy.initialize();
   #endif
+  lnq_s.allocate(1,nS,phz_lnq,"lnq_s");
   lntau2.allocate(phz_tau,"lntau2");
   lnkappa2.allocate(phz_kappa,"lnkappa2");
   lnSigma2.allocate(phz_Sigma,"lnSigma2");
@@ -101,18 +117,24 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   #endif
   mBmsy.allocate(1,nS,-1,"mBmsy");
   sBmsy.allocate(1,nS,-1,"sBmsy");
-  mUmsy.allocate(1,nS,-1,"mUmsy");
-  sUmsy.allocate(1,nS,-1,"sUmsy");
+  lnUmsybar.allocate(phz_Ubar,"lnUmsybar");
+  lnsig2U.allocate(phz_sig2U,"lnsig2U");
+  mlnU.allocate(phz_mlnU,"mlnU");
+  s2lnU.allocate(phz_s2lnU,"s2lnU");
   alpha_kappa.allocate(1,10,phz_varPriors,"alpha_kappa");
   beta_kappa.allocate(0.01,4,phz_varPriors,"beta_kappa");
   alpha_Sigma.allocate(1,10,phz_varPriors,"alpha_Sigma");
   beta_Sigma.allocate(0.01,4,phz_varPriors,"beta_Sigma");
   alpha_tau.allocate(1,10,phz_varPriors,"alpha_tau");
   beta_tau.allocate(0.01,4,phz_varPriors,"beta_tau");
+  alpha_tauq.allocate(1,10,phz_varPriors,"alpha_tauq");
+  beta_tauq.allocate(0.01,4,phz_varPriors,"beta_tauq");
+  alpha_sigU.allocate(1,10,phz_varPriors,"alpha_sigU");
+  beta_sigU.allocate(0.01,4,phz_varPriors,"beta_sigU");
   mlnq.allocate(-1.,1.,phz_mlnq,"mlnq");
   s2lnq.allocate(phz_s2lnq,"s2lnq");
-  lnqbar.allocate(-5,2,phz_lnq,"lnqbar");
-  lntau2q.allocate(-5,2,phz_tau2q,"lntau2q");
+  lnqbar.allocate(-5,2,phz_qbar,"lnqbar");
+  lntau2q.allocate(phz_tau2q,"lntau2q");
   omegat.allocate(1,nT,-3.,3.,phz_omegat,"omegat");
   zetat.allocate(1,nS,1,nT,phz_zetat,"zetat");
   epst.allocate(1,nT,"epst");
@@ -126,10 +148,6 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   f.allocate("f");
   prior_function_value.allocate("prior_function_value");
   likelihood_function_value.allocate("likelihood_function_value");
-  lnq_s.allocate(1,nS,"lnq_s");
-  #ifndef NO_AD_INITIALIZE
-    lnq_s.initialize();
-  #endif
   q.allocate(1,nS,"q");
   Bt.allocate(1,nS,1,nT,"Bt");
   #ifndef NO_AD_INITIALIZE
@@ -234,14 +252,9 @@ void model_parameters::userfunction(void)
   // Compute likelihood for dynamics
   calcLikelihoods();
   if (verbose) cout << "Likelihood computation complete" << endl;
-  //cout << "nll = " << nll << endl;
   // Compute priors
   calcPriors();
   if (verbose)  cout << "Prior computation complete" << endl;
-  // cout << "prior = " << prior << endl;
-  // cout << "lnmsy = " << lnmsy << endl;
-  // cout << "lnFmsy = " << lnFmsy << endl;
-  // cout << "epst = " << epst << endl;
   // Output MCMC data if running mcmc trials
   if(mceval_phase())
   { 
@@ -257,16 +270,11 @@ void model_parameters::stateDynamics(void)
 {
   // exponentiate leading parameters
   Umsy  = mfexp ( lnUmsy );         // optimal exploitation rate
-  //cout << "Umsy = " << Umsy << endl;
   Bmsy  = mfexp ( lnBmsy );         // optimal eqbm biomass
-  //cout << "Bmsy = " << Bmsy << endl;
   msy   = elem_prod( Bmsy, Umsy);   // optimal eqbm harvest
-  //cout << "msy = " << msy << endl;
   // initialise penalisers
   fpen = 0.; pospen = 0.;
   // initialise RE variables
-  // omegat.initialize();
-  // zetat.initialize();
   chol.initialize();
   epst.initialize();
   zetatc.initialize();
@@ -290,8 +298,6 @@ void model_parameters::stateDynamics(void)
     Sigma2  = mfexp(lnSigma2);
     Sigma   = mfexp(0.5*lnSigma2);
     //cout << "lnSigma2 = " << lnSigma2 << endl; 
-    // Restrict shared effect to have mean 0
-    //omegat -= mean(omegat);
     // Construct Cholesky factor of correlation mtx
     chol(1,1) = 1.;
     int k=1;
@@ -307,9 +313,8 @@ void model_parameters::stateDynamics(void)
     // Compute correlated zetat values
     zetatc = chol * zetat;
   }
-  //cout << "Starting Pop Dyn" << endl;
   // Run a loop for population dynamics of each stock
-  // Assume stocks are at equilibrium initially ( B1 = B0e^delta1 )
+  // Assume stocks are at equilibrium with process error initially
   for (int s=1;s<=nS;s++)
   {
     // start AR(1) process
@@ -333,8 +338,6 @@ void model_parameters::stateDynamics(void)
       fpen += 100. * pospen;
     }
   }
-  //cout << "Bt = " <<  Bt <<  endl;
-  //cout << "epst = " <<  epst <<  endl;
   // compute derived management quantities
   dep_bar = elem_div(column(Bt,nT),Bmsy) / 2;      // depletion estimate
   UnT_bar = elem_div(column(katch,nT),column(Bt,nT)); // Most recent exp rate
@@ -344,7 +347,7 @@ void model_parameters::obsModel(void)
 {
   zSum=0.0;
   validObs.initialize();
-  lnq_s.initialize();
+  //lnq_s.initialize();
   ss.initialize();
   //cout << "Inside Observation Model" << endl;
   for ( int s=1;s<=nS;s++)
@@ -360,24 +363,20 @@ void model_parameters::obsModel(void)
         validObs(s) += 1;
       }
     }
-    //cout << "z = " << z(s) << endl;
-    // Compute conditional posterior mode of lnq_hat (BDA3 eq 11.10)
-    if (s == 1) lnq_s(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
-    if (s > 1)
-    {
-      lnq_s(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
-    }
-    //lnqhat(s) = zSum(s)/validObs(s); // mean residual for non-hierarchical model
-    //cout << "lnqhat = " << lnqhat(s) << endl;
+    // Compute conditional posterior mode of lnq_hat
+    //if (s == 1) lnq_s(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
+    //if (s > 1)
+    //{
+    // lnq_s(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
+    //}
+    // Then sum of squares
     for (int t=1;t<=nT;t++)
     {
-      //cout << "Computing squared residual for time " << t << endl;
       if(It(s,t)>0.0)
       {
         ss(s) += pow (z(s,t) - lnq_s(s),2.0);
       }
     }
-    //cout << "Species " << s << " obs model complete" << endl;
   }
 }
 
@@ -386,19 +385,18 @@ void model_parameters::calcLikelihoods(void)
   // Initialise NLL variables
   totalLike.initialize();
   obsLike.initialize(); 
-  //omegaLike.initialize();
   procLike.initialize();
   // compute observation likelihood
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
   totalLike += sum(obsLike);
-  // Shared effect estimated
-  if ((phz_omegat > 0) ) //& (phz_zetat<0) )
+  // Shared effect (uncorrelated)
+  if ((phz_omegat > 0) )
   {
     procLike(1) = 0.5*nT*lnkappa2 + 0.5*norm2(omegat)/(kappa2) + sum(omegat);
     totalLike += sum(procLike);
   }
-  // species specific effect estimated
-  if ( (phz_zetat > 0) ) //& (phz_omegat < 0 ) )
+  // species specific effect (uncorrelated)
+  if ( (phz_zetat > 0) )
   {
     for (int s=1; s<=nS; s++)
     {
@@ -427,25 +425,34 @@ void model_parameters::calcPriors(void)
   // Then Umsy
   if (phz_Umsy > 0)
   {
-    UmsyPrior = 0.5*elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2));  
+    if (nS == 1) UmsyPrior += 0.5 * pow ( lnUmsy - mlnU, 2 ) / s2lnU;
+    else {
+      UmsyPrior = 0.5*log(mfexp(lnsig2U)) + 0.5*norm2(lnUmsy - lnUmsybar)/mfexp(lnsig2U) + mfexp(lnUmsy);
+      //UmsyPrior += lnsig2U;
+      if ( value(lnUmsybar) != value(mlnU) ) 
+      {
+        UmsyPrior += 0.5*pow(lnUmsybar - mlnU,2.)/s2lnU + mfexp(lnUmsybar);
+      }
+    }
   }
   // lnq prior (shared)
   if (phz_lnq > 0)
   {
     if (nS == 1) lnqPrior = pow ( lnq_s - mlnq, 2 ) / s2lnq /2;
     else {
-      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnq_s - lnqbar)/mfexp(lntau2q);
-      lnqPrior += lntau2q;
+      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnq_s - lnqbar)/mfexp(lntau2q) + mfexp(lnq_s);
+      //lnqPrior += lntau2q;
       if ( value(lnqbar) != value(mlnq) ) 
       {
-        lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
+        lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq + mfexp(lnqbar);
       }
     }
   }
   // total the schaefer model priors
   totalPrior = sum(BmsyPrior) + sum(UmsyPrior) + sum ( lnqPrior );
   if ( verbose ) cout << "Added total Schaefer Priors" << endl;
-  // Now the shared effects variance (IG(alpha,beta)) if lnkappa2 is active
+  // Variance Priors
+  // Year Effect
   if (active(lnkappa2))
   {
     kappaPrior = (alpha_kappa+1)*lnkappa2+beta_kappa/kappa2;
@@ -463,8 +470,20 @@ void model_parameters::calcPriors(void)
     tauPrior = (alpha_tau+1)*log(tau2)+beta_tau/tau2;
     totalPrior += tauPrior;
   }
-  // Apply a Jeffries prior to msy
-  //totalPrior += sum(1/msy);
+  // tau2q prior if estimated
+  if (active(lntau2q))
+  {
+    dvariable tauqPrior = 0;
+    tauqPrior = (alpha_tauq+1)*lntau2q+beta_tauq/mfexp(lntau2q);
+    totalPrior += tauqPrior;
+  }
+  // sig2U prior if estimated
+  if (active(lnsig2U))
+  {
+    dvariable sigUPrior = 0;
+    sigUPrior = (alpha_sigU+1)*lnsig2U+beta_sigU/mfexp(lnsig2U);
+    totalPrior += sigUPrior;
+  }
   // If estimating IG parameters, apply a jeffreys prior to the
   // beta pars
   if ( active(beta_kappa) )
@@ -485,31 +504,68 @@ void model_parameters::mcDumpOut(void)
 {
   if( mcHeader == 0 )
   {
-    // Output the parameters needed for performance testing of SA method.
-    mcoutpar << "Bmsy msy Umsy q Sigma2 kappa2 tau2 UnT_bar BnT dep_bar " << endl;
-    for ( int s=1;s<=nS;s++)
+    // Header
+    for( int s=1; s<=nS;s++) {mcout << "Bmsy" << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "msy"  << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "Umsy" << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "q"    << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "UnT"  << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "DnT"  << s << " ";}
+    mcout << "Sigma2 kappa2 tau2 qbar mlnq tau2q Umsybar mlnU sig2U ";
+    for( int s=1; s<=nS;s++)
     {
-      // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
-      mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
-      mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
-      // Output the biomass estimates for this MC evaluation
-      mcoutbio << Bt(s) << endl;
+      for (int t=1; t<=nT; t++)
+      {
+        mcout << "Bst_" << s << "_" << t << " ";
+      }
     }
+    mcout << endl;
+    // Now the parameter values
+    mcout << Bmsy               << " ";
+    mcout << msy                << " ";
+    mcout << Umsy               << " ";
+    mcout << mfexp(lnq_s)       << " ";
+    mcout << UnT_bar            << " ";
+    mcout << dep_bar            << " ";
+    mcout << Sigma2             << " ";
+    mcout << kappa2             << " ";
+    mcout << tau2               << " ";
+    mcout << mfexp(lnqbar)      << " ";
+    mcout << mlnq               << " ";
+    mcout << mfexp(lntau2q)     << " ";
+    mcout << mfexp(lnUmsybar)   << " ";
+    mcout << mlnU               << " ";
+    mcout << mfexp(lnsig2U)     << " ";
+    for (int s=1;s<=nS;s++)
+    {
+      mcout << row(Bt,s) << " ";
+    }
+    mcout << endl;
     mcHeader = 1;
   }
   else
   {
-    // loop over species
-    for ( int s=1;s<=nS;s++)
+    // Now the parameter values
+    mcout << Bmsy               << " ";
+    mcout << msy                << " ";
+    mcout << Umsy               << " ";
+    mcout << mfexp(lnq_s)       << " ";
+    mcout << UnT_bar            << " ";
+    mcout << dep_bar            << " ";
+    mcout << Sigma2             << " ";
+    mcout << kappa2             << " ";
+    mcout << tau2               << " ";
+    mcout << mfexp(lnqbar)      << " ";
+    mcout << mlnq               << " ";
+    mcout << mfexp(lntau2q)     << " ";
+    mcout << mfexp(lnUmsybar)   << " ";
+    mcout << mlnU               << " ";
+    mcout << mfexp(lnsig2U)     << " ";
+    for (int s=1;s<=nS;s++)
     {
-      // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
-      mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
-      mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
-      // Output the biomass estimates for this MC evaluation
-      mcoutbio << Bt(s) << endl;
+      mcout << row(Bt,s) << " ";
     }
+    mcout << endl;
   }
 }
 
@@ -569,6 +625,10 @@ void model_parameters::report(const dvector& gradients)
     report << mfexp(lnqbar) <<endl;  
     report << "tau2q" << endl;
     report << mfexp(lntau2q) << endl;
+    report << "# Umsybar" << endl;
+    report << mfexp(lnUmsybar) <<endl;  
+    report << "sig2U" << endl;
+    report << mfexp(lnsig2U) << endl;
   }
   report << "# D" << endl;
   report << dep_bar << endl;
@@ -586,10 +646,10 @@ void model_parameters::report(const dvector& gradients)
   report << mBmsy << endl;
   report << "# sBmsy" << endl;  
   report << sBmsy << endl;
-  report << "# mUmsy" << endl;  
-  report << mUmsy << endl;
-  report << "# sUmsy" << endl;  
-  report << sUmsy << endl;
+  report << "# mlnUmsy" << endl;  
+  report << mlnU << endl;
+  report << "# s2lnUmsy" << endl;  
+  report << s2lnU << endl;
   report << "# alpha_kappa" << endl;
   report << alpha_kappa << endl;
   report << "# beta_kappa" << endl;

@@ -204,13 +204,18 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           It          = om$It[s,],
                           phz_Bmsy    = obj$assess$phz_Bmsy,
                           phz_Umsy    = obj$assess$phz_Umsy,
+                          phz_Ubar    = obj$assess$phz_Ubar,
+                          phz_sig2U   = obj$assess$phz_sig2U,
+                          phz_mlnU    = obj$assess$phz_mlnU,
+                          phz_s2lnU   = obj$assess$phz_s2lnU,
                           phz_tau     = obj$assess$phz_tau,
                           phz_kappa   = obj$assess$phz_kappa,
                           phz_Sigma   = obj$assess$phz_Sigma,
-                          phz_q       = -1,
+                          phz_lnq     = obj$assess$phz_lnq,
+                          phz_qbar    = -1,
                           phz_tau2q   = -1,
                           phz_mlnq    = obj$assess$phz_mlnq,
-                          phz_slnq    = obj$assess$phz_slnq,
+                          phz_s2lnq   = obj$assess$phz_s2lnq,
                           phz_IGpriors= obj$assess$phz_IGpriors,
                           phz_omegat  = obj$assess$phz_omegat,
                           phz_zetat   = obj$assess$phz_zetat,
@@ -220,28 +225,33 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy      = log(sumCat[s]/2),
                           lnUmsy      = -1,
+                          lnq_s       = obj$assess$lnq_s[s],
                           lntau2      = log(obj$assess$tau2),
                           lnkappa2    = log(obj$assess$kappa2 + obj$assess$Sigma2),
                           lnSigma2    = 0,
                           gamma       = obj$assess$gamma,
-                          # c           = 0,
-                          # lnq         = log(obj$om$q[s]),
                           mBmsy       = obj$assess$mBmsy[s],
                           sBmsy       = obj$assess$sBmsy[s],
-                          mUmsy       = obj$assess$mUmsy[s],
-                          sUmsy       = obj$assess$sUmsy[s],
+                          lnUbar      = obj$assess$lnUbar,
+                          lnsig2U     = obj$assess$lnsig2U,
+                          mlnU        = obj$assess$mlnU,
+                          s2lnU       = obj$assess$s2lnU,
                           alpha_kappa = obj$assess$alpha_kappa, 
                           beta_kappa  = obj$assess$beta_kappa,
                           alpha_Sigma = obj$assess$alpha_Sigma, 
                           beta_Sigma  = obj$assess$beta_Sigma,
                           alpha_tau   = obj$assess$alpha_tau,
                           beta_tau    = obj$assess$beta_tau,
+                          alpha_tauq  = obj$assess$alpha_tauq,
+                          beta_tauq   = obj$assess$beta_tauq,
+                          alpha_sigU  = obj$assess$alpha_sigU,
+                          beta_sigU   = obj$assess$beta_sigU,
                           mlnq        = obj$assess$mlnq,
-                          s2lnq       = obj$assess$slnq,
+                          s2lnq       = obj$assess$s2lnq,
                           lnqbar      = 0,
                           lntau2qs    = 0,
                           epst        = rep(0,nT),
-                          zetat       = matrix(0,nrow=nS,ncol=nT) )
+                          zetat       = matrix(0,nrow=1,ncol=nT) )
 
   }
   # now make dat and par lists for the MS model
@@ -251,42 +261,53 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   It          = om$It,
                   phz_Bmsy    = obj$assess$phz_Bmsy,
                   phz_Umsy    = obj$assess$phz_Umsy,
+                  phz_Ubar    = obj$assess$phz_Ubar,
+                  phz_sig2U   = obj$assess$phz_sig2U,
+                  phz_mlnU    = obj$assess$phz_mlnU,
+                  phz_s2lnU   = obj$assess$phz_s2lnU,
                   phz_tau     = obj$assess$phz_tau,
                   phz_kappa   = obj$assess$phz_kappa,
                   phz_Sigma   = obj$assess$phz_Sigma,
-                  phz_q       = obj$assess$phz_q,
+                  phz_lnq     = obj$assess$phz_lnq,
+                  phz_qbar    = obj$assess$phz_qbar,
                   phz_tau2q   = obj$assess$phz_tau2q,
                   phz_mlnq    = obj$assess$phz_mlnq,
-                  phz_slnq    = obj$assess$phz_slnq,
+                  phz_s2lnq   = obj$assess$phz_s2lnq,
                   phz_IGpriors= obj$assess$phz_IGpriors,
                   phz_omegat  = obj$assess$phz_omegat,
                   phz_zetat   = obj$assess$phz_zetat,
                   phz_AR      = obj$assess$phz_AR,
                   phz_chol    = obj$assess$phz_chol,
-                  dumm        =  999 )
+                  dumm        =  999  )
 
   msPar <- list ( lnBmsy      = log(sumCat/2),
                   lnUmsy      = rep(-1,nS),
+                  lnq_s       = obj$assess$lnq_s,
                   lntau2      = log(obj$assess$tau2),
                   lnkappa2    = log(obj$assess$kappa2),
                   lnSigma2    = log(obj$assess$Sigma2),
                   gamma       = obj$assess$gamma,
                   c           = rep(0,nS*(nS-1)/2),
-                  # lnq       = log(obj$om$q),
                   mBmsy       = obj$assess$mBmsy,
                   sBmsy       = obj$assess$sBmsy,
-                  mUmsy       = obj$assess$mUmsy,
-                  sUmsy       = obj$assess$sUmsy,
+                  lnUbar      = obj$assess$lnUbar,
+                  lnsig2U     = obj$assess$lnsig2U,
+                  mlnU        = obj$assess$mlnU,
+                  s2lnU       = obj$assess$s2lnU,
                   alpha_kappa = obj$assess$alpha_kappa, 
                   beta_kappa  = obj$assess$beta_kappa,
                   alpha_Sigma = obj$assess$alpha_Sigma, 
                   beta_Sigma  = obj$assess$beta_Sigma,
                   alpha_tau   = obj$assess$alpha_tau,
                   beta_tau    = obj$assess$beta_tau,
+                  alpha_tauq  = obj$assess$alpha_tauq,
+                  beta_tauq   = obj$assess$beta_tauq,
+                  alpha_sigU  = obj$assess$alpha_sigU,
+                  beta_sigU   = obj$assess$beta_sigU,
                   mlnq        = obj$assess$mlnq,
-                  s2lnq       = obj$assess$slnq,
+                  s2lnq       = obj$assess$s2lnq,
                   lnqbar      = obj$assess$lnqbar,
-                  lntau2qs    = obj$assess$lntau2qs,
+                  lntau2q     = obj$assess$lntau2q,
                   epst        = rep(0,nT),
                   zetat       = matrix(0,nrow=nS,ncol=nT) )
   # return list of dat and pin objects for running estimators
@@ -327,8 +348,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   parFile   <- paste ( activeFileRoot,".par", sep = "")
   repFile   <- paste ( activeFileRoot,".rep", sep = "")
   psvFile   <- paste ( activeFileRoot,".psv", sep = "")
-  mcParFile <- paste ( activeFileRoot,"ParMC.dat", sep = "")
-  mcBioFile <- paste ( activeFileRoot,"BioMC.dat", sep = "")
+  mcOutFile <- "mcout.dat"
 
   # Set path, exec and paste together command call
   path        <- getwd()
@@ -344,7 +364,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             diagCall, sep = "" )
   mcEval      <- paste (  exec, " -ainp ", pinFile, " -ind ", datFile, 
                           " -mceval", sep = "" )
-  mcEvalpar   <- paste (  exec, " -ainp ", pinFile, " -ind ", datFile, 
+  mcEvalpar   <- paste (  exec, " -ainp ", parFile, " -ind ", datFile, 
                           " -mceval", sep = "" )
 
 
@@ -379,9 +399,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     repProd     <- TRUE
       
     # Read in output from em
-    mcPar   <- try ( read.table ( mcParFile, header = TRUE), silent=TRUE )
-    mcBio   <- try ( read.table (mcBioFile), silent=TRUE )
-    fitrep  <- try ( lisread ( repFile ),silent=TRUE)
+    mcPost    <- try( read.table( mcOutFile, header=TRUE ), silent=TRUE )
+    fitrep    <- try( lisread( repFile ), silent=TRUE )
 
     if (class(fitrep) == "try-error")
     {
@@ -408,7 +427,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     }
     # Check if there was MCMC output, if not, go down the list of possible 
     # reasons, and rerun the EM
-    if (class(mcPar) == "try-error")
+    if (class(mcPost) == "try-error")
     {
       hessPosDef <- FALSE
       # Did we run out of iterations (max grad ceiling is v. high here,
@@ -483,8 +502,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     file.copy( datFile, badDatFile, overwrite=TRUE )
     # Return
     out <- list ( fitrep = NA, 
-                  mcPar = NA, 
-                  mcBio = NA,
+                  mcOut = NA,
                   localMin = NA, 
                   hessPosDef = NA )
     return(out)
@@ -508,16 +526,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
 
   # Delete output that will trick procedure in the future
-  file.remove(mcParFile,mcBioFile)
+  file.remove(mcOutFile)
   if (file.exists(psvFile)) file.remove(psvFile)
   if (file.exists(repFile)) file.remove(repFile)
 
   # Return
-  out <- list ( fitrep = fitrep, 
-                mcPar = mcPar, 
-                mcBio = mcBio,
-                localMin = localMin, 
-                hessPosDef = hessPosDef )
+  out <- list ( fitrep      = fitrep, 
+                mcOut       = mcPost,
+                localMin    = localMin, 
+                hessPosDef  = hessPosDef )
   out
 }
 
@@ -615,17 +632,16 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   mcTrials<- obj$assess$mcTrials
   mcSave  <- obj$assess$mcSave
   mcBurn  <- obj$assess$mcBurn
-  nMCparSS<- obj$assess$nParSS
-  nMCparMS<- obj$assess$nParMS
-
   # Compute total number of trials
   nMC <- ((mcTrials+mcBurn)/mcSave)/2
+  # Compute number of columns in MC tables for SS and MS models
+  ssMC <- 6 + 9 + nT
+  msMC <- 6*nS + 9 + nT*nS
 
   # Create dimension names for arrays
   rNames <- paste("Rep",1:nReps, sep ="")
   sNames <- obj$ctrl$speciesNames
   mcNo <- paste("mc",1:nMC,sep="")
-  mcBt <- paste("B",1:nT,sep="")
 
   # Create list object to store all simulated values
   om <- list  ( Bt    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -666,8 +682,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   mlnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   slnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  mcPar   = array (NA,dim=c(nReps,nS,nMC,nMCparMS),dimnames=list(rNames,sNames,mcNo,NULL)),
-                  mcBio   = array (NA,dim=c(nReps,nS,nMC,nT),dimnames=list(rNames,sNames,mcNo,mcBt)),
+                  mcOut   = array (NA,dim=c(nReps,nS,nMC,ssMC),dimnames=list(rNames,sNames,mcNo,NULL)),
                   locmin  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   hesspd  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   maxGrad = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)))
@@ -689,8 +704,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   mlnq    = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"mlnq")),
                   s2lnq   = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"s2lnq")),
-                  mcPar   = array (NA,dim=c(nReps,nS,nMC,nMCparMS),dimnames=list(rNames,sNames,mcNo,NULL)),
-                  mcBio   = array (NA,dim=c(nReps,nS,nMC,nT),dimnames=list(rNames,sNames,mcNo,mcBt)),
+                  mcOut   = array (NA,dim=c(nReps,nMC,msMC),dimnames=list(rNames,mcNo,NULL)),
                   locmin  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"locmin")),
                   hesspd  = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"hesspd")),
                   maxGrad = matrix(NA,nrow=nReps,ncol=1 ,dimnames=list(rNames,"maxGrad")))
@@ -745,11 +759,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Do MCMC output only if hesspd
       if (simEst$ssFit[[s]]$hessPosDef)
       {
-        dimnames(blob$am$ss$mcPar)[[4]] <- colnames(simEst$ssFit[[s]]$mcPar)
-        mcPar <- simEst$ssFit[[s]]$mcPar
-        mcBio <- simEst$ssFit[[s]]$mcBio
-        blob$am$ss$mcPar[i,s,,]     <- as.matrix(mcPar[(nrow(mcPar)/2+1):nrow(mcPar),])
-        blob$am$ss$mcBio[i,s,,]     <- as.matrix(mcBio[(nrow(mcBio)/2+1):nrow(mcBio),])
+        mcOut <- simEst$ssFit[[s]]$mcOut
+        dimnames(blob$am$ss$mcOut)[[4]] <- colnames(mcOut)
+        blob$am$ss$mcOut[i,s,,]          <- as.matrix(mcOut[(nrow(mcOut)/2+1):nrow(mcOut),])
       }
       # Estimator performance flags
       blob$am$ss$locmin[i,s]      <- simEst$ssFit[[s]]$localMin
@@ -779,17 +791,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # might have NPD hessian, so leave as NAs if so
     if (simEst$msFit$hessPosDef)
     {
-      for ( s in 1:nS )
-      {
-        dimnames(blob$am$ms$mcPar)[[4]] <- colnames(simEst$msFit$mcPar)
-        mcPar <- simEst$msFit$mcPar
-        mcBio <- simEst$msFit$mcBio
-        parIdx <- seq ( from = nrow(mcPar)/2+s, to = nrow(mcPar), by = nS)
-        bioIdx <- seq ( from = nrow(mcBio)/2+s, to = nrow(mcPar), by = nS)
-        blob$am$ms$mcPar[i,s,,]  <- as.matrix(mcPar[parIdx,])
-        blob$am$ms$mcBio[i,s,,]  <- as.matrix(mcBio[bioIdx,])
-
-      }
+      mcOut <- simEst$msFit$mcOut
+      dimnames(blob$am$ms$mcOut)[[3]] <- colnames(mcOut)
+      blob$am$ms$mcOut[i,,]       <- as.matrix(mcOut[(nrow(mcOut)/2+1):nrow(mcOut),])
     }
     # Estimator Performance Flags
     blob$am$ms$locmin[i,]          <- simEst$msFit$localMin

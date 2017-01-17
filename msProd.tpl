@@ -9,7 +9,6 @@
 // Purpose: To fit a multi-species RH production model to commercial catch
 // and survey CPUE data.
 // 
-// ToDo:  1. Missing data handling
 //       
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 
@@ -23,10 +22,15 @@ DATA_SECTION
   // Estimation phases
   init_int phz_Bmsy;            // maximum sustainable yield
   init_int phz_Umsy;            // explotation rate
+  init_int phz_Ubar;            // shared U prior mean
+  init_int phz_sig2U;           // shared U prior variance
+  init_int phz_mlnU;            // lnUbar prior mean
+  init_int phz_s2lnU;           // lnUbar prior variance
   init_int phz_tau;             // tau - obs error variance
   init_int phz_kappa;           // shared RE variance
   init_int phz_Sigma;           // species specific RE variance
   init_int phz_lnq;             // q - survey catchability - concentrated
+  init_int phz_qbar;            // shared lnq prior mean
   init_int phz_tau2q;           // shared q prior variance
   init_int phz_mlnq;            // lnqbar prior mean
   init_int phz_s2lnq;           // lnqbar prior variance
@@ -43,11 +47,13 @@ DATA_SECTION
   int cEntries;
   int verbose;
 
+
   // Procedure to exit if not all data is read correctly
   LOC_CALCS
     if(dumm!=999)
     {
       cout<<"Error reading data.\n Fix it!! \n dumm = " << dumm << endl;
+      cout<< "phz_AR = " << phz_AR << endl;
       ad_exit(1);
     }
     cEntries=nS*(nS-1)/2;
@@ -55,12 +61,21 @@ DATA_SECTION
     if (nS == 1)
     {
       // if only one species, estimate only the shared REs
-      phz_omegat  = phz_zetat;
-      phz_kappa   = phz_Sigma;
+      if ( (phz_zetat > 0 ) & (phz_zetat < phz_omegat) ) 
+      {
+        phz_omegat  = phz_zetat;
+      }
+      if ( (phz_Sigma > 0 ) & (phz_Sigma < phz_kappa) ) 
+      {
+        phz_kappa  = phz_Sigma;
+      }
       phz_zetat   = -1;
       phz_chol    = -1;
       phz_Sigma   = -1;
-      phz_tau2q  = -1;
+      phz_qbar    = -1;
+      phz_tau2q   = -1;
+      phz_Ubar    = -1;
+      phz_sig2U   = -1;
     }
 
 PARAMETER_SECTION
@@ -70,6 +85,9 @@ PARAMETER_SECTION
   vector Bmsy(1,nS);        
   vector Umsy(1,nS);
 
+  // Catchabilit
+  init_vector lnq_s(1,nS,phz_lnq);
+  
   // log-variance parameters
   init_number lntau2(phz_tau);          // shared osb error var
   init_number lnkappa2(phz_kappa);      // year effect variance
@@ -95,8 +113,10 @@ PARAMETER_SECTION
   init_vector mBmsy(1,nS,-1);       // msy prior mean (species spec)
   init_vector sBmsy(1,nS,-1);       // msy prior SD (species spec)
   // Productivity
-  init_vector mUmsy(1,nS,-1);       // lnUmsy prior mean (species spec)
-  init_vector sUmsy(1,nS,-1);       // lnUmsy priod sd (species spec)
+  init_number lnUmsybar(phz_Ubar);    // lnUmsy prior mean (species spec)
+  init_number lnsig2U(phz_sig2U);    // lnUmsy priod sd (species spec)
+  init_number mlnU(phz_mlnU);       // logq prior mean (shared)
+  init_number s2lnU(phz_s2lnU);     // logq prior sd (shared)
   // Variance
   init_bounded_number alpha_kappa(1,10,phz_varPriors);    // kappa shape (shared)
   init_bounded_number beta_kappa(0.01,4,phz_varPriors);    // kappa scale (shared)
@@ -104,11 +124,15 @@ PARAMETER_SECTION
   init_bounded_number beta_Sigma(0.01,4,phz_varPriors); // Sigma prior scale (shared)
   init_bounded_number alpha_tau(1,10,phz_varPriors); // tau prior shape (shared)
   init_bounded_number beta_tau(0.01,4,phz_varPriors); // tau prior scale (shared)
+  init_bounded_number alpha_tauq(1,10,phz_varPriors); // tau prior shape (shared)
+  init_bounded_number beta_tauq(0.01,4,phz_varPriors); // tau prior scale (shared)
+  init_bounded_number alpha_sigU(1,10,phz_varPriors); // tau prior shape (shared)
+  init_bounded_number beta_sigU(0.01,4,phz_varPriors); // tau prior scale (shared)
   // Catchability
   init_bounded_number mlnq(-1.,1.,phz_mlnq);      // logq prior mean (shared)
-  init_number s2lnq(phz_s2lnq);                          // logq prior sd (shared)
-  init_bounded_number lnqbar(-5,2,phz_lnq);       // mean lnq across species
-  init_bounded_number lntau2q(-5,2,phz_tau2q); // logqs prior var
+  init_number s2lnq(phz_s2lnq);                   // logq prior sd (shared)
+  init_bounded_number lnqbar(-5,2,phz_qbar);       // mean lnq across species
+  init_number lntau2q(phz_tau2q); // logqs prior var
 
   // process error deviations
   init_bounded_vector omegat(1,nT,-3.,3.,phz_omegat);   // year effect
@@ -122,7 +146,7 @@ PARAMETER_SECTION
   objective_function_value f;
 
   // variables for conditional estimates of lnq(s)
-  vector lnq_s(1,nS);
+  //vector lnq_s(1,nS);
   sdreport_vector q(1,nS);
 
   // variables to hold derived values
@@ -172,15 +196,9 @@ PROCEDURE_SECTION
   // Compute likelihood for dynamics
   calcLikelihoods();
   if (verbose) cout << "Likelihood computation complete" << endl;
-  //cout << "nll = " << nll << endl;
   // Compute priors
   calcPriors();
   if (verbose)  cout << "Prior computation complete" << endl;
-  // cout << "prior = " << prior << endl;
-
-  // cout << "lnmsy = " << lnmsy << endl;
-  // cout << "lnFmsy = " << lnFmsy << endl;
-  // cout << "epst = " << epst << endl;
 
   // Output MCMC data if running mcmc trials
   if(mceval_phase())
@@ -197,19 +215,14 @@ PROCEDURE_SECTION
 FUNCTION stateDynamics
   // exponentiate leading parameters
   Umsy  = mfexp ( lnUmsy );         // optimal exploitation rate
-  //cout << "Umsy = " << Umsy << endl;
   Bmsy  = mfexp ( lnBmsy );         // optimal eqbm biomass
-  //cout << "Bmsy = " << Bmsy << endl;
   msy   = elem_prod( Bmsy, Umsy);   // optimal eqbm harvest
-  //cout << "msy = " << msy << endl;
 
   // initialise penalisers
   fpen = 0.; pospen = 0.;
 
   
   // initialise RE variables
-  // omegat.initialize();
-  // zetat.initialize();
   chol.initialize();
   epst.initialize();
   zetatc.initialize();
@@ -237,9 +250,6 @@ FUNCTION stateDynamics
     Sigma2  = mfexp(lnSigma2);
     Sigma   = mfexp(0.5*lnSigma2);
     //cout << "lnSigma2 = " << lnSigma2 << endl; 
-
-    // Restrict shared effect to have mean 0
-    //omegat -= mean(omegat);
   
     // Construct Cholesky factor of correlation mtx
     chol(1,1) = 1.;
@@ -257,12 +267,9 @@ FUNCTION stateDynamics
     // Compute correlated zetat values
     zetatc = chol * zetat;
   }
-  
-
-  //cout << "Starting Pop Dyn" << endl;
 
   // Run a loop for population dynamics of each stock
-  // Assume stocks are at equilibrium initially ( B1 = B0e^delta1 )
+  // Assume stocks are at equilibrium with process error initially
   for (int s=1;s<=nS;s++)
   {
     // start AR(1) process
@@ -288,8 +295,6 @@ FUNCTION stateDynamics
       fpen += 100. * pospen;
     }
   }
-  //cout << "Bt = " <<  Bt <<  endl;
-  //cout << "epst = " <<  epst <<  endl;
   
   // compute derived management quantities
   dep_bar = elem_div(column(Bt,nT),Bmsy) / 2;      // depletion estimate
@@ -299,7 +304,7 @@ FUNCTION stateDynamics
 FUNCTION obsModel
   zSum=0.0;
   validObs.initialize();
-  lnq_s.initialize();
+  //lnq_s.initialize();
   ss.initialize();
   //cout << "Inside Observation Model" << endl;
   for ( int s=1;s<=nS;s++)
@@ -315,24 +320,20 @@ FUNCTION obsModel
         validObs(s) += 1;
       }
     }
-    //cout << "z = " << z(s) << endl;
-    // Compute conditional posterior mode of lnq_hat (BDA3 eq 11.10)
-    if (s == 1) lnq_s(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
-    if (s > 1)
-    {
-      lnq_s(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
-    }
-    //lnqhat(s) = zSum(s)/validObs(s); // mean residual for non-hierarchical model
-    //cout << "lnqhat = " << lnqhat(s) << endl;
+    // Compute conditional posterior mode of lnq_hat
+    //if (s == 1) lnq_s(s) = (mlnq/s2lnq + zSum(s)/tau2)/(1/s2lnq + validObs(s)/tau2);
+    //if (s > 1)
+    //{
+    // lnq_s(s) = (zSum(s)/tau2 + lnqbar/mfexp(lntau2q))/(validObs(s)/tau2 + 1/mfexp(lntau2q));
+    //}
+    // Then sum of squares
     for (int t=1;t<=nT;t++)
     {
-      //cout << "Computing squared residual for time " << t << endl;
       if(It(s,t)>0.0)
       {
         ss(s) += pow (z(s,t) - lnq_s(s),2.0);
       }
     }
-    //cout << "Species " << s << " obs model complete" << endl;
   }
 
 // Subroutine to compute negative log likelihoods for obs and proc errors
@@ -340,22 +341,21 @@ FUNCTION calcLikelihoods
   // Initialise NLL variables
   totalLike.initialize();
   obsLike.initialize(); 
-  //omegaLike.initialize();
   procLike.initialize();
   
   // compute observation likelihood
   obsLike = 0.5*validObs*log(tau2) + 0.5*ss/tau2;
   totalLike += sum(obsLike);
 
-  // Shared effect estimated
-  if ((phz_omegat > 0) ) //& (phz_zetat<0) )
+  // Shared effect (uncorrelated)
+  if ((phz_omegat > 0) )
   {
     procLike(1) = 0.5*nT*lnkappa2 + 0.5*norm2(omegat)/(kappa2) + sum(omegat);
     totalLike += sum(procLike);
   }
 
-  // species specific effect estimated
-  if ( (phz_zetat > 0) ) //& (phz_omegat < 0 ) )
+  // species specific effect (uncorrelated)
+  if ( (phz_zetat > 0) )
   {
     for (int s=1; s<=nS; s++)
     {
@@ -386,7 +386,15 @@ FUNCTION calcPriors
   // Then Umsy
   if (phz_Umsy > 0)
   {
-    UmsyPrior = 0.5*elem_div( pow ( Umsy - mUmsy, 2 ), pow(sUmsy,2));  
+    if (nS == 1) UmsyPrior += 0.5 * pow ( lnUmsy - mlnU, 2 ) / s2lnU;
+    else {
+      UmsyPrior = 0.5*log(mfexp(lnsig2U)) + 0.5*norm2(lnUmsy - lnUmsybar)/mfexp(lnsig2U) + mfexp(lnUmsy);
+      //UmsyPrior += lnsig2U;
+      if ( value(lnUmsybar) != value(mlnU) ) 
+      {
+        UmsyPrior += 0.5*pow(lnUmsybar - mlnU,2.)/s2lnU + mfexp(lnUmsybar);
+      }
+    }
   }
   
   // lnq prior (shared)
@@ -394,11 +402,11 @@ FUNCTION calcPriors
   {
     if (nS == 1) lnqPrior = pow ( lnq_s - mlnq, 2 ) / s2lnq /2;
     else {
-      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnq_s - lnqbar)/mfexp(lntau2q);
-      lnqPrior += lntau2q;
+      lnqPrior = 0.5*log(mfexp(lntau2q)) + 0.5*norm2(lnq_s - lnqbar)/mfexp(lntau2q) + mfexp(lnq_s);
+      //lnqPrior += lntau2q;
       if ( value(lnqbar) != value(mlnq) ) 
       {
-        lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq/nS;
+        lnqPrior += 0.5*pow(lnqbar - mlnq,2.)/s2lnq + mfexp(lnqbar);
       }
     }
   }
@@ -407,7 +415,8 @@ FUNCTION calcPriors
   totalPrior = sum(BmsyPrior) + sum(UmsyPrior) + sum ( lnqPrior );
   if ( verbose ) cout << "Added total Schaefer Priors" << endl;
   
-  // Now the shared effects variance (IG(alpha,beta)) if lnkappa2 is active
+  // Variance Priors
+  // Year Effect
   if (active(lnkappa2))
   {
     kappaPrior = (alpha_kappa+1)*lnkappa2+beta_kappa/kappa2;
@@ -419,7 +428,6 @@ FUNCTION calcPriors
     SigmaPrior = alpha_Sigma+1*lnSigma2 + beta_Sigma/Sigma2;
     totalPrior += SigmaPrior;
   }
-  
   // tau2 prior if estimated
   if (active(lntau2))
   {
@@ -427,8 +435,22 @@ FUNCTION calcPriors
     totalPrior += tauPrior;
   }
 
-  // Apply a Jeffries prior to msy
-  //totalPrior += sum(1/msy);
+  // tau2q prior if estimated
+  if (active(lntau2q))
+  {
+    dvariable tauqPrior = 0;
+    tauqPrior = (alpha_tauq+1)*lntau2q+beta_tauq/mfexp(lntau2q);
+    totalPrior += tauqPrior;
+  }
+
+  // sig2U prior if estimated
+  if (active(lnsig2U))
+  {
+    dvariable sigUPrior = 0;
+    sigUPrior = (alpha_sigU+1)*lnsig2U+beta_sigU/mfexp(lnsig2U);
+    totalPrior += sigUPrior;
+  }
+
 
   // If estimating IG parameters, apply a jeffreys prior to the
   // beta pars
@@ -448,35 +470,69 @@ FUNCTION calcPriors
 FUNCTION mcDumpOut
   if( mcHeader == 0 )
   {
-    // Output the parameters needed for performance testing of SA method.
-    mcoutpar << "Bmsy msy Umsy q Sigma2 kappa2 tau2 UnT_bar BnT dep_bar " << endl;
-  
-    for ( int s=1;s<=nS;s++)
+    // Header
+    for( int s=1; s<=nS;s++) {mcout << "Bmsy" << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "msy"  << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "Umsy" << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "q"    << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "UnT"  << s << " ";}
+    for( int s=1; s<=nS;s++) {mcout << "DnT"  << s << " ";}
+    mcout << "Sigma2 kappa2 tau2 qbar mlnq tau2q Umsybar mlnU sig2U ";
+    for( int s=1; s<=nS;s++)
     {
-      // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
-      mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
-      mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
-
-      // Output the biomass estimates for this MC evaluation
-      mcoutbio << Bt(s) << endl;
+      for (int t=1; t<=nT; t++)
+      {
+        mcout << "Bst_" << s << "_" << t << " ";
+      }
     }
-
+    mcout << endl;
+    
+    // Now the parameter values
+    mcout << Bmsy               << " ";
+    mcout << msy                << " ";
+    mcout << Umsy               << " ";
+    mcout << mfexp(lnq_s)       << " ";
+    mcout << UnT_bar            << " ";
+    mcout << dep_bar            << " ";
+    mcout << Sigma2             << " ";
+    mcout << kappa2             << " ";
+    mcout << tau2               << " ";
+    mcout << mfexp(lnqbar)      << " ";
+    mcout << mlnq               << " ";
+    mcout << mfexp(lntau2q)     << " ";
+    mcout << mfexp(lnUmsybar)   << " ";
+    mcout << mlnU               << " ";
+    mcout << mfexp(lnsig2U)     << " ";
+    for (int s=1;s<=nS;s++)
+    {
+      mcout << row(Bt,s) << " ";
+    }
+    mcout << endl;
     mcHeader = 1;
   }
   else
   {
-    // loop over species
-    for ( int s=1;s<=nS;s++)
+    // Now the parameter values
+    mcout << Bmsy               << " ";
+    mcout << msy                << " ";
+    mcout << Umsy               << " ";
+    mcout << mfexp(lnq_s)       << " ";
+    mcout << UnT_bar            << " ";
+    mcout << dep_bar            << " ";
+    mcout << Sigma2             << " ";
+    mcout << kappa2             << " ";
+    mcout << tau2               << " ";
+    mcout << mfexp(lnqbar)      << " ";
+    mcout << mlnq               << " ";
+    mcout << mfexp(lntau2q)     << " ";
+    mcout << mfexp(lnUmsybar)   << " ";
+    mcout << mlnU               << " ";
+    mcout << mfexp(lnsig2U)     << " ";
+    for (int s=1;s<=nS;s++)
     {
-      // Output the parameter values for this replicate
-      mcoutpar << Bmsy(s) << " " << msy(s) <<" "<< Umsy(s) <<" "<< mfexp(lnq_s(s));
-      mcoutpar <<" "<< Sigma2 <<" "<< kappa2 <<" " << tau2 <<" " << UnT_bar(s) << " ";
-      mcoutpar << Bt(s,nT) <<" "<< dep_bar(s) << endl;
-
-      // Output the biomass estimates for this MC evaluation
-      mcoutbio << Bt(s) << endl;
+      mcout << row(Bt,s) << " ";
     }
+    mcout << endl;
   }
 
 REPORT_SECTION
@@ -530,6 +586,10 @@ REPORT_SECTION
     report << mfexp(lnqbar) <<endl;  
     report << "tau2q" << endl;
     report << mfexp(lntau2q) << endl;
+    report << "# Umsybar" << endl;
+    report << mfexp(lnUmsybar) <<endl;  
+    report << "sig2U" << endl;
+    report << mfexp(lnsig2U) << endl;
   }
   report << "# D" << endl;
   report << dep_bar << endl;
@@ -548,10 +608,10 @@ REPORT_SECTION
   report << mBmsy << endl;
   report << "# sBmsy" << endl;  
   report << sBmsy << endl;
-  report << "# mUmsy" << endl;  
-  report << mUmsy << endl;
-  report << "# sUmsy" << endl;  
-  report << sUmsy << endl;
+  report << "# mlnUmsy" << endl;  
+  report << mlnU << endl;
+  report << "# s2lnUmsy" << endl;  
+  report << s2lnU << endl;
   report << "# alpha_kappa" << endl;
   report << alpha_kappa << endl;
   report << "# beta_kappa" << endl;
@@ -627,7 +687,7 @@ GLOBALS_SECTION
   
   int mcHeader=0;
   int mcTrials=0;
-  ofstream mcoutpar("msProdParMC.dat");
-  ofstream mcoutbio("msProdBioMC.dat");
+  ofstream mcout("mcout.dat");
+  //ofstream mcoutbio("msProdBioMC.dat");
 
 

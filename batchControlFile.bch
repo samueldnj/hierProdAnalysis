@@ -73,7 +73,7 @@ scenario$scenario10$opMod$tau2 c(0.04,0.22,0.22,0.49)
 scenario$scenario10$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario10$opMod$parFile "pars4Spec.txt"
 #
-# Scenario 11 : 4S-1Lo2Med1HiObsCV
+# Scenario 11 : 4S-2Lo2Hi1HiObsCV
 #
 scenario$scenario11$ctrl$scenarioName '4S-2Lo2HiObsCV'
 scenario$scenario11$ctrl$speciesNames c("Dover","English","Rock","Petrale")
