@@ -44,6 +44,7 @@ scenario$scenario7$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario7$opMod$parFile "pars4Spec.txt"
 scenario$scenario7$assess$mBmsy c(40,80,30,60)
 scenario$scenario7$assess$sBmsy c(60,120,45,90)
+scenario$scenario7$assess$lnq_s c(0,0,0,0)
 #
 # Scenario 8 : 4S-2Lo2MedObsCV
 #
@@ -56,6 +57,7 @@ scenario$scenario8$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario8$opMod$parFile "pars4Spec.txt"
 scenario$scenario8$assess$mBmsy c(40,80,30,60)
 scenario$scenario8$assess$sBmsy c(60,120,45,90)
+scenario$scenario8$assess$lnq_s c(0,0,0,0)
 #
 # Scenario 9 : 4S-2Lo1Med1HiObsCV
 #
@@ -68,6 +70,7 @@ scenario$scenario9$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario9$opMod$parFile "pars4Spec.txt"
 scenario$scenario9$assess$mBmsy c(40,80,30,60)
 scenario$scenario9$assess$sBmsy c(60,120,45,90)
+scenario$scenario9$assess$lnq_s c(0,0,0,0)
 #
 # Scenario 10 : 4S-1Lo2Med1HiObsCV
 #
@@ -80,6 +83,7 @@ scenario$scenario10$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario10$opMod$parFile "pars4Spec.txt"
 scenario$scenario10$assess$mBmsy c(40,80,30,60)
 scenario$scenario10$assess$sBmsy c(60,120,45,90)
+scenario$scenario10$assess$lnq_s c(0,0,0,0)
 #
 # Scenario 11 : 4S-2Lo2Hi1HiObsCV
 #
@@ -92,6 +96,7 @@ scenario$scenario11$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario11$opMod$parFile "pars4Spec.txt"
 scenario$scenario11$assess$mBmsy c(40,80,30,60)
 scenario$scenario11$assess$sBmsy c(60,120,45,90)
+scenario$scenario11$assess$lnq_s c(0,0,0,0)
 #
 # Scenario 12 : 4S-LoObsCV-identObs
 #
@@ -105,6 +110,7 @@ scenario$scenario12$opMod$parFile "pars4Spec.txt"
 scenario$scenario12$opMod$$identObs TRUE
 scenario$scenario12$assess$mBmsy c(40,80,30,60)
 scenario$scenario12$assess$sBmsy c(60,120,45,90)
+scenario$scenario12$assess$lnq_s c(0,0,0,0)
 #
 # Scenario 13 : 4S-MedObsCV-identObs
 #
@@ -118,6 +124,7 @@ scenario$scenario13$opMod$parFile "pars4Spec.txt"
 scenario$scenario13$opMod$$identObs TRUE
 scenario$scenario13$assess$mBmsy c(40,80,30,60)
 scenario$scenario13$assess$sBmsy c(60,120,45,90)
+scenario$scenario13$assess$lnq_s c(0,0,0,0)
 #
 # Scenario 14 : 4S-HiObsCV-identObs
 #
@@ -131,9 +138,10 @@ scenario$scenario14$opMod$parFile "pars4Spec.txt"
 scenario$scenario14$opMod$$identObs TRUE
 scenario$scenario14$assess$mBmsy c(40,80,30,60)
 scenario$scenario14$assess$sBmsy c(60,120,45,90)
+scenario$scenario14$assess$lnq_s c(0,0,0,0)
 #
 # Management Procedures
 #
 mp$mp1$ctrl$mpLabel "bothEff"
-mp$mp1$assess$tau2 0.01
+mp$mp1$assess$tau2 0.001
 # File Ends <not run>.

@@ -364,7 +364,7 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
   Ut    <- blob$om$Ut[rep,,]
 
   
-  
+  browser()
   if ( est == "MLE" )
   { # Single species model
     ssBt  <- blob$am$ss$Bt[rep,,]
