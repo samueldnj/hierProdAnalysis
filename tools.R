@@ -53,13 +53,13 @@ runStats <- function ( sim = 1)
 # usage:      to run batch jobs for multiple scenario/mp combinations
 # author:     S.D.N. Johnson
 makeBatch <- function ( batchCtl = "batchControlFile.bch", prjFld = "project",
-                        batchFld = "Batch")
+                        batchFld = "Batch", ctlFile="simCtlFileBase.txt")
 {
   .subChar <<- "__"
   # First, load the batch control file
-  batchCtl <- .readParFile ( batchCtl )
+  batchCtlTab <- .readParFile ( batchCtl )
   # Now load the base control file
-  baseCtl  <- .readParFile ( "simCtlFile.txt")
+  baseCtl  <- .readParFile ( ctlFile )
 
   # Set globals 
   #(THIS SHOULD BE MOVED TO ANOTHER FILE, OR DIFFERENT APPROACH FOUND)
@@ -67,11 +67,16 @@ makeBatch <- function ( batchCtl = "batchControlFile.bch", prjFld = "project",
   .DEFBATFLD <<- batchFld
 
   # Create Batch Design 
-  batchDesign <- .createBatchDesign (  ctlPar = batchCtl, basePars = baseCtl )
-  .FBATDES <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")
+  batchDesign <- .createBatchDesign (  ctlPar = batchCtlTab, basePars = baseCtl )
+  # Write design file, and copy batch and base control files to batch folder
+  .FBATDES  <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")
+  .BCFDES   <- file.path(getwd(),.PRJFLD,.DEFBATFLD,batchCtl)
+  .CTLDES   <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"simCtlFile.txt")
   .writeDesignFile (obj=batchDesign,out=.FBATDES)
-
-  return(batchDesign)
+  file.copy(batchCtl,.BCFDES)
+  file.copy(ctlFile,.CTLDES)
+  
+  return(batchDesign)  
 }
 
 # Calls runSimEst in parallel inside a separate copy of the

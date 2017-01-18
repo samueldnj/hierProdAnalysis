@@ -1,15 +1,16 @@
 # Little script to create a batch file for combinatorial combinations
 # of scenarios or MPs in mseR style batch files
 
-# Set up experiments to run batches over by creating lists
+# Set up batch experiments by creating lists
 # of parameters and different values at which to test them.
 # Function below also requires abbreviations of the 
 
-parList <- list( "opMod$corrMult" = seq(-1,1,by=0.2),
-                 "opMod$kappaMult" = seq(0.2,2,by=0.2)
+parList <- list( "opMod$corrMult" = seq(-1,1,by=0.4),
+                 "opMod$kappaMult" = seq(0.2,2,by=0.3)
                            )
 labels <- c("cM","kM")
-prefix <- "2S-"
+prefix <- "4S-"
+firstNo <- 1
 # Function to create batch files from the lists above
 batCreate <- function ( parList, outFile, label )
 {
@@ -22,16 +23,25 @@ batCreate <- function ( parList, outFile, label )
       lab <- paste ( lab, label[k], as.numeric(exp[j,k]), sep = "" )
     lab <- paste(prefix,lab,sep="")
     # Print MP name
-      if (j == 1) cat ( "# Scenario ", j, " : ", lab,
+      if (j == 1) cat ( "# Scenario ", firstNo + j - 1, " : ", lab,
             "\n", sep = "", file = outFile, append = FALSE)
-      else cat (  "# Scenario ", j, " : ", lab, 
+      else cat (  "# Scenario ", firstNo + j - 1, " : ", lab, 
                   "\n", sep = "", file = outFile, append = TRUE )
       cat ( "#\n", file = outFile, append = TRUE )
-      cat ( "scenario$scenario", j, "$ctrl$scenarioName '", lab, "'\n", sep = "", append = TRUE, 
+      cat ( "scenario$scenario", firstNo + j - 1, "$ctrl$scenarioName '", lab, "'\n", sep = "", append = TRUE, 
             file = outFile )
       for ( k in 1:ncol ( exp ) )
-        cat ( "scenario$scenario", j, "$", names(exp)[k], " ", exp[j,k], "\n", sep ="",
+        cat ( "scenario$scenario", firstNo + j - 1, "$", names(exp)[k], " ", exp[j,k], "\n", sep ="",
               file = outFile, append = TRUE )
+      cat( "scenario$scenario", firstNo+j-1, "$ctrl$speciesNames c('Dover','English','Rock','Petrale')\n", sep ="",append=TRUE, file=outFile)
+      cat( "scenario$scenario", firstNo+j-1, "$opMod$nS 4\n", sep="", append=TRUE, file=outFile )
+      cat( "scenario$scenario", firstNo+j-1, "$opMod$q c(0.9,1.2,0.95,1.08)\n", sep="", append=TRUE, file=outFile )
+      cat( "scenario$scenario", firstNo+j-1, "$opMod$tau2 c(0.01,0.01,0.01,0.01)\n", sep="", append=TRUE, file=outFile )
+      cat( "scenario$scenario", firstNo+j-1, "$opMod$pars lisread('pars4Spec.txt')\n", sep="", append=TRUE, file=outFile )
+      cat( "scenario$scenario", firstNo+j-1, "$opMod$parFile 'pars4Spec.txt'\n", sep="", append=TRUE, file=outFile )
+      cat( "scenario$scenario", firstNo+j-1, "$assess$mBmsy c(40,80,30,60)\n", sep="", append=TRUE, file=outFile )
+      cat( "scenario$scenario", firstNo+j-1, "$assess$sBmsy c(60,120,45,90)\n", sep="", append=TRUE, file=outFile )
+      cat( "scenario$scenario", firstNo+j-1, "$assess$lnq_s c(0,0,0,0)\n", sep="", append=TRUE, file=outFile )
       cat ( "#\n", file = outFile, append = TRUE )
   }
   cat ( "# File Ends <not run>.", file = outFile, append = TRUE )

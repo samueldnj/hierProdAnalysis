@@ -1,0 +1,639 @@
+# Batch File
+parameter value
+# Scenarios
+#
+# Scenario 1 : 4S-cM-1kM0.2
+#
+scenario$scenario1$ctrl$scenarioName '4S-cM-1kM0.2'
+scenario$scenario1$opMod$corrMult -1
+scenario$scenario1$opMod$kappaMult 0.2
+scenario$scenario1$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario1$opMod$nS 4
+scenario$scenario1$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario1$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario1$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario1$opMod$parFile 'pars4Spec.txt'
+scenario$scenario1$assess$mBmsy c(40,80,30,60)
+scenario$scenario1$assess$sBmsy c(60,120,45,90)
+scenario$scenario1$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 2 : 4S-cM-0.6kM0.2
+#
+scenario$scenario2$ctrl$scenarioName '4S-cM-0.6kM0.2'
+scenario$scenario2$opMod$corrMult -0.6
+scenario$scenario2$opMod$kappaMult 0.2
+scenario$scenario2$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario2$opMod$nS 4
+scenario$scenario2$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario2$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario2$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario2$opMod$parFile 'pars4Spec.txt'
+scenario$scenario2$assess$mBmsy c(40,80,30,60)
+scenario$scenario2$assess$sBmsy c(60,120,45,90)
+scenario$scenario2$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 3 : 4S-cM-0.2kM0.2
+#
+scenario$scenario3$ctrl$scenarioName '4S-cM-0.2kM0.2'
+scenario$scenario3$opMod$corrMult -0.2
+scenario$scenario3$opMod$kappaMult 0.2
+scenario$scenario3$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario3$opMod$nS 4
+scenario$scenario3$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario3$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario3$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario3$opMod$parFile 'pars4Spec.txt'
+scenario$scenario3$assess$mBmsy c(40,80,30,60)
+scenario$scenario3$assess$sBmsy c(60,120,45,90)
+scenario$scenario3$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 4 : 4S-cM0.2kM0.2
+#
+scenario$scenario4$ctrl$scenarioName '4S-cM0.2kM0.2'
+scenario$scenario4$opMod$corrMult 0.2
+scenario$scenario4$opMod$kappaMult 0.2
+scenario$scenario4$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario4$opMod$nS 4
+scenario$scenario4$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario4$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario4$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario4$opMod$parFile 'pars4Spec.txt'
+scenario$scenario4$assess$mBmsy c(40,80,30,60)
+scenario$scenario4$assess$sBmsy c(60,120,45,90)
+scenario$scenario4$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 5 : 4S-cM0.6kM0.2
+#
+scenario$scenario5$ctrl$scenarioName '4S-cM0.6kM0.2'
+scenario$scenario5$opMod$corrMult 0.6
+scenario$scenario5$opMod$kappaMult 0.2
+scenario$scenario5$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario5$opMod$nS 4
+scenario$scenario5$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario5$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario5$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario5$opMod$parFile 'pars4Spec.txt'
+scenario$scenario5$assess$mBmsy c(40,80,30,60)
+scenario$scenario5$assess$sBmsy c(60,120,45,90)
+scenario$scenario5$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 6 : 4S-cM1kM0.2
+#
+scenario$scenario6$ctrl$scenarioName '4S-cM1kM0.2'
+scenario$scenario6$opMod$corrMult 1
+scenario$scenario6$opMod$kappaMult 0.2
+scenario$scenario6$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario6$opMod$nS 4
+scenario$scenario6$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario6$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario6$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario6$opMod$parFile 'pars4Spec.txt'
+scenario$scenario6$assess$mBmsy c(40,80,30,60)
+scenario$scenario6$assess$sBmsy c(60,120,45,90)
+scenario$scenario6$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 7 : 4S-cM-1kM0.5
+#
+scenario$scenario7$ctrl$scenarioName '4S-cM-1kM0.5'
+scenario$scenario7$opMod$corrMult -1
+scenario$scenario7$opMod$kappaMult 0.5
+scenario$scenario7$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario7$opMod$nS 4
+scenario$scenario7$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario7$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario7$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario7$opMod$parFile 'pars4Spec.txt'
+scenario$scenario7$assess$mBmsy c(40,80,30,60)
+scenario$scenario7$assess$sBmsy c(60,120,45,90)
+scenario$scenario7$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 8 : 4S-cM-0.6kM0.5
+#
+scenario$scenario8$ctrl$scenarioName '4S-cM-0.6kM0.5'
+scenario$scenario8$opMod$corrMult -0.6
+scenario$scenario8$opMod$kappaMult 0.5
+scenario$scenario8$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario8$opMod$nS 4
+scenario$scenario8$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario8$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario8$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario8$opMod$parFile 'pars4Spec.txt'
+scenario$scenario8$assess$mBmsy c(40,80,30,60)
+scenario$scenario8$assess$sBmsy c(60,120,45,90)
+scenario$scenario8$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 9 : 4S-cM-0.2kM0.5
+#
+scenario$scenario9$ctrl$scenarioName '4S-cM-0.2kM0.5'
+scenario$scenario9$opMod$corrMult -0.2
+scenario$scenario9$opMod$kappaMult 0.5
+scenario$scenario9$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario9$opMod$nS 4
+scenario$scenario9$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario9$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario9$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario9$opMod$parFile 'pars4Spec.txt'
+scenario$scenario9$assess$mBmsy c(40,80,30,60)
+scenario$scenario9$assess$sBmsy c(60,120,45,90)
+scenario$scenario9$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 10 : 4S-cM0.2kM0.5
+#
+scenario$scenario10$ctrl$scenarioName '4S-cM0.2kM0.5'
+scenario$scenario10$opMod$corrMult 0.2
+scenario$scenario10$opMod$kappaMult 0.5
+scenario$scenario10$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario10$opMod$nS 4
+scenario$scenario10$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario10$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario10$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario10$opMod$parFile 'pars4Spec.txt'
+scenario$scenario10$assess$mBmsy c(40,80,30,60)
+scenario$scenario10$assess$sBmsy c(60,120,45,90)
+scenario$scenario10$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 11 : 4S-cM0.6kM0.5
+#
+scenario$scenario11$ctrl$scenarioName '4S-cM0.6kM0.5'
+scenario$scenario11$opMod$corrMult 0.6
+scenario$scenario11$opMod$kappaMult 0.5
+scenario$scenario11$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario11$opMod$nS 4
+scenario$scenario11$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario11$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario11$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario11$opMod$parFile 'pars4Spec.txt'
+scenario$scenario11$assess$mBmsy c(40,80,30,60)
+scenario$scenario11$assess$sBmsy c(60,120,45,90)
+scenario$scenario11$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 12 : 4S-cM1kM0.5
+#
+scenario$scenario12$ctrl$scenarioName '4S-cM1kM0.5'
+scenario$scenario12$opMod$corrMult 1
+scenario$scenario12$opMod$kappaMult 0.5
+scenario$scenario12$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario12$opMod$nS 4
+scenario$scenario12$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario12$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario12$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario12$opMod$parFile 'pars4Spec.txt'
+scenario$scenario12$assess$mBmsy c(40,80,30,60)
+scenario$scenario12$assess$sBmsy c(60,120,45,90)
+scenario$scenario12$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 13 : 4S-cM-1kM0.8
+#
+scenario$scenario13$ctrl$scenarioName '4S-cM-1kM0.8'
+scenario$scenario13$opMod$corrMult -1
+scenario$scenario13$opMod$kappaMult 0.8
+scenario$scenario13$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario13$opMod$nS 4
+scenario$scenario13$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario13$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario13$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario13$opMod$parFile 'pars4Spec.txt'
+scenario$scenario13$assess$mBmsy c(40,80,30,60)
+scenario$scenario13$assess$sBmsy c(60,120,45,90)
+scenario$scenario13$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 14 : 4S-cM-0.6kM0.8
+#
+scenario$scenario14$ctrl$scenarioName '4S-cM-0.6kM0.8'
+scenario$scenario14$opMod$corrMult -0.6
+scenario$scenario14$opMod$kappaMult 0.8
+scenario$scenario14$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario14$opMod$nS 4
+scenario$scenario14$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario14$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario14$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario14$opMod$parFile 'pars4Spec.txt'
+scenario$scenario14$assess$mBmsy c(40,80,30,60)
+scenario$scenario14$assess$sBmsy c(60,120,45,90)
+scenario$scenario14$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 15 : 4S-cM-0.2kM0.8
+#
+scenario$scenario15$ctrl$scenarioName '4S-cM-0.2kM0.8'
+scenario$scenario15$opMod$corrMult -0.2
+scenario$scenario15$opMod$kappaMult 0.8
+scenario$scenario15$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario15$opMod$nS 4
+scenario$scenario15$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario15$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario15$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario15$opMod$parFile 'pars4Spec.txt'
+scenario$scenario15$assess$mBmsy c(40,80,30,60)
+scenario$scenario15$assess$sBmsy c(60,120,45,90)
+scenario$scenario15$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 16 : 4S-cM0.2kM0.8
+#
+scenario$scenario16$ctrl$scenarioName '4S-cM0.2kM0.8'
+scenario$scenario16$opMod$corrMult 0.2
+scenario$scenario16$opMod$kappaMult 0.8
+scenario$scenario16$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario16$opMod$nS 4
+scenario$scenario16$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario16$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario16$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario16$opMod$parFile 'pars4Spec.txt'
+scenario$scenario16$assess$mBmsy c(40,80,30,60)
+scenario$scenario16$assess$sBmsy c(60,120,45,90)
+scenario$scenario16$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 17 : 4S-cM0.6kM0.8
+#
+scenario$scenario17$ctrl$scenarioName '4S-cM0.6kM0.8'
+scenario$scenario17$opMod$corrMult 0.6
+scenario$scenario17$opMod$kappaMult 0.8
+scenario$scenario17$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario17$opMod$nS 4
+scenario$scenario17$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario17$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario17$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario17$opMod$parFile 'pars4Spec.txt'
+scenario$scenario17$assess$mBmsy c(40,80,30,60)
+scenario$scenario17$assess$sBmsy c(60,120,45,90)
+scenario$scenario17$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 18 : 4S-cM1kM0.8
+#
+scenario$scenario18$ctrl$scenarioName '4S-cM1kM0.8'
+scenario$scenario18$opMod$corrMult 1
+scenario$scenario18$opMod$kappaMult 0.8
+scenario$scenario18$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario18$opMod$nS 4
+scenario$scenario18$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario18$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario18$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario18$opMod$parFile 'pars4Spec.txt'
+scenario$scenario18$assess$mBmsy c(40,80,30,60)
+scenario$scenario18$assess$sBmsy c(60,120,45,90)
+scenario$scenario18$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 19 : 4S-cM-1kM1.1
+#
+scenario$scenario19$ctrl$scenarioName '4S-cM-1kM1.1'
+scenario$scenario19$opMod$corrMult -1
+scenario$scenario19$opMod$kappaMult 1.1
+scenario$scenario19$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario19$opMod$nS 4
+scenario$scenario19$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario19$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario19$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario19$opMod$parFile 'pars4Spec.txt'
+scenario$scenario19$assess$mBmsy c(40,80,30,60)
+scenario$scenario19$assess$sBmsy c(60,120,45,90)
+scenario$scenario19$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 20 : 4S-cM-0.6kM1.1
+#
+scenario$scenario20$ctrl$scenarioName '4S-cM-0.6kM1.1'
+scenario$scenario20$opMod$corrMult -0.6
+scenario$scenario20$opMod$kappaMult 1.1
+scenario$scenario20$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario20$opMod$nS 4
+scenario$scenario20$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario20$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario20$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario20$opMod$parFile 'pars4Spec.txt'
+scenario$scenario20$assess$mBmsy c(40,80,30,60)
+scenario$scenario20$assess$sBmsy c(60,120,45,90)
+scenario$scenario20$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 21 : 4S-cM-0.2kM1.1
+#
+scenario$scenario21$ctrl$scenarioName '4S-cM-0.2kM1.1'
+scenario$scenario21$opMod$corrMult -0.2
+scenario$scenario21$opMod$kappaMult 1.1
+scenario$scenario21$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario21$opMod$nS 4
+scenario$scenario21$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario21$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario21$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario21$opMod$parFile 'pars4Spec.txt'
+scenario$scenario21$assess$mBmsy c(40,80,30,60)
+scenario$scenario21$assess$sBmsy c(60,120,45,90)
+scenario$scenario21$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 22 : 4S-cM0.2kM1.1
+#
+scenario$scenario22$ctrl$scenarioName '4S-cM0.2kM1.1'
+scenario$scenario22$opMod$corrMult 0.2
+scenario$scenario22$opMod$kappaMult 1.1
+scenario$scenario22$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario22$opMod$nS 4
+scenario$scenario22$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario22$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario22$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario22$opMod$parFile 'pars4Spec.txt'
+scenario$scenario22$assess$mBmsy c(40,80,30,60)
+scenario$scenario22$assess$sBmsy c(60,120,45,90)
+scenario$scenario22$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 23 : 4S-cM0.6kM1.1
+#
+scenario$scenario23$ctrl$scenarioName '4S-cM0.6kM1.1'
+scenario$scenario23$opMod$corrMult 0.6
+scenario$scenario23$opMod$kappaMult 1.1
+scenario$scenario23$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario23$opMod$nS 4
+scenario$scenario23$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario23$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario23$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario23$opMod$parFile 'pars4Spec.txt'
+scenario$scenario23$assess$mBmsy c(40,80,30,60)
+scenario$scenario23$assess$sBmsy c(60,120,45,90)
+scenario$scenario23$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 24 : 4S-cM1kM1.1
+#
+scenario$scenario24$ctrl$scenarioName '4S-cM1kM1.1'
+scenario$scenario24$opMod$corrMult 1
+scenario$scenario24$opMod$kappaMult 1.1
+scenario$scenario24$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario24$opMod$nS 4
+scenario$scenario24$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario24$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario24$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario24$opMod$parFile 'pars4Spec.txt'
+scenario$scenario24$assess$mBmsy c(40,80,30,60)
+scenario$scenario24$assess$sBmsy c(60,120,45,90)
+scenario$scenario24$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 25 : 4S-cM-1kM1.4
+#
+scenario$scenario25$ctrl$scenarioName '4S-cM-1kM1.4'
+scenario$scenario25$opMod$corrMult -1
+scenario$scenario25$opMod$kappaMult 1.4
+scenario$scenario25$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario25$opMod$nS 4
+scenario$scenario25$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario25$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario25$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario25$opMod$parFile 'pars4Spec.txt'
+scenario$scenario25$assess$mBmsy c(40,80,30,60)
+scenario$scenario25$assess$sBmsy c(60,120,45,90)
+scenario$scenario25$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 26 : 4S-cM-0.6kM1.4
+#
+scenario$scenario26$ctrl$scenarioName '4S-cM-0.6kM1.4'
+scenario$scenario26$opMod$corrMult -0.6
+scenario$scenario26$opMod$kappaMult 1.4
+scenario$scenario26$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario26$opMod$nS 4
+scenario$scenario26$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario26$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario26$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario26$opMod$parFile 'pars4Spec.txt'
+scenario$scenario26$assess$mBmsy c(40,80,30,60)
+scenario$scenario26$assess$sBmsy c(60,120,45,90)
+scenario$scenario26$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 27 : 4S-cM-0.2kM1.4
+#
+scenario$scenario27$ctrl$scenarioName '4S-cM-0.2kM1.4'
+scenario$scenario27$opMod$corrMult -0.2
+scenario$scenario27$opMod$kappaMult 1.4
+scenario$scenario27$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario27$opMod$nS 4
+scenario$scenario27$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario27$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario27$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario27$opMod$parFile 'pars4Spec.txt'
+scenario$scenario27$assess$mBmsy c(40,80,30,60)
+scenario$scenario27$assess$sBmsy c(60,120,45,90)
+scenario$scenario27$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 28 : 4S-cM0.2kM1.4
+#
+scenario$scenario28$ctrl$scenarioName '4S-cM0.2kM1.4'
+scenario$scenario28$opMod$corrMult 0.2
+scenario$scenario28$opMod$kappaMult 1.4
+scenario$scenario28$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario28$opMod$nS 4
+scenario$scenario28$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario28$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario28$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario28$opMod$parFile 'pars4Spec.txt'
+scenario$scenario28$assess$mBmsy c(40,80,30,60)
+scenario$scenario28$assess$sBmsy c(60,120,45,90)
+scenario$scenario28$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 29 : 4S-cM0.6kM1.4
+#
+scenario$scenario29$ctrl$scenarioName '4S-cM0.6kM1.4'
+scenario$scenario29$opMod$corrMult 0.6
+scenario$scenario29$opMod$kappaMult 1.4
+scenario$scenario29$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario29$opMod$nS 4
+scenario$scenario29$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario29$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario29$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario29$opMod$parFile 'pars4Spec.txt'
+scenario$scenario29$assess$mBmsy c(40,80,30,60)
+scenario$scenario29$assess$sBmsy c(60,120,45,90)
+scenario$scenario29$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 30 : 4S-cM1kM1.4
+#
+scenario$scenario30$ctrl$scenarioName '4S-cM1kM1.4'
+scenario$scenario30$opMod$corrMult 1
+scenario$scenario30$opMod$kappaMult 1.4
+scenario$scenario30$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario30$opMod$nS 4
+scenario$scenario30$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario30$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario30$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario30$opMod$parFile 'pars4Spec.txt'
+scenario$scenario30$assess$mBmsy c(40,80,30,60)
+scenario$scenario30$assess$sBmsy c(60,120,45,90)
+scenario$scenario30$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 31 : 4S-cM-1kM1.7
+#
+scenario$scenario31$ctrl$scenarioName '4S-cM-1kM1.7'
+scenario$scenario31$opMod$corrMult -1
+scenario$scenario31$opMod$kappaMult 1.7
+scenario$scenario31$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario31$opMod$nS 4
+scenario$scenario31$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario31$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario31$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario31$opMod$parFile 'pars4Spec.txt'
+scenario$scenario31$assess$mBmsy c(40,80,30,60)
+scenario$scenario31$assess$sBmsy c(60,120,45,90)
+scenario$scenario31$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 32 : 4S-cM-0.6kM1.7
+#
+scenario$scenario32$ctrl$scenarioName '4S-cM-0.6kM1.7'
+scenario$scenario32$opMod$corrMult -0.6
+scenario$scenario32$opMod$kappaMult 1.7
+scenario$scenario32$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario32$opMod$nS 4
+scenario$scenario32$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario32$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario32$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario32$opMod$parFile 'pars4Spec.txt'
+scenario$scenario32$assess$mBmsy c(40,80,30,60)
+scenario$scenario32$assess$sBmsy c(60,120,45,90)
+scenario$scenario32$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 33 : 4S-cM-0.2kM1.7
+#
+scenario$scenario33$ctrl$scenarioName '4S-cM-0.2kM1.7'
+scenario$scenario33$opMod$corrMult -0.2
+scenario$scenario33$opMod$kappaMult 1.7
+scenario$scenario33$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario33$opMod$nS 4
+scenario$scenario33$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario33$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario33$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario33$opMod$parFile 'pars4Spec.txt'
+scenario$scenario33$assess$mBmsy c(40,80,30,60)
+scenario$scenario33$assess$sBmsy c(60,120,45,90)
+scenario$scenario33$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 34 : 4S-cM0.2kM1.7
+#
+scenario$scenario34$ctrl$scenarioName '4S-cM0.2kM1.7'
+scenario$scenario34$opMod$corrMult 0.2
+scenario$scenario34$opMod$kappaMult 1.7
+scenario$scenario34$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario34$opMod$nS 4
+scenario$scenario34$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario34$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario34$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario34$opMod$parFile 'pars4Spec.txt'
+scenario$scenario34$assess$mBmsy c(40,80,30,60)
+scenario$scenario34$assess$sBmsy c(60,120,45,90)
+scenario$scenario34$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 35 : 4S-cM0.6kM1.7
+#
+scenario$scenario35$ctrl$scenarioName '4S-cM0.6kM1.7'
+scenario$scenario35$opMod$corrMult 0.6
+scenario$scenario35$opMod$kappaMult 1.7
+scenario$scenario35$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario35$opMod$nS 4
+scenario$scenario35$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario35$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario35$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario35$opMod$parFile 'pars4Spec.txt'
+scenario$scenario35$assess$mBmsy c(40,80,30,60)
+scenario$scenario35$assess$sBmsy c(60,120,45,90)
+scenario$scenario35$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 36 : 4S-cM1kM1.7
+#
+scenario$scenario36$ctrl$scenarioName '4S-cM1kM1.7'
+scenario$scenario36$opMod$corrMult 1
+scenario$scenario36$opMod$kappaMult 1.7
+scenario$scenario36$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario36$opMod$nS 4
+scenario$scenario36$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario36$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario36$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario36$opMod$parFile 'pars4Spec.txt'
+scenario$scenario36$assess$mBmsy c(40,80,30,60)
+scenario$scenario36$assess$sBmsy c(60,120,45,90)
+scenario$scenario36$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 37 : 4S-cM-1kM2
+#
+scenario$scenario37$ctrl$scenarioName '4S-cM-1kM2'
+scenario$scenario37$opMod$corrMult -1
+scenario$scenario37$opMod$kappaMult 2
+scenario$scenario37$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario37$opMod$nS 4
+scenario$scenario37$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario37$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario37$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario37$opMod$parFile 'pars4Spec.txt'
+scenario$scenario37$assess$mBmsy c(40,80,30,60)
+scenario$scenario37$assess$sBmsy c(60,120,45,90)
+scenario$scenario37$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 38 : 4S-cM-0.6kM2
+#
+scenario$scenario38$ctrl$scenarioName '4S-cM-0.6kM2'
+scenario$scenario38$opMod$corrMult -0.6
+scenario$scenario38$opMod$kappaMult 2
+scenario$scenario38$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario38$opMod$nS 4
+scenario$scenario38$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario38$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario38$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario38$opMod$parFile 'pars4Spec.txt'
+scenario$scenario38$assess$mBmsy c(40,80,30,60)
+scenario$scenario38$assess$sBmsy c(60,120,45,90)
+scenario$scenario38$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 39 : 4S-cM-0.2kM2
+#
+scenario$scenario39$ctrl$scenarioName '4S-cM-0.2kM2'
+scenario$scenario39$opMod$corrMult -0.2
+scenario$scenario39$opMod$kappaMult 2
+scenario$scenario39$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario39$opMod$nS 4
+scenario$scenario39$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario39$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario39$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario39$opMod$parFile 'pars4Spec.txt'
+scenario$scenario39$assess$mBmsy c(40,80,30,60)
+scenario$scenario39$assess$sBmsy c(60,120,45,90)
+scenario$scenario39$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 40 : 4S-cM0.2kM2
+#
+scenario$scenario40$ctrl$scenarioName '4S-cM0.2kM2'
+scenario$scenario40$opMod$corrMult 0.2
+scenario$scenario40$opMod$kappaMult 2
+scenario$scenario40$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario40$opMod$nS 4
+scenario$scenario40$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario40$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario40$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario40$opMod$parFile 'pars4Spec.txt'
+scenario$scenario40$assess$mBmsy c(40,80,30,60)
+scenario$scenario40$assess$sBmsy c(60,120,45,90)
+scenario$scenario40$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 41 : 4S-cM0.6kM2
+#
+scenario$scenario41$ctrl$scenarioName '4S-cM0.6kM2'
+scenario$scenario41$opMod$corrMult 0.6
+scenario$scenario41$opMod$kappaMult 2
+scenario$scenario41$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario41$opMod$nS 4
+scenario$scenario41$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario41$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario41$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario41$opMod$parFile 'pars4Spec.txt'
+scenario$scenario41$assess$mBmsy c(40,80,30,60)
+scenario$scenario41$assess$sBmsy c(60,120,45,90)
+scenario$scenario41$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 42 : 4S-cM1kM2
+#
+scenario$scenario42$ctrl$scenarioName '4S-cM1kM2'
+scenario$scenario42$opMod$corrMult 1
+scenario$scenario42$opMod$kappaMult 2
+scenario$scenario42$ctrl$speciesNames c('Dover','English','Rock','Petrale')
+scenario$scenario42$opMod$nS 4
+scenario$scenario42$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario42$opMod$tau2 c(0.01,0.01,0.01,0.01)
+scenario$scenario42$opMod$pars lisread('pars4Spec.txt')
+scenario$scenario42$opMod$parFile 'pars4Spec.txt'
+scenario$scenario42$assess$mBmsy c(40,80,30,60)
+scenario$scenario42$assess$sBmsy c(60,120,45,90)
+scenario$scenario42$assess$lnq_s c(0,0,0,0)
+#
+# Management Procedures
+#
+mp$mp1$ctrl$mpLabel "bothEff"
+mp$mp1$assess$tau2 0.001
+# File Ends <not run>.

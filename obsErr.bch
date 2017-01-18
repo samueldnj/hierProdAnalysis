@@ -1,0 +1,147 @@
+# Batch File
+parameter value
+# Scenarios
+#
+# Scenario 1 : 2S-LoLoObsCV
+#
+scenario$scenario1$ctrl$scenarioName '2S-2LoObsCV'
+#
+# Scenario 2 : 2S-LoMedObsCV
+#
+scenario$scenario2$ctrl$scenarioName '2S-LoMedObsCV'
+scenario$scenario2$opMod$tau2 c(0.04,0.22)
+#
+# Scenario 3 : 2S-LoHiObsCV
+#
+scenario$scenario3$ctrl$scenarioName '2S-LoHiObsCV'
+scenario$scenario3$opMod$tau2 c(0.04,0.49)
+#
+# Scenario 4 : 2S-LoObsCV-identObs
+#
+scenario$scenario4$ctrl$scenarioName '2S-LoObsCV-identObs'
+scenario$scenario4$opMode$identObs TRUE
+#
+# Scenario 5 : 2S-MedObsCV-identObs
+#
+scenario$scenario5$ctrl$scenarioName '2S-MedObsCV-identObs'
+scenario$scenario5$opMode$identObs TRUE
+scenario$scenario5$opMod$tau2 c(0.22,0.22)
+#
+# Scenario 6 : 2S-HiObsCV-identObs
+#
+scenario$scenario6$ctrl$scenarioName '2S-HiObsCV-identObs'
+scenario$scenario6$opMode$identObs TRUE
+scenario$scenario6$opMod$tau2 c(0.49,0.49)
+#
+# Scenario 7 : 4S-4LoObsCV
+#
+scenario$scenario7$ctrl$scenarioName '4S-4LoObsCV'
+scenario$scenario7$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario7$opMod$nS 4
+scenario$scenario7$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario7$opMod$tau2 c(0.04,0.04,0.04,0.04)
+scenario$scenario7$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario7$opMod$parFile "pars4Spec.txt"
+scenario$scenario7$assess$mBmsy c(40,80,30,60)
+scenario$scenario7$assess$sBmsy c(60,120,45,90)
+scenario$scenario7$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 8 : 4S-2Lo2MedObsCV
+#
+scenario$scenario8$ctrl$scenarioName '4S-2Lo2MedObsCV'
+scenario$scenario8$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario8$opMod$nS 4
+scenario$scenario8$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario8$opMod$tau2 c(0.04,0.04,0.22,0.22)
+scenario$scenario8$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario8$opMod$parFile "pars4Spec.txt"
+scenario$scenario8$assess$mBmsy c(40,80,30,60)
+scenario$scenario8$assess$sBmsy c(60,120,45,90)
+scenario$scenario8$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 9 : 4S-2Lo1Med1HiObsCV
+#
+scenario$scenario9$ctrl$scenarioName '4S-2Lo1Med1HiObsCV'
+scenario$scenario9$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario9$opMod$nS 4
+scenario$scenario9$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario9$opMod$tau2 c(0.04,0.04,0.22,0.49)
+scenario$scenario9$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario9$opMod$parFile "pars4Spec.txt"
+scenario$scenario9$assess$mBmsy c(40,80,30,60)
+scenario$scenario9$assess$sBmsy c(60,120,45,90)
+scenario$scenario9$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 10 : 4S-1Lo2Med1HiObsCV
+#
+scenario$scenario10$ctrl$scenarioName '4S-2Lo1Med1HiObsCV'
+scenario$scenario10$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario10$opMod$nS 4
+scenario$scenario10$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario10$opMod$tau2 c(0.04,0.22,0.22,0.49)
+scenario$scenario10$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario10$opMod$parFile "pars4Spec.txt"
+scenario$scenario10$assess$mBmsy c(40,80,30,60)
+scenario$scenario10$assess$sBmsy c(60,120,45,90)
+scenario$scenario10$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 11 : 4S-2Lo2Hi1HiObsCV
+#
+scenario$scenario11$ctrl$scenarioName '4S-2Lo2HiObsCV'
+scenario$scenario11$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario11$opMod$nS 4
+scenario$scenario11$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario11$opMod$tau2 c(0.04,0.04,0.49,0.49)
+scenario$scenario11$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario11$opMod$parFile "pars4Spec.txt"
+scenario$scenario11$assess$mBmsy c(40,80,30,60)
+scenario$scenario11$assess$sBmsy c(60,120,45,90)
+scenario$scenario11$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 12 : 4S-LoObsCV-identObs
+#
+scenario$scenario12$ctrl$scenarioName '4S-2LoObsCV-identObs'
+scenario$scenario12$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario12$opMod$nS 4
+scenario$scenario12$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario12$opMod$tau2 c(0.04,0.04,0.04,0.04)
+scenario$scenario12$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario12$opMod$parFile "pars4Spec.txt"
+scenario$scenario12$opMod$$identObs TRUE
+scenario$scenario12$assess$mBmsy c(40,80,30,60)
+scenario$scenario12$assess$sBmsy c(60,120,45,90)
+scenario$scenario12$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 13 : 4S-MedObsCV-identObs
+#
+scenario$scenario13$ctrl$scenarioName '4S-MedObsCV-identObs'
+scenario$scenario13$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario13$opMod$nS 4
+scenario$scenario13$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario13$opMod$tau2 c(0.22,0.22,0.22,0.22)
+scenario$scenario13$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario13$opMod$parFile "pars4Spec.txt"
+scenario$scenario13$opMod$$identObs TRUE
+scenario$scenario13$assess$mBmsy c(40,80,30,60)
+scenario$scenario13$assess$sBmsy c(60,120,45,90)
+scenario$scenario13$assess$lnq_s c(0,0,0,0)
+#
+# Scenario 14 : 4S-HiObsCV-identObs
+#
+scenario$scenario14$ctrl$scenarioName '4S-HiObsCV-identObs'
+scenario$scenario14$ctrl$speciesNames c("Dover","English","Rock","Petrale")
+scenario$scenario14$opMod$nS 4
+scenario$scenario14$opMod$q c(0.9,1.2,0.95,1.08)
+scenario$scenario14$opMod$tau2 c(0.49,0.49,0.49,0.49)
+scenario$scenario14$opMod$pars lisread("pars4Spec.txt")
+scenario$scenario14$opMod$parFile "pars4Spec.txt"
+scenario$scenario14$opMod$$identObs TRUE
+scenario$scenario14$assess$mBmsy c(40,80,30,60)
+scenario$scenario14$assess$sBmsy c(60,120,45,90)
+scenario$scenario14$assess$lnq_s c(0,0,0,0)
+#
+# Management Procedures
+#
+mp$mp1$ctrl$mpLabel "bothEff"
+mp$mp1$assess$tau2 0.001
+# File Ends <not run>.

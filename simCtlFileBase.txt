@@ -1,4 +1,4 @@
-# job6.txt: mseR parameter file written Fri Dec 23 10:45:25 2016.
+# Base sim control file
 parameter value
 ctrl$scenarioName "2S-obsCV.1"
 ctrl$mpLabel "bothEff"
