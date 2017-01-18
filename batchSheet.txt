@@ -11,7 +11,9 @@ parList <-  list( "opMod$tUpeak" = seq(5,10,by=5),
 labels <- c("tUpk","tUtr","Umax")
 
 Obs Error:
+- obsErr.bch
 
+All 3 species mixes (2,4,5) are included in the same batch control file
 
 
 Random Effects Correlation:
