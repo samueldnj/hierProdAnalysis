@@ -1,0 +1,119 @@
+# Batch File
+parameter value
+# Scenario 1 : 2S-tUpk5tUtr15Umax0.8
+#
+scenario$scenario1$ctrl$scenarioName '2S-tUpk5tUtr15Umax0.8'
+scenario$scenario1$opMod$tUpeak 5
+scenario$scenario1$opMod$tUtrough  15
+scenario$scenario1$opMod$Umax 0.8
+#
+# Scenario 2 : 2S-tUpk10tUtr15Umax0.8
+#
+scenario$scenario2$ctrl$scenarioName '2S-tUpk10tUtr15Umax0.8'
+scenario$scenario2$opMod$tUpeak 10
+scenario$scenario2$opMod$tUtrough  15
+scenario$scenario2$opMod$Umax 0.8
+#
+# Scenario 3 : 2S-tUpk5tUtr20Umax0.8
+#
+scenario$scenario3$ctrl$scenarioName '2S-tUpk5tUtr20Umax0.8'
+scenario$scenario3$opMod$tUpeak 5
+scenario$scenario3$opMod$tUtrough  20
+scenario$scenario3$opMod$Umax 0.8
+#
+# Scenario 4 : 2S-tUpk10tUtr20Umax0.8
+#
+scenario$scenario4$ctrl$scenarioName '2S-tUpk10tUtr20Umax0.8'
+scenario$scenario4$opMod$tUpeak 10
+scenario$scenario4$opMod$tUtrough  20
+scenario$scenario4$opMod$Umax 0.8
+#
+# Scenario 5 : 2S-tUpk5tUtr15Umax1.2
+#
+scenario$scenario5$ctrl$scenarioName '2S-tUpk5tUtr15Umax1.2'
+scenario$scenario5$opMod$tUpeak 5
+scenario$scenario5$opMod$tUtrough  15
+scenario$scenario5$opMod$Umax 1.2
+#
+# Scenario 6 : 2S-tUpk10tUtr15Umax1.2
+#
+scenario$scenario6$ctrl$scenarioName '2S-tUpk10tUtr15Umax1.2'
+scenario$scenario6$opMod$tUpeak 10
+scenario$scenario6$opMod$tUtrough  15
+scenario$scenario6$opMod$Umax 1.2
+#
+# Scenario 7 : 2S-tUpk5tUtr20Umax1.2
+#
+scenario$scenario7$ctrl$scenarioName '2S-tUpk5tUtr20Umax1.2'
+scenario$scenario7$opMod$tUpeak 5
+scenario$scenario7$opMod$tUtrough  20
+scenario$scenario7$opMod$Umax 1.2
+#
+# Scenario 8 : 2S-tUpk10tUtr20Umax1.2
+#
+scenario$scenario8$ctrl$scenarioName '2S-tUpk10tUtr20Umax1.2'
+scenario$scenario8$opMod$tUpeak 10
+scenario$scenario8$opMod$tUtrough  20
+scenario$scenario8$opMod$Umax 1.2
+#
+# Scenario 9 : 2S-tUpk5tUtr15Umax1.6
+#
+scenario$scenario9$ctrl$scenarioName '2S-tUpk5tUtr15Umax1.6'
+scenario$scenario9$opMod$tUpeak 5
+scenario$scenario9$opMod$tUtrough  15
+scenario$scenario9$opMod$Umax 1.6
+#
+# Scenario 10 : 2S-tUpk10tUtr15Umax1.6
+#
+scenario$scenario10$ctrl$scenarioName '2S-tUpk10tUtr15Umax1.6'
+scenario$scenario10$opMod$tUpeak 10
+scenario$scenario10$opMod$tUtrough  15
+scenario$scenario10$opMod$Umax 1.6
+#
+# Scenario 11 : 2S-tUpk5tUtr20Umax1.6
+#
+scenario$scenario11$ctrl$scenarioName '2S-tUpk5tUtr20Umax1.6'
+scenario$scenario11$opMod$tUpeak 5
+scenario$scenario11$opMod$tUtrough  20
+scenario$scenario11$opMod$Umax 1.6
+#
+# Scenario 12 : 2S-tUpk10tUtr20Umax1.6
+#
+scenario$scenario12$ctrl$scenarioName '2S-tUpk10tUtr20Umax1.6'
+scenario$scenario12$opMod$tUpeak 10
+scenario$scenario12$opMod$tUtrough  20
+scenario$scenario12$opMod$Umax 1.6
+#
+# Scenario 13 : 2S-tUpk5tUtr15Umax2
+#
+scenario$scenario13$ctrl$scenarioName '2S-tUpk5tUtr15Umax2'
+scenario$scenario13$opMod$tUpeak 5
+scenario$scenario13$opMod$tUtrough  15
+scenario$scenario13$opMod$Umax 2
+#
+# Scenario 14 : 2S-tUpk10tUtr15Umax2
+#
+scenario$scenario14$ctrl$scenarioName '2S-tUpk10tUtr15Umax2'
+scenario$scenario14$opMod$tUpeak 10
+scenario$scenario14$opMod$tUtrough  15
+scenario$scenario14$opMod$Umax 2
+#
+# Scenario 15 : 2S-tUpk5tUtr20Umax2
+#
+scenario$scenario15$ctrl$scenarioName '2S-tUpk5tUtr20Umax2'
+scenario$scenario15$opMod$tUpeak 5
+scenario$scenario15$opMod$tUtrough  20
+scenario$scenario15$opMod$Umax 2
+#
+# Scenario 16 : 2S-tUpk10tUtr20Umax2
+#
+scenario$scenario16$ctrl$scenarioName '2S-tUpk10tUtr20Umax2'
+scenario$scenario16$opMod$tUpeak 10
+scenario$scenario16$opMod$tUtrough  20
+scenario$scenario16$opMod$Umax 2
+#
+# Management Procedures
+#
+mp$mp1$ctrl$mpLabel "bothEff"
+mp$mp1$assess$tau2 0.001
+# File Ends <not run>.

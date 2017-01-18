@@ -1,0 +1,70 @@
+## Batch control files, and parameters
+
+Fishing History:
+- 2s-fishHist.bch
+- 4s-fishHist.bch
+- 5s-fishHist.bch
+
+parList <-  list( "opMod$tUpeak" = seq(5,10,by=5),
+                  "opMod$tUtrough " = seq(15,20,by=5),
+                  "opMod$Umax" = seq(0.8,2,by=0.4) )
+labels <- c("tUpk","tUtr","Umax")
+
+Obs Error:
+
+
+
+Random Effects Correlation:
+- 2sRE.bch
+- 4sRE.bch
+- 5sRE.bch
+
+parList <- list( "opMod$corrMult" = seq(-1,1,by=0.4),
+                 "opMod$kappaMult" = seq(0.2,2,by=0.3) )
+labels <- c("cM","kM")
+
+
+
+
+# AM and OM parameters:
+OM:
+scenario$scenario1$ctrl$speciesNames c('Dover','English','Rock','Petrale','Arrowtooth')
+scenario$scenario1$opMod$nS 5
+scenario$scenario1$opMod$q c(0.9,1.2,0.95,1.08,0.8)
+scenario$scenario1$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
+
+# Bmsy
+40 80 30 60 50 100
+
+# Umsy
+0.3 0.2 0.35 0.25 0.2
+
+## Process Error ##
+## year effect variance (applied to all species)
+# kappa2
+0.05
+
+## Multispecies proc error
+## Correlation matrix
+# msCorr - RE exp
+1   0.8  0.8  0.8  -0.8
+0.8   1  0.8  0.8  -0.8
+0.8  0.8   1  0.8  -0.8
+0.8  0.8  0.8   1  -0.8
+-0.8 -0.8 -0.8 -0.8  1
+
+# msCorr - fishing history and obs error
+1   0.5  0.5  0.5  -0.5
+0.5   1  0.5  0.5  -0.5
+0.5  0.5   1  0.5  -0.5
+0.5  0.5  0.5   1  -0.5
+-0.5 -0.5 -0.5 -0.5  1
+
+## Species effect variance (species specific)
+# Sigma2
+0.05 0.05 0.05 0.05 0.05
+
+AM
+scenario$scenario1$assess$mBmsy c(40,80,30,60,100)
+scenario$scenario1$assess$sBmsy c(60,120,45,90,150)
+scenario$scenario1$assess$lnq_s c(0,0,0,0,0)
