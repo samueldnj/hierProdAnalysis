@@ -43,29 +43,44 @@
   om    <- blob$om
   opMod <- blob$opMod
   pars  <- blob$opMod$pars
-  
-  # Get estimates, whether MCMC or MLE
-  ss    <- blob$am$ss
-  ms    <- blob$am$ms
 
-  if( est == "MCMC" )
-  {
-    ssPar <- blob$am$ss$mcPar
-    ssBio <- blob$am$ss$mcBio
-    msPar <- blob$am$ms$mcPar
-    msBio <- blob$am$ms$mcBio
-
-    ssPar <- apply ( X = ssPar, FUN = mean, MARGIN = c(1,2,4))
-    ssBio <- apply ( X = ssBio, FUN = mean, MARGIN = c(1,2,4))
-    msPar <- apply ( X = msPar, FUN = mean, MARGIN = c(1,2,4))
-    msBio <- apply ( X = msBio, FUN = mean, MARGIN = c(1,2,4))
-  }
-  
   # Control info
   nS      <- blob$opMod$nS
   nT      <- blob$opMod$nT
   species <- blob$ctrl$speciesName
   nReps   <- blob$ctrl$nReps
+  
+  # Get estimates, whether MCMC or MLE
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+
+  # Get the good replicate numbers
+  ssHess <- ss$hesspd
+  ssHess[is.na(ssHess)] <- FALSE
+  ssHess <- as.logical(apply ( X = ssHess, FUN = prod, MARGIN = 1 ) )
+  msHess <- ms$hesspd
+  msHess[is.na(msHess)] <- FALSE
+  ssSuccessful <- which ( ssHess )
+  msSuccessful <- which ( msHess )
+  success <- intersect ( ssSuccessful, msSuccessful )
+  failure <- (1:nReps)[-success]
+
+
+  if( est == "MCMC" )
+  {
+    # Set quantiles (add to control file)
+    qProbs  <- c(0.025,0.5,0.975)
+
+    # Save MCMC output
+    ssMCMC  <- blob$am$ss$mcOut
+    msMCMC  <- blob$am$ms$mcOut
+
+    # Apply functions to extract quantiles and posterior means
+    ssPM    <- apply ( X = ssMCMC, FUN = mean, MARGIN = c(1,2,4), na.rm=T)
+    ssQuant <- apply ( X = ssMCMC, FUN = quantile, MARGIN = c(1,2,4), probs = qProbs, na.rm = T )
+    msPM    <- apply ( X = msMCMC, FUN = mean, MARGIN = c(1,3), na.rm=T)
+    msQuant <- apply ( X = msMCMC, FUN = quantile, MARGIN = c(1,3), probs = qProbs, na.rm=T )
+  }
 
   # First, create a data.frame of NAs with a row for each of MRE,MARE
   colLabels <- c( "scenario","mp","species","kappa2True",
@@ -113,18 +128,34 @@
     }
     if( est == "MCMC" )
     {
-      statTable[s,"ssBnT"]    <- mean ( (ssBio[,s,nT] - om$Bt[,s,nT])^2,na.rm=TRUE)
-      statTable[s,"msBnT"]    <- mean ( (msBio[,s,nT] - om$Bt[,s,nT])^2,na.rm=TRUE)
-      statTable[s,"ssUmsy"]   <- mean ( (ssPar[,s,"Umsy"] - pars$Umsy[s])^2,na.rm=TRUE)
-      statTable[s,"msUmsy"]   <- mean ( (msPar[,s,"Umsy"] - pars$Umsy[s])^2,na.rm=TRUE)
-      statTable[s,"ssBmsy"]   <- mean ( (ssPar[,s,"Bmsy"] - pars$Bmsy[s])^2,na.rm=TRUE)
-      statTable[s,"msBmsy"]   <- mean ( (msPar[,s,"Bmsy"] - pars$Bmsy[s])^2,na.rm=TRUE)
-      statTable[s,"ssMSY"]    <- mean ( (ssPar[,s,"msy"] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
-      statTable[s,"msMSY"]    <- mean ( (msPar[,s,"msy"] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
-      statTable[s,"ssDep"]    <- mean ( (ssPar[,s,"dep_bar"] -  om$dep[,s])^2,na.rm=TRUE)
-      statTable[s,"msDep"]    <- mean ( (msPar[,s,"dep_bar"] -  om$dep[,s])^2,na.rm=TRUE)
-      statTable[s,"ssq"]      <- mean ( (ssPar[,s,"q"]   -  opMod$q[s])^2,na.rm=TRUE)
-      statTable[s,"msq"]      <- mean ( (msPar[,s,"q"]   -  opMod$q[s])^2,na.rm=TRUE)
+      # Create labels to recover MCMC table entries
+      ssBmsy    <- paste("Bmsy",1,sep="")
+      ssUmsy    <- paste("Umsy",1,sep="")
+      ssMSY     <- paste("msy",1,sep="")
+      ssqlab    <- paste("q",1,sep="")
+      ssDnTlab  <- paste("DnT",1,sep="")
+      ssBnTlab  <- paste("Bst_",1,"_",nT,sep="")
+
+      msBmsy    <- paste("Bmsy",s,sep="")
+      msUmsy    <- paste("Umsy",s,sep="")
+      msMSY     <- paste("msy",s,sep="")
+      msqlab    <- paste("q",s,sep="")
+      msDnTlab  <- paste("DnT",s,sep="")
+      msBnTlab  <- paste("Bst_",s,"_",nT,sep="")
+
+
+      statTable[s,"ssBnT"]    <- mean ( (ssPM[success,s,ssBnTlab] - om$Bt[success,s,nT])^2,na.rm=TRUE)
+      statTable[s,"msBnT"]    <- mean ( (msPM[success,msBnTlab] - om$Bt[success,s,nT])^2,na.rm=TRUE)
+      statTable[s,"ssUmsy"]   <- mean ( (ssPM[success,s,ssUmsy] - pars$Umsy[s])^2,na.rm=TRUE)
+      statTable[s,"msUmsy"]   <- mean ( (msPM[success,msUmsy] - pars$Umsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssBmsy"]   <- mean ( (ssPM[success,s,ssBmsy] - pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"msBmsy"]   <- mean ( (msPM[success,msBmsy] - pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssMSY"]    <- mean ( (ssPM[success,s,ssMSY] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"msMSY"]    <- mean ( (msPM[success,msMSY] -  pars$Umsy[s]*pars$Bmsy[s])^2,na.rm=TRUE)
+      statTable[s,"ssDep"]    <- mean ( (ssPM[success,s,ssDnTlab] -  om$dep[,s])^2,na.rm=TRUE)
+      statTable[s,"msDep"]    <- mean ( (msPM[success,msDnTlab] -  om$dep[,s])^2,na.rm=TRUE)
+      statTable[s,"ssq"]      <- mean ( (ssPM[success,s,ssqlab]   -  opMod$q[s])^2,na.rm=TRUE)
+      statTable[s,"msq"]      <- mean ( (msPM[success,msqlab]   -  opMod$q[s])^2,na.rm=TRUE)
       statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s], na.rm=TRUE )
       statTable[s,"msHessPD"] <- mean ( ms$hesspd, na.rm=TRUE )  
     }
@@ -173,9 +204,10 @@
                 Bmsy   = matrix ( NA, nrow = nReps, ncol = nS ),
                 Umsy   = matrix ( NA, nrow = nReps, ncol = nS ),
                 kappa2 = matrix ( NA, nrow = nReps, ncol = nS ),
+                totVar = matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2   = matrix ( NA, nrow = nReps, ncol = nS ),
                 q      = matrix ( NA, nrow = nReps, ncol = nS ),
-                mlnq   = matrix ( NA, nrow = nReps, ncol = nS ),
+                # mlnq   = matrix ( NA, nrow = nReps, ncol = nS ),
                 dep    = matrix ( NA, nrow = nReps, ncol = nS ),
                 BnT    = matrix ( NA, nrow = nReps, ncol = nS )
               )
@@ -183,11 +215,12 @@
   msErr <- list ( 
                 Bmsy   = matrix ( NA, nrow = nReps, ncol = nS ),
                 Umsy   = matrix ( NA, nrow = nReps, ncol = nS ),
-                kappa2 = matrix ( NA, nrow = nReps, ncol = 1),
+                kappa2 = matrix ( NA, nrow = nReps, ncol = 1 ),
                 Sigma2 = matrix ( NA, nrow = nReps, ncol = nS ),
+                totVar = matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2   = matrix ( NA, nrow = nReps, ncol = nS ),
                 q      = matrix ( NA, nrow = nReps, ncol = nS ),
-                mlnq   = matrix ( NA, nrow = nReps, ncol = 1 ),
+                # mlnq   = matrix ( NA, nrow = nReps, ncol = 1 ),
                 dep    = matrix ( NA, nrow = nReps, ncol = nS ),
                 BnT    = matrix ( NA, nrow = nReps, ncol = nS )
               )
@@ -201,70 +234,83 @@
   # Fill in ss MLE relative errors
   for ( s in 1:nS )
   {
-    ss$err.mle$Bmsy[,s]   <- (ss$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-    ss$err.mle$Umsy[,s]   <- (ss$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-    ss$err.mle$kappa2[,s] <- (ss$kappa2[,s] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
-    ss$err.mle$tau2[,s]   <- (ss$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
-    ss$err.mle$q[,s]      <- (ss$q[,s] - opMod$q[s])/opMod$q[s]
-    ss$err.mle$dep[,s]    <- (ss$dep[,s] - om$dep[,s])/om$dep[,s]
-    ss$err.mle$BnT[,s]    <- (ss$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
+    ss$err.mle$Bmsy[success,s]   <- (ss$Bmsy[success,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
+    ss$err.mle$Umsy[success,s]   <- (ss$Umsy[success,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
+    ss$err.mle$kappa2[success,s] <- (ss$kappa2[success,s] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
+    ss$err.mle$totVar[success,s] <- (ss$kappa2[success,s] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
+    ss$err.mle$tau2[success,s]   <- (ss$tau2[success,s] - opMod$tau2[s])/opMod$tau2[s]
+    ss$err.mle$q[success,s]      <- (ss$q[success,s] - opMod$q[s])/opMod$q[s]
+    ss$err.mle$dep[success,s]    <- (ss$dep[success,s] - om$dep[success,s])/om$dep[success,s]
+    ss$err.mle$BnT[success,s]    <- (ss$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
 
     # Now fill in ms MLE relative errors
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.mle$kappa2[,s]     <- (ms$kappa2 - opMod$pars$kappa2)/opMod$pars$kappa2
-      ms$err.mle$mlnq[,s]       <- (ms$mlnq - mean(log(opMod$q)))
+      ms$err.mle$kappa2[success,s]    <- (ms$kappa2[success,] - opMod$pars$kappa2)/opMod$pars$kappa2      
     }
     # Now the rest of the pars
-    ms$err.mle$tau2[,s]   <- (ms$tau2 - opMod$tau2[s])/opMod$tau2[s]
-    ms$err.mle$Bmsy[,s]   <- (ms$Bmsy[,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-    ms$err.mle$Umsy[,s]   <- (ms$Umsy[,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-    ms$err.mle$Sigma2[,s] <- (ms$Sigma2 - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]  
-    ms$err.mle$q[,s]      <- (ms$q[,s] - opMod$q[s])/opMod$q[s]
-    ms$err.mle$dep[,s]    <- (ms$dep[,s] - om$dep[s])/om$dep[s]
-    ms$err.mle$BnT[,s]    <- (ms$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
+    ms$err.mle$tau2[success,s]   <- (ms$tau2[success,] - opMod$tau2[s])/opMod$tau2[s]
+    ms$err.mle$Sigma2[success,s] <- (ms$Sigma2[success,] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]  
+    ms$err.mle$totVar[success,s] <- (ms$Sigma2[success,] + ms$kappa2[success,] - (opMod$pars$Sigma2[s]+opMod$pars$kappa2))/(opMod$pars$Sigma2[s]+opMod$pars$kappa2)  
+    ms$err.mle$Bmsy[success,s]   <- (ms$Bmsy[success,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
+    ms$err.mle$Umsy[success,s]   <- (ms$Umsy[success,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
+    ms$err.mle$q[success,s]      <- (ms$q[success,s] - opMod$q[s])/opMod$q[s]
+    ms$err.mle$dep[success,s]    <- (ms$dep[success,s] - om$dep[s])/om$dep[s]
+    ms$err.mle$BnT[success,s]    <- (ms$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
   }
 
   # Now get errors from posterior estimates
-  # ss$err.post <- ssErr
-  # ms$err.post <- msErr
-  # # first calculate SS posterior mean and median
-  # ssMCMC <- ss$mcPar
-  # ssMCMC <- apply ( X = ssMCMC, FUN = mean, MARGIN = c(1,2,4))
-  # # then MS
-  # msMCMC <- ms$mcPar
-  # msMCMC <- apply ( X = msMCMC, FUN = mean, MARGIN = c(1,2,4))
+  ss$err.post <- ssErr
+  ms$err.post <- msErr
+  # Recover MCMC chains
+  ssMCMC <- blob$am$ss$mcOut
+  msMCMC <- blob$am$ms$mcOut
+  # Calculate posterior means
+  ssPostMean <- apply ( X = ssMCMC, FUN = mean, MARGIN = c(1,2,4), na.rm=T)
+  msPostMean <- apply ( X = msMCMC, FUN = mean, MARGIN = c(1,3), na.rm=T)
 
-  # Then load into the blob error distributions. These contain
-  # NAs, which will have to be cleared up in the plotting
-  # for (s in 1:nS)
-  # {
-  #   ss$err.post$Bmsy[,s]   <- (ssMCMC[,s,"Bmsy"] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-  #   ss$err.post$Umsy[,s]   <- (ssMCMC[,s,"Umsy"] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-  #   ss$err.post$kappa2[,s] <- (ssMCMC[,s,"kappa2"] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
-  #   ss$err.post$tau2[,s]   <- (ssMCMC[,s,"tau2"] - opMod$tau2[s])/opMod$tau2[s]
-  #   ss$err.post$q[,s]      <- (ssMCMC[,s,"q"] - opMod$q[s])/opMod$q[s]
-  #   # ss$err.post$mlnq[,s]   <- (ss$mlnq[,s] - mean(log(opMod$q)))
-  #   ss$err.post$dep[,s]    <- (ssMCMC[,s,"dep_bar"] - om$dep[,s])/om$dep[,s]
-  #   ss$err.post$BnT[,s]    <- (ssMCMC[,s,"BnT"] - om$Bt[,s,nT])/om$Bt[,s,nT]
+  # Now save relative error distributions when restricting to successful
+  # runs. These contain NAs that will have to be cleared up in the plotting
+  for (s in 1:nS)
+  {
+    # Create labels to recover parameter columns from MCMC tables
+    ssBmsy    <- paste("Bmsy",1,sep="")
+    ssUmsy    <- paste("Umsy",1,sep="")
+    ssqlab    <- paste("q",1,sep="")
+    ssDnTlab  <- paste("DnT",1,sep="")
+    ssBnTlab  <- paste("Bst_",1,"_",nT,sep="")
 
-  #   # Now fill in ms MLE relative errors
-  #   # some are only estimated once (instead of nS times)
-  #   if (s == 1)
-  #   {
-  #     ms$err.post$kappa2[,s]     <- (msMCMC[,s,"kappa2"] - opMod$pars$kappa2)/opMod$pars$kappa2
-  #     ms$err.post$mlnq[,s]       <- t(ms$mlnq - mean(log(opMod$q)))
-  #   }
+    msBmsy    <- paste("Bmsy",s,sep="")
+    msUmsy    <- paste("Umsy",s,sep="")
+    msqlab    <- paste("q",s,sep="")
+    msDnTlab  <- paste("DnT",s,sep="")
+    msBnTlab  <- paste("Bst_",s,"_",nT,sep="")
+    # Now save SS estimates
+    ss$err.post$Bmsy[success,s]   <- (ssPostMean[success,s,ssBmsy] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
+    ss$err.post$Umsy[success,s]   <- (ssPostMean[success,s,ssUmsy] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
+    ss$err.post$kappa2[success,s] <- (ssPostMean[success,s,"kappa2"] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
+    ss$err.post$totVar[success,s] <- (ssPostMean[success,s,"kappa2"] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
+    ss$err.post$tau2[success,s]   <- (ssPostMean[success,s,"tau2"] - opMod$tau2[s])/opMod$tau2[s]
+    ss$err.post$q[success,s]      <- (ssPostMean[success,s,ssqlab] - opMod$q[s])/opMod$q[s]
+    ss$err.post$dep[success,s]    <- (ssPostMean[success,s,ssDnTlab] - om$dep[success,s])/om$dep[success,s]
+    ss$err.post$BnT[success,s]    <- (ssPostMean[success,s,ssBnTlab] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
+    # Now fill in ms MLE relative errors
+    # some are only estimated once (instead of nS times)
+    if (s == 1)
+    {
+      ms$err.post$kappa2[success,s]     <- (msPostMean[success,"kappa2"] - opMod$pars$kappa2)/opMod$pars$kappa2
+    }
 
-  #   ms$err.post$Sigma2[,s] <- (msMCMC[,s,"Sigma2"] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
-  #   ms$err.post$tau2[,s]   <- (msMCMC[,s,"tau2"] - opMod$tau2[s])/opMod$tau2[s]
-  #   ms$err.post$Bmsy[,s]   <- (msMCMC[,s,"Bmsy"] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-  #   ms$err.post$Umsy[,s]   <- (msMCMC[,s,"Umsy"] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-  #   ms$err.post$q[,s]      <- (msMCMC[,s,"q"] - opMod$q[s])/opMod$q[s]
-  #   ms$err.post$dep[,s]    <- (msMCMC[,s,"dep_bar"] - om$dep[,s])/om$dep[,s]
-  #   ms$err.post$BnT[,s]    <- (msMCMC[,s,"BnT"] - om$Bt[,s,nT])/om$Bt[,s,nT]
-  # }
+    ms$err.post$Sigma2[success,s] <- (msPostMean[success,"Sigma2"] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
+    ms$err.post$totVar[success,s] <- (msPostMean[success,"Sigma2"] + msPostMean[success,"kappa2"] - (opMod$pars$Sigma2[s]+opMod$pars$kappa2))/(opMod$pars$Sigma2[s]+opMod$pars$kappa2)
+    ms$err.post$tau2[success,s]   <- (msPostMean[success,"tau2"] - opMod$tau2[s])/opMod$tau2[s]
+    ms$err.post$Bmsy[success,s]   <- (msPostMean[success,msBmsy] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
+    ms$err.post$Umsy[success,s]   <- (msPostMean[success,msUmsy] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
+    ms$err.post$q[success,s]      <- (msPostMean[success,msqlab] - opMod$q[s])/opMod$q[s]
+    ms$err.post$dep[success,s]    <- (msPostMean[success,msDnTlab] - om$dep[success,s])/om$dep[success,s]
+    ms$err.post$BnT[success,s]    <- (msPostMean[success,msBnTlab] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
+  }
 
   # Append these to blob
   blob$am$ss <- ss

@@ -364,7 +364,6 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
   Ut    <- blob$om$Ut[rep,,]
 
   
-  browser()
   if ( est == "MLE" )
   { # Single species model
     ssBt  <- blob$am$ss$Bt[rep,,]
@@ -377,22 +376,30 @@ plotBCU <- function ( rep = 1, est="MCMC", sim=1, legend=TRUE,
   if ( est == "MCMC" )
   {
     # single species
-    mcBioSSMean <- apply(X=blob$am$ss$mcBio[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
-    mcParSSMean <- apply(X=blob$am$ss$mcPar[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
-    ssBt        <- mcBioSSMean
-    ssq         <- mcParSSMean[,"q"]
+    ssMCMC      <- blob$am$ss$mcOut[rep,,,]
+    ssPostMean  <- apply( X = ssMCMC, FUN = mean, MARGIN = c( 1, 3 ), na.rm = TRUE )
+    bioSSlab    <- paste("Bst_1_",1:nT,sep = "")
+    ssBt        <- ssPostMean[,bioSSlab]
+    ssq         <- ssPostMean[,"q1"]
 
     # multispeces
-    mcBioMSMean <- apply(X=blob$am$ms$mcBio[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
-    mcParMSMean <- apply(X=blob$am$ms$mcPar[rep,,,],FUN=mean,MARGIN=c(1,3),na.rm=TRUE)
-    msBt        <- mcBioMSMean
-    msq         <- mcParMSMean[,"q"]
+    msMCMC      <- blob$am$ms$mcOut[rep,,]
+    msPostMean  <- apply( X = msMCMC, FUN = mean, MARGIN = c( 2 ), na.rm = TRUE )
+    msPostMean[!is.finite(msPostMean)] <- NA
+    msBt        <- matrix ( NA, nrow = nS, ncol = nT ) 
+    for (s in 1:nS)
+    {
+      bioMSlab    <- paste( "Bst_", s, "_", 1:nT, sep = "" )
+      msBt[ s, ]  <- msPostMean[bioMSlab ]
+    }
+    qlab        <- paste( "q", 1:nS, sep="" )
+    msq         <- msPostMean[qlab]
   }
+
 
   # Estimated Ut
   ssUt <- Ct / ssBt
   msUt <- Ct / msBt
-
   
   # Recover diagnostics for the fits
   hpdSS <- blob$am$ss$hesspd[rep,]
