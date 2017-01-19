@@ -111,7 +111,8 @@ doBatchRun <- function( batchFolderName )
 # Side Effects: A simulation folder containing *.info and *.Rdata file (blob) and
 #               for each row of the design dataframe, i.e., for each simulation.
 # Source:       A.R. Kronlund
-.runBatchJob <- function( batchDesign=NULL, par=FALSE,prefix=NULL )
+.runBatchJob <- function( batchDesign=NULL, par=FALSE, prefix=NULL,
+                          nCores=NULL )
 {
   # Runs simulations from the design data.frame specified in batchDesign object.
   # 1. Does the mseR input parameter file exist? If YES then read the file.
@@ -170,7 +171,8 @@ doBatchRun <- function( batchFolderName )
       file.copy (batchParFile[i],simCtlFile,overwrite=TRUE)
     }
     # Now set # of cores and make a cluster
-    nCores  <- min(nBatchFiles,detectCores()-1)
+    if (!is.null(nCores)) nCores  <- min(nCores,detectCores()-1)  
+    else nCores  <- min(nBatchFiles,detectCores()-1)
     cl      <- makePSOCKcluster(nCores)
     # Run parallel batch
     cat ("Running ", nBatchFiles, " simulations in parallel on ",
