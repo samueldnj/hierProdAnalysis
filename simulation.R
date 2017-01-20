@@ -604,8 +604,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   	Ct <- rep(NA,nT)
   }
 
-  # Populate the vector, with a special case for t = 1
-  Bt [ 1 ] <- 2 * Bmsy * epst[1] * zetat[1]
+  # Populate the vector, assuming originally at B0
+  Bt [ 1 ] <- 2 * Bmsy #* epst[1] * zetat[1]
 
   # Loop over remaining years
   for ( t in 2:nT )

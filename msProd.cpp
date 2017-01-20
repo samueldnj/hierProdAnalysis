@@ -176,14 +176,19 @@ Type objective_function<Type>::operator() ()
   // Variance IG priors
   // Obs error var
   obj += (tau2IG(0)+Type(1))*lntau2+tau2IG(1)/tau2;
-  // shared q prior variance
-  obj += (tauq2IG(0)+Type(1))*lntauq2+tauq2IG(1)/exp(lntauq2);
-  // shared U prior variance
-  obj += (sigU2IG(0)+Type(1))*lnsigUmsy2+sigU2IG(1)/exp(lnsigUmsy2);
   // year effect deviations var
   obj += (kappa2IG(0)+Type(1))*lnkappa2+kappa2IG(1)/kappa2;
-  // Specific effect variance
-  obj += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+  // Now multispecies priors
+  if (nS > 1)
+  {
+    // shared q prior variance
+    obj += (tauq2IG(0)+Type(1))*lntauq2+tauq2IG(1)/exp(lntauq2);
+    // shared U prior variance
+    obj += (sigU2IG(0)+Type(1))*lnsigUmsy2+sigU2IG(1)/exp(lnsigUmsy2);
+    // Specific effect variance
+    obj += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);  
+  }
+  
 
   
 

@@ -143,7 +143,6 @@
                 kappa2= matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                mlnq  = matrix ( NA, nrow = nReps, ncol = nS ),
                 dep   = matrix ( NA, nrow = nReps, ncol = nS ),
                 BnT   = matrix ( NA, nrow = nReps, ncol = nS ),
                 totRE = matrix ( NA, nrow = nReps, ncol = nS )
@@ -156,7 +155,6 @@
                 Sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
                 tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
                 q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                mlnq  = matrix ( NA, nrow = nReps, ncol = 1 ),
                 dep   = matrix ( NA, nrow = nReps, ncol = nS ),
                 BnT   = matrix ( NA, nrow = nReps, ncol = nS ),
                 totRE = matrix ( NA, nrow = nReps, ncol = nS )
@@ -177,7 +175,6 @@
     ss$err.mle$kappa2[,s] <- (ss$kappa2[,s] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
     ss$err.mle$tau2[,s]   <- (ss$tau2[,s] - opMod$tau2[s])/opMod$tau2[s]
     ss$err.mle$q[,s]      <- (ss$q[,s] - opMod$q[s])/opMod$q[s]
-    ss$err.mle$mlnq[,s]   <- (ss$mlnq[,s] - mean(log(opMod$q)))
     ss$err.mle$dep[,s]    <- (ss$dep[,s,nT] - om$dep[,s,nT])/om$dep[,s,nT]
     ss$err.mle$BnT[,s]    <- (ss$Bt[,s,nT] - om$Bt[,s,nT])/om$Bt[,s,nT]
     ss$err.mle$totRE[,s]  <- ss$err.mle$kappa2[,s]
@@ -187,7 +184,6 @@
     if (s == 1)
     {
       ms$err.mle$kappa2     <- t(ms$kappa2 - opMod$pars$kappa2)/opMod$pars$kappa2
-      ms$err.mle$mlnq       <- t(ms$lnqbar - mean(log(opMod$q))) 
     }
     # Now the rest of the pars
     ms$err.mle$Sigma2[,s] <- (ms$Sigma2[,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
