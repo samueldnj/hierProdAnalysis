@@ -2,7 +2,7 @@
 parameter value
 ctrl$scenarioName "test"
 ctrl$mpLabel "bothEff"
-ctrl$nReps 10
+ctrl$nReps 200
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English")
 opMod$nS 2
