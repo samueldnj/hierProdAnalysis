@@ -273,15 +273,38 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
 
   # load biomass trajectories
   omBio <- blob$om$Bt[rep,,]
-  ssBio <- blob$am$ss$mcBio[rep,,,]
-  msBio <- blob$am$ms$mcBio[rep,,,]
 
-  # Compute # of MCMC samples
-  nSamp <- length(ssBio[1,,1])
+  browser()
 
-  # reduce the biomass to provided quantiles
-  ssBio <- apply(X=ssBio,FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=quant)
-  msBio <- apply(X=msBio,FUN=quantile,MARGIN=c(1,3),na.rm=TRUE,probs=quant)
+  # single species
+  ssMCMC      <- blob$am$ss$mcOut[rep,,,]
+  ssPostMean  <- apply( X = ssMCMC, FUN = mean, MARGIN = c( 1, 3 ), na.rm = TRUE )
+  ssPostCI    <- apply( X = ssMCMC, FUN = quantile, MARGIN = c( 1, 3 ), probs = quant, na.rm = TRUE )
+  ssPostMean[!is.finite(ssPostMean)] <- NA
+  ssPostCI[!is.finite(ssPostCI)] <- NA
+  bioSSlab    <- paste("Bst_1_",1:nT,sep = "")
+  ssBtMean    <- ssPostMean[,bioSSlab]
+  ssBtCI      <- ssPostCI[,,bioSSlab]
+  ssq         <- ssPostMean[,"q1"]
+
+  browser()
+
+  # multispeces
+  msMCMC      <- blob$am$ms$mcOut[rep,,]
+  msPostMean  <- apply( X = msMCMC, FUN = mean, MARGIN = c( 2 ), na.rm = TRUE )
+  msPostCI    <- apply( X = msMCMC, FUN = quantile, MARGIN = c( 2 ), probs = quant, na.rm = TRUE )
+  msPostMean[!is.finite(msPostMean)] <- NA
+  msPostCI[!is.finite(msPostCI)] <- NA
+  msBtMean    <- matrix ( NA, nrow = nS, ncol = nT ) 
+  msBtCI      <- array ( NA, dim=c(nS,3,nT))
+  for (s in 1:nS)
+  {
+    bioMSlab        <- paste( "Bst_", s, "_", 1:nT, sep = "" )
+    msBtMean[ s, ]  <- msPostMean[bioMSlab ]
+    msBtCI[s,,]     <- msPostCI[,bioMSlab]
+  }
+  qlab        <- paste( "q", 1:nS, sep="" )
+  msq         <- msPostMean[qlab]
 
   # Fit diagnostics (hessian)
   hpdSS <- blob$am$ss$hesspd[rep,]
@@ -307,8 +330,8 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
             las=1 )
     # Create polygon vertices
     xPoly <- c(1:nT,nT:1)
-    yPolySS <- c(ssBio[1,s,1:nT],ssBio[3,s,nT:1])
-    yPolyMS <- c(msBio[1,s,1:nT],msBio[3,s,nT:1])
+    yPolySS <- c(ssBtCI[1,s,1:nT],ssBtCI[3,s,nT:1])
+    yPolyMS <- c(msBtCI[s,1,1:nT],msBtCI[s,3,nT:1])
     if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
                             fill=c(ssFill,msFill), border=c(NA,NA), 
                             cex=c(0.7), bty="n" )
@@ -320,8 +343,11 @@ plotMCMCbio <- function ( rep = 1, quant=c(0.025,0.5,0.975), sim=1)
     # MS
     polygon (x = xPoly, y = yPolyMS,border=NA,col = msFill,density=NA)
     # Plot Medians
-    lines ( x = 1:nT, y = ssBio[2,s,], col = ssCol,lty=2,lwd=2 )
-    lines ( x = 1:nT, y = msBio[2,s,], col = msCol,lty=2,lwd=2 )
+    lines ( x = 1:nT, y = ssBtCI[2,s,], col = ssCol,lty=2,lwd=2 )
+    lines ( x = 1:nT, y = msBtCI[s,2,], col = msCol,lty=2,lwd=2 )
+    # Plot Means
+    lines ( x = 1:nT, y = ssBtMean[s,], col = ssCol,lty=3,lwd=2 )
+    lines ( x = 1:nT, y = msBtMean[s,], col = msCol,lty=3,lwd=2 )
     # Plot true biomass
     lines ( x=1:nT, y = omBio[s,],col="black", lwd = 2)
   }
