@@ -22,7 +22,6 @@ opMod$kappaMult 1
 assess$quiet TRUE
 assess$fitTrials 3
 assess$maxfn 1000
-assess$Bmsy c(40,80)
 assess$Umsy c(0.2,0.25)
 assess$lnq c(0,0)
 assess$logit_gammaYr 0
@@ -31,8 +30,8 @@ assess$tau2mult c(1,1)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1)
-assess$mlnBmsy c(5.99,6.68)
-assess$s2lnBmsy c(5.99,6.68)
+assess$mlnBmsy c(3.68,4.38)
+assess$s2lnBmsy c(3.68,4.38)
 assess$lnUmsybar -1.4
 assess$lnsigUmsy2 -0.5
 assess$mlnUmsy -1.5

@@ -13,9 +13,6 @@ scenario$scenario1$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario1$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario1$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario1$opMod$parFile 'pars5Spec.txt'
-scenario$scenario1$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario1$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario1$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 2 : 5S-tUpk10tUtr15Umax0.8
 #
@@ -29,9 +26,6 @@ scenario$scenario2$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario2$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario2$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario2$opMod$parFile 'pars5Spec.txt'
-scenario$scenario2$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario2$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario2$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 3 : 5S-tUpk5tUtr20Umax0.8
 #
@@ -45,9 +39,6 @@ scenario$scenario3$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario3$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario3$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario3$opMod$parFile 'pars5Spec.txt'
-scenario$scenario3$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario3$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario3$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 4 : 5S-tUpk10tUtr20Umax0.8
 #
@@ -61,9 +52,6 @@ scenario$scenario4$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario4$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario4$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario4$opMod$parFile 'pars5Spec.txt'
-scenario$scenario4$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario4$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario4$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 5 : 5S-tUpk5tUtr15Umax1.2
 #
@@ -77,9 +65,6 @@ scenario$scenario5$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario5$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario5$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario5$opMod$parFile 'pars5Spec.txt'
-scenario$scenario5$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario5$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario5$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 6 : 5S-tUpk10tUtr15Umax1.2
 #
@@ -93,9 +78,6 @@ scenario$scenario6$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario6$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario6$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario6$opMod$parFile 'pars5Spec.txt'
-scenario$scenario6$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario6$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario6$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 7 : 5S-tUpk5tUtr20Umax1.2
 #
@@ -109,9 +91,6 @@ scenario$scenario7$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario7$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario7$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario7$opMod$parFile 'pars5Spec.txt'
-scenario$scenario7$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario7$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario7$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 8 : 5S-tUpk10tUtr20Umax1.2
 #
@@ -125,9 +104,6 @@ scenario$scenario8$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario8$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario8$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario8$opMod$parFile 'pars5Spec.txt'
-scenario$scenario8$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario8$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario8$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 9 : 5S-tUpk5tUtr15Umax1.6
 #
@@ -141,9 +117,6 @@ scenario$scenario9$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario9$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario9$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario9$opMod$parFile 'pars5Spec.txt'
-scenario$scenario9$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario9$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario9$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 10 : 5S-tUpk10tUtr15Umax1.6
 #
@@ -157,9 +130,6 @@ scenario$scenario10$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario10$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario10$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario10$opMod$parFile 'pars5Spec.txt'
-scenario$scenario10$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario10$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario10$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 11 : 5S-tUpk5tUtr20Umax1.6
 #
@@ -173,9 +143,6 @@ scenario$scenario11$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario11$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario11$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario11$opMod$parFile 'pars5Spec.txt'
-scenario$scenario11$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario11$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario11$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 12 : 5S-tUpk10tUtr20Umax1.6
 #
@@ -189,9 +156,6 @@ scenario$scenario12$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario12$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario12$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario12$opMod$parFile 'pars5Spec.txt'
-scenario$scenario12$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario12$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario12$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 13 : 5S-tUpk5tUtr15Umax2
 #
@@ -205,9 +169,6 @@ scenario$scenario13$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario13$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario13$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario13$opMod$parFile 'pars5Spec.txt'
-scenario$scenario13$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario13$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario13$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 14 : 5S-tUpk10tUtr15Umax2
 #
@@ -221,9 +182,6 @@ scenario$scenario14$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario14$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario14$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario14$opMod$parFile 'pars5Spec.txt'
-scenario$scenario14$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario14$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario14$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 15 : 5S-tUpk5tUtr20Umax2
 #
@@ -237,9 +195,6 @@ scenario$scenario15$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario15$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario15$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario15$opMod$parFile 'pars5Spec.txt'
-scenario$scenario15$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario15$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario15$assess$lnq_s c(0,0,0,0,0)
 #
 # Scenario 16 : 5S-tUpk10tUtr20Umax2
 #
@@ -253,12 +208,17 @@ scenario$scenario16$opMod$q c(0.9,1.2,0.95,1.08,0.8)
 scenario$scenario16$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 scenario$scenario16$opMod$pars lisread('pars5Spec.txt')
 scenario$scenario16$opMod$parFile 'pars5Spec.txt'
-scenario$scenario16$assess$mBmsy c(40,80,30,60,100)
-scenario$scenario16$assess$sBmsy c(60,120,45,90,150)
-scenario$scenario16$assess$lnq_s c(0,0,0,0,0)
 #
 # Management Procedures
 #
 mp$mp1$ctrl$mpLabel "bothEff"
 mp$mp1$assess$tau2 0.001
+mp$mp1$ctrl$mpLabel "bothEff"
+mp$mp1$assess$tau2 0.001
+mp$mp1$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345,4.6)
+mp$mp1$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345,4.6)
+mp$mp1$assess$lnq c(0,0,0,0,0)
+mp$mp1$assess$tau2mult c(1,1,1,1,1)
+mp$mp1$assess$SigmaDiagMult c(1,1,1,1,1)
+mp$mp1$assess$Umsy c(0.5,0.5,0.5,0.5,0.5)
 # File Ends <not run>.
