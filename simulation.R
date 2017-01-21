@@ -325,7 +325,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             RE = c("eps_t","lnq","lnUmsy","zeta_st") )
 {   
   # Make the AD function
-  browser()
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
   # Set max no of evaluations
