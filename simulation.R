@@ -123,6 +123,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   ## REPLACE WITH A FUNCTION LATER FOR MULTIPLE correlated Ft TRAJECTORIES ##
   UtProp <- numeric ( length = nT )
   Umult <- obj$opMod$Umult
+  if (!is.null(obj$opMod$Umax)) Umult[2] <- obj$opMod$Umax
   # Then get time of peak fishing mortality
   tUpeak    <- obj$opMod$tUpeak
   tUtrough  <- obj$opMod$tUtrough
@@ -232,9 +233,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssMap     <-  list(   mlnBmsy           = factor( rep( NA, 1 ) ),
                           s2lnBmsy          = factor( rep( NA, 1 ) ),
                           lnUmsybar         = factor( NA ),
+                          lnsigUmsy2        = factor( NA ),
                           mlnUmsy           = factor( NA ),
                           s2lnUmsy          = factor( NA ),
                           lnqbar            = factor( NA ),
+                          lntauq2           = factor( NA ),
                           mlnq              = factor( NA ),
                           s2lnq             = factor( NA ),
                           zeta_st           = factor( rep( NA, nT-1 ) ),

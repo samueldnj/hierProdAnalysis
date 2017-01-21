@@ -1,4 +1,4 @@
-# job2.txt: mseR parameter file written Tue Jan 10 10:56:37 2017.
+# Base sim control file
 parameter value
 ctrl$scenarioName "test"
 ctrl$mpLabel "bothEff"
@@ -9,7 +9,8 @@ opMod$nS 2
 opMod$nT 30
 opMod$pars lisread("pars2Spec.txt")
 opMod$parFile "pars2Spec.txt"
-opMod$Umult c(0.2,2,1)
+opMod$Umult c(0.2,2,0.8)
+opMod$Umax 0.8
 opMod$tUpeak 5
 opMod$tUtrough 15
 opMod$q c(0.9,1.2)
@@ -35,11 +36,11 @@ assess$s2lnBmsy c(5.99,6.68)
 assess$lnUmsybar -1.4
 assess$lnsigUmsy2 -0.5
 assess$mlnUmsy -1.5
-assess$s2lnUmsy 3
-assess$lnqbar 0.001
+assess$s2lnUmsy 1
+assess$lnqbar -.1
 assess$lntauq2 -0.5
 assess$mlnq 0
-assess$s2lnq 3
+assess$s2lnq 1
 assess$tau2IG c(1,0.08)
 assess$sigU2IG c(1,0.2)
 assess$tauq2IG c(1,0.2)

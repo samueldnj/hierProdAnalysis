@@ -1,11 +1,11 @@
 # Batch File
 parameter value
 #
-# Scenario 1 : 5S-tUpk5tUtr15Umax0.8
+# Scenario 1 : 4S-tUpk5tUtr15Umax0.8
 #
-scenario$scenario1$ctrl$scenarioName '5S-tUpk5tUtr15Umax0.8'
+scenario$scenario1$ctrl$scenarioName '4S-tUpk5tUtr15Umax0.8'
 scenario$scenario1$opMod$tUpeak 5
-scenario$scenario1$opMod$tUtrough  15
+scenario$scenario1$opMod$tUtrough 15
 scenario$scenario1$opMod$Umax 0.8
 scenario$scenario1$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario1$opMod$nS 4
@@ -17,11 +17,11 @@ scenario$scenario1$assess$mBmsy c(40,80,30,60)
 scenario$scenario1$assess$sBmsy c(60,120,45,90)
 scenario$scenario1$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 2 : 5S-tUpk10tUtr15Umax0.8
+# Scenario 2 : 4S-tUpk10tUtr15Umax0.8
 #
-scenario$scenario2$ctrl$scenarioName '5S-tUpk10tUtr15Umax0.8'
+scenario$scenario2$ctrl$scenarioName '4S-tUpk10tUtr15Umax0.8'
 scenario$scenario2$opMod$tUpeak 10
-scenario$scenario2$opMod$tUtrough  15
+scenario$scenario2$opMod$tUtrough 15
 scenario$scenario2$opMod$Umax 0.8
 scenario$scenario2$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario2$opMod$nS 4
@@ -33,11 +33,11 @@ scenario$scenario2$assess$mBmsy c(40,80,30,60)
 scenario$scenario2$assess$sBmsy c(60,120,45,90)
 scenario$scenario2$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 3 : 5S-tUpk5tUtr20Umax0.8
+# Scenario 3 : 4S-tUpk5tUtr20Umax0.8
 #
-scenario$scenario3$ctrl$scenarioName '5S-tUpk5tUtr20Umax0.8'
+scenario$scenario3$ctrl$scenarioName '4S-tUpk5tUtr20Umax0.8'
 scenario$scenario3$opMod$tUpeak 5
-scenario$scenario3$opMod$tUtrough  20
+scenario$scenario3$opMod$tUtrough 20
 scenario$scenario3$opMod$Umax 0.8
 scenario$scenario3$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario3$opMod$nS 4
@@ -49,11 +49,11 @@ scenario$scenario3$assess$mBmsy c(40,80,30,60)
 scenario$scenario3$assess$sBmsy c(60,120,45,90)
 scenario$scenario3$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 4 : 5S-tUpk10tUtr20Umax0.8
+# Scenario 4 : 4S-tUpk10tUtr20Umax0.8
 #
-scenario$scenario4$ctrl$scenarioName '5S-tUpk10tUtr20Umax0.8'
+scenario$scenario4$ctrl$scenarioName '4S-tUpk10tUtr20Umax0.8'
 scenario$scenario4$opMod$tUpeak 10
-scenario$scenario4$opMod$tUtrough  20
+scenario$scenario4$opMod$tUtrough 20
 scenario$scenario4$opMod$Umax 0.8
 scenario$scenario4$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario4$opMod$nS 4
@@ -65,11 +65,11 @@ scenario$scenario4$assess$mBmsy c(40,80,30,60)
 scenario$scenario4$assess$sBmsy c(60,120,45,90)
 scenario$scenario4$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 5 : 5S-tUpk5tUtr15Umax1.2
+# Scenario 5 : 4S-tUpk5tUtr15Umax1.2
 #
-scenario$scenario5$ctrl$scenarioName '5S-tUpk5tUtr15Umax1.2'
+scenario$scenario5$ctrl$scenarioName '4S-tUpk5tUtr15Umax1.2'
 scenario$scenario5$opMod$tUpeak 5
-scenario$scenario5$opMod$tUtrough  15
+scenario$scenario5$opMod$tUtrough 15
 scenario$scenario5$opMod$Umax 1.2
 scenario$scenario5$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario5$opMod$nS 4
@@ -81,11 +81,11 @@ scenario$scenario5$assess$mBmsy c(40,80,30,60)
 scenario$scenario5$assess$sBmsy c(60,120,45,90)
 scenario$scenario5$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 6 : 5S-tUpk10tUtr15Umax1.2
+# Scenario 6 : 4S-tUpk10tUtr15Umax1.2
 #
-scenario$scenario6$ctrl$scenarioName '5S-tUpk10tUtr15Umax1.2'
+scenario$scenario6$ctrl$scenarioName '4S-tUpk10tUtr15Umax1.2'
 scenario$scenario6$opMod$tUpeak 10
-scenario$scenario6$opMod$tUtrough  15
+scenario$scenario6$opMod$tUtrough 15
 scenario$scenario6$opMod$Umax 1.2
 scenario$scenario6$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario6$opMod$nS 4
@@ -97,11 +97,11 @@ scenario$scenario6$assess$mBmsy c(40,80,30,60)
 scenario$scenario6$assess$sBmsy c(60,120,45,90)
 scenario$scenario6$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 7 : 5S-tUpk5tUtr20Umax1.2
+# Scenario 7 : 4S-tUpk5tUtr20Umax1.2
 #
-scenario$scenario7$ctrl$scenarioName '5S-tUpk5tUtr20Umax1.2'
+scenario$scenario7$ctrl$scenarioName '4S-tUpk5tUtr20Umax1.2'
 scenario$scenario7$opMod$tUpeak 5
-scenario$scenario7$opMod$tUtrough  20
+scenario$scenario7$opMod$tUtrough 20
 scenario$scenario7$opMod$Umax 1.2
 scenario$scenario7$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario7$opMod$nS 4
@@ -113,11 +113,11 @@ scenario$scenario7$assess$mBmsy c(40,80,30,60)
 scenario$scenario7$assess$sBmsy c(60,120,45,90)
 scenario$scenario7$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 8 : 5S-tUpk10tUtr20Umax1.2
+# Scenario 8 : 4S-tUpk10tUtr20Umax1.2
 #
-scenario$scenario8$ctrl$scenarioName '5S-tUpk10tUtr20Umax1.2'
+scenario$scenario8$ctrl$scenarioName '4S-tUpk10tUtr20Umax1.2'
 scenario$scenario8$opMod$tUpeak 10
-scenario$scenario8$opMod$tUtrough  20
+scenario$scenario8$opMod$tUtrough 20
 scenario$scenario8$opMod$Umax 1.2
 scenario$scenario8$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario8$opMod$nS 4
@@ -129,11 +129,11 @@ scenario$scenario8$assess$mBmsy c(40,80,30,60)
 scenario$scenario8$assess$sBmsy c(60,120,45,90)
 scenario$scenario8$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 9 : 5S-tUpk5tUtr15Umax1.6
+# Scenario 9 : 4S-tUpk5tUtr15Umax1.6
 #
-scenario$scenario9$ctrl$scenarioName '5S-tUpk5tUtr15Umax1.6'
+scenario$scenario9$ctrl$scenarioName '4S-tUpk5tUtr15Umax1.6'
 scenario$scenario9$opMod$tUpeak 5
-scenario$scenario9$opMod$tUtrough  15
+scenario$scenario9$opMod$tUtrough 15
 scenario$scenario9$opMod$Umax 1.6
 scenario$scenario9$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario9$opMod$nS 4
@@ -145,11 +145,11 @@ scenario$scenario9$assess$mBmsy c(40,80,30,60)
 scenario$scenario9$assess$sBmsy c(60,120,45,90)
 scenario$scenario9$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 10 : 5S-tUpk10tUtr15Umax1.6
+# Scenario 10 : 4S-tUpk10tUtr15Umax1.6
 #
-scenario$scenario10$ctrl$scenarioName '5S-tUpk10tUtr15Umax1.6'
+scenario$scenario10$ctrl$scenarioName '4S-tUpk10tUtr15Umax1.6'
 scenario$scenario10$opMod$tUpeak 10
-scenario$scenario10$opMod$tUtrough  15
+scenario$scenario10$opMod$tUtrough 15
 scenario$scenario10$opMod$Umax 1.6
 scenario$scenario10$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario10$opMod$nS 4
@@ -161,11 +161,11 @@ scenario$scenario10$assess$mBmsy c(40,80,30,60)
 scenario$scenario10$assess$sBmsy c(60,120,45,90)
 scenario$scenario10$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 11 : 5S-tUpk5tUtr20Umax1.6
+# Scenario 11 : 4S-tUpk5tUtr20Umax1.6
 #
-scenario$scenario11$ctrl$scenarioName '5S-tUpk5tUtr20Umax1.6'
+scenario$scenario11$ctrl$scenarioName '4S-tUpk5tUtr20Umax1.6'
 scenario$scenario11$opMod$tUpeak 5
-scenario$scenario11$opMod$tUtrough  20
+scenario$scenario11$opMod$tUtrough 20
 scenario$scenario11$opMod$Umax 1.6
 scenario$scenario11$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario11$opMod$nS 4
@@ -177,11 +177,11 @@ scenario$scenario11$assess$mBmsy c(40,80,30,60)
 scenario$scenario11$assess$sBmsy c(60,120,45,90)
 scenario$scenario11$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 12 : 5S-tUpk10tUtr20Umax1.6
+# Scenario 12 : 4S-tUpk10tUtr20Umax1.6
 #
-scenario$scenario12$ctrl$scenarioName '5S-tUpk10tUtr20Umax1.6'
+scenario$scenario12$ctrl$scenarioName '4S-tUpk10tUtr20Umax1.6'
 scenario$scenario12$opMod$tUpeak 10
-scenario$scenario12$opMod$tUtrough  20
+scenario$scenario12$opMod$tUtrough 20
 scenario$scenario12$opMod$Umax 1.6
 scenario$scenario12$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario12$opMod$nS 4
@@ -193,11 +193,11 @@ scenario$scenario12$assess$mBmsy c(40,80,30,60)
 scenario$scenario12$assess$sBmsy c(60,120,45,90)
 scenario$scenario12$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 13 : 5S-tUpk5tUtr15Umax2
+# Scenario 13 : 4S-tUpk5tUtr15Umax2
 #
-scenario$scenario13$ctrl$scenarioName '5S-tUpk5tUtr15Umax2'
+scenario$scenario13$ctrl$scenarioName '4S-tUpk5tUtr15Umax2'
 scenario$scenario13$opMod$tUpeak 5
-scenario$scenario13$opMod$tUtrough  15
+scenario$scenario13$opMod$tUtrough 15
 scenario$scenario13$opMod$Umax 2
 scenario$scenario13$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario13$opMod$nS 4
@@ -209,11 +209,11 @@ scenario$scenario13$assess$mBmsy c(40,80,30,60)
 scenario$scenario13$assess$sBmsy c(60,120,45,90)
 scenario$scenario13$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 14 : 5S-tUpk10tUtr15Umax2
+# Scenario 14 : 4S-tUpk10tUtr15Umax2
 #
-scenario$scenario14$ctrl$scenarioName '5S-tUpk10tUtr15Umax2'
+scenario$scenario14$ctrl$scenarioName '4S-tUpk10tUtr15Umax2'
 scenario$scenario14$opMod$tUpeak 10
-scenario$scenario14$opMod$tUtrough  15
+scenario$scenario14$opMod$tUtrough 15
 scenario$scenario14$opMod$Umax 2
 scenario$scenario14$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario14$opMod$nS 4
@@ -225,11 +225,11 @@ scenario$scenario14$assess$mBmsy c(40,80,30,60)
 scenario$scenario14$assess$sBmsy c(60,120,45,90)
 scenario$scenario14$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 15 : 5S-tUpk5tUtr20Umax2
+# Scenario 15 : 4S-tUpk5tUtr20Umax2
 #
-scenario$scenario15$ctrl$scenarioName '5S-tUpk5tUtr20Umax2'
+scenario$scenario15$ctrl$scenarioName '4S-tUpk5tUtr20Umax2'
 scenario$scenario15$opMod$tUpeak 5
-scenario$scenario15$opMod$tUtrough  20
+scenario$scenario15$opMod$tUtrough 20
 scenario$scenario15$opMod$Umax 2
 scenario$scenario15$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario15$opMod$nS 4
@@ -241,11 +241,11 @@ scenario$scenario15$assess$mBmsy c(40,80,30,60)
 scenario$scenario15$assess$sBmsy c(60,120,45,90)
 scenario$scenario15$assess$lnq_s c(0,0,0,0)
 #
-# Scenario 16 : 5S-tUpk10tUtr20Umax2
+# Scenario 16 : 4S-tUpk10tUtr20Umax2
 #
-scenario$scenario16$ctrl$scenarioName '5S-tUpk10tUtr20Umax2'
+scenario$scenario16$ctrl$scenarioName '4S-tUpk10tUtr20Umax2'
 scenario$scenario16$opMod$tUpeak 10
-scenario$scenario16$opMod$tUtrough  20
+scenario$scenario16$opMod$tUtrough 20
 scenario$scenario16$opMod$Umax 2
 scenario$scenario16$ctrl$speciesNames c('Dover','English','Rock','Petrale')
 scenario$scenario16$opMod$nS 4
