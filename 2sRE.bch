@@ -342,4 +342,5 @@ scenario$scenario42$opMod$parFile 'pars2SpecRE.txt'
 #
 mp$mp1$ctrl$mpLabel "bothEff"
 mp$mp1$assess$tau2 0.001
+mp$mp1$opMod$autoIG TRUE
 # File Ends <not run>.

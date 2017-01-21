@@ -59,14 +59,14 @@ fixBlob <- function ( sim = 1)
 # ouputs:     batchDesign=data.frame containing the batch design
 # usage:      to run batch jobs for multiple scenario/mp combinations
 # author:     S.D.N. Johnson
-makeBatch <- function ( batchCtl = "batchControlFile.bch", prjFld = "project",
-                        batchFld = "Batch")
+makeBatch <- function ( batchCtlFile = "batchControlFile.bch", prjFld = "project",
+                        batchFld = "Batch", baseCtlFile = "simCtlFileBase.txt")
 {
   .subChar <<- "__"
   # First, load the batch control file
-  batchCtl <- .readParFile ( batchCtl )
+  batchCtl <- .readParFile ( batchCtlFile )
   # Now load the base control file
-  baseCtl  <- .readParFile ( "simCtlFile.txt")
+  baseCtl  <- .readParFile ( baseCtlFile )
 
   # Set globals 
   #(THIS SHOULD BE MOVED TO ANOTHER FILE, OR DIFFERENT APPROACH FOUND)
@@ -75,8 +75,12 @@ makeBatch <- function ( batchCtl = "batchControlFile.bch", prjFld = "project",
 
   # Create Batch Design 
   batchDesign <- .createBatchDesign (  ctlPar = batchCtl, basePars = baseCtl )
-  .FBATDES <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")
+  .FBATDES  <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")
+  .CTLDES   <- file.path(getwd(),.PRJFLD,.DEFBATFLD,baseCtlFile)
+  .BCTLDES  <- file.path(getwd(),.PRJFLD,.DEFBATFLD,batchCtlFile)
   .writeDesignFile (obj=batchDesign,out=.FBATDES)
+  file.copy(baseCtlFile, .CTLDES)
+  file.copy(batchCtlFile, .BCTLDES)
 
   return(batchDesign)
 }

@@ -18,7 +18,8 @@ opMod$gammaYr 0
 opMod$tau2 c(0.04,0.04)
 opMod$identObs FALSE
 opMod$corrMult 1
-opMod$kappaMult 1
+opMod$kappaMult 0.5
+opMod$autoIG TRUE
 assess$quiet TRUE
 assess$fitTrials 3
 assess$maxfn 1000
@@ -40,11 +41,11 @@ assess$lnqbar -.1
 assess$lntauq2 -0.5
 assess$mlnq 0
 assess$s2lnq 1
-assess$tau2IG c(1,0.08)
 assess$sigU2IG c(1,0.2)
 assess$tauq2IG c(1,0.2)
 assess$kappa2IG c(1,0.1)
 assess$Sigma2IG c(1,0.2)
+assess$tau2IG c(1,0.08)
 assess$msRE c("eps_t","lnq","lnUmsy","zeta_st")
 assess$ssRE c("eps_t")
 assess$TMBlib "msProd"

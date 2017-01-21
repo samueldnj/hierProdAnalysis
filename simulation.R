@@ -97,11 +97,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 deltat= matrix (NA,nrow=nS, ncol=nT ),
                 It    = matrix (NA,nrow=nS, ncol=nT ),
                 dep   = matrix (NA,nrow=nS, ncol=nT ),
-                kappa2= obj$opMod$pars$kappa2,
-                Sigma2= obj$opMod$pars$Sigma2,
+                kappa2= kappa*kappa,
+                Sigma2= Sigma*Sigma,
                 msCorr= msCorr,
                 gamma = gamma,
-                tau2  = obj$opMod$tau2,
+                tau2  = tau*tau,
                 q     = obj$opMod$q,
                 nT    = nT,
                 nS    = nS,
@@ -192,8 +192,20 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Sum catch to get starting biomass
   sumCat <- apply ( X = obj$om$Ct, MARGIN=1, FUN = sum )
   sumCat <- as.numeric(sumCat)
-  maxU <- apply ( X = obj$om$Ut, MARGIN=1,FUN=max)
-  maxU <- as.numeric(maxU)
+  
+  # change IG parameters for tau, kappa and Sigma if autoIG is on
+  if (obj$opMod$autoIG)
+  {
+    # recover true variances (use om, may be modified by kappaMult)
+    tau2    <- mean(obj$om$tau2)
+    kappa2  <- obj$om$kappa2
+    Sigma2  <- mean(obj$om$Sigma2)
+
+    # Now change IG parameters so that the prior mode is at the true (mean) value
+    obj$assess$tau2IG[2] <- (obj$assess$tau2IG[1]+1)*tau2
+    obj$assess$kappa2IG[2] <- (obj$assess$kappa2IG[1]+1)*kappa2
+    obj$assess$Sigma2IG[2] <- (obj$assess$Sigma2IG[1]+1)*Sigma2
+  }
 
   # loop over species
   for (s in 1:nS )
