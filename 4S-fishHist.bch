@@ -215,5 +215,8 @@ mp$mp1$ctrl$mpLabel "bothEff"
 mp$mp1$assess$tau2 0.001
 mp$mp1$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
 mp$mp1$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
-mp$mp1$assess$lnq_s c(0,0,0,0)
+mp$mp1$assess$lnq c(0,0,0,0)
+mp$mp1$assess$tau2mult c(1,1,1,1)
+mp$mp1$assess$SigmaDiagMult c(1,1,1,1)
+mp$mp1$assess$Umsy c(-1,-1,-1,-1)
 # File Ends <not run>.

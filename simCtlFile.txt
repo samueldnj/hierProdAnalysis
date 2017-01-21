@@ -1,6 +1,6 @@
-# job1.txt: mseR parameter file written Fri Jan 20 18:18:53 2017.
+# job1.txt: mseR parameter file written Fri Jan 20 19:29:15 2017.
 parameter value
-ctrl$scenarioName '5S-tUpk5tUtr15Umax0.8'
+ctrl$scenarioName '4S-tUpk5tUtr15Umax0.8'
 ctrl$mpLabel "bothEff"
 ctrl$nReps 200
 ctrl$rSeed 1
@@ -24,15 +24,15 @@ assess$fitTrials 3
 assess$maxfn 1000
 assess$Bmsy c(40,80)
 assess$Umsy c(0.2,0.25)
-assess$lnq c(0,0)
+assess$lnq c(0,0,0,0)
 assess$logit_gammaYr 0
 assess$tau2 0.001
-assess$tau2mult c(1,1)
+assess$tau2mult c(1,1,1,1)
 assess$kappa2 0.1
 assess$Sigma2 0.1
-assess$SigmaDiagMult c(1,1)
-assess$mlnBmsy c(3.68,4.38)
-assess$s2lnBmsy c(3.68,4.38)
+assess$SigmaDiagMult c(1,1,1,1)
+assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
 assess$lnUmsybar -1.4
 assess$lnsigUmsy2 -0.5
 assess$mlnUmsy -1.5
