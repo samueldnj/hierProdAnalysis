@@ -465,7 +465,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   mlnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   slnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   hesspd  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  maxGrad = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)))
+                  maxGrad = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  rep     = vector(mode="list",length=nReps))
 
   # multispecies (coastwide)
   am$ms <- list ( Umsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
@@ -545,7 +546,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         # Estimator performance flags
         blob$am$ss$maxGrad[i,s]     <- max(fitrep$gradient.fixed)
         blob$am$ss$hesspd[i,s]      <- fitrep$pdHess
-        # blob$am$ss$rep[[i]][[s]]    <- fitrep
+        blob$am$ss$rep[[i]]         <- simEst$ssFit
       }
      
     }
@@ -573,14 +574,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Some require looping over species
       for (s in 1:nS)
       {
-        blob$am$ms$dep[i,s,]        <- blob$am$ms$Bt[i,s,]/exp(estList$lnBmsy)/2
+        blob$am$ms$dep[i,s,]        <- blob$am$ms$Bt[i,s,]/exp(estList$lnBmsy[s])/2
       }
-
-
       # Estimator Performance Flags
       blob$am$ms$hesspd[i]          <- fitrep$pdHess
       blob$am$ms$maxGrad[i]         <- max(fitrep$gradient.fixed)
+      blob$am$ms$rep[[i]]           <- fitrep
     }
+
   }
 
   cat ( "Completed ", nReps, " replicates.\n", sep = "" )

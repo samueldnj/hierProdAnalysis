@@ -144,4 +144,5 @@ scenario$scenario14$assess$lnq_s c(0,0,0,0)
 #
 mp$mp1$ctrl$mpLabel "bothEff"
 mp$mp1$assess$tau2 0.001
+mp$mp1$opMod$autoIG TRUE
 # File Ends <not run>.

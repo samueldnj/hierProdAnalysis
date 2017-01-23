@@ -18,10 +18,10 @@
 ## Multispecies proc error
 ## Correlation matrix
 # msCorr
-1 0.8 0.8 0.8
-0.8 1 0.8 0.8
-0.8 0.8 1 0.8
-0.8 0.8 0.8 1
+1    0.8  0.8  0.8
+0.8  1    0.8  0.8
+0.8  0.8  1    0.8
+0.8  0.8  0.8  1
 
 ## Species effect variance (species specific)
 # Sigma2
