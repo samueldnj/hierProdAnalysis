@@ -59,8 +59,8 @@
   nReps   <- blob$ctrl$nReps
 
   # First, create a data.frame of NAs with a row for each of MRE,MARE
-  colLabels <- c( "scenario","mp","species","kappa2True",
-                  "Sigma2True", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
+  colLabels <- c( "scenario","mp","species","kappaTrue",
+                  "SigmaTrue", "kappaMult", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssMSY","msMSY","ssDep","msDep",
                   "ssq","msq", "msHessPD", "ssHessPD" )
   
@@ -78,8 +78,9 @@
   statTable$scenario    <- blob$ctrl$scenarioName
   statTable$mp          <- blob$ctrl$mpLabel
   statTable$species     <- species
-  statTable$kappa2True  <- opMod$pars$kappa2*kappaMult
-  statTable$Sigma2True  <- opMod$pars$Sigma2
+  statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
+  statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
+  statTable$kappaMult   <- kappaMult
   statTable$corrMult    <- opMod$corrMult
 
   # Now errors

@@ -138,6 +138,7 @@ Type objective_function<Type>::operator() ()
       }
     }
   }
+
   // Add priors
   // eqbm biomass
   for (int s=0; s<nS; s++ )
@@ -172,7 +173,6 @@ Type objective_function<Type>::operator() ()
     
   }
   
-  
   // Variance IG priors
   // Obs error var
   obj += (tau2IG(0)+Type(1))*lntau2+tau2IG(1)/tau2;
@@ -188,10 +188,6 @@ Type objective_function<Type>::operator() ()
     // Specific effect variance
     obj += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);  
   }
-  
-
-  
-
   // Derive some output variables
   Ut  = Ct / Bt;
   vector<Type> DnT = Bt.col(nT-1)/Bmsy/2;
@@ -213,6 +209,7 @@ Type objective_function<Type>::operator() ()
   }
   ADREPORT(gammaYr);
   ADREPORT(Ut);
+  ADREPORT(DnT);
 
   // still haven't figured out how to use report
   // REPORT(specEffCorr.cov());

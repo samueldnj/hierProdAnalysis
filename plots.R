@@ -21,7 +21,7 @@ plotCorrContour <- function ( table     = "statTable.csv",
   table <- table [ which(table$mp == mpLabel ),]
 
   table <- table  %>% filter( mp == mpLabel ) %>%
-                      mutate( varMult = kappa2True/Sigma2True,
+                      mutate( varMult = kappaTrue/SigmaTrue,
                               BnT     = log2(ssBnT/msBnT),
                               Umsy    = log2(ssUmsy/msUmsy) )
 

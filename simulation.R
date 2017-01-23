@@ -253,7 +253,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           mlnq              = factor( NA ),
                           s2lnq             = factor( NA ),
                           zeta_st           = factor( rep( NA, nT-1 ) ),
-                          lnSigmaDiag       = factor( NA),
+                          lnSigmaDiag       = factor( NA ),
                           tau2mult          = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
                           tau2IG            = factor( rep( NA, 2 ) ),
@@ -567,7 +567,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ms$tau2[i,]           <- exp(estList$lntau2) * tau2mult
       blob$am$ms$epst[i,2:nT]       <- estList$eps_t
       blob$am$ms$zetat[i,,2:nT]     <- estList$zeta_st
-      blob$am$ms$gamma[i]           <- 2 / ( 1 + exp(-2 * estList$logit_gammaYr)) - 1
+      blob$am$ms$gamma[i]           <- 2 / ( 1 + exp(-5 * estList$logit_gammaYr)) - 1
       blob$am$ms$Bt[i,,]            <- matrix(fitrep$value[1:(nS*nT)],nrow=nS,byrow=FALSE)
       blob$am$ms$qbar[i]            <- exp(estList$lnqbar)
       blob$am$ms$Umsybar[i]         <- exp(estList$lnUmsybar)

@@ -42,9 +42,12 @@ scenario$scenario7$opMod$q c(0.9,1.2,0.95,1.08)
 scenario$scenario7$opMod$tau2 c(0.04,0.04,0.04,0.04)
 scenario$scenario7$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario7$opMod$parFile "pars4Spec.txt"
-scenario$scenario7$assess$mBmsy c(40,80,30,60)
-scenario$scenario7$assess$sBmsy c(60,120,45,90)
-scenario$scenario7$assess$lnq_s c(0,0,0,0)
+scenario$scenario7$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario7$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario7$assess$lnq c(0,0,0,0)
+scenario$scenario7$assess$tau2mult c(1,1,1,1)
+scenario$scenario7$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario7$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Scenario 8 : 4S-2Lo2MedObsCV
 #
@@ -55,9 +58,12 @@ scenario$scenario8$opMod$q c(0.9,1.2,0.95,1.08)
 scenario$scenario8$opMod$tau2 c(0.04,0.04,0.22,0.22)
 scenario$scenario8$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario8$opMod$parFile "pars4Spec.txt"
-scenario$scenario8$assess$mBmsy c(40,80,30,60)
-scenario$scenario8$assess$sBmsy c(60,120,45,90)
-scenario$scenario8$assess$lnq_s c(0,0,0,0)
+scenario$scenario8$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario8$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario8$assess$lnq c(0,0,0,0)
+scenario$scenario8$assess$tau2mult c(1,1,1,1)
+scenario$scenario8$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario8$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Scenario 9 : 4S-2Lo1Med1HiObsCV
 #
@@ -68,9 +74,12 @@ scenario$scenario9$opMod$q c(0.9,1.2,0.95,1.08)
 scenario$scenario9$opMod$tau2 c(0.04,0.04,0.22,0.49)
 scenario$scenario9$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario9$opMod$parFile "pars4Spec.txt"
-scenario$scenario9$assess$mBmsy c(40,80,30,60)
-scenario$scenario9$assess$sBmsy c(60,120,45,90)
-scenario$scenario9$assess$lnq_s c(0,0,0,0)
+scenario$scenario9$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario9$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario9$assess$lnq c(0,0,0,0)
+scenario$scenario9$assess$tau2mult c(1,1,1,1)
+scenario$scenario9$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario9$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Scenario 10 : 4S-1Lo2Med1HiObsCV
 #
@@ -81,9 +90,12 @@ scenario$scenario10$opMod$q c(0.9,1.2,0.95,1.08)
 scenario$scenario10$opMod$tau2 c(0.04,0.22,0.22,0.49)
 scenario$scenario10$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario10$opMod$parFile "pars4Spec.txt"
-scenario$scenario10$assess$mBmsy c(40,80,30,60)
-scenario$scenario10$assess$sBmsy c(60,120,45,90)
-scenario$scenario10$assess$lnq_s c(0,0,0,0)
+scenario$scenario10$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario10$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario10$assess$lnq c(0,0,0,0)
+scenario$scenario10$assess$tau2mult c(1,1,1,1)
+scenario$scenario10$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario10$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Scenario 11 : 4S-2Lo2Hi1HiObsCV
 #
@@ -94,9 +106,12 @@ scenario$scenario11$opMod$q c(0.9,1.2,0.95,1.08)
 scenario$scenario11$opMod$tau2 c(0.04,0.04,0.49,0.49)
 scenario$scenario11$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario11$opMod$parFile "pars4Spec.txt"
-scenario$scenario11$assess$mBmsy c(40,80,30,60)
-scenario$scenario11$assess$sBmsy c(60,120,45,90)
-scenario$scenario11$assess$lnq_s c(0,0,0,0)
+scenario$scenario11$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario11$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario11$assess$lnq c(0,0,0,0)
+scenario$scenario11$assess$tau2mult c(1,1,1,1)
+scenario$scenario11$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario11$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Scenario 12 : 4S-LoObsCV-identObs
 #
@@ -108,9 +123,12 @@ scenario$scenario12$opMod$tau2 c(0.04,0.04,0.04,0.04)
 scenario$scenario12$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario12$opMod$parFile "pars4Spec.txt"
 scenario$scenario12$opMod$$identObs TRUE
-scenario$scenario12$assess$mBmsy c(40,80,30,60)
-scenario$scenario12$assess$sBmsy c(60,120,45,90)
-scenario$scenario12$assess$lnq_s c(0,0,0,0)
+scenario$scenario12$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario12$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario12$assess$lnq c(0,0,0,0)
+scenario$scenario12$assess$tau2mult c(1,1,1,1)
+scenario$scenario12$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario12$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Scenario 13 : 4S-MedObsCV-identObs
 #
@@ -122,9 +140,12 @@ scenario$scenario13$opMod$tau2 c(0.22,0.22,0.22,0.22)
 scenario$scenario13$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario13$opMod$parFile "pars4Spec.txt"
 scenario$scenario13$opMod$$identObs TRUE
-scenario$scenario13$assess$mBmsy c(40,80,30,60)
-scenario$scenario13$assess$sBmsy c(60,120,45,90)
-scenario$scenario13$assess$lnq_s c(0,0,0,0)
+scenario$scenario13$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario13$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario13$assess$lnq c(0,0,0,0)
+scenario$scenario13$assess$tau2mult c(1,1,1,1)
+scenario$scenario13$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario13$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Scenario 14 : 4S-HiObsCV-identObs
 #
@@ -136,9 +157,12 @@ scenario$scenario14$opMod$tau2 c(0.49,0.49,0.49,0.49)
 scenario$scenario14$opMod$pars lisread("pars4Spec.txt")
 scenario$scenario14$opMod$parFile "pars4Spec.txt"
 scenario$scenario14$opMod$$identObs TRUE
-scenario$scenario14$assess$mBmsy c(40,80,30,60)
-scenario$scenario14$assess$sBmsy c(60,120,45,90)
-scenario$scenario14$assess$lnq_s c(0,0,0,0)
+scenario$scenario14$assess$mlnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario14$assess$s2lnBmsy c(3.688879,4.382027,3.401197,4.094345)
+scenario$scenario14$assess$lnq c(0,0,0,0)
+scenario$scenario14$assess$tau2mult c(1,1,1,1)
+scenario$scenario14$assess$SigmaDiagMult c(1,1,1,1)
+scenario$scenario14$assess$Umsy c(0.5,0.5,0.5,0.5)
 #
 # Management Procedures
 #

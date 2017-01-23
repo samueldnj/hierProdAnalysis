@@ -10,7 +10,7 @@ opMod$nT 30
 opMod$pars lisread("pars2Spec.txt")
 opMod$parFile "pars2Spec.txt"
 opMod$Umult c(0.2,2,0.8)
-opMod$Umax 0.8
+opMod$Umax NULL
 opMod$tUpeak 5
 opMod$tUtrough 15
 opMod$q c(0.9,1.2)
