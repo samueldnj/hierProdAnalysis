@@ -181,7 +181,7 @@
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.mle$kappa2[success,]    <- t(ms$kappa2[success] - opMod$pars$kappa2)/opMod$pars$kappa2
+      ms$err.mle$kappa2[success,]    <- (ms$kappa2[success,] - opMod$pars$kappa2)/opMod$pars$kappa2
     }
     # Now the rest of the pars
     ms$err.mle$Sigma2[success,s] <- (ms$Sigma2[success,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
