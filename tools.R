@@ -118,11 +118,11 @@ doBatchRun <- function( arg )
   # 1. Does the mseR input parameter file exist? If YES then read the file.
   # 2. Run the simulation using runMSE().
   # 3. Update the design data.frame somehow...
-
+  browser()
   if (is.null(batchDesign))
   {
     desPath <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")
-    batchDesign <- read.csv(desPath, header=TRUE, skip=1,stringsAsFactors=FALSE)
+    batchDesign <- read.csv(desPath, header=TRUE, skip=1, stringsAsFactors=FALSE)
   } 
 
   # Vector of simCtlFile names, like simCtlFile1.txt, simCtlFile2.txt, etc.
@@ -197,7 +197,8 @@ doBatchRun <- function( arg )
       file.copy(batchParFile[i],
                  "simCtlFile.txt", overwrite=TRUE )
      
-      # runMSE assumes that input is simCtlFile.txt
+      # runSimEst() assumes that input is simCtlFile.txt
+      browser()
       runSimEst()
 
       elapsed <- (proc.time() - tBegin)[ "elapsed" ]
