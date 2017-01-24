@@ -242,27 +242,28 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 )
                         )
-    ssMap     <-  list(   mlnBmsy           = factor( rep( NA, 1 ) ),
-                          s2lnBmsy          = factor( rep( NA, 1 ) ),
-                          lnUmsybar         = factor( NA ),
-                          lnsigUmsy2        = factor( NA ),
-                          mlnUmsy           = factor( NA ),
-                          s2lnUmsy          = factor( NA ),
-                          lnqbar            = factor( NA ),
-                          lntauq2           = factor( NA ),
-                          mlnq              = factor( NA ),
-                          s2lnq             = factor( NA ),
-                          zeta_st           = factor( rep( NA, nT-1 ) ),
-                          lnSigmaDiag       = factor( NA ),
-                          tau2mult          = factor( NA ),
-                          SigmaDiagMult     = factor( NA ),
-                          tau2IG            = factor( rep( NA, 2 ) ),
-                          sigU2IG           = factor( rep( NA, 2 ) ),
-                          tauq2IG           = factor( rep( NA, 2 ) ),
-                          kappa2IG          = factor( rep( NA, 2 ) ),
-                          Sigma2IG          = factor( rep( NA, 2 ) ),
-                          logit_gammaYr     = factor( NA )  )
   }
+  # Make map list to turn off parameters
+  ssMap     <-  list(   mlnBmsy           = factor( rep( NA, 1 ) ),
+                        s2lnBmsy          = factor( rep( NA, 1 ) ),
+                        lnUmsybar         = factor( NA ),
+                        lnsigUmsy2        = factor( NA ),
+                        mlnUmsy           = factor( NA ),
+                        s2lnUmsy          = factor( NA ),
+                        lnqbar            = factor( NA ),
+                        lntauq2           = factor( NA ),
+                        mlnq              = factor( NA ),
+                        s2lnq             = factor( NA ),
+                        zeta_st           = factor( rep( NA, nT-1 ) ),
+                        lnSigmaDiag       = factor( NA ),
+                        tau2mult          = factor( NA ),
+                        SigmaDiagMult     = factor( NA ),
+                        tau2IG            = factor( rep( NA, 2 ) ),
+                        sigU2IG           = factor( rep( NA, 2 ) ),
+                        tauq2IG           = factor( rep( NA, 2 ) ),
+                        kappa2IG          = factor( rep( NA, 2 ) ),
+                        Sigma2IG          = factor( rep( NA, 2 ) ),
+                        logit_gammaYr     = factor( NA )  )
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It = obj$om$It,
                   Ct = obj$om$Ct
@@ -473,18 +474,16 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Bmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   msy     = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   q       = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  kappa2  = rep   (NA,length=nReps),
+                  kappa2  = matrix(NA,nrow=nReps,ncol=1, dimnames=list(rNames,NA)),
                   Sigma2  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   tau2    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   dep     = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   epst    = matrix(NA,nrow=nReps,ncol=nT,dimnames=list(rNames,1:nT)),
                   zetat   = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  gamma   = vector("numeric",length=nReps),
+                  gamma   = matrix(NA,nrow=nReps,ncol=1),
                   chol    = array (NA,dim=c(nReps,nS,nS),dimnames=list(rNames,sNames,sNames)),
                   Bt      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                  mlnq    = vector("numeric",length=nReps),
-                  slnq    = vector("numeric",length=nReps),
                   hesspd  = vector(mode="logical",length=nReps),
                   maxGrad = vector(mode="logical",length=nReps),
                   rep     = vector(mode = "list", length=nReps))
@@ -539,7 +538,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ss$tau2[i,s]        <- exp(estList$lntau2)
         blob$am$ss$dep[i,s,]        <- fitrep$value[1:nT]/exp(estList$lnBmsy)/2
         blob$am$ss$epst[i,s,2:nT]   <- estList$eps_t
-        blob$am$ss$gamma[i,s]       <- 2 / ( 1 + exp(-2 * estList$logit_gammaYr)) - 1
+        blob$am$ss$gamma[i,s]       <- 2 / ( 1 + exp(-5 * estList$logit_gammaYr)) - 1
         blob$am$ss$Bt[i,s,]         <- fitrep$value[1:nT]
         blob$am$ms$qbar[i]          <- exp(estList$lnqbar)
         blob$am$ms$Umsybar[i]       <- exp(estList$lnUmsybar)
