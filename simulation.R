@@ -212,7 +212,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   {
     # Make dat list
     ssDat[[s]] <- list (  It = matrix(obj$om$It[s,], nrow=1),
-                          Ct = matrix(obj$om$Ct[s,], nrow=1) )
+                          Ct = matrix(obj$om$Ct[s,], nrow=1),
+                          nS = 1,
+                          nT = nT )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
@@ -266,7 +268,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         logit_gammaYr     = factor( NA )  )
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It = obj$om$It,
-                  Ct = obj$om$Ct
+                  Ct = obj$om$Ct,
+                  nS = nS,
+                  nT = nT
                 )
 
   msPar <- list ( lnBmsy            = log(sumCat/2),
@@ -290,7 +294,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   zeta_st           = matrix(0, nrow = nS, ncol = nT-1),
                   lnSigmaDiag       = 0,
                   SigmaDiagMult     = obj$assess$SigmaDiagMult,
-                  logitSigmaOffDiag = numeric( length = nS*(nS-1)/2),
+                  logitSigmaOffDiag = rep(0, length = nS*(nS-1)/2),
                   tau2IG            = obj$assess$tau2IG,
                   sigU2IG           = obj$assess$sigU2IG,
                   tauq2IG           = obj$assess$tauq2IG,
@@ -310,7 +314,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   sigU2IG           = factor( rep( NA, 2 ) ),
                   tauq2IG           = factor( rep( NA, 2 ) ),
                   kappa2IG          = factor( rep( NA, 2 ) ),
-                  Sigma2IG          = factor( rep( NA, 2 ) )   )
+                  Sigma2IG          = factor( rep( NA, 2 ) ),
+                  logitSigmaOffDiag = factor( rep( NA, nS*( nS - 1 ) / 2 ) ),
+                  logit_gammaYr     = factor( NA )
+                )
   # return list of dat and pin objects for running estimators
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar,
@@ -348,7 +355,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         objective = obj$fn,
                         gradient = obj$gr,
                         control = ctrl ) )
-
 
 
   # Run SD report on the fit if it works
@@ -631,10 +637,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   	( 1. - Bt [ t-1 ] / Bmsy / 2. ) -  # recruitment
                   	Ct [ t-1 ]                         # Catch
                   )
-    ## THIS IS BOGUS ##
-    Bt[t] <- max(Bt[t], 1e-1)
 
     Bt[t] <- Bt[t]*epst[t]*zetat[t] # Process error
+    ## THIS IS BOGUS ##
+    Bt[t] <- max(Bt[t], Ut[t]*Bt[t] + 1)
 }  # End loop for biomass
   # Generate catch for nT
   Ct[nT] <- Ut[nT] * Bt[nT]

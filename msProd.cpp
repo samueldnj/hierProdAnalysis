@@ -39,9 +39,10 @@ Type objective_function<Type>::operator() ()
   // Data Structures
   DATA_ARRAY(It);               // CPUE data
   DATA_ARRAY(Ct);               // Catch data
+  DATA_INTEGER(nS);             // No of species
+  DATA_INTEGER(nT);             // No of time steps
   // indexing variables
-  int nS=It.dim(0);
-  int nT=It.dim(1);
+
 
   /*parameter section*/
   // Leading Parameters
@@ -112,12 +113,12 @@ Type objective_function<Type>::operator() ()
   Bt.col(0) = Type(2)*Bmsy;
   for (int t=1; t<nT; t++)
   {
-    Bt.col(t) = Bt.col(t-1) + Type(2)*exp(log(Bt.col(t-1))+lnUmsy) * (Type(1) - exp(log(Bt.col(t-1))-lnBmsy))/Type(2) - Ct.col(t-1);
+    Bt.col(t) = Bt.col(t-1) + exp(log(Bt.col(t-1))+lnUmsy) * (Type(2.0) - exp(log(Bt.col(t-1))-lnBmsy)) - Ct.col(t-1);
     Bt.col(t) *= exp(eps_t(t-1) + zeta_st.col(t-1));
     for (int s=0; s<nS;s++)
     {
       Bt(s,t) = posfun(Bt(s,t), Type(1.), pospen);
-      obj += 10*pospen;  
+      obj += Type(10.0)*pospen;  
     } 
     // Add year effect contribution to objective function
     if (t == 1) obj += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
