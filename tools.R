@@ -118,7 +118,6 @@ doBatchRun <- function( arg )
   # 1. Does the mseR input parameter file exist? If YES then read the file.
   # 2. Run the simulation using runMSE().
   # 3. Update the design data.frame somehow...
-  browser()
   if (is.null(batchDesign))
   {
     desPath <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")

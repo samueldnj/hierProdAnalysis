@@ -26,7 +26,7 @@ assess$maxfn 1000
 assess$Umsy c(0.2,0.25)
 assess$lnq c(0,0)
 assess$logit_gammaYr 0
-assess$tau2 0.001
+assess$tau2 0.01
 assess$tau2mult c(1,1)
 assess$kappa2 0.1
 assess$Sigma2 0.1
