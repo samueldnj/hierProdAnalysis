@@ -194,8 +194,8 @@
 
     # calculate total RE variance
     totVarFit <- ms$kappa2 + ms$Sigma2[,s]
-    totVarOM  <- opMod$pars$kappa2 + opMod$pars$Sigma2[s]
-    ms$err.mle$totRE[success,s]  <- (totVarFit[success] - totVarOM[success]) / totVarOM[success]
+    totVarOM  <- opMod$pars$kappa2*(opMod$kappaMult^2) + opMod$pars$Sigma2[s]
+    ms$err.mle$totRE[success,s]  <- (totVarFit[success] - totVarOM) / totVarOM
   }
 
   # Append these to blob

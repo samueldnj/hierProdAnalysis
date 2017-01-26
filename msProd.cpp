@@ -39,9 +39,9 @@ Type objective_function<Type>::operator() ()
   // Data Structures
   DATA_ARRAY(It);               // CPUE data
   DATA_ARRAY(Ct);               // Catch data
+  // Indexing variables
   DATA_INTEGER(nS);             // No of species
   DATA_INTEGER(nT);             // No of time steps
-  // indexing variables
 
 
   /*parameter section*/
@@ -132,6 +132,7 @@ Type objective_function<Type>::operator() ()
   {
     for(int s=0; s<nS; s++)
     {
+      // only add a contribution if the data exists (Ist < 0 is missing)
       if (It(s,t) > 0) 
       {
         Type res = log(It(s,t)) - log(Bt(s,t));
@@ -139,7 +140,6 @@ Type objective_function<Type>::operator() ()
       }
     }
   }
-
   // Add priors
   // eqbm biomass
   for (int s=0; s<nS; s++ )
@@ -170,8 +170,7 @@ Type objective_function<Type>::operator() ()
       obj -= dnorm(lnq(s),mlnq,sqrt(s2lnq),true);
       // productivity
       obj -= dnorm(lnUmsy(s),mlnUmsy,sqrt(s2lnUmsy),true);  
-    }
-    
+    }   
   }
   
   // Variance IG priors
@@ -192,29 +191,50 @@ Type objective_function<Type>::operator() ()
   // Derive some output variables
   Ut  = Ct / Bt;
   vector<Type> DnT = Bt.col(nT-1)/Bmsy/2;
+  matrix<Type> SigmaCorr(nS,nS);
+  SigmaCorr = specEffCorr.cov();
 
-  // Reporting variables
+  // Reporting Section //
+  // Variables we want SEs for
   ADREPORT(Bt);
   ADREPORT(q);
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
   ADREPORT(msy);
-  ADREPORT(Umsybar);
-  ADREPORT(qbar);
   ADREPORT(tau2);
   ADREPORT(kappa2);
   if (nS > 1 )
   {
-    ADREPORT(SigmaDiag);    
-    ADREPORT(SigmaOffDiag); 
+    ADREPORT(SigmaDiag);
+    ADREPORT(Umsybar);
+    ADREPORT(sigUmsy2);
+    ADREPORT(qbar);
+    ADREPORT(tauq2)
   }
   ADREPORT(gammaYr);
-  ADREPORT(Ut);
-  ADREPORT(DnT);
-
-  // still haven't figured out how to use report
-  // REPORT(specEffCorr.cov());
-
+  
+  // Everything else //
+  REPORT(Bt);
+  REPORT(Ut);
+  REPORT(DnT);
+  REPORT(q);
+  REPORT(msy);
+  REPORT(Bmsy);
+  REPORT(Umsy);
+  REPORT(msy);
+  REPORT(tau2);
+  REPORT(kappa2);
+  if (nS > 1)
+  {
+    REPORT(SigmaCorr);
+    REPORT(SigmaDiag);
+    REPORT(Umsybar);
+    REPORT(sigUmsy2);
+    REPORT(qbar);
+    REPORT(tauq2);
+  }
+  REPORT(gammaYr);
+  
   return obj;
 }
 
