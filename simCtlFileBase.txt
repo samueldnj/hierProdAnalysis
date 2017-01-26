@@ -20,6 +20,8 @@ opMod$identObs FALSE
 opMod$corrMult 1
 opMod$kappaMult 1
 opMod$autoIG FALSE
+assess$msAR1 FALSE
+assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$fitTrials 3
 assess$maxfn 1000
