@@ -144,7 +144,7 @@ Type objective_function<Type>::operator() ()
   {
     for(int s=0; s<nS; s++)
     {
-      // only add a contribution if the data exists (Ist < 0 is missing)
+      // only add a contribution if the data exists (Ist < 0 == missing data )
       if (It(s,t) > 0) 
       {
         Type res = log(It(s,t)) - log(Bt(s,t));
@@ -171,17 +171,17 @@ Type objective_function<Type>::operator() ()
     }  
     // Hyperpriors
     // catchability
-    obj -= dnorm(lnqbar,mlnq,sqrt(s2lnq),true);
+    obj += Type(0.5)* pow(lnqbar - mlnq,2)/s2lnq;
     // productivity
-    obj -= dnorm(lnUmsybar,mlnUmsy,sqrt(s2lnUmsy),true);
+    obj += Type(0.5)* pow(lnUmsybar - mlnUmsy,2)/s2lnUmsy;
     // End multispecies shared priors
   } else {
     // Now for single species model
     for (int s=0; s<nS; s++)
     {
-      obj -= dnorm(lnq(s),mlnq,sqrt(s2lnq),true);
+      obj += Type(0.5)* pow(lnq(s) - mlnq,2)/s2lnq;
       // productivity
-      obj -= dnorm(lnUmsy(s),mlnUmsy,sqrt(s2lnUmsy),true);  
+      obj += Type(0.5)* pow(lnUmsy(s) - mlnUmsy,2)/s2lnUmsy; 
     }   
   }
   
