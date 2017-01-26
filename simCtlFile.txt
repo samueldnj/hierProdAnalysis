@@ -14,14 +14,14 @@ opMod$Umax NULL
 opMod$tUpeak 5
 opMod$tUtrough 15
 opMod$q c(0.9,1.2)
-opMod$gammaYr 0.5
+opMod$gammaYr 0
 opMod$tau2 c(0.04,0.04)
 opMod$identObs FALSE
 opMod$corrMult 1
 opMod$kappaMult 1
 opMod$autoIG TRUE
-assess$msAR1 TRUE
-assess$ssAR1 TRUE
+assess$msAR1 FALSE
+assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$fitTrials 3
 assess$maxfn 1000
