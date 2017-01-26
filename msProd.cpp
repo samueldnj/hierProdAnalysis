@@ -77,52 +77,64 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(SigmaDiagMult);      // Sigma diagonal mults
   PARAMETER_VECTOR(logitSigmaOffDiag);  // Species effect corr chol factor off diag  
   
-  
   // State variables
-  array<Type> lnBt(nS,nT);
+  array<Type>       Bt(nS,nT);
   // Leading parameters
-  vector<Type> Bmsy = exp(lnBmsy);
-  vector<Type> Umsy = exp(lnUmsy);
-  Type Umsybar      = exp(lnUmsybar);
-  Type tau2         = exp(lntau2);
-  vector<Type> q    = exp(lnq);
-  Type qbar         = exp(lnqbar);
+  vector<Type>      Bmsy    = exp(lnBmsy);
+  vector<Type>      Umsy    = exp(lnUmsy);
+  Type              Umsybar = exp(lnUmsybar);
+  Type              tau2    = exp(lntau2);
+  vector<Type>      q       = exp(lnq);
+  Type              qbar    = exp(lnqbar);
   // Prior hyperpars
-  Type tauq2        = exp(lntauq2);
-  Type sigUmsy2     = exp(lnsigUmsy2);
+  Type              tauq2   = exp(lntauq2);
+  Type              sigUmsy2= exp(lnsigUmsy2);
   // Random Effects
-  Type kappa2       = exp(lnkappa2);
-  Type gammaYr      = Type(2.) / (Type(1.) + exp(Type(-5.)*logit_gammaYr) ) - Type(1.);
-  vector<Type> SigmaOffDiag(nS*(nS-1)/2);  
-  SigmaOffDiag      = Type(2.) / (Type(1.) + exp(Type(-5.)*logitSigmaOffDiag) ) - Type(1.);     
+  Type              kappa2  = exp(lnkappa2);
+  Type              gammaYr = Type(2.) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(1.);
+  vector<Type>      SigmaOffDiag(nS*(nS-1)/2);  
+                    SigmaOffDiag  = Type(1.98) / (Type(1.) + exp(Type(-5.)*logitSigmaOffDiag) ) - Type(1.);     
+  vector<Type>      SigmaDiag = exp(lnSigmaDiag) * SigmaDiagMult;
+  matrix<Type>      SigmaCorr(nS,nS);
+  matrix<Type>      SigmaD(nS,nS);
+  matrix<Type>      Sigma(nS,nS);
+  vector<Type>      omegat(nT);
   // Scalars
-  Type obj    = 0.0;   // objective function (neg log likelihood)
-  Type pospen = 0.0;   // posfun penalty
-  // Derived Parameters
-  array<Type>   Ut(nS,nT);
-  vector<Type>  msy = Bmsy * Umsy;
+  Type              obj    = 0.0;   // objective function (neg log likelihood)
+  Type              pospen = 0.0;   // posfun penalty
+  // Derived variables
+  vector<Type>      msy = Bmsy * Umsy;
+  array<Type>       Ut(nS,nT);
+  vector<Type>      DnT;
 
   // Procedure Section //
   // First create the correlation matrix for the species effects
   UNSTRUCTURED_CORR_t<Type> specEffCorr(SigmaOffDiag);
-  vector<Type> SigmaDiag(nS);
-  SigmaDiag = SigmaDiagMult*exp(lnSigmaDiag);    
+  SigmaCorr = specEffCorr.cov();
+  // Standard deviation component
+  SigmaD.fill(0.0);
+  SigmaD.diagonal() = sqrt(SigmaDiag);
+  // Now combine
+  Sigma = (SigmaD * SigmaCorr);
+  Sigma *= SigmaD;
 
   // Generate Population Dynamics
-  array<Type> Bt(nS,nT);
+  // initialise first year effect at 0
+  omegat(0) = 0;
+  // pop at eqbm
   Bt.col(0) = Type(2)*Bmsy;
   for (int t=1; t<nT; t++)
   {
+    omegat(t) = gammaYr * omegat(t-1) + eps_t(t-1);
     Bt.col(t) = Bt.col(t-1) + exp(log(Bt.col(t-1))+lnUmsy) * (Type(2.0) - exp(log(Bt.col(t-1))-lnBmsy)) - Ct.col(t-1);
-    Bt.col(t) *= exp(eps_t(t-1) + zeta_st.col(t-1));
+    Bt.col(t) *= exp(omegat(t) + zeta_st.col(t-1));
     for (int s=0; s<nS;s++)
     {
       Bt(s,t) = posfun(Bt(s,t), Type(1.), pospen);
       obj += Type(10.0)*pospen;  
     } 
     // Add year effect contribution to objective function
-    if (t == 1) obj += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
-    else obj += Type(0.5)*(lnkappa2 + pow(eps_t(t-1) - gammaYr*eps_t(t-2),2)/kappa2) + eps_t(t-1);
+    obj += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
     // Add correlated species effects contribution to likelihood
     if (nS > 1) obj += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
   }
@@ -190,9 +202,7 @@ Type objective_function<Type>::operator() ()
   }
   // Derive some output variables
   Ut  = Ct / Bt;
-  vector<Type> DnT = Bt.col(nT-1)/Bmsy/2;
-  matrix<Type> SigmaCorr(nS,nS);
-  SigmaCorr = specEffCorr.cov();
+  DnT = Bt.col(nT-1)/Bmsy/2;
 
   // Reporting Section //
   // Variables we want SEs for
@@ -226,6 +236,7 @@ Type objective_function<Type>::operator() ()
   REPORT(kappa2);
   if (nS > 1)
   {
+    REPORT(Sigma);
     REPORT(SigmaCorr);
     REPORT(SigmaDiag);
     REPORT(Umsybar);
