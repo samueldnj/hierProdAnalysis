@@ -59,7 +59,8 @@
   colLabels <- c( "scenario","mp","species","kappaTrue",
                   "SigmaTrue", "kappaMult", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssMSY","msMSY","ssDep","msDep",
-                  "ssq","msq", "msHessPD", "ssHessPD" )
+                  "ssq","msq", "msHessPD", "ssHessPD", "nReps",
+                  "Umax", "tUpeak", "tUtrough" )
   
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
   
@@ -79,6 +80,10 @@
   statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
   statTable$kappaMult   <- kappaMult
   statTable$corrMult    <- opMod$corrMult
+  statTable$nReps       <- nReps
+  statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUtrough    <- opMod$tUtrough
+  statTable$tUpeak      <- opMod$tUpeak
 
   # Now errors
   for (s in 1:nS)
@@ -95,8 +100,8 @@
     statTable[s,"msDep"]    <- mean ( (ms$dep[success,s,nT] -  om$dep[success,s,nT])^2, na.rm=TRUE)
     statTable[s,"ssq"]      <- mean ( (ss$q[success,s]   -  opMod$q[s])^2, na.rm=TRUE)
     statTable[s,"msq"]      <- mean ( (ms$q[success,s]   -  opMod$q[s])^2, na.rm=TRUE)
-    statTable[s,"ssHessPD"] <- mean ( ss$hesspd[,s] , na.rm=TRUE)
-    statTable[s,"msHessPD"] <- mean ( ms$hesspd , na.rm=TRUE)
+    statTable[s,"ssHessPD"] <- sum ( ss$hesspd[,s] , na.rm=TRUE)
+    statTable[s,"msHessPD"] <- sum ( ms$hesspd , na.rm=TRUE)
   }
   
   # return

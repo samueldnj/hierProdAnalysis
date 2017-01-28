@@ -198,14 +198,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if (obj$opMod$autoIG)
   {
     # recover true variances (use om, may be modified by kappaMult)
-    tau2    <- mean(obj$om$tau2)
+    tau2    <- obj$om$tau2[1]
     kappa2  <- obj$om$kappa2
     Sigma2  <- mean(obj$om$Sigma2)
 
     # Now change IG parameters so that the prior mode is at the true (mean) value
-    obj$assess$tau2IG[2] <- (obj$assess$tau2IG[1]+1)*tau2
-    obj$assess$kappa2IG[2] <- (obj$assess$kappa2IG[1]+1)*kappa2
-    obj$assess$Sigma2IG[2] <- (obj$assess$Sigma2IG[1]+1)*Sigma2
+    obj$assess$tau2IGb      <- (obj$assess$tau2IGa+1)*tau2
+    obj$assess$kappa2IG[2]  <- (obj$assess$kappa2IG[1]+1)*kappa2
+    obj$assess$Sigma2IG[2]  <- (obj$assess$Sigma2IG[1]+1)*Sigma2
   }
 
   # loop over species
@@ -219,8 +219,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
-                          lntau2            = log(obj$assess$tau2),
-                          tau2mult          = 1,
+                          lntau2            = log(obj$assess$tau2[s]),
                           lnq               = obj$assess$lnq[s],
                           lnqbar            = obj$assess$lnqbar,
                           lntauq2           = obj$assess$lntauq2,
@@ -232,7 +231,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           s2lnUmsy          = obj$assess$s2lnUmsy,
                           mlnBmsy           = obj$assess$mlnBmsy[s],
                           s2lnBmsy          = obj$assess$s2lnBmsy[s],
-                          tau2IG            = obj$assess$tau2IG,
+                          tau2IGa           = obj$assess$tau2IGa[s],
+                          tau2IGb           = obj$assess$tau2IGb[s],
                           sigU2IG           = obj$assess$sigU2IG,
                           tauq2IG           = obj$assess$tauq2IG,
                           kappa2IG          = obj$assess$kappa2IG,
@@ -259,9 +259,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         s2lnq             = factor( NA ),
                         zeta_st           = factor( rep( NA, nT-1 ) ),
                         lnSigmaDiag       = factor( NA ),
-                        tau2mult          = factor( NA ),
                         SigmaDiagMult     = factor( NA ),
-                        tau2IG            = factor( rep( NA, 2 ) ),
+                        tau2IGa           = factor( NA ),
+                        tau2IGb           = factor( NA ),
                         sigU2IG           = factor( rep( NA, 2 ) ),
                         tauq2IG           = factor( rep( NA, 2 ) ),
                         kappa2IG          = factor( rep( NA, 2 ) ),
@@ -278,7 +278,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   msPar <- list ( lnBmsy            = log(sumCat/2),
                   lnUmsy            = log(obj$assess$Umsy),
                   lntau2            = log(obj$assess$tau2),
-                  tau2mult          = obj$assess$tau2mult,
                   lnq               = obj$assess$lnq,
                   lnqbar            = obj$assess$lnqbar,
                   lntauq2           = obj$assess$lntauq2,
@@ -297,7 +296,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnSigmaDiag       = 0,
                   SigmaDiagMult     = obj$assess$SigmaDiagMult,
                   logitSigmaOffDiag = rep(0, length = nS*(nS-1)/2),
-                  tau2IG            = obj$assess$tau2IG,
+                  tau2IGa           = obj$assess$tau2IGa,
+                  tau2IGb           = obj$assess$tau2IGb,
                   sigU2IG           = obj$assess$sigU2IG,
                   tauq2IG           = obj$assess$tauq2IG,
                   kappa2IG          = obj$assess$kappa2IG,
@@ -310,9 +310,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   s2lnUmsy          = factor( NA ),
                   mlnq              = factor( NA ),
                   s2lnq             = factor( NA ),
-                  tau2mult          = factor( rep( NA, nS ) ),
                   SigmaDiagMult     = factor( rep( NA, nS ) ),
-                  tau2IG            = factor( rep( NA, 2 ) ),
+                  tau2IGa           = factor( rep( NA, nS ) ),
+                  tau2IGb           = factor( rep( NA, nS ) ),
                   sigU2IG           = factor( rep( NA, 2 ) ),
                   tauq2IG           = factor( rep( NA, 2 ) ),
                   kappa2IG          = factor( rep( NA, 2 ) ),

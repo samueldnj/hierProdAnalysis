@@ -47,9 +47,8 @@ Type objective_function<Type>::operator() ()
   /*parameter section*/
   // Leading Parameters
   PARAMETER_VECTOR(lnBmsy);             // Biomass at MSY
-  PARAMETER_VECTOR(lnUmsy);             // Optimal exploitation rate
-  PARAMETER(lntau2);                    // Obs error variance
-  PARAMETER_VECTOR(tau2mult);           // species mults for observation error
+  PARAMETER_VECTOR(lnUmsy);             // Optimal exploitation rate            
+  PARAMETER_VECTOR(lntau2);             // species obs error var
   PARAMETER_VECTOR(lnq);                // Species specific catchability
   // Priors
   PARAMETER(lnqbar);                    // prior mean catchability
@@ -62,7 +61,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER(s2lnUmsy);                  // hyperprior Umsy variance
   PARAMETER_VECTOR(mlnBmsy);            // prior mean eqbm biomass
   PARAMETER_VECTOR(s2lnBmsy);           // prior eqbm biomass var
-  PARAMETER_VECTOR(tau2IG);             // IG parameters for tau2 prior
+  PARAMETER_VECTOR(tau2IGa);            // IG parameters for tau2 prior
+  PARAMETER_VECTOR(tau2IGb);            // IG parameters for tau2 prior
   PARAMETER_VECTOR(tauq2IG);            // IG parameters for tauq2 prior
   PARAMETER_VECTOR(sigU2IG);            // IG parameters for tauq2 prior
   PARAMETER_VECTOR(kappa2IG);           // IG parameters for kappa2 prior
@@ -82,12 +82,12 @@ Type objective_function<Type>::operator() ()
   // Leading parameters
   vector<Type>      Bmsy    = exp(lnBmsy);
   vector<Type>      Umsy    = exp(lnUmsy);
-  Type              Umsybar = exp(lnUmsybar);
-  Type              tau2    = exp(lntau2);
+  vector<Type>      tau2    = exp(lntau2);
   vector<Type>      q       = exp(lnq);
-  Type              qbar    = exp(lnqbar);
   // Prior hyperpars
+  Type              qbar    = exp(lnqbar);
   Type              tauq2   = exp(lntauq2);
+  Type              Umsybar = exp(lnUmsybar);
   Type              sigUmsy2= exp(lnsigUmsy2);
   // Random Effects
   Type              kappa2  = exp(lnkappa2);
@@ -139,18 +139,27 @@ Type objective_function<Type>::operator() ()
     if (nS > 1) obj += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
   }
 
+  // Concentrate species specific obs error likelihood?
+  // Sum of squares vector
+  vector<Type> ss(nS);
+  vector<Type> tau2hat(nS);
+  vector<Type> validObs(nS);
+  validObs.fill(0);
   // Compute observation likelihood
-  for (int t=0; t<nT; t++)
+  for(int s=0; s<nS; s++)
   {
-    for(int s=0; s<nS; s++)
+    for (int t=0; t<nT; t++)
     {
-      // only add a contribution if the data exists (Ist < 0 == missing data )
+      // only add a contribution if the data exists (Ist < 0 is missing)
       if (It(s,t) > 0) 
       {
-        Type res = log(It(s,t)) - log(Bt(s,t));
-        obj += Type(0.5)*( lntau2 + pow(res-lnq(s),2)/tau2);
+        validObs(s) += int(1);
+        Type res = log( It( s, t ) ) - log( Bt( s, t ) );
+        ss(s) += pow( res - lnq(s), 2 );
+        obj += Type(0.5) * ( lntau2(s) + pow( res - lnq(s),2) / tau2(s) );
       }
     }
+    tau2hat( s ) = ss(s)/(validObs(s)-1);
   }
   // Add priors
   // eqbm biomass
@@ -165,13 +174,13 @@ Type objective_function<Type>::operator() ()
     for (int s=0; s<nS;s++)
     {
       // catchability
-      obj += Type(0.5)*( lntauq2 + pow(lnq(s) - lnqbar,2)/tauq2);
+      obj += Type(0.5)*( lntauq2 + pow( q(s) - qbar,2)/tauq2);
       // productivity
       obj += Type(0.5)*( lnsigUmsy2 + pow(lnUmsy(s) - lnUmsybar,2)/sigUmsy2 );
     }  
     // Hyperpriors
     // catchability
-    obj += Type(0.5)* pow(lnqbar - mlnq,2)/s2lnq;
+    obj += Type(0.5)* pow(qbar - exp(mlnq),2)/s2lnq;
     // productivity
     obj += Type(0.5)* pow(lnUmsybar - mlnUmsy,2)/s2lnUmsy;
     // End multispecies shared priors
@@ -179,15 +188,18 @@ Type objective_function<Type>::operator() ()
     // Now for single species model
     for (int s=0; s<nS; s++)
     {
-      obj += Type(0.5)* pow(lnq(s) - mlnq,2)/s2lnq;
+      obj += Type(0.5)* pow( q(s) - exp(mlnq),2)/s2lnq;
       // productivity
-      obj += Type(0.5)* pow(lnUmsy(s) - mlnUmsy,2)/s2lnUmsy; 
+      obj += Type(0.5)* pow(lnUmsy(s) - mlnUmsy,2)/s2lnUmsy;
     }   
   }
   
   // Variance IG priors
   // Obs error var
-  obj += (tau2IG(0)+Type(1))*lntau2+tau2IG(1)/tau2;
+  for( int s = 0; s < nS; s++ )
+  {
+    obj += (tau2IGa[s]+Type(1))*lntau2(s)+tau2IGb[s]/tau2(s);  
+  }
   // year effect deviations var
   obj += (kappa2IG(0)+Type(1))*lnkappa2+kappa2IG(1)/kappa2;
   // Now multispecies priors

@@ -9,15 +9,16 @@
 #
 # --------------------------------------------------------------------------
 
-# plotFhistContour()
-# Plots the fishing history experiment performance contours for
+# plotFhistCompContour()
+# Plots the fishing history experiment comparative performance contours for
 # estimation of BnT and Umsy (abundance and productivity) by species
 # and for the complex. The plots are panel plots of raster grids,
 # to fill the space they have asp=NA
 # inputs:   table = character name of csv file containing Fhist experiments
 #           
-plotCorrContour <- function ( table     = "statTable.csv", 
-                              mpLabel   = "bothEff" )
+plotFhistCompContour <- function (  table     = "statTable.csv", 
+                                    mpLabel   = "bothEff",
+                                    tUtr      = 15 )
 {
   # Load stat table
   tablePath <- file.path ( getwd(),"project/Statistics",table)
@@ -25,7 +26,7 @@ plotCorrContour <- function ( table     = "statTable.csv",
   # reduce to the correct MP
   table <- table [ which(table$mp == mpLabel ),]
 
-  table <- table  %>% filter( mp == mpLabel ) %>%
+  table <- table  %>% filter( mp == mpLabel & tUtrough == tUtr ) %>%
                       mutate( BnT     = log2(ssBnT/msBnT),
                               Umsy    = log2(ssUmsy/msUmsy) )
 
@@ -43,24 +44,26 @@ plotCorrContour <- function ( table     = "statTable.csv",
   for (s in 1:nS)
   {
     spec <- species[s]
-    specTab <- table %>% filter (species == spec )
-    x <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
-    y <- unique(specTab$kappaMult)[order(unique(specTab$kappaMult))]
-    z <- array( NA, dim=c(2,length(y),length(x)),
-                dimnames=list(c("BnT","Umsy"),paste("vM",y,sep=""),paste("cM",x,sep="")))
+    specTab <- table %>% filter( species == spec )
+    x <- unique(specTab$tUpeak)[order(unique(specTab$tUpeak))]
+    y <- unique(specTab$Umax)[order(unique(specTab$Umax))]
+    z <- array( NA, dim=c(3,length(y),length(x)),
+                dimnames=list(c("BnT","Umsy","pdRatio"),paste("Umx",y,sep=""),paste("tUp",x,sep="")))
 
     for (xIdx in 1:length(x))
     {
       for (yIdx in 1:length(y))
       {
-
         # Get x and y values
         xVal <- x[xIdx]
         yVal <- y[yIdx]
-        MSE <- specTab  %>% filter( corrMult == xVal,
-                                    kappaMult  == yVal ) %>%
-                            dplyr::select( BnT, Umsy)
+        MSE <- specTab  %>% filter( tUpeak == xVal,
+                                    Umax  == yVal ) %>%
+                            dplyr::mutate( hessRatio = signif(msHessPD/ssHessPD,4) ) %>%
+                            dplyr::select( BnT, Umsy, hessRatio)
+
         z[,yIdx,xIdx] <- as.numeric(MSE)
+
       }
     } 
     specList[[s]] <- list( x = x, y = y, z = z )
@@ -69,17 +72,20 @@ plotCorrContour <- function ( table     = "statTable.csv",
 
   # now create a complex performance table, where we take the 
   # sum of the MSE over the whole complex for each scenario
-  compTab <- table %>% group_by(kappaMult,corrMult) %>%
+  compTab <- table %>% group_by(Umax,tUpeak) %>%
                        summarise( ssBnT = sum(ssBnT),
                                   msBnT = sum(msBnT),
                                   ssUmsy = sum(ssUmsy),
-                                  msUmsy = sum(msUmsy)) %>%
+                                  msUmsy = sum(msUmsy),
+                                  msHessPD = mean(msHessPD),
+                                  ssHessPD = mean(ssHessPD) ) %>%
                        mutate(  BnT     = log2(ssBnT/msBnT),
-                                Umsy    = log2(ssUmsy/msUmsy) )
-  x <- unique(compTab$corrMult)[order(unique(compTab$corrMult))]
-  y <- unique(compTab$kappaMult)[order(unique(compTab$kappaMult))]
-  z <- array( NA, dim=c(2,length(y),length(x)),
-              dimnames=list(c("BnT","Umsy"),paste("vM",y,sep=""),paste("cM",x,sep="")))
+                                Umsy    = log2(ssUmsy/msUmsy),
+                                hessRatio = signif(msHessPD/ssHessPD,4) )
+  x <- unique(compTab$tUpeak)[order(unique(compTab$tUpeak))]
+  y <- unique(compTab$Umax)[order(unique(compTab$Umax))]
+  z <- array( NA, dim=c(3,length(y),length(x)),
+              dimnames=list(c("BnT","Umsy","hessRatio"),paste("Umx",y,sep=""),paste("tUp",x,sep="")))
 
   for (xIdx in 1:length(x))
   {
@@ -89,10 +95,10 @@ plotCorrContour <- function ( table     = "statTable.csv",
       # Get x and y values
       xVal <- x[xIdx]
       yVal <- y[yIdx]
-      MSE <- compTab  %>% filter( corrMult == xVal,
-                                  kappaMult  == yVal ) %>%
-                          dplyr::select( BnT, Umsy)
-      z[,yIdx,xIdx] <- as.numeric(MSE[,c("BnT","Umsy")])
+      MSE <- compTab  %>% filter( tUpeak == xVal,
+                                  Umax  == yVal ) %>%
+                          dplyr::select( BnT, Umsy, hessRatio)
+      z[,yIdx,xIdx] <- as.numeric(MSE[,c("BnT","Umsy","hessRatio")])
     }
   } 
   compList <- list( x = x, y = y, z = z )  
@@ -107,8 +113,12 @@ plotCorrContour <- function ( table     = "statTable.csv",
     prodRastObj <- list ( x = specList[[s]]$x,
                           y = specList[[s]]$y,
                           z = t(specList[[s]]$z[2,,]))
+    hessRastObj <- list ( x = specList[[s]]$x,
+                          y = specList[[s]]$y,
+                          z = t(specList[[s]]$z[3,,]))
     bioRast <- raster(bioRastObj)
     prodRast <- raster(prodRastObj)
+    hessRast <- raster(hessRastObj)
 
     # Make titles for the plots
     bioTitle <- paste("BnT ", species[s], sep = "" )
@@ -117,8 +127,10 @@ plotCorrContour <- function ( table     = "statTable.csv",
     # plot the rasters, without legends
     plot( bioRast,main = bioTitle, legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA )
+      text(hessRast)
     plot(prodRast,main = prodTitle,  legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA)
+      text(hessRast)
   }
 
   # Create a raster from the stat table info 
@@ -128,6 +140,9 @@ plotCorrContour <- function ( table     = "statTable.csv",
   prodRastObj <- list ( x = compList$x,
                         y = compList$y,
                         z = t(compList$z[2,,]))
+  hessRastObj <- list ( x = compList$x,
+                        y = compList$y,
+                        z = t(compList$z[3,,]))
   bioRast <- raster(bioRastObj)
   prodRast <- raster(prodRastObj)
 
@@ -138,8 +153,10 @@ plotCorrContour <- function ( table     = "statTable.csv",
   # plot the rasters, without legends
   plot( bioRast,main = bioTitle, legend = FALSE, 
         breaks = colBreaks, col=colScale, asp = NA )
+    text( hessRast, digits = 2 )
   plot(prodRast,main = prodTitle,  legend = FALSE, 
         breaks = colBreaks, col=colScale, asp = NA)
+    text( hessRast, digits = 2 )
   # Plot the legends
   plot( prodRast, legend.only=TRUE, col=colScale, fill=colScale,
         legend.width=1, legend.shrink=0.75,
@@ -159,14 +176,188 @@ plotCorrContour <- function ( table     = "statTable.csv",
               x=unit(0.5, "npc"), y=unit(0.95, "npc"), rot=0)
 }
 
+# plotCorrMSEContour()
+# Plots the correlation  experiment MSE contours for
+# estimation of BnT and Umsy (abundance and productivity) by species
+# and for the complex.
+plotCorrModelContour <- function (  table     = "statTable.csv", 
+                                    mpLabel   = "bothEff",
+                                    model     = "ss" )
+{
+  # Load stat table
+  tablePath <- file.path ( getwd(), "project/Statistics", table )
+  table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
+  # reduce to the correct MP
+  table <- table [ which(table$mp == mpLabel ), ]
+  table <- table  %>% filter( mp == mpLabel )
 
-# plotCorrContour()
-# Plots the correlation experiment performance contours for
+  # Now make a pallette for the colours
+  colScaleHi  <- brewer.pal( 5, "Greens" )
+  colScaleLo  <- brewer.pal( 5, "Reds" )
+  colScale    <- c( colScaleLo[ 5:1 ],"white", colScaleHi[ 1:5 ] )
+  colBreaks   <- seq( -3.2, 3.2, length = 12 )
+
+  species   <- as.character(unique( table$species))
+  nS <- length(species)
+  specList  <- vector( mode="list", length=length(species))
+
+  for (s in 1:nS)
+  {
+    spec <- species[s]
+    specTab <- table %>% filter (species == spec )
+    x   <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
+    y   <- unique(specTab$kappaMult)[order(unique(specTab$kappaMult))]
+    ssz <- array( NA, dim=c(length(x),length(y),4),
+                dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
+    msz <- array( NA, dim=c(length(x),length(y),4),
+                dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
+
+    for (xIdx in 1:length(x))
+    {
+      for (yIdx in 1:length(y))
+      {
+
+        # Get x and y values
+        xVal <- x[xIdx]
+        yVal <- y[yIdx]
+        ssMSE <- specTab  %>% filter( corrMult == xVal,
+                                    kappaMult  == yVal ) %>%
+                              dplyr::select( ssBnT, ssUmsy, ssq, ssHessPD)
+        ssz[xIdx,yIdx,] <- as.numeric(ssMSE)
+        msMSE <- specTab  %>% filter( corrMult == xVal,
+                                    kappaMult  == yVal ) %>%
+                              dplyr::select( msBnT, msUmsy, msq, msHessPD)
+        msz[xIdx,yIdx,] <- as.numeric(msMSE)        
+      }
+    } 
+    specList[[s]] <- list( x = x, y = y, ssz = ssz, msz = msz )
+  }
+  names(specList) <- species
+
+  # now create a complex performance table, where we take the 
+  # sum of the MSE over the whole complex for each scenario
+  compTab <- table %>% group_by(kappaMult,corrMult) %>%
+                       summarise( ssBnT = sum(ssBnT),
+                                  msBnT = sum(msBnT),
+                                  ssUmsy = sum(ssUmsy),
+                                  msUmsy = sum(msUmsy),
+                                  ssq = sum(ssq),
+                                  msq = sum(msq),
+                                  msHessPD = mean(msHessPD),
+                                  ssHessPD = mean(ssHessPD) )
+  x   <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
+  y   <- unique(specTab$kappaMult)[order(unique(specTab$kappaMult))]
+  ssz <- array( NA, dim=c(length(x),length(y),4),
+              dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
+  msz <- array( NA, dim=c(length(x),length(y),4),
+              dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
+  for (xIdx in 1:length(x))
+  {
+    for (yIdx in 1:length(y))
+    {
+
+      # Get x and y values
+      xVal <- x[xIdx]
+      yVal <- y[yIdx]
+      ssMSE <- compTab  %>% filter( corrMult == xVal,
+                                    kappaMult  == yVal ) %>%
+                            dplyr::select( ssBnT, ssUmsy, ssq, ssHessPD)
+      ssz[xIdx,yIdx,] <- as.numeric(ssMSE[c("ssBnT","ssUmsy","ssq","ssHessPD")])
+      msMSE <- compTab  %>% filter( corrMult == xVal,
+                                  kappaMult  == yVal ) %>%
+                            dplyr::select( msBnT, msUmsy, msq, msHessPD)
+      msz[xIdx,yIdx,] <- as.numeric(msMSE[c("msBnT","msUmsy","msq","msHessPD")])        
+    }
+  } 
+  compList <- list( x = x, y = y, ssz = ssz, msz=msz )  
+
+  par(mfrow = c((nS+1),3), mar = c(2,2,2,2), oma = c(5,5,5,5))
+  for (s in 1:nS)
+  {
+    # Create a raster from the stat table info
+    if( model == "ss" ) 
+      plotBrick <- brick( specList[[s]]$ssz, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
+    if( model == "ms" ) 
+      plotBrick <- brick( specList[[s]]$msz,xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) ) 
+    # Make titles for the plots
+    specName <- species[s]
+
+    bioTitle  <- "BnT"
+    prodTitle <- "Umsy"
+    qTitle    <- "q"
+    
+    # plot the rasters, if first species plot main titles
+    if ( nS == 1 )
+    {
+      plot( plotBrick$BnT,main = bioTitle, legend = TRUE, 
+            asp=NA, ylab=specName )
+        text( plotBrick$hessPD/200, digits = 2 )
+      plot( plotBrick$Umsy, main = prodTitle,  legend = TRUE, 
+            asp=NA)
+        text( plotBrick$hessPD/200, digits = 2 )  
+      plot( plotBrick$q, main = qTitle,  legend = TRUE, 
+            asp=NA)
+        text( plotBrick$hessPD/200, digits = 2 )  
+    }
+    else {
+      plot( plotBrick$BnT,main = "", legend = TRUE, ylab = specName,
+            asp=NA )
+        text( plotBrick$hessPD/200, digits = 2 )
+      plot( plotBrick$Umsy, main = "",  legend = TRUE, 
+            asp=NA)
+        text( plotBrick$hessPD/200, digits = 2 )  
+      plot( plotBrick$q, main = "",  legend = TRUE, 
+            asp=NA)
+        text( plotBrick$hessPD/200, digits = 2 )
+    }
+    
+  }
+
+  # Create a raster from the stat table info
+  if( model == "ss" ) 
+    plotBrick <- brick( compList$ssz, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
+  if( model == "ms" ) 
+    plotBrick <- brick( compList$msz,xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) ) 
+  # Make titles for the plots
+  specName <- species[s]
+
+
+  # plot the rasters, without legends
+  plot( plotBrick$BnT,main = "", legend = TRUE, 
+            asp=NA, ylab="Complex" )
+    text( plotBrick$hessPD/200, digits = 2 )
+  plot( plotBrick$Umsy, main = "",  legend = TRUE, 
+        asp=NA)
+    text( plotBrick$hessPD/200, digits = 2 )  
+  plot( plotBrick$q, main = "",  legend = TRUE, 
+        asp=NA)
+    text( plotBrick$hessPD/200, digits = 2 )  
+  # Plot the legends
+  # plot( prodRast, legend.only=TRUE, col=colScale, fill=colScale,
+  #       legend.width=1, legend.shrink=0.75,
+  #       axis.args = list( at = colBreaks,
+  #                         labels = round(colBreaks,2),
+  #                         cex.axis = 0.6),
+  #       zlim = c(-3,3),
+  #       legend.args = list( text="log2(ssMSE/msMSE)", 
+  #                           side=4, font=2, 
+  #                           line=3, cex=0.75) )
+
+  grid.text(  "Species Effect Correlation", 
+              x=unit(0.5, "npc"), y=unit(0.05, "npc"), rot=0)
+  grid.text(  "Relative Magnitude of Year Effect", 
+              x=unit(0.05, "npc"), y=unit(0.5, "npc"), rot=90)
+  grid.text(  paste("Raw MSE of ", model, " model.", sep = ""), 
+              x=unit(0.5, "npc"), y=unit(0.95, "npc"), rot=0)
+}
+
+# plotCorrCompContour()
+# Plots the correlation comparative experiment performance contours for
 # estimation of BnT and Umsy (abundance and productivity) by species
 # and for the complex. The plots are panel plots of Rasters, so need
 # a little love as far as sizing goes.
-plotCorrContour <- function ( table     = "statTable.csv", 
-                              mpLabel   = "bothEff" )
+plotCorrCompContour <- function ( table     = "statTable.csv", 
+                                  mpLabel   = "bothEff" )
 {
   # Load stat table
   tablePath <- file.path ( getwd(),"project/Statistics",table)
@@ -195,8 +386,8 @@ plotCorrContour <- function ( table     = "statTable.csv",
     specTab <- table %>% filter (species == spec )
     x <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
     y <- unique(specTab$kappaMult)[order(unique(specTab$kappaMult))]
-    z <- array( NA, dim=c(2,length(y),length(x)),
-                dimnames=list(c("BnT","Umsy"),paste("vM",y,sep=""),paste("cM",x,sep="")))
+    z <- array( NA, dim=c(3,length(y),length(x)),
+                dimnames=list(c("BnT","Umsy","hessRatio"),paste("vM",y,sep=""),paste("cM",x,sep="")))
 
     for (xIdx in 1:length(x))
     {
@@ -208,7 +399,8 @@ plotCorrContour <- function ( table     = "statTable.csv",
         yVal <- y[yIdx]
         MSE <- specTab  %>% filter( corrMult == xVal,
                                     kappaMult  == yVal ) %>%
-                            dplyr::select( BnT, Umsy)
+                            dplyr::mutate( hessRatio = signif(msHessPD/ssHessPD,4) ) %>%
+                            dplyr::select( BnT, Umsy, hessRatio)
         z[,yIdx,xIdx] <- as.numeric(MSE)
       }
     } 
@@ -222,13 +414,16 @@ plotCorrContour <- function ( table     = "statTable.csv",
                        summarise( ssBnT = sum(ssBnT),
                                   msBnT = sum(msBnT),
                                   ssUmsy = sum(ssUmsy),
-                                  msUmsy = sum(msUmsy)) %>%
+                                  msUmsy = sum(msUmsy),
+                                  msHessPD = mean(msHessPD),
+                                  ssHessPD = mean(ssHessPD) ) %>%
                        mutate(  BnT     = log2(ssBnT/msBnT),
-                                Umsy    = log2(ssUmsy/msUmsy) )
+                                Umsy    = log2(ssUmsy/msUmsy),
+                                hessRatio = signif(msHessPD/ssHessPD,4) )
   x <- unique(compTab$corrMult)[order(unique(compTab$corrMult))]
   y <- unique(compTab$kappaMult)[order(unique(compTab$kappaMult))]
-  z <- array( NA, dim=c(2,length(y),length(x)),
-              dimnames=list(c("BnT","Umsy"),paste("vM",y,sep=""),paste("cM",x,sep="")))
+  z <- array( NA, dim=c(3,length(y),length(x)),
+              dimnames=list(c("BnT","Umsy","hessRatio"),paste("kM",y,sep=""),paste("cM",x,sep="")))
 
   for (xIdx in 1:length(x))
   {
@@ -240,8 +435,8 @@ plotCorrContour <- function ( table     = "statTable.csv",
       yVal <- y[yIdx]
       MSE <- compTab  %>% filter( corrMult == xVal,
                                   kappaMult  == yVal ) %>%
-                          dplyr::select( BnT, Umsy)
-      z[,yIdx,xIdx] <- as.numeric(MSE[,c("BnT","Umsy")])
+                          dplyr::select( BnT, Umsy, hessRatio)
+      z[,yIdx,xIdx] <- as.numeric(MSE[,c("BnT","Umsy","hessRatio")])
     }
   } 
   compList <- list( x = x, y = y, z = z )  
@@ -256,9 +451,12 @@ plotCorrContour <- function ( table     = "statTable.csv",
     prodRastObj <- list ( x = specList[[s]]$x,
                           y = specList[[s]]$y,
                           z = t(specList[[s]]$z[2,,]))
+    hessRastObj <- list ( x = specList[[s]]$x,
+                          y = specList[[s]]$y,
+                          z = t(specList[[s]]$z[3,,]))
     bioRast <- raster(bioRastObj)
     prodRast <- raster(prodRastObj)
-
+    hessRast <- raster(hessRastObj)
     # Make titles for the plots
     bioTitle <- paste("BnT ", species[s], sep = "" )
     prodTitle <- paste("Umsy ", species[s], sep = "" )
@@ -266,8 +464,10 @@ plotCorrContour <- function ( table     = "statTable.csv",
     # plot the rasters, without legends
     plot( bioRast,main = bioTitle, legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA )
+      text( hessRast, digits = 2 )
     plot(prodRast,main = prodTitle,  legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA)
+      text( hessRast, digits = 2 )
   }
 
   # Create a raster from the stat table info 
@@ -277,18 +477,24 @@ plotCorrContour <- function ( table     = "statTable.csv",
   prodRastObj <- list ( x = compList$x,
                         y = compList$y,
                         z = t(compList$z[2,,]))
-  bioRast <- raster(bioRastObj)
-  prodRast <- raster(prodRastObj)
+  hessRastObj <- list ( x = compList$x,
+                        y = compList$y,
+                        z = t(compList$z[3,,]))
+  bioRast   <- raster( bioRastObj  )
+  prodRast  <- raster( prodRastObj )
+  hessRast  <- raster( hessRastObj )
 
   # Make titles for the plots
-  bioTitle <- "BnT complex"
+  bioTitle  <- "BnT complex"
   prodTitle <- "Umsy complex"
 
   # plot the rasters, without legends
   plot( bioRast,main = bioTitle, legend = FALSE, 
         breaks = colBreaks, col=colScale, asp = NA )
+    text( hessRast, digits = 2 )
   plot(prodRast,main = prodTitle,  legend = FALSE, 
         breaks = colBreaks, col=colScale, asp = NA)
+    text( hessRast, digits = 2 )
   # Plot the legends
   plot( prodRast, legend.only=TRUE, col=colScale, fill=colScale,
         legend.width=1, legend.shrink=0.75,
