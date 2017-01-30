@@ -32,8 +32,8 @@ assess$tau2 c(0.01,0.01)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1)
-assess$mlnBmsy c(3.68,4.38)
-assess$s2lnBmsy c(3.68,4.38)
+assess$mBmsy c(40,80)
+assess$s2Bmsy c(400,800)
 assess$lnUmsybar -1.4
 assess$lnsigUmsy2 -0.5
 assess$mlnUmsy -1.5
