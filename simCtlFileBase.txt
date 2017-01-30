@@ -33,13 +33,13 @@ assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1)
 assess$mBmsy c(40,80)
-assess$s2Bmsy c(400,800)
+assess$s2Bmsy c(40,80)
 assess$lnUmsybar -1.4
 assess$lnsigUmsy2 -0.5
 assess$mlnUmsy -1.5
 assess$s2lnUmsy 1
 assess$lnqbar -.1
-assess$lntauq2 -0.5
+assess$lntauq2 -0.5 
 assess$mlnq 0
 assess$s2lnq 1
 assess$sigU2IG c(0.5,0.2)

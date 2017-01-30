@@ -1,9 +1,9 @@
-# job1.txt: mseR parameter file written Tue Jan 24 10:10:55 2017.
+# job1.txt: mseR parameter file written Sun Jan 29 20:13:56 2017.
 parameter value
-ctrl$scenarioName '2S-loHiObsCV'
-ctrl$mpLabel 'bothEff'
-ctrl$nReps 10
-ctrl$rSeed 4
+ctrl$scenarioName '2S-2LoObsCV'
+ctrl$mpLabel "bothEff"
+ctrl$nReps 200
+ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English")
 opMod$nS 2
 opMod$nT 30
@@ -14,8 +14,8 @@ opMod$Umax NULL
 opMod$tUpeak 5
 opMod$tUtrough 15
 opMod$q c(0.9,1.2)
-opMod$gammaYr 0
-opMod$tau2 c(0.1,0.4)
+opMod$gammaYr 0.0
+opMod$tau2 c(0.04,0.04)
 opMod$identObs FALSE
 opMod$corrMult 1
 opMod$kappaMult 1
@@ -24,24 +24,24 @@ assess$msAR1 FALSE
 assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$fitTrials 3
-assess$maxfn 100
+assess$maxfn 1000
 assess$Umsy c(0.2,0.25)
 assess$lnq c(0,0)
 assess$logit_gammaYr 0
-assess$tau2 c(0.4,0.4)
+assess$tau2 c(0.01,0.01)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1)
 assess$mBmsy c(40,80)
 assess$s2Bmsy c(400,800)
 assess$lnUmsybar -1.4
-assess$lnsigUmsy2 -1
+assess$lnsigUmsy2 -0.5
 assess$mlnUmsy -1.5
 assess$s2lnUmsy 1
 assess$lnqbar -.1
-assess$lntauq2 -1
+assess$lntauq2 -0.5
 assess$mlnq 0
-assess$s2lnq 0.1
+assess$s2lnq 1
 assess$sigU2IG c(0.5,0.2)
 assess$tauq2IG c(0.5,0.2)
 assess$kappa2IG c(0.5,0.1)
