@@ -198,7 +198,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if (obj$opMod$autoIG)
   {
     # recover true variances (use om, may be modified by kappaMult)
-    tau2    <- obj$om$tau2[1]
+    tau2    <- obj$om$tau2
     kappa2  <- obj$om$kappa2
     Sigma2  <- mean(obj$om$Sigma2)
 
@@ -229,8 +229,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lnsigUmsy2        = obj$assess$lnsigUmsy2,
                           mlnUmsy           = obj$assess$mlnUmsy,
                           s2lnUmsy          = obj$assess$s2lnUmsy,
-                          mlnBmsy           = obj$assess$mlnBmsy[s],
-                          s2lnBmsy          = obj$assess$s2lnBmsy[s],
+                          mBmsy             = obj$assess$mBmsy[s],
+                          s2Bmsy            = obj$assess$s2Bmsy[s],
                           tau2IGa           = obj$assess$tau2IGa[s],
                           tau2IGb           = obj$assess$tau2IGb[s],
                           sigU2IG           = obj$assess$sigU2IG,
@@ -245,10 +245,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 )
                         )
+    ssPar[[s]]$kappa2IG[2] <- obj$assess$kappa2IG[2] + obj$assess$Sigma2IG[2]
   }
   # Make map list to turn off parameters
-  ssMap     <-  list(   mlnBmsy           = factor( rep( NA, 1 ) ),
-                        s2lnBmsy          = factor( rep( NA, 1 ) ),
+  ssMap     <-  list(   mBmsy             = factor( rep( NA, 1 ) ),
+                        s2Bmsy            = factor( rep( NA, 1 ) ),
                         lnUmsybar         = factor( NA ),
                         lnsigUmsy2        = factor( NA ),
                         mlnUmsy           = factor( NA ),
@@ -287,8 +288,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnsigUmsy2        = obj$assess$lnsigUmsy2,
                   mlnUmsy           = obj$assess$mlnUmsy,
                   s2lnUmsy          = obj$assess$s2lnUmsy,
-                  mlnBmsy           = obj$assess$mlnBmsy,
-                  s2lnBmsy          = obj$assess$s2lnBmsy,
+                  mBmsy             = obj$assess$mBmsy,
+                  s2Bmsy            = obj$assess$s2Bmsy,
                   eps_t             = rep(0, nT-1),
                   lnkappa2          = log(obj$assess$kappa2),              
                   logit_gammaYr     = obj$assess$logit_gammaYr,
@@ -304,8 +305,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = obj$assess$Sigma2IG
                 )
 
-  msMap <- list ( mlnBmsy           = factor( rep( NA, nS ) ),
-                  s2lnBmsy          = factor( rep( NA, nS ) ),
+  msMap <- list ( mBmsy             = factor( rep( NA, nS ) ),
+                  s2Bmsy            = factor( rep( NA, nS ) ),
                   mlnUmsy           = factor( NA ),
                   s2lnUmsy          = factor( NA ),
                   mlnq              = factor( NA ),
@@ -347,7 +348,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             quiet = TRUE, TMBlib="msProd",
                             RE = c("eps_t","lnq","lnUmsy","zeta_st") )
 { 
-  # browser()  
+  # browser()
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
@@ -687,6 +688,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 .obsModel <- function ( Bt, q = 0.05, nT = length (Bt), 
 												deltat = rnorm(nT), tau = 0.4 )
 {
+  # browser()
   deltat <- deltat*tau
   tau2 <- tau*tau
 	It <- q * Bt * exp ( deltat - tau2/2.0 )

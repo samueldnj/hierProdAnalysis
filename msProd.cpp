@@ -59,8 +59,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER(lnsigUmsy2);                // shared prior Umsy variance
   PARAMETER(mlnUmsy);                   // hyperprior mean Umsy
   PARAMETER(s2lnUmsy);                  // hyperprior Umsy variance
-  PARAMETER_VECTOR(mlnBmsy);            // prior mean eqbm biomass
-  PARAMETER_VECTOR(s2lnBmsy);           // prior eqbm biomass var
+  PARAMETER_VECTOR(mBmsy);              // prior mean eqbm biomass
+  PARAMETER_VECTOR(s2Bmsy);             // prior eqbm biomass var
   PARAMETER_VECTOR(tau2IGa);            // IG parameters for tau2 prior
   PARAMETER_VECTOR(tau2IGb);            // IG parameters for tau2 prior
   PARAMETER_VECTOR(tauq2IG);            // IG parameters for tauq2 prior
@@ -165,7 +165,7 @@ Type objective_function<Type>::operator() ()
   // eqbm biomass
   for (int s=0; s<nS; s++ )
   {
-    obj += pow(lnBmsy(s) - mlnBmsy(s),2)/s2lnBmsy(s);  
+    obj += pow(Bmsy(s) - mBmsy(s),2)/s2Bmsy(s);  
   }
   // multispecies shared priors
   if (nS > 1)
