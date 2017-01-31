@@ -41,9 +41,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   cat( "\nMSG (saveSim) Created simulation folder ",folder,"in project.\n" )
   # Save blob
   .saveSim(blob=blob, name=folder, path = path)
-  # Copy control file and ms par file to folder for posterity
+  # Copy control file to sim folder for posterity
   file.copy(from=ctlFile,to=file.path(path,"simCtlFile.txt"))
-  file.copy(from=blob$opMod$parFile,to=file.path(path,blob$opMod$parFile))
   # Done
 }
 
@@ -66,47 +65,47 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   nS <- obj$opMod$nS          # number of species
 
   # Process error component vars
-  kappa <- sqrt(obj$opMod$pars$kappa)    # longitudinal shared proc error sd
-  Sigma <- sqrt(obj$opMod$pars$Sigma)    # ms proc error cov mtx
+  kappa <- sqrt(obj$opMod$kappa2)    # longitudinal shared proc error sd
+  Sigma <- sqrt(obj$opMod$SigmaDiag[1:nS])    # ms proc error cov mtx
   
   # Rescale shared effects sd if desired
   if (!is.null(obj$opMod$kappaMult)) kappa <- kappa*obj$opMod$kappaMult
 
   # Correlation parameters
   gammaYr <- obj$opMod$gammaYr        # longitudinal auto-correlation
-  msCorr  <- obj$opMod$pars$msCorr    # ms cross correlation
-
-  # Multiply the off-diagonal elements of msCorr if desired
-  if (!is.null(obj$opMod$corrMult))
+  # Create correlation matrix - if Arrowtooth is included it has negative correlation
+  msCorr <- matrix (obj$opMod$corrOffDiag, nrow = nS, ncol = nS)
+  if( obj$opMod$lastNegCorr )
   {
-    corrMult <- obj$opMod$corrMult
-    msCorr <- corrMult*msCorr
-    diag(msCorr) <- 1
-  }
+    msCorr[nS,] <- -1. * obj$opMod$corrOffDiag
+    msCorr[,nS] <- -1. * obj$opMod$corrOffDiag
+  } 
+  diag(msCorr) <- 1
 
   # Obs error var
-  tau <- sqrt(obj$opMod$tau2)
+  tau <- sqrt(obj$opMod$tau2[1:nS])
 
   # Initialise list to hold the data
-  om <- list (  Bt    = matrix (NA,nrow=nS, ncol=nT ),
-                Ct    = matrix (NA,nrow=nS, ncol=nT ),
-                Ut    = matrix (NA,nrow=nS, ncol=nT ),
-                ItTrue= matrix (NA,nrow=nS, ncol=nT ),
-                epst  = numeric (length=nT ),
-                zetat = matrix (NA,nrow=nS, ncol=nT ),
-                deltat= matrix (NA,nrow=nS, ncol=nT ),
-                It    = matrix (NA,nrow=nS, ncol=nT ),
-                dep   = matrix (NA,nrow=nS, ncol=nT ),
-                kappa2= kappa*kappa,
-                Sigma2= Sigma*Sigma,
-                msCorr= msCorr,
-                gamma = gamma,
-                tau2  = tau*tau,
-                q     = obj$opMod$q,
-                nT    = nT,
-                nS    = nS,
-                Bmsy  = obj$opMod$pars$Bmsy,
-                Umsy  = obj$opMod$pars$Umsy )
+  om <- list (  Bt        = matrix (NA,nrow=nS, ncol=nT ),
+                Ct        = matrix (NA,nrow=nS, ncol=nT ),
+                Ut        = matrix (NA,nrow=nS, ncol=nT ),
+                ItTrue    = matrix (NA,nrow=nS, ncol=nT ),
+                epst      = numeric (length=nT ),
+                zetat     = matrix (NA,nrow=nS, ncol=nT ),
+                deltat    = matrix (NA,nrow=nS, ncol=nT ),
+                It        = matrix (NA,nrow=nS, ncol=nT ),
+                dep       = matrix (NA,nrow=nS, ncol=nT ),
+                kappa2    = kappa*kappa,
+                Sigma2    = Sigma*Sigma,
+                msCorr    = msCorr,
+                gamma     = gamma,
+                tau2      = tau*tau,
+                q         = obj$opMod$q[1:nS],
+                nT        = nT,
+                nS        = nS,
+                Bmsy      = obj$opMod$Bmsy[1:nS],
+                Umsy      = obj$opMod$Umsy[1:nS],
+                specNames = obj$opMod$speciesNames[1:nS] )
 
   # Now create epst and zetat vectors using the proc error components
   epst      <- .fillRanWalk(  z=rnorm(n = nT), s=kappa,
@@ -138,14 +137,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # Overwrite Ft with actual F values
   Ust <- matrix ( UtProp, nrow = nS, ncol = nT, byrow = TRUE )
-  for ( s in 1:nS ) Ust[s,] <- obj$opMod$pars$Umsy[s] * Ust[s,]
+  for ( s in 1:nS ) Ust[s,] <- obj$opMod$Umsy[s] * Ust[s,]
 
   # Loop over species and fill list entries with biological
   # and observational data
   for ( s in 1:nS )
   {
-    bio <- .logProdModel (  Bmsy = obj$opMod$pars$Bmsy[s], 
-                            Umsy = obj$opMod$pars$Umsy[s],
+    bio <- .logProdModel (  Bmsy = obj$opMod$Bmsy[s], 
+                            Umsy = obj$opMod$Umsy[s],
                             nT = nT, Ut = Ust[s,], 
                             epst = epst,
                             zetat = zetat[s,] )
@@ -203,9 +202,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     Sigma2  <- mean(obj$om$Sigma2)
 
     # Now change IG parameters so that the prior mode is at the true (mean) value
-    obj$assess$tau2IGb      <- (obj$assess$tau2IGa+1)*tau2
-    obj$assess$kappa2IG[2]  <- (obj$assess$kappa2IG[1]+1)*kappa2
-    obj$assess$Sigma2IG[2]  <- (obj$assess$Sigma2IG[1]+1)*Sigma2
+    obj$assess$tau2IGb[1:nS]  <- (obj$assess$tau2IGa[1:nS]+1)*tau2[1:nS]
+    obj$assess$kappa2IG[2]    <- (obj$assess$kappa2IG[1]+1)*kappa2
+    obj$assess$Sigma2IG[2]    <- (obj$assess$Sigma2IG[1]+1)*Sigma2
   }
 
   # loop over species
@@ -276,10 +275,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   nT = nT
                 )
 
-  msPar <- list ( lnBmsy            = log(sumCat/2),
-                  lnUmsy            = log(obj$assess$Umsy),
-                  lntau2            = log(obj$assess$tau2),
-                  lnq               = obj$assess$lnq,
+  msPar <- list ( lnBmsy            = log(sumCat[1:nS]/2),
+                  lnUmsy            = log(obj$assess$Umsy[1:nS]),
+                  lntau2            = log(obj$assess$tau2[1:nS]),
+                  lnq               = obj$assess$lnq[1:nS],
                   lnqbar            = obj$assess$lnqbar,
                   lntauq2           = obj$assess$lntauq2,
                   mlnq              = obj$assess$mlnq,
@@ -288,17 +287,17 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnsigUmsy2        = obj$assess$lnsigUmsy2,
                   mlnUmsy           = obj$assess$mlnUmsy,
                   s2lnUmsy          = obj$assess$s2lnUmsy,
-                  mBmsy             = obj$assess$mBmsy,
-                  s2Bmsy            = obj$assess$s2Bmsy,
+                  mBmsy             = obj$assess$mBmsy[1:nS],
+                  s2Bmsy            = obj$assess$s2Bmsy[1:nS],
                   eps_t             = rep(0, nT-1),
                   lnkappa2          = log(obj$assess$kappa2),              
                   logit_gammaYr     = obj$assess$logit_gammaYr,
                   zeta_st           = matrix(0, nrow = nS, ncol = nT-1),
-                  lnSigmaDiag       = 0,
-                  SigmaDiagMult     = obj$assess$SigmaDiagMult,
+                  lnSigmaDiag       = log(obj$assess$Sigma2),
+                  SigmaDiagMult     = obj$assess$SigmaDiagMult[1:nS],
                   logitSigmaOffDiag = rep(0, length = nS*(nS-1)/2),
-                  tau2IGa           = obj$assess$tau2IGa,
-                  tau2IGb           = obj$assess$tau2IGb,
+                  tau2IGa           = obj$assess$tau2IGa[1:nS],
+                  tau2IGb           = obj$assess$tau2IGb[1:nS],
                   sigU2IG           = obj$assess$sigU2IG,
                   tauq2IG           = obj$assess$tauq2IG,
                   kappa2IG          = obj$assess$kappa2IG,
@@ -449,7 +448,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # Create dimension names for arrays
   rNames <- paste("Rep",1:nReps, sep ="")
-  sNames <- obj$ctrl$specNames
+  sNames <- obj$ctrl$specNames[1:nS]
 
   # Create list object to store all simulated values
   om <- list  ( Bt    = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
