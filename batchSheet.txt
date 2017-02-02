@@ -25,7 +25,14 @@ parList <- list( "opMod$corrMult" = seq(-1,1,by=0.4),
                  "opMod$kappaMult" = seq(0.2,2,by=0.3) )
 labels <- c("cM","kM")
 
+- RE.bch (new ctl file structure)
+scenParList <- list ( "opMod$nS" = c(2,4,5),
+                      "opMod$corrOffDiag" = seq(0,0.6,by=0.2),
+                      "opMod$kappaMult" = seq(0,0.5,by=0.1),
+                      "opMod$lastNegCorr" = c(T,F)
+                )
 
+scenLabels <- c( "nS", "c", "m", "-c" )
 
 
 # AM and OM parameters:
@@ -67,6 +74,14 @@ scenario$scenario1$opMod$tau2 c(0.01,0.01,0.01,0.01,0.01)
 0.05 0.05 0.05 0.05 0.05
 
 AM
+- original
 scenario$scenario1$assess$mBmsy c(40,80,30,60,100)
 scenario$scenario1$assess$sBmsy c(60,120,45,90,150)
 scenario$scenario1$assess$lnq_s c(0,0,0,0,0)
+
+- Feb 1
+mpParList <- list ( "assess$msCorr" = c(T,F),
+                    "assess$SigmaPriorCode" = c(0,1),
+                    "assess$wishType" = c("diag","corr") )
+
+mpLabels <- c("corr", "SigPrior", "wishType" )

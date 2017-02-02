@@ -1159,7 +1159,6 @@ scenario$scenario144$opMod$lastNegCorr FALSE
 mp$mp1$ctrl$mpLabel 'corrTRUE_SigPriorIG'
 mp$mp1$assess$msCorr TRUE
 mp$mp1$assess$SigmaPriorCode 0
-mp$mp1$assess$wishType 1
 #
 # MP 2 : corrFALSE_SigPrior0
 #

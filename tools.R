@@ -197,7 +197,7 @@ doBatchRun <- function( arg )
                  "simCtlFile.txt", overwrite=TRUE )
      
       # runSimEst() assumes that input is simCtlFile.txt
-      browser()
+      # browser()
       runSimEst()
 
       elapsed <- (proc.time() - tBegin)[ "elapsed" ]
