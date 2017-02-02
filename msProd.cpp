@@ -42,6 +42,8 @@ Type objective_function<Type>::operator() ()
   // Indexing variables
   DATA_INTEGER(nS);             // No of species
   DATA_INTEGER(nT);             // No of time steps
+  // Model switches
+  DATA_INTEGER(SigmaPriorCode)  // 0 => IG on diagonal element, 1 => IW on cov matrix
 
 
   /*parameter section*/
@@ -67,15 +69,16 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(sigU2IG);            // IG parameters for tauq2 prior
   PARAMETER_VECTOR(kappa2IG);           // IG parameters for kappa2 prior
   PARAMETER_VECTOR(Sigma2IG);           // IG parameters for Sigma2 prior
-
+  PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
+  PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
   // Random Effects
   PARAMETER_VECTOR(eps_t);              // year effect
   PARAMETER(lnkappa2);                  // year effect uncorrelated variance
-  PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect
   PARAMETER_ARRAY(zeta_st);             // species effect
   PARAMETER(lnSigmaDiag);               // Species effect cov matrix diag
   PARAMETER_VECTOR(SigmaDiagMult);      // Sigma diagonal mults
   PARAMETER_VECTOR(logitSigmaOffDiag);  // Species effect corr chol factor off diag  
+  PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect (eps)
   
   // State variables
   array<Type>       Bt(nS,nT);
@@ -91,9 +94,9 @@ Type objective_function<Type>::operator() ()
   Type              sigUmsy2= exp(lnsigUmsy2);
   // Random Effects
   Type              kappa2  = exp(lnkappa2);
-  Type              gammaYr = Type(2.) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(1.);
-  vector<Type>      SigmaOffDiag(nS*(nS-1)/2);  
-                    SigmaOffDiag  = Type(1.98) / (Type(1.) + exp(Type(-5.)*logitSigmaOffDiag) ) - Type(1.);     
+  Type              gammaYr = Type(1.96) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(0.98);
+  vector<Type>      SigmaOffDiag(nS*(nS-1)/2);
+                    SigmaOffDiag  = Type(1.96) / (Type(1.) + exp(Type(-2.)*logitSigmaOffDiag) ) - Type(0.98);     
   vector<Type>      SigmaDiag = exp(lnSigmaDiag) * SigmaDiagMult;
   matrix<Type>      SigmaCorr(nS,nS);
   matrix<Type>      SigmaD(nS,nS);
@@ -209,8 +212,19 @@ Type objective_function<Type>::operator() ()
     obj += (tauq2IG(0)+Type(1))*lntauq2+tauq2IG(1)/exp(lntauq2);
     // shared U prior variance
     obj += (sigU2IG(0)+Type(1))*lnsigUmsy2+sigU2IG(1)/exp(lnsigUmsy2);
-    // Specific effect variance
-    obj += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);  
+    // Apply Sigma Prior
+    if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
+    {
+      obj += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+    }
+    if( SigmaPriorCode == 1 ) // Apply IW prior to Sigma matrix
+    {
+      matrix<Type> traceMat = wishScale * Sigma.inverse();
+      Type trace = 0.0;
+      for (int s=0;s<nS;s++) trace += traceMat(s,s);
+      obj += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
+    }
+
   }
   // Derive some output variables
   Ut  = Ct / Bt;

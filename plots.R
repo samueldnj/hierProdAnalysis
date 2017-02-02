@@ -197,11 +197,8 @@ plotFhistCompContour <- function (  table     = "statTable.csv",
                               Umsy    = log2(ssUmsy/msUmsy) )
 
   # Now make a pallette for the colours
-  colScaleHi  <- brewer.pal( 5, "Greens" )
-  colScaleLo  <- brewer.pal( 5, "Reds" )
-  colScale    <- c( colScaleLo[ 5:1 ],"white", colScaleHi[ 1:5 ] )
-  colBreaks   <- seq( -3.2, 3.2, length =12 )
-
+  colScale    <- brewer.pal( 9, "Greens" )
+  colBreaks   <- c(-100,seq(-2.8,-0.1,by=0.9),seq(0.1,2.8,by=0.9),100)
 
   species   <- as.character(unique( table$species))
   nS <- length(species)
@@ -293,10 +290,10 @@ plotFhistCompContour <- function (  table     = "statTable.csv",
     # plot the rasters, without legends
     plot( bioRast,main = bioTitle, legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA )
-      text(hessRast)
+      text(hessRast, halo = TRUE)
     plot(prodRast,main = prodTitle,  legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA)
-      text(hessRast)
+      text(hessRast, halo = TRUE)
   }
 
   # Create a raster from the stat table info 
@@ -357,11 +354,6 @@ plotCorrMSEContour <- function (  table     = "statTable.csv",
   table <- table [ which(table$mp == mpLabel ), ]
   table <- table  %>% filter( mp == mpLabel )
 
-  # Now make a pallette for the colours
-  colScaleHi  <- brewer.pal( 5, "Greens" )
-  colScaleLo  <- brewer.pal( 5, "Reds" )
-  colScale    <- c( colScaleLo[ 5:1 ],"white", colScaleHi[ 1:5 ] )
-  colBreaks   <- seq( -3.2, 3.2, length = 12 )
 
   species   <- as.character(unique( table$species))
   nS <- length(species)
@@ -437,7 +429,7 @@ plotCorrMSEContour <- function (  table     = "statTable.csv",
   } 
   compList <- list( x = x, y = y, ssz = ssz, msz=msz )  
 
-  par(mfrow = c((nS+1),3), mar = c(2,2,2,2), oma = c(5,5,5,5))
+  par(mfrow = c((nS+1),3), mar = c(2,2,2,2), oma = c(5,5,5,5), las = 1)
   for (s in 1:nS)
   {
     # Create a raster from the stat table info
@@ -448,33 +440,43 @@ plotCorrMSEContour <- function (  table     = "statTable.csv",
     # Make titles for the plots
     specName <- species[s]
 
-    bioTitle  <- "BnT"
-    prodTitle <- "Umsy"
-    qTitle    <- "q"
+    titles <- names(plotBrick)[1:3]
+
+    colBreaks <- vector (mode = "list", length = 3 )
+    colScale  <- brewer.pal(9, "Greens")
     
+    for (i in 1:length(titles))
+    {
+      central60 <- quantile(plotBrick[[i]],probs = c(0.2,0.8))
+      colBreaks[[i]] <- c ( min(values(plotBrick[[i]])), 
+                            seq(central60[1],central60[2],length=8),
+                            max(values(plotBrick[[i]])))
+    }
+
+    # browser()
     # plot the rasters, if first species plot main titles
     if ( s == 1 )
     {
-      plot( plotBrick$BnT,main = bioTitle, legend = TRUE, 
-            asp=NA, ylab=specName )
-        text( plotBrick$hessPD/200, digits = 2 )
-      plot( plotBrick$Umsy, main = prodTitle,  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )  
-      plot( plotBrick$q, main = qTitle,  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )  
+      plot( plotBrick$BnT,main = titles[1], legend = FALSE, 
+            asp=NA, ylab=specName, col = colScale, breaks = colBreaks[[1]] )
+        text( plotBrick$BnT, digits = 2, halo = T, cex = 0.5 )
+      plot( plotBrick$Umsy, main = titles[2],  legend = FALSE, 
+            asp=NA, col = colScale, breaks = colBreaks[[2]])
+        text( plotBrick$Umsy, digits = 2, halo = T, cex = 0.5 )  
+      plot( plotBrick$q, main = titles[3],  legend = FALSE, 
+            asp=NA, col = colScale, breaks = colBreaks[[3]])
+        text( plotBrick$q, digits = 2, halo = T, cex = 0.5 )  
     }
     else {
-      plot( plotBrick$BnT,main = "", legend = TRUE, ylab = specName,
-            asp=NA )
-        text( plotBrick$hessPD/200, digits = 2 )
-      plot( plotBrick$Umsy, main = "",  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )  
-      plot( plotBrick$q, main = "",  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )
+      plot( plotBrick$BnT,main = "", legend = FALSE, ylab = specName,
+            asp=NA, col = colScale, breaks = colBreaks[[1]] )
+        text( plotBrick$BnT, digits = 2, halo = T, cex = 0.5 )
+      plot( plotBrick$Umsy, main = "",  legend = FALSE, 
+            asp=NA, col = colScale, breaks = colBreaks[[2]])
+        text( plotBrick$Umsy, digits = 2, halo = T, cex = 0.5 )  
+      plot( plotBrick$q, main = "",  legend = FALSE, 
+            asp=NA, col = colScale, breaks = colBreaks[[3]])
+        text( plotBrick$q, digits = 2, halo = T, cex = 0.5 )
     }
     
   }
@@ -487,17 +489,29 @@ plotCorrMSEContour <- function (  table     = "statTable.csv",
   # Make titles for the plots
   specName <- species[s]
 
+  titles <- names(plotBrick)[1:3]
+
+  # Get colour breaks, based on range of data
+  colBreaks <- vector (mode = "list", length = 3 )
+  colScale  <- brewer.pal(9, "Greens")
+  for (i in 1:length(titles))
+  {
+    central60       <- quantile(plotBrick[[i]],probs = c(0.2,0.8))
+    colBreaks[[i]]  <- c (  min(values(plotBrick[[i]])), 
+                            seq(central60[1],central60[2],length=8),
+                            max(values(plotBrick[[i]])))
+  }
 
   # plot the rasters, without legends
-  plot( plotBrick$BnT,main = "", legend = TRUE, 
-            asp=NA, ylab="Complex" )
-    text( plotBrick$hessPD/200, digits = 2 )
-  plot( plotBrick$Umsy, main = "",  legend = TRUE, 
-        asp=NA)
-    text( plotBrick$hessPD/200, digits = 2 )  
-  plot( plotBrick$q, main = "",  legend = TRUE, 
-        asp=NA)
-    text( plotBrick$hessPD/200, digits = 2 )  
+  plot( plotBrick$BnT,main = "", legend = FALSE, 
+            asp=NA, ylab="Complex", , col = colScale, breaks = colBreaks[[1]] )
+    text( plotBrick$BnT, digits = 2, halo = T, cex = 0.5 )
+  plot( plotBrick$Umsy, main = "",  legend = FALSE, 
+        asp=NA, , col = colScale, breaks = colBreaks[[2]] )
+    text( plotBrick$Umsy, digits = 2, halo = T, cex = 0.5 )  
+  plot( plotBrick$q, main = "",  legend = FALSE, 
+        asp=NA, , col = colScale, breaks = colBreaks[[3]] )
+    text( plotBrick$q, digits = 2, halo = T, cex = 0.5 )  
 
   grid.text(  "Species Effect Correlation", 
               x=unit(0.5, "npc"), y=unit(0.05, "npc"), rot=0)
@@ -515,7 +529,8 @@ plotCorrMSEContour <- function (  table     = "statTable.csv",
 # and for the complex. The plots are panel plots of Rasters, so need
 # a little love as far as sizing goes.
 plotCorrCompContour <- function ( table     = "statTable.csv", 
-                                  mpLabel   = "bothEff" )
+                                  mpLabel   = "bothEff",
+                                  method    = "deviance" )
 {
   # Load stat table
   tablePath <- file.path ( getwd(),"project/Statistics",table)
@@ -523,16 +538,21 @@ plotCorrCompContour <- function ( table     = "statTable.csv",
   # reduce to the correct MP
   table <- table [ which(table$mp == mpLabel ),]
 
-  table <- table  %>% filter( mp == mpLabel ) %>%
-                      mutate( BnT     = log2(abs(ssBnT/msBnT)),
-                              Umsy    = log2(abs(ssUmsy/msUmsy)) )
+  table <- table  %>% filter( mp == mpLabel ) 
 
-  # Now make a pallette for the colours
-  colScaleHi  <- brewer.pal( 5, "Greens" )
-  colScaleLo  <- brewer.pal( 5, "Reds" )
-  colScale    <- c( colScaleLo[ 5:1 ],"white", colScaleHi[ 1:5 ] )
-  colBreaks   <- seq( -3.2, 3.2, length =12 )
-
+  # calculate response
+  # Deviance is log2(ss/ms)
+  if (method == "deviance" )
+  {
+    table <- table %>% mutate(  BnT     = log2(abs(ssBnT/msBnT)),
+                                Umsy    = log2(abs(ssUmsy/msUmsy)) )
+  }   
+  # Difference is just ss - ms
+  if ( method == "difference")
+  {
+    table <- table %>% mutate(  BnT     = ssBnT - msBnT,
+                                Umsy    = ssUmsy - msUmsy )
+  }
 
   species   <- as.character(unique( table$species))
   nS <- length(species)
@@ -569,15 +589,25 @@ plotCorrCompContour <- function ( table     = "statTable.csv",
   # now create a complex performance table, where we take the 
   # sum of the MSE over the whole complex for each scenario
   compTab <- table %>% group_by(kappaMult,corrMult) %>%
-                       summarise( ssBnT = sum(ssBnT),
-                                  msBnT = sum(msBnT),
-                                  ssUmsy = sum(ssUmsy),
-                                  msUmsy = sum(msUmsy),
+                       summarise( ssBnT = mean(ssBnT),
+                                  msBnT = mean(msBnT),
+                                  ssUmsy = mean(ssUmsy),
+                                  msUmsy = mean(msUmsy),
                                   msHessPD = mean(msHessPD),
-                                  ssHessPD = mean(ssHessPD) ) %>%
-                       mutate(  BnT     = log2(ssBnT/msBnT),
-                                Umsy    = log2(ssUmsy/msUmsy),
-                                hessRatio = signif(msHessPD/ssHessPD,4) )
+                                  ssHessPD = mean(ssHessPD) )
+  if( method == "deviance")
+  {
+    compTab <-  compTab %>% mutate( BnT     = log2(ssBnT/msBnT),
+                                    Umsy    = log2(ssUmsy/msUmsy),
+                                    hessRatio = signif(msHessPD/ssHessPD,4) )
+  }  
+  if(method == "difference" )
+  {
+    compTab <-  compTab %>% mutate( BnT     = ssBnT - msBnT,
+                                    Umsy    = ssUmsy - msUmsy,
+                                    hessRatio = signif(msHessPD/ssHessPD,4) )
+  }                                
+                       
   x <- unique(compTab$corrMult)[order(unique(compTab$corrMult))]
   y <- unique(compTab$kappaMult)[order(unique(compTab$kappaMult))]
   z <- array( NA, dim=c(3,length(y),length(x)),
@@ -622,10 +652,10 @@ plotCorrCompContour <- function ( table     = "statTable.csv",
     # plot the rasters, without legends
     plot( bioRast,main = bioTitle, legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA )
-      text( bioRast, digits = 2 )
+      text( bioRast, digits = 2, halo = T )
     plot(prodRast,main = prodTitle,  legend = FALSE, 
           breaks = colBreaks, col=colScale, asp=NA)
-      text( prodRast, digits = 2 )
+      text( prodRast, digits = 2, halo = T )
   }
 
   # Create a raster from the stat table info 
@@ -649,10 +679,10 @@ plotCorrCompContour <- function ( table     = "statTable.csv",
   # plot the rasters, without legends
   plot( bioRast,main = bioTitle, legend = FALSE, 
         breaks = colBreaks, col=colScale, asp = NA )
-    text( bioRast, digits = 2 )
+    text( bioRast, digits = 2, halo = T )
   plot(prodRast,main = prodTitle,  legend = FALSE, 
         breaks = colBreaks, col=colScale, asp = NA)
-    text( prodRast, digits = 2 )
+    text( prodRast, digits = 2, halo = T )
   # Plot the legends
   plot( prodRast, legend.only=TRUE, col=colScale, fill=colScale,
         legend.width=1, legend.shrink=0.75,
@@ -1137,7 +1167,7 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
 
   # Recover blob elements for plotting
   nS        <- blob$opMod$nS
-  specNames <- blob$ctrl$specNames
+  specNames <- blob$ctrl$specNames[1:nS]
 
   # Recover relative error distributions
   if (est == "MLE")
@@ -1186,7 +1216,7 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
     }
   }
   # Set plotting window
-  par (mfrow = c(1,nS), mar = c(3,0,1,1), oma = c(3,0,2,0) )
+  par (mfrow = c(1,nS), mar = c(3,0,1,1), oma = c(3,0,3,0) )
 
   for ( s in 1:nS )
   {

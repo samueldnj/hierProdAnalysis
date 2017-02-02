@@ -271,9 +271,10 @@
   # Fill in ss MLE relative errors
   for ( s in 1:nS )
   {
-    ss$err.mle$Bmsy[success,s]   <- (ss$Bmsy[success,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-    ss$err.mle$Umsy[success,s]   <- (ss$Umsy[success,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]
-    ss$err.mle$kappa2[success,s] <- (ss$kappa2[success,s] - (opMod$pars$kappa2+opMod$pars$Sigma2[s]))/(opMod$pars$kappa2+opMod$pars$Sigma2[s])
+    # browser()
+    ss$err.mle$Bmsy[success,s]   <- (ss$Bmsy[success,s] - opMod$Bmsy[s])/opMod$Bmsy[s]
+    ss$err.mle$Umsy[success,s]   <- (ss$Umsy[success,s] - opMod$Umsy[s])/opMod$Umsy[s]
+    ss$err.mle$kappa2[success,s] <- (ss$kappa2[success,s] - (opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s]))/(opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s])
     ss$err.mle$tau2[success,s]   <- (ss$tau2[success,s] - opMod$tau2[s])/opMod$tau2[s]
     ss$err.mle$q[success,s]      <- (ss$q[success,s] - opMod$q[s])/opMod$q[s]
     ss$err.mle$dep[success,s]    <- (ss$dep[success,s,nT] - om$dep[success,s,nT])/om$dep[success,s,nT]
@@ -284,20 +285,20 @@
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.mle$kappa2[success,]    <- (ms$kappa2[success,] - opMod$pars$kappa2)/opMod$pars$kappa2
+      ms$err.mle$kappa2[success,]    <- (ms$kappa2[success,] - opMod$kappa2*(opMod$kappaMult^2))/opMod$kappa2/(opMod$kappaMult^2)
     }
     # Now the rest of the pars
-    ms$err.mle$Sigma2[success,s] <- (ms$Sigma2[success,s] - opMod$pars$Sigma2[s])/opMod$pars$Sigma2[s]
+    ms$err.mle$Sigma2[success,s] <- (ms$Sigma2[success,s] - opMod$SigmaDiag[s])/opMod$SigmaDiag[s]
     ms$err.mle$tau2[success,s]   <- (ms$tau2[success,s] - opMod$tau2[s])/opMod$tau2[s]
-    ms$err.mle$Bmsy[success,s]   <- (ms$Bmsy[success,s] - opMod$pars$Bmsy[s])/opMod$pars$Bmsy[s]
-    ms$err.mle$Umsy[success,s]   <- (ms$Umsy[success,s] - opMod$pars$Umsy[s])/opMod$pars$Umsy[s]    
+    ms$err.mle$Bmsy[success,s]   <- (ms$Bmsy[success,s] - opMod$Bmsy[s])/opMod$Bmsy[s]
+    ms$err.mle$Umsy[success,s]   <- (ms$Umsy[success,s] - opMod$Umsy[s])/opMod$Umsy[s]    
     ms$err.mle$q[success,s]      <- (ms$q[success,s] - opMod$q[s])/opMod$q[s]
     ms$err.mle$dep[success,s]    <- (ms$dep[success,s,nT] - om$dep[success,s,nT])/om$dep[success,s,nT]
     ms$err.mle$BnT[success,s]    <- (ms$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
 
     # calculate total RE variance
     totVarFit <- ms$kappa2 + ms$Sigma2[,s]
-    totVarOM  <- opMod$pars$kappa2*(opMod$kappaMult^2) + opMod$pars$Sigma2[s]
+    totVarOM  <- opMod$kappa2*(opMod$kappaMult^2) + opMod$SigmaDiag[s]
     ms$err.mle$totRE[success,s]  <- (totVarFit[success] - totVarOM) / totVarOM
   }
 
