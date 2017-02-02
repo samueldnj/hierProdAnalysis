@@ -1,5 +1,8 @@
 # RE Experiments Batch File
 parameter value
+#
+# Scenarios
+#
 # Scenario 1 : nS2_c0_m0_-cTRUE_
 #
 scenario$scenario1$ctrl$scenarioName 'nS2_c0_m0_-cTRUE_'

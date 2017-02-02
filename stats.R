@@ -50,6 +50,103 @@
   statTable
 }
 
+#.statTable()
+# Wrapper for .simStats, produces stacked tables of stats for a group
+# of simulations.
+# inputs:   sims=integer vector indicating simulations in ./project/
+# outputs:  statTable=table of statistics for a project/group
+# usage:    to produce output for a project and create .csv tables of 
+#           performance statistics
+# side-eff: creates tables of statistics in ./project/stats/
+.statTableMARE <- function (sims=1,tabName = "statTable.csv")
+{ 
+  # call function
+  tableList <- lapply ( X = sims, FUN = .simStatMRE )
+
+  # now make the table and return
+  statTable <-  do.call("rbind",tableList)
+  savePath <- file.path(getwd(),"project","Statistics",tabName)
+  write.csv ( statTable, file = savePath )
+  statTable
+}
+
+# .simStatMRE()
+# Produces a statistics table for leading pars in a simulation from
+# the output produced by a runSimEst() call
+# inputs:   sim=int indicating which simulation to compute stats for
+# outputs:  statTable=data.frame of mean squared error BnT and Umsy
+# usage:    in lapply to produce stats for a group of simulations
+.simStatMARE <- function ( sim=1 )
+{
+  # First, load blob
+  .loadSim(sim)
+  om    <- blob$om
+  opMod <- blob$opMod
+  pars  <- blob$opMod$pars
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+  
+  # Control info
+  nS      <- blob$opMod$nS
+  nT      <- blob$opMod$nT
+  species <- blob$ctrl$speciesName
+  nReps   <- blob$ctrl$nReps
+
+  # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
+  success <- blob$goodReps
+
+  # First, create a data.frame of NAs with a row for each of MRE,MARE
+  colLabels <- c( "scenario","mp","species","kappaTrue",
+                  "SigmaTrue", "kappaMult", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
+                  "ssBmsy","msBmsy","ssDep","msDep",
+                  "ssq","msq", "msHessPD", "ssHessPD","nReps",
+                  "Umax", "tUpeak", "tUtrough", "tau2OM" )
+  
+  statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
+  
+  colnames(statTable)   <- colLabels
+  statTable             <- as.data.frame(statTable)
+
+  # get multiplier for shared effects
+  kappaMult <- opMod$kappaMult
+  if (is.null(opMod$kappaMult)) kappaMult <- 1
+
+  # Start filling stat table
+  # First, info and true pars
+  statTable$scenario    <- blob$ctrl$scenarioName
+  statTable$mp          <- blob$ctrl$mpLabel
+  statTable$species     <- species
+  statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
+  statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
+  statTable$kappaMult   <- kappaMult
+  statTable$corrMult    <- opMod$corrMult
+  statTable$nReps       <- nReps
+  statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUtrough    <- opMod$tUtrough
+  statTable$tUpeak      <- opMod$tUpeak
+  statTable$tau2OM      <- opMod$tau2
+
+  # Now errors
+  for (s in 1:nS)
+  {
+    statTable[s,"ssBnT"]    <- median (abs(ss$err.mle$BnT[success,s]), na.rm=TRUE)
+    statTable[s,"msBnT"]    <- median (abs(ms$err.mle$BnT[success,s]), na.rm=TRUE)
+    statTable[s,"ssUmsy"]   <- median (abs(ss$err.mle$Umsy[success,s]), na.rm=TRUE)
+    statTable[s,"msUmsy"]   <- median (abs(ms$err.mle$Umsy[success,s]), na.rm=TRUE)
+    statTable[s,"ssBmsy"]   <- median (abs(ss$err.mle$Bmsy[success,s]), na.rm=TRUE)
+    statTable[s,"msBmsy"]   <- median (abs(ms$err.mle$Bmsy[success,s]), na.rm=TRUE)
+    statTable[s,"ssDep"]    <- median (abs(ss$err.mle$dep[success,s]), na.rm=TRUE)
+    statTable[s,"msDep"]    <- median (abs(ms$err.mle$dep[success,s]), na.rm=TRUE)
+    statTable[s,"ssq"]      <- median (abs(ss$err.mle$q[success,s]), na.rm=TRUE)
+    statTable[s,"msq"]      <- median (abs(ms$err.mle$q[success,s]), na.rm=TRUE)
+    statTable[s,"ssHessPD"] <- sum ( ss$hesspd[,s] , na.rm=TRUE)
+    statTable[s,"msHessPD"] <- sum ( ms$hesspd , na.rm=TRUE)
+  }
+  
+  # return
+  statTable
+}
+
 # .simStatMRE()
 # Produces a statistics table for leading pars in a simulation from
 # the output produced by a runSimEst() call

@@ -343,9 +343,13 @@ plotFhistCompContour <- function (  table     = "statTable.csv",
 # Plots the correlation  experiment MSE contours for
 # estimation of BnT and Umsy (abundance and productivity) by species
 # and for the complex.
-plotCorrMSEContour <- function (  table     = "statTable.csv", 
+plotCorrModContour <- function (  table     = "2sRE.csv", 
                                   mpLabel   = "bothEff",
-                                  model     = "ss" )
+                                  axes      = c("corrMult","kappaMult"),
+                                  pars      = c("BnT","Umsy","q"),
+                                  nSp       = 2,
+                                  model     = "ss",
+                                  compMean  = FALSE )
 {
   # Load stat table
   tablePath <- file.path ( getwd(), "project/Statistics", table )
@@ -353,165 +357,134 @@ plotCorrMSEContour <- function (  table     = "statTable.csv",
   # reduce to the correct MP
   table <- table [ which(table$mp == mpLabel ), ]
   table <- table  %>% filter( mp == mpLabel )
-
+  if ("nS" %in% names(table)) table <- filter(table,nS == nSp )
 
   species   <- as.character(unique( table$species))
   nS <- length(species)
-  specList  <- vector( mode="list", length=length(species))
+  specList  <- vector( mode="list", length=nS)
+
+  if ( length(axes) != 2) return ("Error! length(axes) != 2.\n")
+  # Pick out columns for axes
+  axesCols <- integer(length=2)
+  for ( i in 1:2)
+  {
+    axesCols[i] <- which(names(table) == axes[i])
+  }
+
+  x   <- unique(table[,axesCols[1]])
+  x   <- x[order(x)]
+  y   <- unique(table[,axesCols[2]])
+  y   <- y[order(y)]
 
   for (s in 1:nS)
   {
     spec <- species[s]
     specTab <- table %>% filter (species == spec )
-    x   <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
-    y   <- unique(specTab$kappaMult)[order(unique(specTab$kappaMult))]
-    ssz <- array( NA, dim=c(length(x),length(y),4),
-                dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
-    msz <- array( NA, dim=c(length(x),length(y),4),
-                dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
+    z <- array( NA, dim=c(length(y),length(x),length(pars)+1),
+                dimnames=list(y,x,c(pars,"HessPD")))
 
     for (xIdx in 1:length(x))
     {
       for (yIdx in 1:length(y))
       {
-
         # Get x and y values
         xVal <- x[xIdx]
         yVal <- y[yIdx]
-        ssMSE <- specTab  %>% filter( corrMult == xVal,
-                                    kappaMult  == yVal ) %>%
-                              dplyr::select( ssBnT, ssUmsy, ssq, ssHessPD)
-        ssz[xIdx,yIdx,] <- as.numeric(ssMSE)
-        msMSE <- specTab  %>% filter( corrMult == xVal,
-                                    kappaMult  == yVal ) %>%
-                              dplyr::select( msBnT, msUmsy, msq, msHessPD)
-        msz[xIdx,yIdx,] <- as.numeric(msMSE)        
+        # Get rows
+        xRows <- which ( specTab[,axesCols[1]] == xVal)
+        yRows <- which ( specTab[,axesCols[2]] == yVal)
+        rows <- intersect(xRows,yRows)
+        if( length(rows) == 0 ) next
+        colNames <- paste(model,c(pars,"HessPD"),sep="")
+        z[yIdx,xIdx,] <- as.numeric(specTab[rows,colNames])
       }
     } 
-    specList[[s]] <- list( x = x, y = y, ssz = ssz, msz = msz )
+    specList[[s]] <- brick( z, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
   }
   names(specList) <- species
 
-  # now create a complex performance table, where we take the 
-  # sum of the MSE over the whole complex for each scenario
-  compTab <- table %>% group_by(kappaMult,corrMult) %>%
-                       summarise( ssBnT = sum(ssBnT),
-                                  msBnT = sum(msBnT),
-                                  ssUmsy = sum(ssUmsy),
-                                  msUmsy = sum(msUmsy),
-                                  ssq = sum(ssq),
-                                  msq = sum(msq),
-                                  msHessPD = mean(msHessPD),
-                                  ssHessPD = mean(ssHessPD) )
-  x   <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
-  y   <- unique(specTab$kappaMult)[order(unique(specTab$kappaMult))]
-  ssz <- array( NA, dim=c(length(x),length(y),4),
-              dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
-  msz <- array( NA, dim=c(length(x),length(y),4),
-              dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
-  for (xIdx in 1:length(x))
-  {
-    for (yIdx in 1:length(y))
-    {
-
-      # Get x and y values
-      xVal <- x[xIdx]
-      yVal <- y[yIdx]
-      ssMSE <- compTab  %>% filter( corrMult == xVal,
-                                    kappaMult  == yVal ) %>%
-                            dplyr::select( ssBnT, ssUmsy, ssq, ssHessPD)
-      ssz[xIdx,yIdx,] <- as.numeric(ssMSE[c("ssBnT","ssUmsy","ssq","ssHessPD")])
-      msMSE <- compTab  %>% filter( corrMult == xVal,
-                                  kappaMult  == yVal ) %>%
-                            dplyr::select( msBnT, msUmsy, msq, msHessPD)
-      msz[xIdx,yIdx,] <- as.numeric(msMSE[c("msBnT","msUmsy","msq","msHessPD")])        
-    }
-  } 
-  compList <- list( x = x, y = y, ssz = ssz, msz=msz )  
-
-  par(mfrow = c((nS+1),3), mar = c(2,2,2,2), oma = c(5,5,5,5), las = 1)
+  par(mfrow = c((nS+1),length(pars)+1),  mar = c(1.5,1.5,1.5,1.5), oma = c(5,5,5,5), las=1)
   for (s in 1:nS)
   {
+    # browser()
     # Create a raster from the stat table info
-    if( model == "ss" ) 
-      plotBrick <- brick( specList[[s]]$ssz, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
-    if( model == "ms" ) 
-      plotBrick <- brick( specList[[s]]$msz,xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) ) 
+    plotBrick <- specList[[s]]
     # Make titles for the plots
     specName <- species[s]
 
-    titles <- names(plotBrick)[1:3]
+    titles <- names(plotBrick)
 
     colBreaks <- vector (mode = "list", length = 3 )
     colScale  <- brewer.pal(9, "Greens")
+    colScale  <- c(colScale)
     
     for (i in 1:length(titles))
     {
-      central60 <- quantile(plotBrick[[i]],probs = c(0.2,0.8))
+      lower60 <- quantile(abs(values(plotBrick[[i]])),probs=c(0,0.6))
       colBreaks[[i]] <- c ( min(values(plotBrick[[i]])), 
-                            seq(central60[1],central60[2],length=8),
+                            seq(lower60[1],lower60[2],length=8),
                             max(values(plotBrick[[i]])))
+      colBreaks[[i]][1] <- 0.98*colBreaks[[i]][1]
+      colBreaks[[i]][length(colBreaks[[i]])] <- 1.02*colBreaks[[i]][length(colBreaks[[i]])]
     }
 
-    # browser()
     # plot the rasters, if first species plot main titles
     if ( s == 1 )
     {
-      plot( plotBrick$BnT,main = titles[1], legend = FALSE, 
-            asp=NA, ylab=specName, col = colScale, breaks = colBreaks[[1]] )
-        text( plotBrick$BnT, digits = 2, halo = T, cex = 0.5 )
-      plot( plotBrick$Umsy, main = titles[2],  legend = FALSE, 
-            asp=NA, col = colScale, breaks = colBreaks[[2]])
-        text( plotBrick$Umsy, digits = 2, halo = T, cex = 0.5 )  
-      plot( plotBrick$q, main = titles[3],  legend = FALSE, 
-            asp=NA, col = colScale, breaks = colBreaks[[3]])
-        text( plotBrick$q, digits = 2, halo = T, cex = 0.5 )  
+      for(k in 1:length(titles))
+      {
+        plot( plotBrick[[k]],main = titles[k], legend = FALSE, 
+              asp=NA, ylab=specName, col = colScale, breaks = colBreaks[[k]] )
+        text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 ) 
+      }
     }
     else {
-      plot( plotBrick$BnT,main = "", legend = FALSE, ylab = specName,
-            asp=NA, col = colScale, breaks = colBreaks[[1]] )
-        text( plotBrick$BnT, digits = 2, halo = T, cex = 0.5 )
-      plot( plotBrick$Umsy, main = "",  legend = FALSE, 
-            asp=NA, col = colScale, breaks = colBreaks[[2]])
-        text( plotBrick$Umsy, digits = 2, halo = T, cex = 0.5 )  
-      plot( plotBrick$q, main = "",  legend = FALSE, 
-            asp=NA, col = colScale, breaks = colBreaks[[3]])
-        text( plotBrick$q, digits = 2, halo = T, cex = 0.5 )
-    }
-    
+      # browser()
+      for(k in 1:length(titles))
+      {
+        plot( plotBrick[[k]],main = "", legend = FALSE, 
+              asp=NA, ylab=specName, col = colScale, breaks = colBreaks[[k]] )
+        text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
+      }
+    }   
   }
 
-  # Create a raster from the stat table info
-  if( model == "ss" ) 
-    plotBrick <- brick( compList$ssz, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
-  if( model == "ms" ) 
-    plotBrick <- brick( compList$msz,xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) ) 
-  # Make titles for the plots
-  specName <- species[s]
+  # browser()
+  # Now create an average/sum raster brick for the complex
+  for(k in 1:length(titles))
+  {
+    # use leftover plotBrick in memory to compute complex
+    plotBrick[[k]] <- 0
+    for( s in 1:length(species) )
+    {
+      plotBrick[[k]] <- plotBrick[[k]] + specList[[s]][[k]]
+    }
+    if( compMean ) plotBrick[[k]] <- plotBrick[[k]]/length(species)
+  }
 
-  titles <- names(plotBrick)[1:3]
+  titles <- names(plotBrick)
 
   # Get colour breaks, based on range of data
   colBreaks <- vector (mode = "list", length = 3 )
   colScale  <- brewer.pal(9, "Greens")
+  colScale  <- c(colScale)
+  
   for (i in 1:length(titles))
   {
-    central60       <- quantile(plotBrick[[i]],probs = c(0.2,0.8))
-    colBreaks[[i]]  <- c (  min(values(plotBrick[[i]])), 
-                            seq(central60[1],central60[2],length=8),
-                            max(values(plotBrick[[i]])))
+    lower60 <- quantile(abs(values(plotBrick[[i]])),probs=c(0,0.6))
+    colBreaks[[i]] <- c ( min(values(plotBrick[[i]])), 
+                          seq(lower60[1],lower60[2],length=8),
+                          max(values(plotBrick[[i]])))
+    colBreaks[[i]][1] <- 0.98*colBreaks[[i]][1]
+    colBreaks[[i]][length(colBreaks[[i]])] <- 1.02*colBreaks[[i]][length(colBreaks[[i]])]
   }
 
-  # plot the rasters, without legends
-  plot( plotBrick$BnT,main = "", legend = FALSE, 
-            asp=NA, ylab="Complex", , col = colScale, breaks = colBreaks[[1]] )
-    text( plotBrick$BnT, digits = 2, halo = T, cex = 0.5 )
-  plot( plotBrick$Umsy, main = "",  legend = FALSE, 
-        asp=NA, , col = colScale, breaks = colBreaks[[2]] )
-    text( plotBrick$Umsy, digits = 2, halo = T, cex = 0.5 )  
-  plot( plotBrick$q, main = "",  legend = FALSE, 
-        asp=NA, , col = colScale, breaks = colBreaks[[3]] )
-    text( plotBrick$q, digits = 2, halo = T, cex = 0.5 )  
+  for(k in 1:length(titles))
+  {
+    plot( plotBrick[[k]],main = "", legend = FALSE, 
+          asp=NA, ylab="Complex", col = colScale, breaks = colBreaks[[k]] )
+    text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
+  }
 
   grid.text(  "Species Effect Correlation", 
               x=unit(0.5, "npc"), y=unit(0.05, "npc"), rot=0)
@@ -528,9 +501,13 @@ plotCorrMSEContour <- function (  table     = "statTable.csv",
 # estimation of BnT and Umsy (abundance and productivity) by species
 # and for the complex. The plots are panel plots of Rasters, so need
 # a little love as far as sizing goes.
-plotCorrCompContour <- function ( table     = "statTable.csv", 
+plotCorrCompContour <- function ( table     = "2sRE.csv", 
                                   mpLabel   = "bothEff",
-                                  method    = "deviance" )
+                                  axes      = c("corrMult","kappaMult"),
+                                  pars      = c("BnT","Umsy","q"),
+                                  nSp       = 2,
+                                  method    = "deviance",
+                                  compMean  = FALSE  )
 {
   # Load stat table
   tablePath <- file.path ( getwd(),"project/Statistics",table)
@@ -540,151 +517,112 @@ plotCorrCompContour <- function ( table     = "statTable.csv",
 
   table <- table  %>% filter( mp == mpLabel ) 
 
+  # Now make a pallette for the colours
+  colScale    <- brewer.pal( 9, "Greens" )
+  colBreaks   <- c(-100,seq(-2.8,-0.1,by=0.9),seq(0.1,2.8,by=0.9),100)
+
+
   # calculate response
   # Deviance is log2(ss/ms)
   if (method == "deviance" )
   {
     table <- table %>% mutate(  BnT     = log2(abs(ssBnT/msBnT)),
-                                Umsy    = log2(abs(ssUmsy/msUmsy)) )
+                                Umsy    = log2(abs(ssUmsy/msUmsy)),
+                                q       = log2(abs(ssq/msq)) )
   }   
   # Difference is just ss - ms
   if ( method == "difference")
   {
     table <- table %>% mutate(  BnT     = ssBnT - msBnT,
-                                Umsy    = ssUmsy - msUmsy )
+                                Umsy    = ssUmsy - msUmsy,
+                                q       = ssq - msq )
   }
 
   species   <- as.character(unique( table$species))
   nS <- length(species)
   specList  <- vector( mode="list", length=length(species))
 
+  # Pick out columns for axes
+  axesCols <- integer(length=2)
+  for ( i in 1:2)
+  {
+    axesCols[i] <- which(names(table) == axes[i])
+  }
+
+  x   <- unique(table[,axesCols[1]])
+  x   <- x[order(x)]
+  y   <- unique(table[,axesCols[2]])
+  y   <- y[order(y)]
+
   for (s in 1:nS)
   {
     spec <- species[s]
     specTab <- table %>% filter (species == spec )
-    x <- unique(specTab$corrMult)[order(unique(specTab$corrMult))]
-    y <- unique(specTab$kappaMult)[order(unique(specTab$kappaMult))]
-    z <- array( NA, dim=c(3,length(y),length(x)),
-                dimnames=list(c("BnT","Umsy","hessRatio"),paste("vM",y,sep=""),paste("cM",x,sep="")))
+    z <- array( NA, dim = c( length( y ), length( x ), length(pars) ),
+                dimnames=list(  y, x,
+                                pars ) )
 
     for (xIdx in 1:length(x))
     {
       for (yIdx in 1:length(y))
       {
-
         # Get x and y values
         xVal <- x[xIdx]
         yVal <- y[yIdx]
-        MSE <- specTab  %>% filter( corrMult == xVal,
-                                    kappaMult  == yVal ) %>%
-                            dplyr::mutate( hessRatio = signif(msHessPD/ssHessPD,4) ) %>%
-                            dplyr::select( BnT, Umsy, hessRatio)
-        z[,yIdx,xIdx] <- as.numeric(MSE)
+        # Get rows
+        xRows <- which ( specTab[,axesCols[1]] == xVal)
+        yRows <- which ( specTab[,axesCols[2]] == yVal)
+        rows <- intersect(xRows,yRows)
+        # Recover MSE comparison
+        z[yIdx,xIdx,] <- as.numeric(specTab[rows,pars])
       }
     } 
-    specList[[s]] <- list( x = x, y = y, z = z )
+    specList[[s]] <- brick( z, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
   }
   names(specList) <- species
 
-  # now create a complex performance table, where we take the 
-  # sum of the MSE over the whole complex for each scenario
-  compTab <- table %>% group_by(kappaMult,corrMult) %>%
-                       summarise( ssBnT = mean(ssBnT),
-                                  msBnT = mean(msBnT),
-                                  ssUmsy = mean(ssUmsy),
-                                  msUmsy = mean(msUmsy),
-                                  msHessPD = mean(msHessPD),
-                                  ssHessPD = mean(ssHessPD) )
-  if( method == "deviance")
-  {
-    compTab <-  compTab %>% mutate( BnT     = log2(ssBnT/msBnT),
-                                    Umsy    = log2(ssUmsy/msUmsy),
-                                    hessRatio = signif(msHessPD/ssHessPD,4) )
-  }  
-  if(method == "difference" )
-  {
-    compTab <-  compTab %>% mutate( BnT     = ssBnT - msBnT,
-                                    Umsy    = ssUmsy - msUmsy,
-                                    hessRatio = signif(msHessPD/ssHessPD,4) )
-  }                                
-                       
-  x <- unique(compTab$corrMult)[order(unique(compTab$corrMult))]
-  y <- unique(compTab$kappaMult)[order(unique(compTab$kappaMult))]
-  z <- array( NA, dim=c(3,length(y),length(x)),
-              dimnames=list(c("BnT","Umsy","hessRatio"),paste("kM",y,sep=""),paste("cM",x,sep="")))
+  # Start plotting
 
-  for (xIdx in 1:length(x))
-  {
-    for (yIdx in 1:length(y))
-    {
-
-      # Get x and y values
-      xVal <- x[xIdx]
-      yVal <- y[yIdx]
-      MSE <- compTab  %>% filter( corrMult == xVal,
-                                  kappaMult  == yVal ) %>%
-                          dplyr::select( BnT, Umsy, hessRatio)
-      z[,yIdx,xIdx] <- as.numeric(MSE[,c("BnT","Umsy","hessRatio")])
-    }
-  } 
-  compList <- list( x = x, y = y, z = z )  
-
-  par(mfrow = c(nS+1,2), mar = c(1.5,1.5,1.5,1.5), oma = c(5,5,5,5), las=1)
+  par(mfrow = c(nS+1,length(pars)), mar = c(1.5,1.5,1.5,1.5), oma = c(5,5,5,5), las=1)
   for (s in 1:nS)
   {
     # Create a raster from the stat table info 
-    bioRastObj <- list (  x = specList[[s]]$x,
-                          y = specList[[s]]$y,
-                          z = t(specList[[s]]$z[1,,]))
-    prodRastObj <- list ( x = specList[[s]]$x,
-                          y = specList[[s]]$y,
-                          z = t(specList[[s]]$z[2,,]))
-    hessRastObj <- list ( x = specList[[s]]$x,
-                          y = specList[[s]]$y,
-                          z = t(specList[[s]]$z[3,,]))
-    bioRast <- raster(bioRastObj)
-    prodRast <- raster(prodRastObj)
-    hessRast <- raster(hessRastObj)
+    plotBrick <- specList[[s]]
     # Make titles for the plots
-    bioTitle <- paste("BnT ", species[s], sep = "" )
-    prodTitle <- paste("Umsy ", species[s], sep = "" )
-
+    titles <- names(plotBrick)
+    # browser()
     # plot the rasters, without legends
-    plot( bioRast,main = bioTitle, legend = FALSE, 
-          breaks = colBreaks, col=colScale, asp=NA )
-      text( bioRast, digits = 2, halo = T )
-    plot(prodRast,main = prodTitle,  legend = FALSE, 
-          breaks = colBreaks, col=colScale, asp=NA)
-      text( prodRast, digits = 2, halo = T )
+    for ( k in 1:length(titles) )
+    {
+      if(s == 1) plot( plotBrick[[k]],main = titles[k], legend = FALSE, 
+                        breaks = colBreaks, col=colScale, asp=NA )
+      else plot( plotBrick[[k]],main = "", legend = FALSE, 
+                  breaks = colBreaks, col=colScale, asp=NA )
+      
+      text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
+    }
+  }
+  # Now create the complex plot brick
+  for(k in 1:length(titles))
+  {
+    # use leftover plotBrick in memory to compute complex
+    plotBrick[[k]] <- 0
+    for( s in 1:length(species) )
+    {
+      plotBrick[[k]] <- plotBrick[[k]] + specList[[s]][[k]]
+    }
+    if( compMean ) plotBrick[[k]] <- plotBrick[[k]]/length(species)
+  }
+  
+  for(k in 1:length(titles))
+  {
+    plot( plotBrick[[k]],main = "", legend = FALSE, 
+          asp=NA, ylab="Complex", col = colScale, breaks = colBreaks )
+    text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
   }
 
-  # Create a raster from the stat table info 
-  bioRastObj <- list (  x = compList$x,
-                        y = compList$y,
-                        z = t(compList$z[1,,]))
-  prodRastObj <- list ( x = compList$x,
-                        y = compList$y,
-                        z = t(compList$z[2,,]))
-  hessRastObj <- list ( x = compList$x,
-                        y = compList$y,
-                        z = t(compList$z[3,,]))
-  bioRast   <- raster( bioRastObj  )
-  prodRast  <- raster( prodRastObj )
-  hessRast  <- raster( hessRastObj )
-
-  # Make titles for the plots
-  bioTitle  <- "BnT complex"
-  prodTitle <- "Umsy complex"
-
-  # plot the rasters, without legends
-  plot( bioRast,main = bioTitle, legend = FALSE, 
-        breaks = colBreaks, col=colScale, asp = NA )
-    text( bioRast, digits = 2, halo = T )
-  plot(prodRast,main = prodTitle,  legend = FALSE, 
-        breaks = colBreaks, col=colScale, asp = NA)
-    text( prodRast, digits = 2, halo = T )
   # Plot the legends
-  plot( prodRast, legend.only=TRUE, col=colScale, fill=colScale,
+  plot( plotBrick[[1]], legend.only=TRUE, col=colScale, fill=colScale,
         legend.width=1, legend.shrink=0.75,
         axis.args = list( at = colBreaks,
                           labels = round(colBreaks,2),
