@@ -1161,4 +1161,10 @@ mp$mp1$assess$msCorr TRUE
 mp$mp1$assess$SigmaPriorCode 0
 mp$mp1$assess$wishType 1
 #
+# MP 2 : corrFALSE_SigPrior0
+#
+mp$mp2$ctrl$mpLabel 'corrFALSE_SigPriorIG'
+mp$mp2$assess$msCorr FALSE
+mp$mp2$assess$SigmaPriorCode 0
+#
 # File Ends <not run>.
