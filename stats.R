@@ -176,7 +176,7 @@
 
   # First, create a data.frame of NAs with a row for each of MRE,MARE
   colLabels <- c( "scenario","mp","species","kappaTrue",
-                  "SigmaTrue", "kappaMult", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
+                  "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssDep","msDep",
                   "ssq","msq", "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", "tUtrough", "tau2OM" )
@@ -292,12 +292,12 @@
   {
     statTable[s,"ssBnT"]    <- mean ( (ss$Bt[success,s,nT] - om$Bt[success,s,nT])^2, na.rm=TRUE)
     statTable[s,"msBnT"]    <- mean ( (ms$Bt[success,s,nT] - om$Bt[success,s,nT])^2, na.rm=TRUE)
-    statTable[s,"ssUmsy"]   <- mean ( (ss$Umsy[success,s] - pars$Umsy[s])^2, na.rm=TRUE)
-    statTable[s,"msUmsy"]   <- mean ( (ms$Umsy[success,s] - pars$Umsy[s])^2, na.rm=TRUE)
-    statTable[s,"ssBmsy"]   <- mean ( (ss$Bmsy[success,s] - pars$Bmsy[s])^2, na.rm=TRUE)
-    statTable[s,"msBmsy"]   <- mean ( (ms$Bmsy[success,s] - pars$Bmsy[s])^2, na.rm=TRUE)
-    statTable[s,"ssMSY"]    <- mean ( (ss$msy[success,s] -  pars$Umsy[s]*pars$Bmsy[s])^2, na.rm=TRUE)
-    statTable[s,"msMSY"]    <- mean ( (ms$msy[success,s] -  pars$Umsy[s]*pars$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"ssUmsy"]   <- mean ( (ss$Umsy[success,s] - opMod$Umsy[s])^2, na.rm=TRUE)
+    statTable[s,"msUmsy"]   <- mean ( (ms$Umsy[success,s] - opMod$Umsy[s])^2, na.rm=TRUE)
+    statTable[s,"ssBmsy"]   <- mean ( (ss$Bmsy[success,s] - opMod$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"msBmsy"]   <- mean ( (ms$Bmsy[success,s] - opMod$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"ssMSY"]    <- mean ( (ss$msy[success,s] -  opMod$Umsy[s]*opMod$Bmsy[s])^2, na.rm=TRUE)
+    statTable[s,"msMSY"]    <- mean ( (ms$msy[success,s] -  opMod$Umsy[s]*opMod$Bmsy[s])^2, na.rm=TRUE)
     statTable[s,"ssDep"]    <- mean ( (ss$dep[success,s,nT] -  om$dep[success,s,nT])^2, na.rm=TRUE)
     statTable[s,"msDep"]    <- mean ( (ms$dep[success,s,nT] -  om$dep[success,s,nT])^2, na.rm=TRUE)
     statTable[s,"ssq"]      <- mean ( (ss$q[success,s]   -  opMod$q[s])^2, na.rm=TRUE)

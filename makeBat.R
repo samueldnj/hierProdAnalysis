@@ -6,7 +6,7 @@
 # Function below also requires abbreviations of the 
 
 scenParList <- list ( "opMod$nS" = c(2,4,5),
-                      "opMod$corrOffDiag" = seq(0,0.8,by=0.2),
+                      "opMod$corrOffDiag" = seq(0,0.4,by=0.2),
                       "opMod$kappaMult" = seq(2,2.6,by=0.2),
                       "opMod$lastNegCorr" = c(T,F)
                 )
