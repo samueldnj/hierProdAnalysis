@@ -179,7 +179,7 @@
                   "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssDep","msDep",
                   "ssq","msq", "msHessPD", "ssHessPD","nReps",
-                  "Umax", "tUpeak", "tUtrough", "tau2OM" )
+                  "Umax", "tUpeak", "tUtrough", "tau2OM","nS","lastNegCorr" )
   
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
   

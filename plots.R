@@ -343,21 +343,32 @@ plotFhistCompContour <- function (  table     = "statTable.csv",
 # Plots the correlation  experiment MSE contours for
 # estimation of BnT and Umsy (abundance and productivity) by species
 # and for the complex.
-plotCorrModContour <- function (  table     = "2sRE.csv", 
-                                  mpLabel   = "bothEff",
-                                  axes      = c("corrMult","kappaMult"),
-                                  pars      = c("BnT","Umsy","q"),
-                                  nSp       = 2,
-                                  model     = "ss",
-                                  compMean  = FALSE )
+plotModContour <- function (  table     = "2sRE.csv", 
+                              mpLabel   = "bothEff",
+                              axes      = c("corr","kappaMult"),
+                              pars      = c("BnT","Umsy","q"),
+                              nSp       = 2,
+                              model     = "ss",
+                              compMean  = FALSE,
+                              tUtr        = 15,
+                              negCorr     = FALSE,
+                              tcex        = 1 )
 {
   # Load stat table
   tablePath <- file.path ( getwd(), "project/Statistics", table )
   table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
   # reduce to the correct MP
-  table <- table [ which(table$mp == mpLabel ), ]
   table <- table  %>% filter( mp == mpLabel )
-  if ("nS" %in% names(table)) table <- filter(table,nS == nSp )
+  # Filter by other 
+  if( "nS" %in% names(table) ) 
+    table <- table %>% 
+             filter( nS == nSp )
+  if( "tUtrough" %in% names(table) ) 
+    table <- table %>% 
+             filter( tUtrough == tUtr )
+  if( "lastNegCorr" %in% names(table) ) 
+    table <- table %>% 
+             filter( lastNegCorr == negCorr )
 
   species   <- as.character(unique( table$species))
   nS <- length(species)
@@ -381,7 +392,7 @@ plotCorrModContour <- function (  table     = "2sRE.csv",
     spec <- species[s]
     specTab <- table %>% filter (species == spec )
     z <- array( NA, dim=c(length(y),length(x),length(pars)+1),
-                dimnames=list(y,x,c(pars,"HessPD")))
+                dimnames=list(y[length(y):1],x,c(pars,"HessPD")))
 
     for (xIdx in 1:length(x))
     {
@@ -396,11 +407,13 @@ plotCorrModContour <- function (  table     = "2sRE.csv",
         rows <- intersect(xRows,yRows)
         if( length(rows) == 0 ) next
         colNames <- paste(model,c(pars,"HessPD"),sep="")
-        z[yIdx,xIdx,] <- as.numeric(specTab[rows,colNames])
+        z[length(y)-yIdx+1,xIdx,] <- as.numeric(specTab[rows,colNames])
       }
     } 
+    # browser()
     specList[[s]] <- brick( z, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
   }
+
   names(specList) <- species
 
   par(mfrow = c((nS+1),length(pars)+1),  mar = c(1.5,1.5,1.5,1.5), oma = c(5,5,5,5), las=1)
@@ -420,14 +433,20 @@ plotCorrModContour <- function (  table     = "2sRE.csv",
     
     for (i in 1:length(titles))
     {
+      if (i == length(titles))
+      {
+        colBreaks[[i]] <- seq (20,max(values(plotBrick[[i]])),length=9)
+        next
+      }
       lower60 <- quantile(abs(values(plotBrick[[i]])),probs=c(0,0.6))
       colBreaks[[i]] <- c ( min(values(plotBrick[[i]])), 
                             seq(lower60[1],lower60[2],length=8),
                             max(values(plotBrick[[i]])))
       colBreaks[[i]][1] <- 0.98*colBreaks[[i]][1]
       colBreaks[[i]][length(colBreaks[[i]])] <- 1.02*colBreaks[[i]][length(colBreaks[[i]])]
-    }
 
+    }
+    # browser()
     # plot the rasters, if first species plot main titles
     if ( s == 1 )
     {
@@ -435,7 +454,7 @@ plotCorrModContour <- function (  table     = "2sRE.csv",
       {
         plot( plotBrick[[k]],main = titles[k], legend = FALSE, 
               asp=NA, ylab=specName, col = colScale, breaks = colBreaks[[k]] )
-        text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 ) 
+        text( plotBrick[[k]], digits = 2, halo = T, cex = tcex ) 
       }
     }
     else {
@@ -444,7 +463,7 @@ plotCorrModContour <- function (  table     = "2sRE.csv",
       {
         plot( plotBrick[[k]],main = "", legend = FALSE, 
               asp=NA, ylab=specName, col = colScale, breaks = colBreaks[[k]] )
-        text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
+        text( plotBrick[[k]], digits = 2, halo = T, cex = tcex )  
       }
     }   
   }
@@ -483,7 +502,7 @@ plotCorrModContour <- function (  table     = "2sRE.csv",
   {
     plot( plotBrick[[k]],main = "", legend = FALSE, 
           asp=NA, ylab="Complex", col = colScale, breaks = colBreaks[[k]] )
-    text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
+    text( plotBrick[[k]], digits = 2, halo = T, cex = tcex )  
   }
 
   grid.text(  "Species Effect Correlation", 
@@ -507,11 +526,9 @@ plotCorrModContour <- function (  table     = "2sRE.csv",
 #         nSp=integer number of species in scenario
 #         method="deviance" for log2(SS/MS), difference for SS-MS
 #         compMean=compute the mean for the complex?
-## NOTE: complex plotbrick is not computed in the right way, will
-#         require some modification.
 #         tUtr=integer value for tUtrough in Fhist scenarios
 #         negCorr=logical value of simCtl par lastNegCorr in corr scenarios
-#         
+#         tcex=cex of text in taster cells
 plotCompContour <- function ( table       = "2sRE.csv", 
                               mpLabel     = "bothEff",
                               axes        = c("corr","kappaMult"),
@@ -520,7 +537,8 @@ plotCompContour <- function ( table       = "2sRE.csv",
                               method      = "deviance",
                               compMean    = FALSE,
                               tUtr        = 15,
-                              negCorr     = FALSE
+                              negCorr     = FALSE,
+                              tcex        = 1
                               )
 {
   # Load stat table
@@ -540,7 +558,7 @@ plotCompContour <- function ( table       = "2sRE.csv",
     table <- table %>% 
              filter( lastNegCorr == negCorr )
 
-
+  # browser()
   # Now make a pallette for the colours
   colScale    <- brewer.pal( 9, "Greens" )
   colBreaks   <- c(-100,seq(-2.8,-0.1,by=0.9),seq(0.1,2.8,by=0.9),100)
@@ -557,9 +575,9 @@ plotCompContour <- function ( table       = "2sRE.csv",
   # Difference is just ss - ms
   if ( method == "difference")
   {
-    table <- table %>% mutate(  BnT     = ssBnT - msBnT,
-                                Umsy    = ssUmsy - msUmsy,
-                                q       = ssq - msq )
+    table <- table %>% mutate(  BnT     = abs(ssBnT) - abs(msBnT),
+                                Umsy    = abs(ssUmsy) - abs(msUmsy),
+                                q       = abs(ssq) - abs(msq) )
   }
 
   species   <- as.character(unique( table$species))
@@ -577,13 +595,13 @@ plotCompContour <- function ( table       = "2sRE.csv",
   x   <- x[order(x)]
   y   <- unique(table[,axesCols[2]])
   y   <- y[order(y)]
-
+  browser()
   for (s in 1:nS)
   {
     spec <- species[s]
     specTab <- table %>% filter (species == spec )
     z <- array( NA, dim = c( length( y ), length( x ), length(pars) ),
-                dimnames=list(  y, x,
+                dimnames=list(  y[ length( y ):1 ], x,
                                 pars ) )
 
     for (xIdx in 1:length(x))
@@ -598,7 +616,7 @@ plotCompContour <- function ( table       = "2sRE.csv",
         yRows <- which ( specTab[,axesCols[2]] == yVal)
         rows <- intersect(xRows,yRows)
         # Recover MSE comparison
-        z[yIdx,xIdx,] <- as.numeric(specTab[rows,pars])
+        z[ length( y ) - yIdx + 1, xIdx, ] <- as.numeric(specTab[rows,pars])
       }
     } 
     specList[[s]] <- brick( z, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
@@ -623,28 +641,93 @@ plotCompContour <- function ( table       = "2sRE.csv",
       else plot( plotBrick[[k]],main = "", legend = FALSE, 
                   breaks = colBreaks, col=colScale, asp=NA )
       
-      text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
+      text( plotBrick[[k]], digits = 2, halo = T, cex = tcex )  
     }
   }
+
+  # browser()
   # Now create the complex plot brick - idea: group by scenario
   # and MP, there should be a unique set of species for each, then
   # apply the complex rule
-  for(k in 1:length(titles))
+  compTable <- table %>%  group_by( scenario, mp ) %>%
+                          summarise(  ssBnT = sum( ssBnT ),
+                                      msBnT = sum( msBnT ),
+                                      ssUmsy = sum( ssUmsy ),
+                                      msUmsy = sum( msUmsy ),
+                                      ssq = sum( ssq ),
+                                      msq = sum( msq ),
+                                      ssHessPD = sum( ssHessPD ),
+                                      msHessPD = sum( msHessPD ),
+                                      # ssMSY = sum( ssMSY ),
+                                      # msMSY = sum( msMSY ),
+                                      ssDep = sum( ssDep ),
+                                      msDep = sum( msDep ),
+                                      corr = mean(corr),
+                                      kappaMult = mean(kappaMult))
+
+  # Now make the comparison based on the compMean logical flag
+  if( method == "deviance" )
   {
-    # use leftover plotBrick in memory to compute complex brick
-    plotBrick[[k]] <- 0
-    for( s in 1:length(species) )
-    {
-      plotBrick[[k]] <- plotBrick[[k]] + specList[[s]][[k]]
-    }
-    if( compMean ) plotBrick[[k]] <- plotBrick[[k]]/length(species)
+    compTable <-  compTable %>% 
+                  mutate( BnT = log2( ssBnT / msBnT ),
+                          Umsy = log2( ssUmsy / msUmsy ),
+                          q = log2( ssq / msq ),
+                          # MSY = log2( ssMSY / msMSY ),
+                          Dep = log2 ( ssDep / msDep ) 
+                        )
   }
-  
+
+  if( method == "difference" )
+  {
+    compTable <-  compTable %>% 
+                  mutate( BnT = abs(ssBnT) - abs(msBnT) ,
+                          Umsy = abs(ssUmsy) - abs(msUmsy) ,
+                          q = abs(ssq) - abs(msq) ,
+                          # MSY = abs(ssMSY) - abs(msMSY) ,
+                          Dep = abs(ssDep) - abs(msDep) 
+                        )
+    if( compMean )
+      compTable <-  compTable %>% 
+                    mutate( BnT = BnT/nS,
+                            Umsy = Umsy/nS,
+                            q = q/nS,
+                            # MSY = MSY/nS,
+                            Dep = Dep/nS )
+  }
+
+  axesCols <- integer(length=2)
+  for ( i in 1:2)
+  {
+    axesCols[i] <- which(names(compTable) == axes[i])
+  }
+
+  # Make a raster brick with the selected pars
+  z <- array( NA, dim = c( length( y ), length( x ), length(pars) ),
+              dimnames=list(  y[ length(y):1], x,
+                              pars ) )
+  # browser()
+  for (xIdx in 1:length(x))
+  {
+    for (yIdx in 1:length(y))
+    {
+      # Get x and y values
+      xVal <- x[xIdx]
+      yVal <- y[yIdx]
+      # Get rows
+      xRows <- which ( compTable[,axesCols[1]] == xVal)
+      yRows <- which ( compTable[,axesCols[2]] == yVal)
+      rows <- intersect(xRows,yRows)
+      # Recover MSE comparison
+      z[length(y) - yIdx + 1,xIdx,] <- as.numeric(compTable[rows,pars])
+    }
+  } 
+  compBrick <- brick( z, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
+
   for(k in 1:length(titles))
   {
-    plot( plotBrick[[k]],main = "", legend = FALSE, 
+    plot( compBrick[[k]],main = "", legend = FALSE, 
           asp=NA, ylab="Complex", col = colScale, breaks = colBreaks )
-    text( plotBrick[[k]], digits = 2, halo = T, cex = 0.5 )  
+    text( compBrick[[k]], digits = 2, halo = T, cex = tcex )  
   }
 
   # Plot the legends
