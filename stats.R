@@ -119,12 +119,14 @@
   statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
   statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
   statTable$kappaMult   <- kappaMult
-  statTable$corrMult    <- opMod$corrMult
+  statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
   statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
   statTable$tau2OM      <- opMod$tau2
+  statTable$lastNegCorr <- opMod$lastNegCorr
+  statTable$nS          <- opMod$nS
 
   # Now errors
   for (s in 1:nS)
@@ -196,12 +198,14 @@
   statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
   statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
   statTable$kappaMult   <- kappaMult
-  statTable$corrMult    <- opMod$corrMult
+  statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
   statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
   statTable$tau2OM      <- opMod$tau2
+  statTable$lastNegCorr <- opMod$lastNegCorr
+  statTable$nS          <- opMod$nS
 
   # Now errors
   for (s in 1:nS)
@@ -273,12 +277,14 @@
   statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
   statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
   statTable$kappaMult   <- kappaMult
-  statTable$corrMult    <- opMod$corrMult
+  statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
   statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
   statTable$tau2OM      <- opMod$tau2
+  statTable$lastNegCorr <- opMod$lastNegCorr
+  statTable$nS          <- opMod$nS
 
   # Now errors
   for (s in 1:nS)
