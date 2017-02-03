@@ -61,7 +61,7 @@
 .statTableMARE <- function (sims=1,tabName = "statTable.csv")
 { 
   # call function
-  tableList <- lapply ( X = sims, FUN = .simStatMRE )
+  tableList <- lapply ( X = sims, FUN = .simStatMARE )
 
   # now make the table and return
   statTable <-  do.call("rbind",tableList)
