@@ -89,7 +89,7 @@
   # Control info
   nS      <- blob$opMod$nS
   nT      <- blob$opMod$nT
-  species <- blob$ctrl$speciesName
+  species <- blob$ctrl$speciesName[1:nS]
   nReps   <- blob$ctrl$nReps
 
   # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
@@ -116,15 +116,15 @@
   statTable$scenario    <- blob$ctrl$scenarioName
   statTable$mp          <- blob$ctrl$mpLabel
   statTable$species     <- species
-  statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
-  statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
+  statTable$kappaTrue   <- sqrt(opMod$kappa2)*kappaMult
+  statTable$SigmaTrue   <- sqrt(opMod$SigmaDiag[1:nS])
   statTable$kappaMult   <- kappaMult
   statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
   statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
-  statTable$tau2OM      <- opMod$tau2
+  statTable$tau2OM      <- opMod$tau2[1:nS]
   statTable$lastNegCorr <- opMod$lastNegCorr
   statTable$nS          <- opMod$nS
 
@@ -168,7 +168,7 @@
   # Control info
   nS      <- blob$opMod$nS
   nT      <- blob$opMod$nT
-  species <- blob$ctrl$speciesName
+  species <- blob$ctrl$speciesName[1:nS]
   nReps   <- blob$ctrl$nReps
 
   # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
@@ -183,6 +183,7 @@
   
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
   
+
   colnames(statTable)   <- colLabels
   statTable             <- as.data.frame(statTable)
 
@@ -195,15 +196,15 @@
   statTable$scenario    <- blob$ctrl$scenarioName
   statTable$mp          <- blob$ctrl$mpLabel
   statTable$species     <- species
-  statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
-  statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
+  statTable$kappaTrue   <- sqrt(opMod$kappa2)*kappaMult
+  statTable$SigmaTrue   <- sqrt(opMod$SigmaDiag[1:nS])
   statTable$kappaMult   <- kappaMult
   statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
   statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
-  statTable$tau2OM      <- opMod$tau2
+  statTable$tau2OM      <- opMod$tau2[1:nS]
   statTable$lastNegCorr <- opMod$lastNegCorr
   statTable$nS          <- opMod$nS
 
@@ -247,7 +248,7 @@
   # Control info
   nS      <- blob$opMod$nS
   nT      <- blob$opMod$nT
-  species <- blob$ctrl$speciesName
+  species <- blob$ctrl$speciesName[1:nS]
   nReps   <- blob$ctrl$nReps
 
   # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
@@ -274,15 +275,15 @@
   statTable$scenario    <- blob$ctrl$scenarioName
   statTable$mp          <- blob$ctrl$mpLabel
   statTable$species     <- species
-  statTable$kappaTrue   <- sqrt(opMod$pars$kappa2)*kappaMult
-  statTable$SigmaTrue   <- sqrt(opMod$pars$Sigma2)
+  statTable$kappaTrue   <- sqrt(opMod$kappa2)*kappaMult
+  statTable$SigmaTrue   <- sqrt(opMod$SigmaDiag[1:nS])
   statTable$kappaMult   <- kappaMult
   statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
   statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
-  statTable$tau2OM      <- opMod$tau2
+  statTable$tau2OM      <- opMod$tau2[1:nS]
   statTable$lastNegCorr <- opMod$lastNegCorr
   statTable$nS          <- opMod$nS
 
