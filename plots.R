@@ -9,7 +9,7 @@
 #
 # --------------------------------------------------------------------------
 
-plotRasters <- function ( tableName = "2sRE",
+plotRasters <- function ( tableName = "RE_loM_negCorr_MSE",
                           axes = c("corr","kappaMult"),
                           pars = c("BnT","Umsy","q"),
                           wdh = 21, hgt = 12, ... )
