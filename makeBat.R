@@ -5,13 +5,34 @@
 # of parameters and different values at which to test them.
 # Function below also requires abbreviations of the 
 
-scenParList <- list ( "opMod$nS" = c(2,4,5),
-                      "opMod$corrOffDiag" = seq(0,0.8,by=0.4),
-                      "opMod$kappaMult" = seq(0,1.5,by=0.5),
-                      "opMod$lastNegCorr" = c(T,F)
+scenParList <- list ( "opMod$nS" = c(2,3),
+                      # "opMod$corrOffDiag" = seq(0,0.8,by=0.4),
+                      # "opMod$kappaMult" = seq(0,1.5,by=0.5),
+                      # "opMod$lastNegCorr" = c(T,F),
+                      "opMod$tau2" = c("c(0.009,0.009,0.009,0.009,0.009)",
+                                       "c(0.039,0.009,0.009,0.009,0.009)",
+                                       "c(0.086,0.009,0.009,0.009,0.009)",
+                                       "c(0.148,0.009,0.009,0.009,0.009)",
+                                       "c(0.223,0.009,0.009,0.009,0.009)",
+                                       "c(0.307,0.009,0.009,0.009,0.009)",
+                                       "c(0.039,0.039,0.009,0.009,0.009)",
+                                       "c(0.086,0.039,0.009,0.009,0.009)",
+                                       "c(0.148,0.039,0.009,0.009,0.009)",
+                                       "c(0.223,0.039,0.009,0.009,0.009)",
+                                       "c(0.307,0.039,0.009,0.009,0.009)",
+                                       "c(0.086,0.086,0.009,0.009,0.009)",
+                                       "c(0.148,0.086,0.009,0.009,0.009)",
+                                       "c(0.223,0.086,0.009,0.009,0.009)",
+                                       "c(0.307,0.086,0.009,0.009,0.009)",
+                                       "c(0.148,0.148,0.009,0.009,0.009)",
+                                       "c(0.223,0.148,0.009,0.009,0.009)",
+                                       "c(0.307,0.148,0.009,0.009,0.009)",
+                                       "c(0.223,0.223,0.009,0.009,0.009)",
+                                       "c(0.307,0.223,0.009,0.009,0.009)",
+                                       "c(0.307,0.307,0.009,0.009,0.009)")
                 )
 
-scenLabels <- c( "nS", "c", "m", "-c" )
+scenLabels <- c( "nS", "CV" )
 
 
 # Function to create batch files from the lists above
@@ -33,7 +54,7 @@ scenarioCreate <- function ( parList, outFile, label )
       cat ( "scenario$scenario", j, "$ctrl$scenarioName '", lab, "'\n", sep = "", append = TRUE, 
             file = outFile )
       for ( k in 1:ncol ( exp ) )
-        cat ( "scenario$scenario", j, "$", names(exp)[k], " ", exp[j,k], "\n", sep ="",
+        cat ( "scenario$scenario", j, "$", names(exp)[k], " ", as.character(exp[j,k]), "\n", sep ="",
               file = outFile, append = TRUE )
       cat ( "#\n", file = outFile, append = TRUE )
   }

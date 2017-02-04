@@ -77,6 +77,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   msCorr <- matrix (obj$opMod$corrOffDiag, nrow = nS, ncol = nS)
   if( obj$opMod$lastNegCorr )
   {
+    browser()
     msCorr[nS,] <- -1. * obj$opMod$corrOffDiag
     msCorr[,nS] <- -1. * obj$opMod$corrOffDiag
   } 
@@ -793,7 +794,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     Bt[t] <- Bt[t]*epst[t]*zetat[t] # Process error
     ## THIS IS BOGUS ##
     Bt[t] <- max(Bt[t], Ut[t]*Bt[t] + 1)
-}  # End loop for biomass
+  }  # End loop for biomass
   # Generate catch for nT
   Ct[nT] <- Ut[nT] * Bt[nT]
 

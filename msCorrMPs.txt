@@ -10,23 +10,23 @@ mp$mp2$ctrl$mpLabel 'corrFALSE_SigPriorIG'
 mp$mp2$assess$msCorr FALSE
 mp$mp2$assess$SigmaPriorCode 0
 #
-# MP 3 : corrTRUE_SigPrior1_wishTypediag_
+# MP 3 : corrTRUE_SigPriorIWdiag
 #
-mp$mp3$ctrl$mpLabel 'corrTRUE_SigPrior1_wishTypediag'
+mp$mp3$ctrl$mpLabel 'corrTRUE_SigPriorIWdiag'
 mp$mp3$assess$msCorr TRUE
 mp$mp3$assess$SigmaPriorCode 1
 mp$mp3$assess$wishType "diag"
 #
-# MP 4 : corrFALSE_SigPrior1_wishTypediag_
+# MP 4 : corrFALSE_SigPriorIWdiag
 #
-mp$mp4$ctrl$mpLabel 'corrFALSE_SigPrior1_wishTypediag'
+mp$mp4$ctrl$mpLabel 'corrFALSE_SigPriorIWdiag'
 mp$mp4$assess$msCorr FALSE
 mp$mp4$assess$SigmaPriorCode 1
 mp$mp4$assess$wishType "diag"
 #
-# MP 5 : corrTRUE_SigPrior1_wishTypecorr_
+# MP 5 : corrTRUE_SigPriorIWcorr
 #
-mp$mp5$ctrl$mpLabel 'corrTRUE_SigPrior1_wishTypecorr'
+mp$mp5$ctrl$mpLabel 'corrTRUE_SigPriorIWcorr'
 mp$mp5$assess$msCorr TRUE
 mp$mp5$assess$SigmaPriorCode 1
 mp$mp5$assess$wishType "corr"

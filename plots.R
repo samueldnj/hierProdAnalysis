@@ -9,353 +9,103 @@
 #
 # --------------------------------------------------------------------------
 
-# plotFhistMSEContour()
-# Plots the correlation  experiment MSE contours for
-# estimation of BnT and Umsy (abundance and productivity) by species
-# and for the complex.
-plotFhistMSEContour <- function ( table     = "statTable.csv", 
-                                  mpLabel   = "bothEff",
-                                  model     = "ss",
-                                  tUtr      = 15 )
+plotRasters <- function ( tableName = "2sRE",
+                          axes = c("corr","kappaMult"),
+                          pars = c("BnT","Umsy","q"),
+                          wdh = 21, hgt = 12, ... )
 {
-  # Load stat table
-  tablePath <- file.path ( getwd(), "project/Statistics", table )
+  # Load table
+  fileName <- paste( tableName, ".csv", sep = "" )
+  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
   table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
-  # reduce to the correct MP
-  table <- table  %>% filter( mp == mpLabel, tUtrough == tUtr )
 
-  # # Now make a pallette for the colours
-  # colScaleHi  <- brewer.pal( 5, "Greens" )
-  # colScaleLo  <- brewer.pal( 5, "Reds" )
-  # colScale    <- c( colScaleLo[ 5:1 ],"white", colScaleHi[ 1:5 ] )
-  # colBreaks   <- seq( -3.2, 3.2, length = 12 )
-
-  species   <- as.character(unique( table$species))
-  nS <- length(species)
-  specList  <- vector( mode="list", length=length(species))
-
-  for (s in 1:nS)
+  tabFolder <- file.path(getwd(),"project","figs",tableName )
+  dir.create(tabFolder)
+  # Now get the list of MPs
+  MPs <- unique( table$mp )
+  # Loop over MPs, and plot one set of raster fields for
+  # each of the other levels
+  for (mp in MPs)
   {
-    spec <- species[s]
-    specTab <- table %>% filter (species == spec )
-    x   <- unique(specTab$tUpeak)[order(unique(specTab$tUpeak))]
-    y   <- unique(specTab$Umax)[order(unique(specTab$Umax))]
-    ssz <- array( NA, dim=c(length(x),length(y),4),
-                dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
-    msz <- array( NA, dim=c(length(x),length(y),4),
-                dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
-
-    for (xIdx in 1:length(x))
+    mpFolder  <- file.path(tabFolder,mp)
+    dir.create(mpFolder)
+    mpTab     <- table %>% filter( mp == mp )
+    nCorr     <- unique(mpTab$lastNegCorr)
+    tUtrough  <- unique(mpTab$tUtrough)
+    nS        <- unique(mpTab$nS)
+    levels    <- list (nCorr = nCorr, tUtrough = tUtrough, nS = nS )
+    grid      <- expand.grid(levels)
+    for( g in 1:nrow(grid) )
     {
-      for (yIdx in 1:length(y))
-      {
-
-        # Get x and y values
-        xVal <- x[xIdx]
-        yVal <- y[yIdx]
-        ssMSE <- specTab  %>% filter( tUpeak == xVal,
-                                    Umax  == yVal ) %>%
-                              dplyr::select( ssBnT, ssUmsy, ssq, ssHessPD)
-        ssz[xIdx,yIdx,] <- as.numeric(ssMSE)
-        msMSE <- specTab  %>% filter( tUpeak == xVal,
-                                    Umax  == yVal ) %>%
-                              dplyr::select( msBnT, msUmsy, msq, msHessPD)
-        msz[xIdx,yIdx,] <- as.numeric(msMSE)        
-      }
-    } 
-    specList[[s]] <- list( x = x, y = y, ssz = ssz, msz = msz )
+      # Set up output file
+      outFile <- paste( grid[g,]$nS, 
+                        "S_tUtr", grid[g,]$tUtrough,
+                        "_nCorr", grid[g,]$nCorr,
+                        ".pdf", sep = "")
+      outFile <- file.path(mpFolder,outFile)
+      pdf ( file = outFile, width = wdh, height = hgt )
+      plotCompContour(  tableName = fileName,
+                        mpLabel = mp,
+                        axes = axes,
+                        pars = pars,
+                        nSp = grid[g,"nS"],
+                        tUtr = grid[g,"tUtrough"],
+                        negCorr = grid[g,"nCorr"],
+                        ...)
+      dev.off()
+      outFile <- paste( grid[g,]$nS, 
+                        "S_tUtr", grid[g,]$tUtrough,
+                        "_nCorr", grid[g,]$nCorr,
+                        "_MS.pdf", sep = "")
+      outFile <- file.path(mpFolder,outFile)
+      pdf ( file = outFile, width = wdh, height = hgt )
+      plotModContour(  tableName = fileName,
+                        mpLabel = mp,
+                        axes = axes,
+                        pars = pars,
+                        nSp = grid[g,"nS"],
+                        tUtr = grid[g,"tUtrough"],
+                        negCorr = grid[g,"nCorr"],
+                        model = "ms")
+      dev.off()
+      outFile <- paste( grid[g,]$nS, 
+                        "S_tUtr", grid[g,]$tUtrough,
+                        "_nCorr", grid[g,]$nCorr,
+                        "_SS.pdf", sep = "")
+      outFile <- file.path( mpFolder, outFile )
+      pdf ( file = outFile, width = wdh, height = hgt )
+      plotModContour(  tableName = fileName,
+                        mpLabel = mp,
+                        axes = axes,
+                        pars = pars,
+                        nSp = grid[g,"nS"],
+                        tUtr = grid[g,"tUtrough"],
+                        negCorr = grid[g,"nCorr"],
+                        model = "ss")
+      dev.off()
+    }
   }
-  names(specList) <- species
-
-  # now create a complex performance table, where we take the 
-  # sum of the MSE over the whole complex for each scenario
-  compTab <- table %>% group_by(Umax,tUpeak) %>%
-                       summarise( ssBnT = sum(ssBnT),
-                                  msBnT = sum(msBnT),
-                                  ssUmsy = sum(ssUmsy),
-                                  msUmsy = sum(msUmsy),
-                                  ssq = sum(ssq),
-                                  msq = sum(msq),
-                                  msHessPD = mean(msHessPD),
-                                  ssHessPD = mean(ssHessPD) )
-  x   <- unique(specTab$tUpeak)[order(unique(specTab$tUpeak))]
-  y   <- unique(specTab$Umax)[order(unique(specTab$Umax))]
-  ssz <- array( NA, dim=c(length(x),length(y),4),
-              dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
-  msz <- array( NA, dim=c(length(x),length(y),4),
-              dimnames=list(x,y,c("BnT","Umsy","q","hessPD")))
-  for (xIdx in 1:length(x))
-  {
-    for (yIdx in 1:length(y))
-    {
-
-      # Get x and y values
-      xVal <- x[xIdx]
-      yVal <- y[yIdx]
-      ssMSE <- compTab  %>% filter( tUpeak == xVal,
-                                    Umax  == yVal ) %>%
-                            dplyr::select( ssBnT, ssUmsy, ssq, ssHessPD)
-      ssz[xIdx,yIdx,] <- as.numeric(ssMSE[c("ssBnT","ssUmsy","ssq","ssHessPD")])
-      msMSE <- compTab  %>% filter( tUpeak == xVal,
-                                  Umax  == yVal ) %>%
-                            dplyr::select( msBnT, msUmsy, msq, msHessPD)
-      msz[xIdx,yIdx,] <- as.numeric(msMSE[c("msBnT","msUmsy","msq","msHessPD")])        
-    }
-  } 
-  compList <- list( x = x, y = y, ssz = ssz, msz=msz )  
-
-  par(mfrow = c((nS+1),3), mar = c(1.5,1.5,1.5,1.5), oma = c(4,4,4,4))
-  for (s in 1:nS)
-  {
-    # Create a raster from the stat table info
-    if( model == "ss" ) 
-      plotBrick <- brick( specList[[s]]$ssz, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
-    if( model == "ms" ) 
-      plotBrick <- brick( specList[[s]]$msz,xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) ) 
-    # Make titles for the plots
-    specName <- species[s]
-
-    bioTitle  <- "BnT"
-    prodTitle <- "Umsy"
-    qTitle    <- "q"
-    
-    # plot the rasters, if first species plot main titles
-    if ( s == 1 )
-    {
-      plot( plotBrick$BnT,main = bioTitle, legend = TRUE, 
-            asp=NA, ylab=specName )
-        text( plotBrick$hessPD/200, digits = 2 )
-      plot( plotBrick$Umsy, main = prodTitle,  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )  
-      plot( plotBrick$q, main = qTitle,  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )  
-    }
-    else {
-      plot( plotBrick$BnT,main = "", legend = TRUE, ylab = specName,
-            asp=NA )
-        text( plotBrick$hessPD/200, digits = 2 )
-      plot( plotBrick$Umsy, main = "",  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )  
-      plot( plotBrick$q, main = "",  legend = TRUE, 
-            asp=NA)
-        text( plotBrick$hessPD/200, digits = 2 )
-    }
-    
-  }
-
-  # Create a raster from the stat table info
-  if( model == "ss" ) 
-    plotBrick <- brick( compList$ssz, xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) )
-  if( model == "ms" ) 
-    plotBrick <- brick( compList$msz,xmn = min(x), xmx = max(x), ymn = min(y), ymx=max(y) ) 
-  # Make titles for the plots
-  specName <- species[s]
-
-
-  # plot the rasters, without legends
-  plot( plotBrick$BnT,main = "", legend = TRUE, 
-            asp=NA, ylab="Complex" )
-    text( plotBrick$hessPD/200, digits = 2 )
-  plot( plotBrick$Umsy, main = "",  legend = TRUE, 
-        asp=NA)
-    text( plotBrick$hessPD/200, digits = 2 )  
-  plot( plotBrick$q, main = "",  legend = TRUE, 
-        asp=NA)
-    text( plotBrick$hessPD/200, digits = 2 )  
-
-  grid.text(  "Time at max U", 
-              x=unit(0.5, "npc"), y=unit(0.02, "npc"), rot=0)
-  grid.text(  "Max multiple of Umsy", 
-              x=unit(0.02, "npc"), y=unit(0.5, "npc"), rot=90)
-  grid.text(  paste("Raw MSE of ", model, " model.", sep = ""), 
-              x=unit(0.5, "npc"), y=unit(0.98, "npc"), rot=0)
+  # No return
 }
 
-
-# plotFhistCompContour()
-# Plots the fishing history experiment comparative performance contours for
-# estimation of BnT and Umsy (abundance and productivity) by species
-# and for the complex. The plots are panel plots of raster grids,
-# to fill the space they have asp=NA
-# inputs:   table = character name of csv file containing Fhist experiments
-#           
-plotFhistCompContour <- function (  table     = "statTable.csv", 
-                                    mpLabel   = "bothEff",
-                                    tUtr      = 15 )
-{
-  # Load stat table
-  tablePath <- file.path ( getwd(),"project/Statistics",table)
-  table <- read.csv (tablePath, header=TRUE, stringsAsFactors=FALSE)
-  # reduce to the correct MP
-  table <- table [ which(table$mp == mpLabel ),]
-
-  table <- table  %>% filter( mp == mpLabel & tUtrough == tUtr ) %>%
-                      mutate( BnT     = log2(ssBnT/msBnT),
-                              Umsy    = log2(ssUmsy/msUmsy) )
-
-  # Now make a pallette for the colours
-  colScale    <- brewer.pal( 9, "Greens" )
-  colBreaks   <- c(-100,seq(-2.8,-0.1,by=0.9),seq(0.1,2.8,by=0.9),100)
-
-  species   <- as.character(unique( table$species))
-  nS <- length(species)
-  specList  <- vector( mode="list", length=length(species))
-
-  for (s in 1:nS)
-  {
-    spec <- species[s]
-    specTab <- table %>% filter( species == spec )
-    x <- unique(specTab$tUpeak)[order(unique(specTab$tUpeak))]
-    y <- unique(specTab$Umax)[order(unique(specTab$Umax))]
-    z <- array( NA, dim=c(3,length(y),length(x)),
-                dimnames=list(c("BnT","Umsy","pdRatio"),paste("Umx",y,sep=""),paste("tUp",x,sep="")))
-
-    for (xIdx in 1:length(x))
-    {
-      for (yIdx in 1:length(y))
-      {
-        # Get x and y values
-        xVal <- x[xIdx]
-        yVal <- y[yIdx]
-        MSE <- specTab  %>% filter( tUpeak == xVal,
-                                    Umax  == yVal ) %>%
-                            dplyr::mutate( hessRatio = signif(msHessPD/ssHessPD,4) ) %>%
-                            dplyr::select( BnT, Umsy, hessRatio)
-
-        z[,yIdx,xIdx] <- as.numeric(MSE)
-
-      }
-    } 
-    specList[[s]] <- list( x = x, y = y, z = z )
-  }
-  names(specList) <- species
-
-  # now create a complex performance table, where we take the 
-  # sum of the MSE over the whole complex for each scenario
-  compTab <- table %>% group_by(Umax,tUpeak) %>%
-                       summarise( ssBnT = sum(ssBnT),
-                                  msBnT = sum(msBnT),
-                                  ssUmsy = sum(ssUmsy),
-                                  msUmsy = sum(msUmsy),
-                                  msHessPD = mean(msHessPD),
-                                  ssHessPD = mean(ssHessPD) ) %>%
-                       mutate(  BnT     = log2(ssBnT/msBnT),
-                                Umsy    = log2(ssUmsy/msUmsy),
-                                hessRatio = signif(msHessPD/ssHessPD,4) )
-  x <- unique(compTab$tUpeak)[order(unique(compTab$tUpeak))]
-  y <- unique(compTab$Umax)[order(unique(compTab$Umax))]
-  z <- array( NA, dim=c(3,length(y),length(x)),
-              dimnames=list(c("BnT","Umsy","hessRatio"),paste("Umx",y,sep=""),paste("tUp",x,sep="")))
-
-  for (xIdx in 1:length(x))
-  {
-    for (yIdx in 1:length(y))
-    {
-
-      # Get x and y values
-      xVal <- x[xIdx]
-      yVal <- y[yIdx]
-      MSE <- compTab  %>% filter( tUpeak == xVal,
-                                  Umax  == yVal ) %>%
-                          dplyr::select( BnT, Umsy, hessRatio)
-      z[,yIdx,xIdx] <- as.numeric(MSE[,c("BnT","Umsy","hessRatio")])
-    }
-  } 
-  compList <- list( x = x, y = y, z = z )  
-
-  par(mfrow = c(nS+1,2), mar = c(1.5,1.5,1.5,1.5), oma = c(5,5,5,5))
-  for (s in 1:nS)
-  {
-    # Create a raster from the stat table info 
-    bioRastObj <- list (  x = specList[[s]]$x,
-                          y = specList[[s]]$y,
-                          z = t(specList[[s]]$z[1,,]))
-    prodRastObj <- list ( x = specList[[s]]$x,
-                          y = specList[[s]]$y,
-                          z = t(specList[[s]]$z[2,,]))
-    hessRastObj <- list ( x = specList[[s]]$x,
-                          y = specList[[s]]$y,
-                          z = t(specList[[s]]$z[3,,]))
-    bioRast <- raster(bioRastObj)
-    prodRast <- raster(prodRastObj)
-    hessRast <- raster(hessRastObj)
-
-    # Make titles for the plots
-    bioTitle <- paste("BnT ", species[s], sep = "" )
-    prodTitle <- paste("Umsy ", species[s], sep = "" )
-
-    # plot the rasters, without legends
-    plot( bioRast,main = bioTitle, legend = FALSE, 
-          breaks = colBreaks, col=colScale, asp=NA )
-      text(hessRast, halo = TRUE)
-    plot(prodRast,main = prodTitle,  legend = FALSE, 
-          breaks = colBreaks, col=colScale, asp=NA)
-      text(hessRast, halo = TRUE)
-  }
-
-  # Create a raster from the stat table info 
-  bioRastObj <- list (  x = compList$x,
-                        y = compList$y,
-                        z = t(compList$z[1,,]))
-  prodRastObj <- list ( x = compList$x,
-                        y = compList$y,
-                        z = t(compList$z[2,,]))
-  hessRastObj <- list ( x = compList$x,
-                        y = compList$y,
-                        z = t(compList$z[3,,]))
-  bioRast <- raster(bioRastObj)
-  prodRast <- raster(prodRastObj)
-
-  # Make titles for the plots
-  bioTitle <- "BnT complex"
-  prodTitle <- "Umsy complex"
-
-  # plot the rasters, without legends
-  plot( bioRast,main = bioTitle, legend = FALSE, 
-        breaks = colBreaks, col=colScale, asp = NA )
-    text( hessRast, digits = 2 )
-  plot(prodRast,main = prodTitle,  legend = FALSE, 
-        breaks = colBreaks, col=colScale, asp = NA)
-    text( hessRast, digits = 2 )
-  # Plot the legends
-  plot( prodRast, legend.only=TRUE, col=colScale, fill=colScale,
-        legend.width=1, legend.shrink=0.75,
-        axis.args = list( at = colBreaks,
-                          labels = round(colBreaks,2),
-                          cex.axis = 0.6),
-        zlim = c(-3,3),
-        legend.args = list( text="log2(ssMSE/msMSE)", 
-                            side=4, font=2, 
-                            line=3, cex=0.75) )
-
-  grid.text(  "Time at peak U", 
-              x=unit(0.5, "npc"), y=unit(0.05, "npc"), rot=0)
-  grid.text(  "Max multiple of Umsy", 
-              x=unit(0.05, "npc"), y=unit(0.5, "npc"), rot=90)
-  grid.text(  "Relative MSE of models", 
-              x=unit(0.5, "npc"), y=unit(0.95, "npc"), rot=0)
-}
 
 # plotCorrMSEContour()
 # Plots the correlation  experiment MSE contours for
 # estimation of BnT and Umsy (abundance and productivity) by species
 # and for the complex.
-plotModContour <- function (  table     = "2sRE.csv", 
+plotModContour <- function (  tableName = "2sRE.csv", 
                               mpLabel   = "bothEff",
                               axes      = c("corr","kappaMult"),
                               pars      = c("BnT","Umsy","q"),
                               nSp       = 2,
                               model     = "ss",
                               compMean  = FALSE,
-                              tUtr        = 15,
-                              negCorr     = FALSE,
-                              tcex        = 1 )
+                              tUtr      = 15,
+                              negCorr   = FALSE,
+                              tcex      = 1 )
 {
   # Load stat table
-  tablePath <- file.path ( getwd(), "project/Statistics", table )
+  tablePath <- file.path ( getwd(), "project/Statistics", tableName )
   table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
   # reduce to the correct MP
   table <- table  %>% filter( mp == mpLabel )
@@ -419,7 +169,6 @@ plotModContour <- function (  table     = "2sRE.csv",
   par(mfrow = c((nS+1),length(pars)+1),  mar = c(1.5,1.5,1.5,1.5), oma = c(5,5,5,5), las=1)
   for (s in 1:nS)
   {
-    # browser()
     # Create a raster from the stat table info
     plotBrick <- specList[[s]]
     # Make titles for the plots
@@ -428,7 +177,7 @@ plotModContour <- function (  table     = "2sRE.csv",
     titles <- names(plotBrick)
 
     colBreaks <- vector (mode = "list", length = 3 )
-    colScale  <- brewer.pal(9, "Greens")
+    colScale  <- brewer.pal(9, "Reds")
     colScale  <- c(colScale)
     
     for (i in 1:length(titles))
@@ -446,7 +195,6 @@ plotModContour <- function (  table     = "2sRE.csv",
       colBreaks[[i]][length(colBreaks[[i]])] <- 1.02*colBreaks[[i]][length(colBreaks[[i]])]
 
     }
-    # browser()
     # plot the rasters, if first species plot main titles
     if ( s == 1 )
     {
@@ -485,7 +233,7 @@ plotModContour <- function (  table     = "2sRE.csv",
 
   # Get colour breaks, based on range of data
   colBreaks <- vector (mode = "list", length = 3 )
-  colScale  <- brewer.pal(9, "Greens")
+  colScale  <- brewer.pal(9, "Reds")
   colScale  <- c(colScale)
   
   for (i in 1:length(titles))
@@ -529,7 +277,7 @@ plotModContour <- function (  table     = "2sRE.csv",
 #         tUtr=integer value for tUtrough in Fhist scenarios
 #         negCorr=logical value of simCtl par lastNegCorr in corr scenarios
 #         tcex=cex of text in taster cells
-plotCompContour <- function ( table       = "2sRE.csv", 
+plotCompContour <- function ( tableName   = "2sRE.csv", 
                               mpLabel     = "bothEff",
                               axes        = c("corr","kappaMult"),
                               pars        = c("BnT","Umsy","q"),
@@ -538,11 +286,12 @@ plotCompContour <- function ( table       = "2sRE.csv",
                               compMean    = FALSE,
                               tUtr        = 15,
                               negCorr     = FALSE,
-                              tcex        = 1
+                              tcex        = 1,
+                              breakRange  = c(-2,2) 
                               )
 {
   # Load stat table
-  tablePath <- file.path ( getwd(),"project/Statistics",table)
+  tablePath <- file.path ( getwd(),"project/Statistics",tableName)
   table <- read.csv (tablePath, header=TRUE, stringsAsFactors=FALSE)
   # reduce to the correct MP
   table <- table %>% filter(mp == mpLabel )
@@ -560,9 +309,10 @@ plotCompContour <- function ( table       = "2sRE.csv",
 
   # browser()
   # Now make a pallette for the colours
-  colScale    <- brewer.pal( 9, "Greens" )
-  colBreaks   <- c(-100,seq(-2.8,-0.1,by=0.9),seq(0.1,2.8,by=0.9),100)
-
+  colScaleHi    <- brewer.pal( 8, "Greens" )
+  colScaleLo    <- brewer.pal( 8, "Reds" )
+  colBreaks     <- c(-100,seq(breakRange[1],0,length=8),seq(0,breakRange[2],length=8)[-1],100)
+  colScale      <- c(colScaleLo[8:1],colScaleHi)
 
   # calculate response
   # Deviance is log2(ss/ms)
@@ -585,6 +335,7 @@ plotCompContour <- function ( table       = "2sRE.csv",
   specList  <- vector( mode="list", length=length(species))
 
   # Pick out columns for axes
+  # browser()
   axesCols <- integer(length=2)
   for ( i in 1:2)
   {
@@ -595,7 +346,7 @@ plotCompContour <- function ( table       = "2sRE.csv",
   x   <- x[order(x)]
   y   <- unique(table[,axesCols[2]])
   y   <- y[order(y)]
-  browser()
+  # browser()
   for (s in 1:nS)
   {
     spec <- species[s]
@@ -640,7 +391,7 @@ plotCompContour <- function ( table       = "2sRE.csv",
                         breaks = colBreaks, col=colScale, asp=NA )
       else plot( plotBrick[[k]],main = "", legend = FALSE, 
                   breaks = colBreaks, col=colScale, asp=NA )
-      
+      if( k == 1 ) mtext ( text = species[s], side = 2 )
       text( plotBrick[[k]], digits = 2, halo = T, cex = tcex )  
     }
   }
@@ -663,17 +414,20 @@ plotCompContour <- function ( table       = "2sRE.csv",
                                       ssDep = sum( ssDep ),
                                       msDep = sum( msDep ),
                                       corr = mean(corr),
-                                      kappaMult = mean(kappaMult))
+                                      kappaMult = mean(kappaMult),
+                                      tUpeak = mean(tUpeak),
+                                      tUtrough = mean(tUtrough),
+                                      Umax = mean(Umax) )
 
   # Now make the comparison based on the compMean logical flag
   if( method == "deviance" )
   {
     compTable <-  compTable %>% 
-                  mutate( BnT = log2( ssBnT / msBnT ),
-                          Umsy = log2( ssUmsy / msUmsy ),
-                          q = log2( ssq / msq ),
+                  mutate( BnT = log2( abs(ssBnT) / abs(msBnT) ),
+                          Umsy = log2( abs(ssUmsy) / abs(msUmsy) ),
+                          q = log2( abs(ssq) / abs(msq) ),
                           # MSY = log2( ssMSY / msMSY ),
-                          Dep = log2 ( ssDep / msDep ) 
+                          Dep = log2 ( abs(ssDep) / abs(msDep) ) 
                         )
   }
 
@@ -726,7 +480,8 @@ plotCompContour <- function ( table       = "2sRE.csv",
   for(k in 1:length(titles))
   {
     plot( compBrick[[k]],main = "", legend = FALSE, 
-          asp=NA, ylab="Complex", col = colScale, breaks = colBreaks )
+          asp=NA, col = colScale, breaks = colBreaks )
+      if( k == 1 ) mtext ( text = "Complex", side = 2 )
     text( compBrick[[k]], digits = 2, halo = T, cex = tcex )  
   }
 
@@ -741,12 +496,22 @@ plotCompContour <- function ( table       = "2sRE.csv",
                             side=4, font=2, 
                             line=3, cex=0.75, las=0) )
 
-  grid.text(  "Species Effect Correlation", 
+  # Labels
+  grid.text(  axes[1], 
               x=unit(0.5, "npc"), y=unit(0.05, "npc"), rot=0)
-  grid.text(  "Relative Magnitude of Year Effect", 
-              x=unit(0.05, "npc"), y=unit(0.5, "npc"), rot=90)
-  grid.text(  "Relative MSE of models", 
+  grid.text(  axes[2], 
+              x=unit(0.02, "npc"), y=unit(0.5, "npc"), rot=90)
+  grid.text(  "Relative errors ss/ms", 
               x=unit(0.5, "npc"), y=unit(0.95, "npc"), rot=0)
+  grid.text(  tableName,
+              x=unit(0.15, "npc"), y=unit(0.98, "npc"), rot=0)
+  grid.text(  mpLabel,
+              x=unit(0.75, "npc"), y=unit(0.02, "npc"), rot=0)
+  grid.text(  paste( "lastNegCorr = ", negCorr, sep = "" ),
+              x=unit(0.15, "npc"), y=unit(0.02, "npc"), rot=0)
+  grid.text(  paste( "tUtrough = ", tUtr, sep = "" ),
+              x=unit(0.15, "npc"), y=unit(0.05, "npc"), rot=0)
+
 }
 
 # plotRepScan()

@@ -10,8 +10,8 @@ opMod$Umsy c(0.3,0.2,0.35,0.25,0.2)
 opMod$kappa2 0.05
 opMod$SigmaDiag c(0.05,0.05,0.05,0.05,0.05)
 opMod$corrOffDiag 0.5
-opMod$lastNegCorr FALSE
-opMod$nS 2
+opMod$lastNegCorr TRUE
+opMod$nS 3
 opMod$nT 30
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL

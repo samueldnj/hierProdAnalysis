@@ -116,8 +116,8 @@
   statTable$scenario    <- blob$ctrl$scenarioName
   statTable$mp          <- blob$ctrl$mpLabel
   statTable$species     <- species
-  statTable$kappaTrue   <- sqrt(opMod$kappa2)*kappaMult
-  statTable$SigmaTrue   <- sqrt(opMod$SigmaDiag[1:nS])
+  statTable$kappaTrue   <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue   <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult   <- kappaMult
   statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
@@ -125,8 +125,9 @@
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
   statTable$tau2OM      <- opMod$tau2[1:nS]
-  statTable$lastNegCorr <- opMod$lastNegCorr
+  statTable$lastNegCorr <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS          <- opMod$nS
+
 
   # Now errors
   for (s in 1:nS)
@@ -196,8 +197,8 @@
   statTable$scenario    <- blob$ctrl$scenarioName
   statTable$mp          <- blob$ctrl$mpLabel
   statTable$species     <- species
-  statTable$kappaTrue   <- sqrt(opMod$kappa2)*kappaMult
-  statTable$SigmaTrue   <- sqrt(opMod$SigmaDiag[1:nS])
+  statTable$kappaTrue   <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue   <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult   <- kappaMult
   statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
@@ -205,8 +206,9 @@
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
   statTable$tau2OM      <- opMod$tau2[1:nS]
-  statTable$lastNegCorr <- opMod$lastNegCorr
+  statTable$lastNegCorr <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS          <- opMod$nS
+
 
   # Now errors
   for (s in 1:nS)
@@ -275,8 +277,8 @@
   statTable$scenario    <- blob$ctrl$scenarioName
   statTable$mp          <- blob$ctrl$mpLabel
   statTable$species     <- species
-  statTable$kappaTrue   <- sqrt(opMod$kappa2)*kappaMult
-  statTable$SigmaTrue   <- sqrt(opMod$SigmaDiag[1:nS])
+  statTable$kappaTrue   <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue   <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult   <- kappaMult
   statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps       <- nReps
@@ -284,7 +286,7 @@
   statTable$tUtrough    <- opMod$tUtrough
   statTable$tUpeak      <- opMod$tUpeak
   statTable$tau2OM      <- opMod$tau2[1:nS]
-  statTable$lastNegCorr <- opMod$lastNegCorr
+  statTable$lastNegCorr <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS          <- opMod$nS
 
   # Now errors
