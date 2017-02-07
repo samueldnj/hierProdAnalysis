@@ -1,0 +1,437 @@
+# Batch File
+parameter value
+# Scenario 1 : nS2_tUp2_Umx0.4_
+#
+scenario$scenario1$ctrl$scenarioName 'nS2_tUp2_Umx0.4'
+scenario$scenario1$opMod$nS 2
+scenario$scenario1$opMod$tUpeak 2
+scenario$scenario1$opMod$Umax 0.4
+#
+# Scenario 2 : nS4_tUp2_Umx0.4_
+#
+scenario$scenario2$ctrl$scenarioName 'nS4_tUp2_Umx0.4'
+scenario$scenario2$opMod$nS 4
+scenario$scenario2$opMod$tUpeak 2
+scenario$scenario2$opMod$Umax 0.4
+#
+# Scenario 3 : nS5_tUp2_Umx0.4_
+#
+scenario$scenario3$ctrl$scenarioName 'nS5_tUp2_Umx0.4'
+scenario$scenario3$opMod$nS 5
+scenario$scenario3$opMod$tUpeak 2
+scenario$scenario3$opMod$Umax 0.4
+#
+# Scenario 4 : nS2_tUp6_Umx0.4_
+#
+scenario$scenario4$ctrl$scenarioName 'nS2_tUp6_Umx0.4'
+scenario$scenario4$opMod$nS 2
+scenario$scenario4$opMod$tUpeak 6
+scenario$scenario4$opMod$Umax 0.4
+#
+# Scenario 5 : nS4_tUp6_Umx0.4_
+#
+scenario$scenario5$ctrl$scenarioName 'nS4_tUp6_Umx0.4'
+scenario$scenario5$opMod$nS 4
+scenario$scenario5$opMod$tUpeak 6
+scenario$scenario5$opMod$Umax 0.4
+#
+# Scenario 6 : nS5_tUp6_Umx0.4_
+#
+scenario$scenario6$ctrl$scenarioName 'nS5_tUp6_Umx0.4'
+scenario$scenario6$opMod$nS 5
+scenario$scenario6$opMod$tUpeak 6
+scenario$scenario6$opMod$Umax 0.4
+#
+# Scenario 7 : nS2_tUp10_Umx0.4_
+#
+scenario$scenario7$ctrl$scenarioName 'nS2_tUp10_Umx0.4'
+scenario$scenario7$opMod$nS 2
+scenario$scenario7$opMod$tUpeak 10
+scenario$scenario7$opMod$Umax 0.4
+#
+# Scenario 8 : nS4_tUp10_Umx0.4_
+#
+scenario$scenario8$ctrl$scenarioName 'nS4_tUp10_Umx0.4'
+scenario$scenario8$opMod$nS 4
+scenario$scenario8$opMod$tUpeak 10
+scenario$scenario8$opMod$Umax 0.4
+#
+# Scenario 9 : nS5_tUp10_Umx0.4_
+#
+scenario$scenario9$ctrl$scenarioName 'nS5_tUp10_Umx0.4'
+scenario$scenario9$opMod$nS 5
+scenario$scenario9$opMod$tUpeak 10
+scenario$scenario9$opMod$Umax 0.4
+#
+# Scenario 10 : nS2_tUp14_Umx0.4_
+#
+scenario$scenario10$ctrl$scenarioName 'nS2_tUp14_Umx0.4'
+scenario$scenario10$opMod$nS 2
+scenario$scenario10$opMod$tUpeak 14
+scenario$scenario10$opMod$Umax 0.4
+#
+# Scenario 11 : nS4_tUp14_Umx0.4_
+#
+scenario$scenario11$ctrl$scenarioName 'nS4_tUp14_Umx0.4'
+scenario$scenario11$opMod$nS 4
+scenario$scenario11$opMod$tUpeak 14
+scenario$scenario11$opMod$Umax 0.4
+#
+# Scenario 12 : nS5_tUp14_Umx0.4_
+#
+scenario$scenario12$ctrl$scenarioName 'nS5_tUp14_Umx0.4'
+scenario$scenario12$opMod$nS 5
+scenario$scenario12$opMod$tUpeak 14
+scenario$scenario12$opMod$Umax 0.4
+#
+# Scenario 13 : nS2_tUp2_Umx0.8_
+#
+scenario$scenario13$ctrl$scenarioName 'nS2_tUp2_Umx0.8'
+scenario$scenario13$opMod$nS 2
+scenario$scenario13$opMod$tUpeak 2
+scenario$scenario13$opMod$Umax 0.8
+#
+# Scenario 14 : nS4_tUp2_Umx0.8_
+#
+scenario$scenario14$ctrl$scenarioName 'nS4_tUp2_Umx0.8'
+scenario$scenario14$opMod$nS 4
+scenario$scenario14$opMod$tUpeak 2
+scenario$scenario14$opMod$Umax 0.8
+#
+# Scenario 15 : nS5_tUp2_Umx0.8_
+#
+scenario$scenario15$ctrl$scenarioName 'nS5_tUp2_Umx0.8'
+scenario$scenario15$opMod$nS 5
+scenario$scenario15$opMod$tUpeak 2
+scenario$scenario15$opMod$Umax 0.8
+#
+# Scenario 16 : nS2_tUp6_Umx0.8_
+#
+scenario$scenario16$ctrl$scenarioName 'nS2_tUp6_Umx0.8'
+scenario$scenario16$opMod$nS 2
+scenario$scenario16$opMod$tUpeak 6
+scenario$scenario16$opMod$Umax 0.8
+#
+# Scenario 17 : nS4_tUp6_Umx0.8_
+#
+scenario$scenario17$ctrl$scenarioName 'nS4_tUp6_Umx0.8'
+scenario$scenario17$opMod$nS 4
+scenario$scenario17$opMod$tUpeak 6
+scenario$scenario17$opMod$Umax 0.8
+#
+# Scenario 18 : nS5_tUp6_Umx0.8_
+#
+scenario$scenario18$ctrl$scenarioName 'nS5_tUp6_Umx0.8'
+scenario$scenario18$opMod$nS 5
+scenario$scenario18$opMod$tUpeak 6
+scenario$scenario18$opMod$Umax 0.8
+#
+# Scenario 19 : nS2_tUp10_Umx0.8_
+#
+scenario$scenario19$ctrl$scenarioName 'nS2_tUp10_Umx0.8'
+scenario$scenario19$opMod$nS 2
+scenario$scenario19$opMod$tUpeak 10
+scenario$scenario19$opMod$Umax 0.8
+#
+# Scenario 20 : nS4_tUp10_Umx0.8_
+#
+scenario$scenario20$ctrl$scenarioName 'nS4_tUp10_Umx0.8'
+scenario$scenario20$opMod$nS 4
+scenario$scenario20$opMod$tUpeak 10
+scenario$scenario20$opMod$Umax 0.8
+#
+# Scenario 21 : nS5_tUp10_Umx0.8_
+#
+scenario$scenario21$ctrl$scenarioName 'nS5_tUp10_Umx0.8'
+scenario$scenario21$opMod$nS 5
+scenario$scenario21$opMod$tUpeak 10
+scenario$scenario21$opMod$Umax 0.8
+#
+# Scenario 22 : nS2_tUp14_Umx0.8_
+#
+scenario$scenario22$ctrl$scenarioName 'nS2_tUp14_Umx0.8'
+scenario$scenario22$opMod$nS 2
+scenario$scenario22$opMod$tUpeak 14
+scenario$scenario22$opMod$Umax 0.8
+#
+# Scenario 23 : nS4_tUp14_Umx0.8_
+#
+scenario$scenario23$ctrl$scenarioName 'nS4_tUp14_Umx0.8'
+scenario$scenario23$opMod$nS 4
+scenario$scenario23$opMod$tUpeak 14
+scenario$scenario23$opMod$Umax 0.8
+#
+# Scenario 24 : nS5_tUp14_Umx0.8_
+#
+scenario$scenario24$ctrl$scenarioName 'nS5_tUp14_Umx0.8'
+scenario$scenario24$opMod$nS 5
+scenario$scenario24$opMod$tUpeak 14
+scenario$scenario24$opMod$Umax 0.8
+#
+# Scenario 25 : nS2_tUp2_Umx1.2_
+#
+scenario$scenario25$ctrl$scenarioName 'nS2_tUp2_Umx1.2'
+scenario$scenario25$opMod$nS 2
+scenario$scenario25$opMod$tUpeak 2
+scenario$scenario25$opMod$Umax 1.2
+#
+# Scenario 26 : nS4_tUp2_Umx1.2_
+#
+scenario$scenario26$ctrl$scenarioName 'nS4_tUp2_Umx1.2'
+scenario$scenario26$opMod$nS 4
+scenario$scenario26$opMod$tUpeak 2
+scenario$scenario26$opMod$Umax 1.2
+#
+# Scenario 27 : nS5_tUp2_Umx1.2_
+#
+scenario$scenario27$ctrl$scenarioName 'nS5_tUp2_Umx1.2'
+scenario$scenario27$opMod$nS 5
+scenario$scenario27$opMod$tUpeak 2
+scenario$scenario27$opMod$Umax 1.2
+#
+# Scenario 28 : nS2_tUp6_Umx1.2_
+#
+scenario$scenario28$ctrl$scenarioName 'nS2_tUp6_Umx1.2'
+scenario$scenario28$opMod$nS 2
+scenario$scenario28$opMod$tUpeak 6
+scenario$scenario28$opMod$Umax 1.2
+#
+# Scenario 29 : nS4_tUp6_Umx1.2_
+#
+scenario$scenario29$ctrl$scenarioName 'nS4_tUp6_Umx1.2'
+scenario$scenario29$opMod$nS 4
+scenario$scenario29$opMod$tUpeak 6
+scenario$scenario29$opMod$Umax 1.2
+#
+# Scenario 30 : nS5_tUp6_Umx1.2_
+#
+scenario$scenario30$ctrl$scenarioName 'nS5_tUp6_Umx1.2'
+scenario$scenario30$opMod$nS 5
+scenario$scenario30$opMod$tUpeak 6
+scenario$scenario30$opMod$Umax 1.2
+#
+# Scenario 31 : nS2_tUp10_Umx1.2_
+#
+scenario$scenario31$ctrl$scenarioName 'nS2_tUp10_Umx1.2'
+scenario$scenario31$opMod$nS 2
+scenario$scenario31$opMod$tUpeak 10
+scenario$scenario31$opMod$Umax 1.2
+#
+# Scenario 32 : nS4_tUp10_Umx1.2_
+#
+scenario$scenario32$ctrl$scenarioName 'nS4_tUp10_Umx1.2'
+scenario$scenario32$opMod$nS 4
+scenario$scenario32$opMod$tUpeak 10
+scenario$scenario32$opMod$Umax 1.2
+#
+# Scenario 33 : nS5_tUp10_Umx1.2_
+#
+scenario$scenario33$ctrl$scenarioName 'nS5_tUp10_Umx1.2'
+scenario$scenario33$opMod$nS 5
+scenario$scenario33$opMod$tUpeak 10
+scenario$scenario33$opMod$Umax 1.2
+#
+# Scenario 34 : nS2_tUp14_Umx1.2_
+#
+scenario$scenario34$ctrl$scenarioName 'nS2_tUp14_Umx1.2'
+scenario$scenario34$opMod$nS 2
+scenario$scenario34$opMod$tUpeak 14
+scenario$scenario34$opMod$Umax 1.2
+#
+# Scenario 35 : nS4_tUp14_Umx1.2_
+#
+scenario$scenario35$ctrl$scenarioName 'nS4_tUp14_Umx1.2'
+scenario$scenario35$opMod$nS 4
+scenario$scenario35$opMod$tUpeak 14
+scenario$scenario35$opMod$Umax 1.2
+#
+# Scenario 36 : nS5_tUp14_Umx1.2_
+#
+scenario$scenario36$ctrl$scenarioName 'nS5_tUp14_Umx1.2'
+scenario$scenario36$opMod$nS 5
+scenario$scenario36$opMod$tUpeak 14
+scenario$scenario36$opMod$Umax 1.2
+#
+# Scenario 37 : nS2_tUp2_Umx1.6_
+#
+scenario$scenario37$ctrl$scenarioName 'nS2_tUp2_Umx1.6'
+scenario$scenario37$opMod$nS 2
+scenario$scenario37$opMod$tUpeak 2
+scenario$scenario37$opMod$Umax 1.6
+#
+# Scenario 38 : nS4_tUp2_Umx1.6_
+#
+scenario$scenario38$ctrl$scenarioName 'nS4_tUp2_Umx1.6'
+scenario$scenario38$opMod$nS 4
+scenario$scenario38$opMod$tUpeak 2
+scenario$scenario38$opMod$Umax 1.6
+#
+# Scenario 39 : nS5_tUp2_Umx1.6_
+#
+scenario$scenario39$ctrl$scenarioName 'nS5_tUp2_Umx1.6'
+scenario$scenario39$opMod$nS 5
+scenario$scenario39$opMod$tUpeak 2
+scenario$scenario39$opMod$Umax 1.6
+#
+# Scenario 40 : nS2_tUp6_Umx1.6_
+#
+scenario$scenario40$ctrl$scenarioName 'nS2_tUp6_Umx1.6'
+scenario$scenario40$opMod$nS 2
+scenario$scenario40$opMod$tUpeak 6
+scenario$scenario40$opMod$Umax 1.6
+#
+# Scenario 41 : nS4_tUp6_Umx1.6_
+#
+scenario$scenario41$ctrl$scenarioName 'nS4_tUp6_Umx1.6'
+scenario$scenario41$opMod$nS 4
+scenario$scenario41$opMod$tUpeak 6
+scenario$scenario41$opMod$Umax 1.6
+#
+# Scenario 42 : nS5_tUp6_Umx1.6_
+#
+scenario$scenario42$ctrl$scenarioName 'nS5_tUp6_Umx1.6'
+scenario$scenario42$opMod$nS 5
+scenario$scenario42$opMod$tUpeak 6
+scenario$scenario42$opMod$Umax 1.6
+#
+# Scenario 43 : nS2_tUp10_Umx1.6_
+#
+scenario$scenario43$ctrl$scenarioName 'nS2_tUp10_Umx1.6'
+scenario$scenario43$opMod$nS 2
+scenario$scenario43$opMod$tUpeak 10
+scenario$scenario43$opMod$Umax 1.6
+#
+# Scenario 44 : nS4_tUp10_Umx1.6_
+#
+scenario$scenario44$ctrl$scenarioName 'nS4_tUp10_Umx1.6'
+scenario$scenario44$opMod$nS 4
+scenario$scenario44$opMod$tUpeak 10
+scenario$scenario44$opMod$Umax 1.6
+#
+# Scenario 45 : nS5_tUp10_Umx1.6_
+#
+scenario$scenario45$ctrl$scenarioName 'nS5_tUp10_Umx1.6'
+scenario$scenario45$opMod$nS 5
+scenario$scenario45$opMod$tUpeak 10
+scenario$scenario45$opMod$Umax 1.6
+#
+# Scenario 46 : nS2_tUp14_Umx1.6_
+#
+scenario$scenario46$ctrl$scenarioName 'nS2_tUp14_Umx1.6'
+scenario$scenario46$opMod$nS 2
+scenario$scenario46$opMod$tUpeak 14
+scenario$scenario46$opMod$Umax 1.6
+#
+# Scenario 47 : nS4_tUp14_Umx1.6_
+#
+scenario$scenario47$ctrl$scenarioName 'nS4_tUp14_Umx1.6'
+scenario$scenario47$opMod$nS 4
+scenario$scenario47$opMod$tUpeak 14
+scenario$scenario47$opMod$Umax 1.6
+#
+# Scenario 48 : nS5_tUp14_Umx1.6_
+#
+scenario$scenario48$ctrl$scenarioName 'nS5_tUp14_Umx1.6'
+scenario$scenario48$opMod$nS 5
+scenario$scenario48$opMod$tUpeak 14
+scenario$scenario48$opMod$Umax 1.6
+#
+# Scenario 49 : nS2_tUp2_Umx2_
+#
+scenario$scenario49$ctrl$scenarioName 'nS2_tUp2_Umx2'
+scenario$scenario49$opMod$nS 2
+scenario$scenario49$opMod$tUpeak 2
+scenario$scenario49$opMod$Umax 2
+#
+# Scenario 50 : nS4_tUp2_Umx2_
+#
+scenario$scenario50$ctrl$scenarioName 'nS4_tUp2_Umx2'
+scenario$scenario50$opMod$nS 4
+scenario$scenario50$opMod$tUpeak 2
+scenario$scenario50$opMod$Umax 2
+#
+# Scenario 51 : nS5_tUp2_Umx2_
+#
+scenario$scenario51$ctrl$scenarioName 'nS5_tUp2_Umx2'
+scenario$scenario51$opMod$nS 5
+scenario$scenario51$opMod$tUpeak 2
+scenario$scenario51$opMod$Umax 2
+#
+# Scenario 52 : nS2_tUp6_Umx2_
+#
+scenario$scenario52$ctrl$scenarioName 'nS2_tUp6_Umx2'
+scenario$scenario52$opMod$nS 2
+scenario$scenario52$opMod$tUpeak 6
+scenario$scenario52$opMod$Umax 2
+#
+# Scenario 53 : nS4_tUp6_Umx2_
+#
+scenario$scenario53$ctrl$scenarioName 'nS4_tUp6_Umx2'
+scenario$scenario53$opMod$nS 4
+scenario$scenario53$opMod$tUpeak 6
+scenario$scenario53$opMod$Umax 2
+#
+# Scenario 54 : nS5_tUp6_Umx2_
+#
+scenario$scenario54$ctrl$scenarioName 'nS5_tUp6_Umx2'
+scenario$scenario54$opMod$nS 5
+scenario$scenario54$opMod$tUpeak 6
+scenario$scenario54$opMod$Umax 2
+#
+# Scenario 55 : nS2_tUp10_Umx2_
+#
+scenario$scenario55$ctrl$scenarioName 'nS2_tUp10_Umx2'
+scenario$scenario55$opMod$nS 2
+scenario$scenario55$opMod$tUpeak 10
+scenario$scenario55$opMod$Umax 2
+#
+# Scenario 56 : nS4_tUp10_Umx2_
+#
+scenario$scenario56$ctrl$scenarioName 'nS4_tUp10_Umx2'
+scenario$scenario56$opMod$nS 4
+scenario$scenario56$opMod$tUpeak 10
+scenario$scenario56$opMod$Umax 2
+#
+# Scenario 57 : nS5_tUp10_Umx2_
+#
+scenario$scenario57$ctrl$scenarioName 'nS5_tUp10_Umx2'
+scenario$scenario57$opMod$nS 5
+scenario$scenario57$opMod$tUpeak 10
+scenario$scenario57$opMod$Umax 2
+#
+# Scenario 58 : nS2_tUp14_Umx2_
+#
+scenario$scenario58$ctrl$scenarioName 'nS2_tUp14_Umx2'
+scenario$scenario58$opMod$nS 2
+scenario$scenario58$opMod$tUpeak 14
+scenario$scenario58$opMod$Umax 2
+#
+# Scenario 59 : nS4_tUp14_Umx2_
+#
+scenario$scenario59$ctrl$scenarioName 'nS4_tUp14_Umx2'
+scenario$scenario59$opMod$nS 4
+scenario$scenario59$opMod$tUpeak 14
+scenario$scenario59$opMod$Umax 2
+#
+# Scenario 60 : nS5_tUp14_Umx2_
+#
+scenario$scenario60$ctrl$scenarioName 'nS5_tUp14_Umx2'
+scenario$scenario60$opMod$nS 5
+scenario$scenario60$opMod$tUpeak 14
+scenario$scenario60$opMod$Umax 2
+#
+# Management Procedures
+#
+# MP 1 : corrTRUE_SigPrior0
+#
+mp$mp1$ctrl$mpLabel 'corrTRUE_SigPriorIG'
+mp$mp1$assess$msCorr TRUE
+mp$mp1$assess$SigmaPriorCode 0
+#
+# MP 2 : corrFALSE_SigPrior0
+#
+mp$mp2$ctrl$mpLabel 'corrFALSE_SigPriorIG'
+mp$mp2$assess$msCorr FALSE
+mp$mp2$assess$SigmaPriorCode 0
+#
+# File Ends <not run>.

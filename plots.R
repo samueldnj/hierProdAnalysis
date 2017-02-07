@@ -9,6 +9,12 @@
 #
 # --------------------------------------------------------------------------
 
+
+# plotRasters()
+# Reads in a statistics table produced by .statTableXXX()
+# and produces plots of performance contours.
+# inputs:     tableName=charactre vector of file name root
+#             axes=
 plotRasters <- function ( tableName = "RE_loM_negCorr_MSE",
                           axes = c("corr","kappaMult"),
                           pars = c("BnT","Umsy","q"),
@@ -254,11 +260,11 @@ plotModContour <- function (  tableName = "2sRE.csv",
   }
 
   grid.text(  "Species Effect Correlation", 
-              x=unit(0.5, "npc"), y=unit(0.05, "npc"), rot=0)
+              x=unit(0.5, "npc"), y=unit(0.02, "npc"), rot=0)
   grid.text(  "Relative Magnitude of Year Effect", 
-              x=unit(0.05, "npc"), y=unit(0.5, "npc"), rot=90)
+              x=unit(0.02, "npc"), y=unit(0.5, "npc"), rot=90)
   grid.text(  paste("Raw MSE of ", model, " model.", sep = ""), 
-              x=unit(0.5, "npc"), y=unit(0.95, "npc"), rot=0)
+              x=unit(0.5, "npc"), y=unit(0.98, "npc"), rot=0)
 }
 
 
