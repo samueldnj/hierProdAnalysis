@@ -210,6 +210,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$Sigma2IG[2]    <- (obj$assess$Sigma2IG[1]+1)*Sigma2
   }
 
+  if( !is.null(obj$assess$tau2qIGa) ) obj$assess$tau2qIG[1] <- obj$assess$tau2qIGa
+  if( !is.null(obj$assess$tau2qIGb) ) obj$assess$tau2qIG[2] <- obj$assess$tau2qIGb
+  if( !is.null(obj$assess$sig2UIGa) ) obj$assess$sig2UIG[1] <- obj$assess$sig2UIGa
+  if( !is.null(obj$assess$sig2UIGb) ) obj$assess$sig2UIG[2] <- obj$assess$sig2UIGb
+
   # Create IW scale matrix
   if( obj$assess$wishType == "diag" ) wishScale <- diag( obj$om$Sigma2 )
   if( obj$assess$wishType == "corr" )

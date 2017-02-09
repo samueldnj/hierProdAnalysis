@@ -1,0 +1,131 @@
+# RE Experiments Batch File
+parameter value
+#
+# Scenarios
+#
+# Scenario 1 : nS2_
+#
+scenario$scenario1$ctrl$scenarioName 'nS2'
+scenario$scenario1$opMod$nS 2
+#
+# Scenario 2 : nS4_
+#
+scenario$scenario2$ctrl$scenarioName 'nS4'
+scenario$scenario2$opMod$nS 4
+#
+# Scenario 3 : nS5_
+#
+scenario$scenario3$ctrl$scenarioName 'nS5'
+scenario$scenario3$opMod$nS 5
+#
+# Management Procedures
+#
+# MP 1 : s2lnq0.1_tau12IGb0.2_
+#
+mp$mp1$ctrl$mpLabel 's2lnq0.1_tau12IGb0.2'
+mp$mp1$assess$s2lnq 0.1
+mp$mp1$assess$tau2IGb 0.2
+#
+# MP 2 : s2lnq1_tau12IGb0.2_
+#
+mp$mp2$ctrl$mpLabel 's2lnq1_tau12IGb0.2'
+mp$mp2$assess$s2lnq 1
+mp$mp2$assess$tau2IGb 0.2
+#
+# MP 3 : s2lnq1.9_tau12IGb0.2_
+#
+mp$mp3$ctrl$mpLabel 's2lnq1.9_tau12IGb0.2'
+mp$mp3$assess$s2lnq 1.9
+mp$mp3$assess$tau2IGb 0.2
+#
+# MP 4 : s2lnq0.1_tau12IGb0.6_
+#
+mp$mp4$ctrl$mpLabel 's2lnq0.1_tau12IGb0.6'
+mp$mp4$assess$s2lnq 0.1
+mp$mp4$assess$tau2IGb 0.6
+#
+# MP 5 : s2lnq1_tau12IGb0.6_
+#
+mp$mp5$ctrl$mpLabel 's2lnq1_tau12IGb0.6'
+mp$mp5$assess$s2lnq 1
+mp$mp5$assess$tau2IGb 0.6
+#
+# MP 6 : s2lnq1.9_tau12IGb0.6_
+#
+mp$mp6$ctrl$mpLabel 's2lnq1.9_tau12IGb0.6'
+mp$mp6$assess$s2lnq 1.9
+mp$mp6$assess$tau2IGb 0.6
+#
+# MP 7 : s2lnq0.1_tau12IGb1_
+#
+mp$mp7$ctrl$mpLabel 's2lnq0.1_tau12IGb1'
+mp$mp7$assess$s2lnq 0.1
+mp$mp7$assess$tau2IGb 1
+#
+# MP 8 : s2lnq1_tau12IGb1_
+#
+mp$mp8$ctrl$mpLabel 's2lnq1_tau12IGb1'
+mp$mp8$assess$s2lnq 1
+mp$mp8$assess$tau2IGb 1
+#
+# MP 9 : s2lnq1.9_tau12IGb1_
+#
+mp$mp9$ctrl$mpLabel 's2lnq1.9_tau12IGb1'
+mp$mp9$assess$s2lnq 1.9
+mp$mp9$assess$tau2IGb 1
+#
+# MP 10 : s2lnU0.1_sigU2IGb0.2_
+#
+mp$mp10$ctrl$mpLabel 's2lnU0.1_sigU2IGb0.2'
+mp$mp10$assess$s2lnUmsy 0.1
+mp$mp10$assess$sigU2IGb 0.2
+#
+# MP 11 : s2lnU1_sigU2IGb0.2_
+#
+mp$mp11$ctrl$mpLabel 's2lnU1_sigU2IGb0.2'
+mp$mp11$assess$s2lnUmsy 1
+mp$mp11$assess$sigU2IGb 0.2
+#
+# MP 12 : s2lnU1.9_sigU2IGb0.2_
+#
+mp$mp12$ctrl$mpLabel 's2lnU1.9_sigU2IGb0.2'
+mp$mp12$assess$s2lnUmsy 1.9
+mp$mp12$assess$sigU2IGb 0.2
+#
+# MP 13 : s2lnU0.1_sigU2IGb0.6_
+#
+mp$mp13$ctrl$mpLabel 's2lnU0.1_sigU2IGb0.6'
+mp$mp13$assess$s2lnUmsy 0.1
+mp$mp13$assess$sigU2IGb 0.6
+#
+# MP 14 : s2lnU1_sigU2IGb0.6_
+#
+mp$mp14$ctrl$mpLabel 's2lnU1_sigU2IGb0.6'
+mp$mp14$assess$s2lnUmsy 1
+mp$mp14$assess$sigU2IGb 0.6
+#
+# MP 15 : s2lnU1.9_sigU2IGb0.6_
+#
+mp$mp15$ctrl$mpLabel 's2lnU1.9_sigU2IGb0.6'
+mp$mp15$assess$s2lnUmsy 1.9
+mp$mp15$assess$sigU2IGb 0.6
+#
+# MP 16 : s2lnU0.1_sigU2IGb1_
+#
+mp$mp16$ctrl$mpLabel 's2lnU0.1_sigU2IGb1'
+mp$mp16$assess$s2lnUmsy 0.1
+mp$mp16$assess$sigU2IGb 1
+#
+# MP 17 : s2lnU1_sigU2IGb1_
+#
+mp$mp17$ctrl$mpLabel 's2lnU1_sigU2IGb1'
+mp$mp17$assess$s2lnUmsy 1
+mp$mp17$assess$sigU2IGb 1
+#
+# MP 18 : s2lnU1.9_sigU2IGb1_
+#
+mp$mp18$ctrl$mpLabel 's2lnU1.9_sigU2IGb1'
+mp$mp18$assess$s2lnUmsy 1.9
+mp$mp18$assess$sigU2IGb 1
+#
+# File Ends <not run>.

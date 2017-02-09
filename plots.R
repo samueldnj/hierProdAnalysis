@@ -18,7 +18,7 @@
 plotRasters <- function ( tableName = "RE_loM_negCorr_MSE",
                           axes = c("corr","kappaMult"),
                           pars = c("BnT","Umsy","q"),
-                          wdh = 21, hgt = 12, ... )
+                          wdh = 14, hgt = 18, ... )
 {
   # Load table
   fileName <- paste( tableName, ".csv", sep = "" )

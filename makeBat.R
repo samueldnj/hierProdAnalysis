@@ -5,12 +5,12 @@
 # of parameters and different values at which to test them.
 # Function below also requires abbreviations of the 
 
-scenParList <- list ( "opMod$nS" = c(2,4,5),
-                      "opMod$tUpeak" = seq(2,14,by=4),
-                      "opMod$Umax" = seq(0.4,2,by=0.4)
+scenParList <- list ( "opMod$nS" = c(2,4,5)
+                      # "opMod$tUpeak" = seq(2,14,by=4),
+                      # "opMod$Umax" = seq(0.4,2,by=0.4)
                 )
 
-scenLabels <- c( "nS", "tUp", "Umx" )
+scenLabels <- c( "nS" )
 
 
 # Function to create batch files from the lists above
@@ -39,11 +39,10 @@ scenarioCreate <- function ( parList, outFile, label )
   cat ( "# File Ends <not run>.", file = outFile, append = TRUE )
 }
 
-mpParList <- list ( "assess$msCorr" = c(T,F),
-                    "assess$SigmaPriorCode" = c(0,1),
-                    "assess$wishType" = c("diag","corr") )
+mpParList <- list ( "assess$s2lnUmsy" = c(0.1,1,1.9),
+                    "assess$sigU2IGb" = c(0.2,0.6,1.0) )
 
-mpLabels <- c("corr", "SigPrior", "wishType" )
+mpLabels <- c("corr", "SigPrior" )
 
 mpCreate <- function ( parList, label, outFile )
 {
@@ -72,4 +71,4 @@ mpCreate <- function ( parList, label, outFile )
 
 
 scenarioCreate(scenParList,"autoBat.txt",scenLabels)
-# mpCreate ( mpParList,mpLabels,"mpAutoBat.txt")
+mpCreate ( mpParList,mpLabels,"mpAutoBat.txt")
