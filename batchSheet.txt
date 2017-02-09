@@ -53,6 +53,13 @@ scenParList <- list ( "opMod$nS" = c(2,4,5),
 scenLabels <- c( "nS", "c", "m", "-c" )
 
 Correlation estimation structures
+- Feb 1
+mpParList <- list ( "assess$msCorr" = c(T,F),
+                    "assess$SigmaPriorCode" = c(0,1),
+                    "assess$wishType" = c("diag","corr") )
+
+mpLabels <- c("corr", "SigPrior", "wishType" )
+
 # MP 1 : corrTRUE_SigPrior0
 #
 mp$mp1$ctrl$mpLabel 'corrTRUE_SigPriorIG'
@@ -87,9 +94,17 @@ mp$mp5$assess$SigmaPriorCode 1
 mp$mp5$assess$wishType "corr"
 #
 # File Ends <not run>.
-- Feb 1
-mpParList <- list ( "assess$msCorr" = c(T,F),
-                    "assess$SigmaPriorCode" = c(0,1),
-                    "assess$wishType" = c("diag","corr") )
 
-mpLabels <- c("corr", "SigPrior", "wishType" )
+
+shared prior experiments:
+q Priors:
+mpParList <- list ( "assess$s2lnq" = c(0.1,1,1.9),
+                    "assess$tauq2IGb" = c(0.2,0.6,1.0) )
+
+mpLabels <- c("s2lnq", "tauq2IGb" )
+
+Umsy Priors:
+mpParList <- list ( "assess$s2lnUmsy" = c(0.1,1,1.9),
+                    "assess$sigU2IGb" = c(0.2,0.6,1.0) )
+
+mpLabels <- c("s2lnUmsy", "sigU2IGb" )
