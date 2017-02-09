@@ -49,8 +49,8 @@ assess$lntauq2 -0.5
 assess$mlnq 0
 assess$s2lnq 0.1
 assess$sigU2IG c(0.5,0.2)
-assess$sig2UIGa NULL
-assess$sig2UIGb NULL
+assess$sigU2IGa NULL
+assess$sigU2IGb NULL
 assess$tauq2IG c(0.5,0.2)
 assess$tauq2IGa NULL
 assess$tauq2IGb NULL
