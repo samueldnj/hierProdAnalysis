@@ -5,12 +5,13 @@
 # of parameters and different values at which to test them.
 # Function below also requires abbreviations of the 
 
-scenParList <- list ( "opMod$nS" = c(2,4,5)
-                      # "opMod$tUpeak" = seq(2,14,by=4),
-                      # "opMod$Umax" = seq(0.4,2,by=0.4)
+# - RE.bch (new ctl file structure)
+scenParList <- list ( "opMod$nS" = c(2,4,5),
+                      "opMod$corrOffDiag" = seq(0,0.8,by=0.2),
+                      "opMod$kappaMult" = seq(0,2,by=0.5)
                 )
 
-scenLabels <- c( "nS" )
+scenLabels <- c( "nS", "c", "m" )
 
 
 # Function to create batch files from the lists above
@@ -71,4 +72,4 @@ mpCreate <- function ( parList, label, outFile )
 
 
 scenarioCreate(scenParList,"autoBat.txt",scenLabels)
-mpCreate ( mpParList,mpLabels,"mpAutoBat.txt")
+# mpCreate ( mpParList,mpLabels,"mpAutoBat.txt")
