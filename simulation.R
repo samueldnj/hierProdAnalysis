@@ -490,7 +490,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             TMBlib="msProd", UB = ssUB, LB = ssLB,
                             RE = c("eps_t","lnq","lnUmsy","zeta_st") )
 { 
-  browser()
+  # browser()
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )

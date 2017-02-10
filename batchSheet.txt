@@ -98,13 +98,15 @@ mp$mp5$assess$wishType "corr"
 
 shared prior experiments:
 q Priors:
-mpParList <- list ( "assess$s2lnq" = c(0.1,1,1.9),
-                    "assess$tauq2IGb" = c(0.2,0.6,1.0) )
+mpParList <- list ( "assess$s2lnq" = c(0.1,1,10),
+                    "assess$tauq2P2" = c(1),
+                    "assess$tauq2P1" = c(0.001,0.1,10))
 
-mpLabels <- c("s2lnq", "tauq2IGb" )
+mpLabels <- c("s2lnq", "tauq2P2", "tauq2P1", )
 
 Umsy Priors:
-mpParList <- list ( "assess$s2lnUmsy" = c(0.1,1,1.9),
-                    "assess$sigU2IGb" = c(0.2,0.6,1.0) )
+mpParList <- list ( "assess$s2lnUmsy" = c(0.1,1,10),
+                    "assess$sigU2P2" = c(1),
+                    "assess$sigU2P1" = c(0.001,0.1,10))
 
-mpLabels <- c("s2lnUmsy", "sigU2IGb" )
+mpLabels <- c("s2lnUmsy", "sigU2P2", "sigU2P1" )
