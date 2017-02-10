@@ -10,7 +10,24 @@
 #
 # --------------------------------------------------------------------------
 
-#.statTable()
+#.statTables()
+# Wrapper for .statTableXXX functions, produces stacked tables of stats 
+# for a group of simulations.
+# inputs:   sims=integer vector indicating simulations in ./project/
+# usage:    to produce output for a project and create .csv tables of 
+#           performance statistics
+# side-eff: creates tables of statistics in ./project/stats/
+.statTables <- function (sims=1,tabNameRoot = "statTable")
+{ 
+  # MSE
+  .statTableMSE(sims,paste(tabNameRoot,"_MSE.csv",sep=""))
+  # MRE
+  .statTableMRE(sims,paste(tabNameRoot,"_MRE.csv",sep=""))
+  # MARE
+  .statTableMARE(sims,paste(tabNameRoot,"_MARE.csv",sep=""))
+}
+
+#.statTableMSE()
 # Wrapper for .simStats, produces stacked tables of stats for a group
 # of simulations.
 # inputs:   sims=integer vector indicating simulations in ./project/
@@ -30,7 +47,7 @@
   statTable
 }
 
-#.statTable()
+#.statTableMRE()
 # Wrapper for .simStats, produces stacked tables of stats for a group
 # of simulations.
 # inputs:   sims=integer vector indicating simulations in ./project/
@@ -50,7 +67,7 @@
   statTable
 }
 
-#.statTable()
+#.statTableMARE()
 # Wrapper for .simStats, produces stacked tables of stats for a group
 # of simulations.
 # inputs:   sims=integer vector indicating simulations in ./project/
@@ -97,7 +114,7 @@
 
   # First, create a data.frame of NAs with a row for each of MRE,MARE
   colLabels <- c( "scenario","mp","species","kappaTrue",
-                  "SigmaTrue", "kappaMult", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
+                  "SigmaTrue", "kappaMult", "ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssDep","msDep",
                   "ssq","msq", "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", "tUtrough", "tau2OM" )
@@ -113,20 +130,41 @@
 
   # Start filling stat table
   # First, info and true pars
-  statTable$scenario    <- blob$ctrl$scenarioName
-  statTable$mp          <- blob$ctrl$mpLabel
-  statTable$species     <- species
-  statTable$kappaTrue   <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
-  statTable$SigmaTrue   <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
-  statTable$kappaMult   <- kappaMult
-  statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps       <- nReps
-  statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
-  statTable$tUtrough    <- opMod$tUtrough
-  statTable$tUpeak      <- opMod$tUpeak
-  statTable$tau2OM      <- opMod$tau2[1:nS]
-  statTable$lastNegCorr <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
-  statTable$nS          <- opMod$nS
+  statTable$scenario        <- blob$ctrl$scenarioName
+  statTable$mp              <- blob$ctrl$mpLabel
+  statTable$species         <- species
+  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
+  statTable$kappaMult       <- kappaMult
+  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
+  statTable$nReps           <- nReps
+  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUtrough        <- opMod$tUtrough
+  statTable$tUpeak          <- opMod$tUpeak
+  statTable$tau2OM          <- opMod$tau2[1:nS]
+  statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
+  statTable$nS              <- opMod$nS
+  statTable$s2q             <- blob$assess$s2lnq
+  statTable$tauq2           <- median(blob$am$ms$tauq2,na.rm=TRUE)
+  statTable$qbar            <- median(blob$am$ms$qbar,na.rm=TRUE)
+  statTable$s2Umsy          <- blob$assess$s2lnUmsy
+  statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
+  statTable$Umsybar         <- median(blob$am$ms$Umsybar,na.rm=TRUE)
+  if (is.null(blob$assess$tauq2Prior))
+  {
+    statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
+    statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
+    statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
+    statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
+  } else {
+    statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
+    statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
+    statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
+    statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
+  }
+  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
+  statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
+  statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
 
 
   # Now errors
@@ -194,20 +232,42 @@
 
   # Start filling stat table
   # First, info and true pars
-  statTable$scenario    <- blob$ctrl$scenarioName
-  statTable$mp          <- blob$ctrl$mpLabel
-  statTable$species     <- species
-  statTable$kappaTrue   <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
-  statTable$SigmaTrue   <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
-  statTable$kappaMult   <- kappaMult
-  statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps       <- nReps
-  statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
-  statTable$tUtrough    <- opMod$tUtrough
-  statTable$tUpeak      <- opMod$tUpeak
-  statTable$tau2OM      <- opMod$tau2[1:nS]
-  statTable$lastNegCorr <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
-  statTable$nS          <- opMod$nS
+  statTable$scenario        <- blob$ctrl$scenarioName
+  statTable$mp              <- blob$ctrl$mpLabel
+  statTable$species         <- species
+  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
+  statTable$kappaMult       <- kappaMult
+  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
+  statTable$nReps           <- nReps
+  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUtrough        <- opMod$tUtrough
+  statTable$tUpeak          <- opMod$tUpeak
+  statTable$tau2OM          <- opMod$tau2[1:nS]
+  statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
+  statTable$nS              <- opMod$nS
+  statTable$s2q             <- blob$assess$s2lnq
+  statTable$tauq2           <- median(blob$am$ms$tauq2,na.rm=TRUE)
+  statTable$qbar            <- median(blob$am$ms$qbar,na.rm=TRUE)
+  statTable$s2Umsy          <- blob$assess$s2lnUmsy
+  statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
+  statTable$Umsybar         <- median(blob$am$ms$Umsybar,na.rm=TRUE)
+  if (is.null(blob$assess$tauq2Prior))
+  {
+    statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
+    statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
+    statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
+    statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
+  } else {
+    statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
+    statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
+    statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
+    statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
+  }
+  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
+  statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
+  statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
+
 
 
   # Now errors
@@ -258,7 +318,7 @@
 
   # First, create a data.frame of NAs with a row for each of MRE,MARE
   colLabels <- c( "scenario","mp","species","kappaTrue",
-                  "SigmaTrue", "kappaMult", "corrMult","ssBnT","msBnT","ssUmsy","msUmsy",
+                  "SigmaTrue", "kappaMult","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssMSY","msMSY","ssDep","msDep",
                   "ssq","msq", "msHessPD", "ssHessPD", "nReps",
                   "Umax", "tUpeak", "tUtrough", "tau2OM" )
@@ -274,20 +334,42 @@
 
   # Start filling stat table
   # First, info and true pars
-  statTable$scenario    <- blob$ctrl$scenarioName
-  statTable$mp          <- blob$ctrl$mpLabel
-  statTable$species     <- species
-  statTable$kappaTrue   <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
-  statTable$SigmaTrue   <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
-  statTable$kappaMult   <- kappaMult
-  statTable$corr        <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps       <- nReps
-  statTable$Umax        <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
-  statTable$tUtrough    <- opMod$tUtrough
-  statTable$tUpeak      <- opMod$tUpeak
-  statTable$tau2OM      <- opMod$tau2[1:nS]
-  statTable$lastNegCorr <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
-  statTable$nS          <- opMod$nS
+  statTable$scenario        <- blob$ctrl$scenarioName
+  statTable$mp              <- blob$ctrl$mpLabel
+  statTable$species         <- species
+  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
+  statTable$kappaMult       <- kappaMult
+  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
+  statTable$nReps           <- nReps
+  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUtrough        <- opMod$tUtrough
+  statTable$tUpeak          <- opMod$tUpeak
+  statTable$tau2OM          <- opMod$tau2[1:nS]
+  statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
+  statTable$nS              <- opMod$nS
+  statTable$s2q             <- blob$assess$s2lnq
+  statTable$tauq2           <- median(blob$am$ms$tauq2,na.rm=TRUE)
+  statTable$qbar            <- median(blob$am$ms$qbar,na.rm=TRUE)
+  statTable$s2Umsy          <- blob$assess$s2lnUmsy
+  statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
+  statTable$Umsybar         <- median(blob$am$ms$Umsybar,na.rm=TRUE)
+  if (is.null(blob$assess$tauq2Prior))
+  {
+    statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
+    statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
+    statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
+    statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
+  } else {
+    statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
+    statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
+    statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
+    statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
+  }
+  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
+  statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
+  statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
+
 
   # Now errors
   for (s in 1:nS)

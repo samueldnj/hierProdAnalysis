@@ -44,6 +44,8 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(nT);             // No of time steps
   // Model switches
   DATA_INTEGER(SigmaPriorCode)  // 0 => IG on diagonal element, 1 => IW on cov matrix
+  DATA_INTEGER(tauqPriorCode)   // 0 => IG on tauq2, 1 => normal
+  DATA_INTEGER(sigUPriorCode)   // 0 => IG on tauq2, 1 => normal
 
 
   /*parameter section*/
@@ -65,8 +67,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(s2Bmsy);             // prior eqbm biomass var
   PARAMETER_VECTOR(tau2IGa);            // IG parameters for tau2 prior
   PARAMETER_VECTOR(tau2IGb);            // IG parameters for tau2 prior
-  PARAMETER_VECTOR(tauq2IG);            // IG parameters for tauq2 prior
-  PARAMETER_VECTOR(sigU2IG);            // IG parameters for tauq2 prior
+  PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (IGa,IGb) or (mean,var)
+  PARAMETER_VECTOR(sigU2Prior);         // Hyperparameters for sigU2 prior - (IGa,IGb) or (mean,var)
   PARAMETER_VECTOR(kappa2IG);           // IG parameters for kappa2 prior
   PARAMETER_VECTOR(Sigma2IG);           // IG parameters for Sigma2 prior
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
@@ -103,7 +105,7 @@ Type objective_function<Type>::operator() ()
   matrix<Type>      Sigma(nS,nS);
   vector<Type>      omegat(nT);
   // Scalars
-  Type              obj    = 0.0;   // objective function (neg log likelihood)
+  Type              nll    = 0.0;   // objective function (neg log likelihood)
   Type              pospen = 0.0;   // posfun penalty
   // Derived variables
   vector<Type>      msy = Bmsy * Umsy;
@@ -126,6 +128,8 @@ Type objective_function<Type>::operator() ()
   omegat(0) = 0;
   // pop at eqbm
   Bt.col(0) = Type(2)*Bmsy;
+  // Initialise RE nll
+  Type nllRE = 0.0;
   for (int t=1; t<nT; t++)
   {
     omegat(t) = gammaYr * omegat(t-1) + eps_t(t-1);
@@ -134,13 +138,14 @@ Type objective_function<Type>::operator() ()
     for (int s=0; s<nS;s++)
     {
       Bt(s,t) = posfun(Bt(s,t), Type(1.), pospen);
-      obj += Type(10.0)*pospen;  
+      nllRE += Type(10.0)*pospen;  
     } 
     // Add year effect contribution to objective function
-    obj += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
+    nllRE += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
     // Add correlated species effects contribution to likelihood
-    if (nS > 1) obj += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
+    if (nS > 1) nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
   }
+  nll += nllRE;
 
   // Concentrate species specific obs error likelihood?
   // Sum of squares vector
@@ -148,6 +153,7 @@ Type objective_function<Type>::operator() ()
   vector<Type> tau2hat(nS);
   vector<Type> validObs(nS);
   validObs.fill(0);
+  Type nllObs = 0.0;
   // Compute observation likelihood
   for(int s=0; s<nS; s++)
   {
@@ -159,17 +165,22 @@ Type objective_function<Type>::operator() ()
         validObs(s) += int(1);
         Type res = log( It( s, t ) ) - log( Bt( s, t ) );
         ss(s) += pow( res - lnq(s), 2 );
-        obj += Type(0.5) * ( lntau2(s) + pow( res - lnq(s),2) / tau2(s) );
+        nllObs += Type(0.5) * ( lntau2(s) + pow( res - lnq(s), 2 ) / tau2(s) );
       }
     }
-    tau2hat( s ) = ss(s)/(validObs(s)-1);
+    tau2hat( s ) = ss(s) / ( validObs(s) - 1 );
   }
+  nll += nllObs;
+
   // Add priors
   // eqbm biomass
+  Type nllBprior = 0.0;
+  Type nllqPrior = 0.0;
+  Type nllUprior = 0.0;
   for (int s=0; s<nS; s++ )
   {
-    obj += pow(Bmsy(s) - mBmsy(s),2)/s2Bmsy(s);  
-  }
+    nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / s2Bmsy(s);  
+  } 
   // multispecies shared priors
   if (nS > 1)
   {
@@ -177,55 +188,75 @@ Type objective_function<Type>::operator() ()
     for (int s=0; s<nS;s++)
     {
       // catchability
-      obj += Type(0.5)*( lntauq2 + pow( q(s) - qbar,2)/tauq2);
+      nllqPrior += Type(0.5) * ( lntauq2 + pow( q(s) - qbar, 2 ) / tauq2 );
       // productivity
-      obj += Type(0.5)*( lnsigUmsy2 + pow(lnUmsy(s) - lnUmsybar,2)/sigUmsy2 );
+      nllUprior += Type(0.5) * ( lnsigUmsy2 + pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 );
     }  
     // Hyperpriors
     // catchability
-    obj += Type(0.5)* pow(qbar - exp(mlnq),2)/s2lnq;
+    nllqPrior += Type(0.5) * pow( qbar - exp(mlnq), 2 ) / s2lnq;
     // productivity
-    obj += Type(0.5)* pow(lnUmsybar - mlnUmsy,2)/s2lnUmsy;
+    nllUprior += Type(0.5) * pow( Umsybar - exp(mlnUmsy), 2 ) / s2lnUmsy;
     // End multispecies shared priors
-  } else {
+  } 
+  if( nS == 1 ) 
+  {
     // Now for single species model
     for (int s=0; s<nS; s++)
     {
-      obj += Type(0.5)* pow( q(s) - exp(mlnq),2)/s2lnq;
+      nllqPrior += Type(0.5) * pow( q(s) - exp(mlnq), 2 ) / s2lnq;
       // productivity
-      obj += Type(0.5)* pow(lnUmsy(s) - mlnUmsy,2)/s2lnUmsy;
+      nllUprior += Type(0.5) * pow( Umsy(s) - exp(mlnUmsy), 2 ) / s2lnUmsy;
     }   
   }
+  nll += nllBprior + nllqPrior + nllUprior;
   
   // Variance IG priors
   // Obs error var
+  Type nllVarPrior = 0.0;
   for( int s = 0; s < nS; s++ )
   {
-    obj += (tau2IGa[s]+Type(1))*lntau2(s)+tau2IGb[s]/tau2(s);  
+    nllVarPrior += (tau2IGa[s]+Type(1))*lntau2(s)+tau2IGb[s]/tau2(s);  
   }
   // year effect deviations var
-  obj += (kappa2IG(0)+Type(1))*lnkappa2+kappa2IG(1)/kappa2;
+  nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2+kappa2IG(1)/kappa2;
   // Now multispecies priors
   if (nS > 1)
   {
     // shared q prior variance
-    obj += (tauq2IG(0)+Type(1))*lntauq2+tauq2IG(1)/exp(lntauq2);
+    if( tauqPriorCode == 0 )
+    {
+      nllVarPrior += (tauq2Prior(0)+Type(1))*lntauq2+tauq2Prior(1)/exp(lntauq2);  
+    }
+    if( tauqPriorCode == 1 )
+    {
+      nllVarPrior += Type(0.5) * pow( tauq2 - tauq2Prior(0), 2) / tauq2Prior(1);
+    }
     // shared U prior variance
-    obj += (sigU2IG(0)+Type(1))*lnsigUmsy2+sigU2IG(1)/exp(lnsigUmsy2);
+    if( sigUPriorCode == 0 )
+    {
+      nllVarPrior += (sigU2Prior(0)+Type(1))*lnsigUmsy2+sigU2Prior(1)/exp(lnsigUmsy2);  
+    }
+    if( sigUPriorCode == 1 )
+    {
+      nllVarPrior += Type(0.5) * pow( sigUmsy2 - sigU2Prior(0), 2) / sigU2Prior(1);
+    }
+    
     // Apply Sigma Prior
     if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
     {
-      obj += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+      nllVarPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
     }
     if( SigmaPriorCode == 1 ) // Apply IW prior to Sigma matrix
     {
       matrix<Type> traceMat = wishScale * Sigma.inverse();
       Type trace = 0.0;
       for (int s=0;s<nS;s++) trace += traceMat(s,s);
-      obj += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
+      nllVarPrior += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
     }
-
   }
+  nll += nllVarPrior;
+
   // Derive some output variables
   Ut  = Ct / Bt;
   DnT = Bt.col(nT-1)/Bmsy/2;
@@ -260,6 +291,7 @@ Type objective_function<Type>::operator() ()
   REPORT(msy);
   REPORT(tau2);
   REPORT(kappa2);
+  REPORT(tau2hat);
   if (nS > 1)
   {
     REPORT(Sigma);
@@ -271,8 +303,15 @@ Type objective_function<Type>::operator() ()
     REPORT(tauq2);
   }
   REPORT(gammaYr);
+  REPORT(nll);
+  REPORT(nllRE);
+  REPORT(nllObs);
+  REPORT(nllqPrior);
+  REPORT(nllUprior);
+  REPORT(nllBprior);
+  REPORT(nllVarPrior);
   
-  return obj;
+  return nll;
 }
 
 
