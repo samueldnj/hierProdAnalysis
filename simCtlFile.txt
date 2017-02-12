@@ -17,7 +17,7 @@ opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
 opMod$tUpeak 5
 opMod$tUtrough 15
-opMod$q c(0.518,0.628,0.488,0.648,0.718)
+opMod$q c(0.6,0.6,0.6,.6,.6)
 opMod$gammaYr 0.0
 opMod$tau2 c(0.04,0.04,0.04,0.04,0.04)
 opMod$identObs FALSE
@@ -47,11 +47,11 @@ assess$fixUbar FALSE
 assess$mlnUmsy -1.32
 assess$s2lnUmsy 3
 assess$lnqbar -.51
-assess$lntauq2 -4 
-assess$fixtauq2 FALSE
+assess$lntauq2 10
+assess$fixtauq2 TRUE
 assess$fixqbar FALSE
 assess$mlnq -0.51
-assess$s2lnq 1
+assess$s2lnq 5
 assess$sigUPriorCode 0
 assess$sigU2Prior c(0.01,5)
 assess$sigU2P1 NULL
