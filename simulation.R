@@ -511,7 +511,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         lower = LB,
                         upper= UB ) )
 
-
   # Run SD report on the fit if it works, and get the rep file
   if( class ( fit ) == "try-error" ) {
     sdrep <- NA
@@ -525,7 +524,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     sdrep <- NA
     CIs <- NA
   } else {
-    # browser()
+    browser(cat("sdRep"))
     CIs <-  summary(sdrep) 
     colnames( CIs ) <- c("val","se")
     CIs <-  CIs %>% 
