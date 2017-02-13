@@ -1,3 +1,13 @@
+# RE Experiments Batch File
+parameter value
+#
+# Scenarios
+#
+# Scenario 1 : nS2_
+#
+scenario$scenario1$ctrl$scenarioName 'nS2'
+scenario$scenario1$opMod$nS 2
+#
 # Management Procedure
 #
 # MP 1 : fixqbar_fixtau2q.01

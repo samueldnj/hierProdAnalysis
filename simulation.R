@@ -512,26 +512,29 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         upper= UB ) )
 
   # Run SD report on the fit if it works, and get the rep file
-  if( class ( fit ) == "try-error" ) {
+  if( class ( fit ) == "try-error" ) 
+  {
     sdrep <- NA
     CIs <- NA
   } else {
     sdrep <- try( sdreport( obj ) )
     rep   <- try( obj$report() )
   } 
-
-  if( class( sdrep ) == "try-error" ){
+  if( class( sdrep ) == "try-error" )
+  {
     sdrep <- NA
     CIs <- NA
-  } else {
-    browser(cat("sdRep"))
-    CIs <-  summary(sdrep) 
-    colnames( CIs ) <- c("val","se")
+  }
+  # If sdrep exists, compute confidence intervals
+  if( !is.na( sdrep ) )
+  {
+    CIs <-  summary( sdrep ) 
+    colnames( CIs ) <- c( "val", "se" )
     CIs <-  CIs %>% 
               as.data.frame() %>%
-              mutate( par = rownames(CIs),
-                      lCI = val - 1.645*se,
-                      uCI = val + 1.645*se ) %>%
+              mutate( par = rownames( CIs ),
+                      lCI = val - 1.645 * se,
+                      uCI = val + 1.645 * se ) %>%
               dplyr::select( par, val, se, lCI, uCI )
   }
 
