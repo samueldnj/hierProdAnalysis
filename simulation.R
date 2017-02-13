@@ -513,17 +513,31 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
 
   # Run SD report on the fit if it works, and get the rep file
-  if( class ( fit ) == "try-error" ) fitrep <- NA
-  else
-  {
-    fitrep <- try( sdreport( obj ) )
+  if( class ( fit ) == "try-error" ) {
+    sdrep <- NA
+    CIs <- NA
+  } else {
+    sdrep <- try( sdreport( obj ) )
     rep   <- try( obj$report() )
   } 
 
-  if( class( fitrep ) == "try-error" ) fitrep <- NA
+  if( class( sdrep ) == "try-error" ){
+    sdrep <- NA
+    CIs <- NA
+  } else {
+    # browser()
+    CIs <-  summary(sdrep) 
+    colnames( CIs ) <- c("val","se")
+    CIs <-  CIs %>% 
+              as.data.frame() %>%
+              mutate( par = rownames(CIs),
+                      lCI = val - 1.645*se,
+                      uCI = val + 1.645*se ) %>%
+              dplyr::select( par, val, se, lCI, uCI )
+  }
 
   # Return
-  list(sdrep=fitrep, rep=rep)
+  list(sdrep=sdrep, rep=rep, CIs = CIs)
 }
 
 # seedFit()
@@ -636,8 +650,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   slnq    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   hesspd  = matrix(FALSE,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   maxGrad = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
-                  sdrep   = vector(mode="list",length=nReps),
-                  fitrep  = vector(mode="list",length=nReps))
+                  sdrep   = vector( mode = "list", length = nReps ),
+                  CIs     = vector( mode = "list", length = nReps ),
+                  fitrep  = vector( mode = "list", length = nReps ) )
 
   # multispecies (coastwide)
   am$ms <- list ( Umsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
@@ -660,8 +675,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   hesspd  = matrix(FALSE, nrow = nReps, ncol = 1),
                   maxGrad = matrix(NA, nrow = nReps, ncol = 1),
-                  sdrep   = vector(mode="list", length=nReps),
-                  fitrep  = vector(mode="list",length=nReps))
+                  sdrep   = vector( mode = "list", length = nReps ),
+                  CIs     = vector( mode = "list", length = nReps ),
+                  fitrep  = vector( mode = "list", length = nReps ) )
 
 
   # The BLOOOOOOBBBBBB
@@ -681,6 +697,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   {
     # Run sim-est procedure
     simEst <- .seedFit ( seed = seeds[i], obj=obj, quiet = quiet)
+    # browser()
 
     # Save OM values
     blob$om$Bt[i,,]         <- simEst$om$Bt
@@ -696,6 +713,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Save AM results
     # Loop over single species
     # blob$am$ss$rep <- vector(mode = "list", length = nS)
+    blob$am$ss$sdrep[[i]]       <- vector( mode = "list", length = nS )
+    blob$am$ss$CIs[[i]]       <- vector( mode = "list", length = nS )
     for ( s in 1:nS )
     {
       if (  !is.na(simEst$ssFit[[s]]$sdrep) )
@@ -703,6 +722,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         # Recover report from optimisation
         sdrep     <- simEst$ssFit[[s]]$sdrep
         fitrep    <- simEst$ssFit[[s]]$rep
+        CIs       <- simEst$ssFit[[s]]$CIs
         estList   <- as.list(sdrep,"Estimate")
 
         # Now save estimates
@@ -712,14 +732,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ss$q[i,s]           <- fitrep$q
         blob$am$ss$kappa2[i,s]      <- fitrep$kappa2
         blob$am$ss$tau2[i,s]        <- fitrep$tau2
-        blob$am$ss$dep[i,s,]        <- fitrep$Bt/exp(estList$lnBmsy)/2
+        blob$am$ss$dep[i,s,]        <- fitrep$Bt/fitrep$Bmsy/2
         blob$am$ss$epst[i,s,2:nT]   <- estList$eps_t
         blob$am$ss$gamma[i,s]       <- fitrep$gammaYr
         blob$am$ss$Bt[i,s,]         <- fitrep$Bt
         # Estimator performance flags
         blob$am$ss$maxGrad[i,s]     <- max(sdrep$gradient.fixed)
         blob$am$ss$hesspd[i,s]      <- sdrep$pdHess
-        blob$am$ss$sdrep[[i]]       <- sdrep
+        blob$am$ss$sdrep[[i]][[s]]  <- sdrep
+        blob$am$ss$CIs[[i]][[s]]    <- CIs
         blob$am$ss$fitrep[[i]]      <- fitrep
       }
      
@@ -756,7 +777,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       }
       # Estimator Performance Flags
       blob$am$ms$hesspd[i]          <- sdrep$pdHess
-      blob$am$ms$maxGrad[i]         <- max(sdrep$gradient.fixed)
+      # blob$am$ms$maxGrad[i]         <- max(sdrep$gradient.fixed)
       blob$am$ms$sdrep[[i]]         <- sdrep
       blob$am$ms$fitrep[[i]]        <- fitrep
     }

@@ -45,13 +45,13 @@ assess$lnsigUmsy2 2.5
 assess$fixsigU2 FALSE
 assess$fixUbar FALSE
 assess$mlnUmsy -1.32
-assess$s2lnUmsy 3
+assess$s2lnUmsy 10
 assess$lnqbar -.51
 assess$lntauq2 2.5 
 assess$fixtauq2 FALSE
 assess$fixqbar FALSE
 assess$mlnq -0.51
-assess$s2lnq 3
+assess$s2lnq 10
 assess$sigUPriorCode 0
 assess$sigU2Prior c(0.001,1)
 assess$sigU2P1 NULL
