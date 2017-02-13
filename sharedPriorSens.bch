@@ -202,18 +202,18 @@ mp$mp20$assess$s2lnq .1
 mp$mp20$assess$fixtauq2 TRUE
 mp$mp20$assess$lntauq2 2.30
 #
-# MP 21 : fixqbar_tqIGP(.01,.1)
+# MP 21 : fixqbar_tqIGP(.01_.1)
 #
-mp$mp21$ctrl$mpLabel "qbar.6_tqIGP(.01,.1)"
+mp$mp21$ctrl$mpLabel "qbar.6_tqIGP(.01_.1)"
 mp$mp21$assess$fixqbar TRUE
 mp$mp21$assess$lnqbar -.51
 mp$mp21$assess$tauqPriorCode 0
 mp$mp21$assess$tauq2P1 .01
 mp$mp21$assess$tauq2P2 .1
 #
-# MP 22 : s2q10_tqIGP(.01,.1)
+# MP 22 : s2q10_tqIGP(.01_.1)
 #
-mp$mp22$ctrl$mpLabel "s2q10_tqIGP(.01,.1)"
+mp$mp22$ctrl$mpLabel "s2q10_tqIGP(.01_.1)"
 mp$mp22$assess$fixqbar FALSE
 mp$mp22$assess$lnqbar -.51
 mp$mp22$assess$mlnq -.51
@@ -222,9 +222,9 @@ mp$mp22$assess$tauqPriorCode 0
 mp$mp22$assess$tauq2P1 .01
 mp$mp22$assess$tauq2P2 .1
 #
-# MP 23 : s2q1_tqIGP(.01,.1)
+# MP 23 : s2q1_tqIGP(.01_.1)
 #
-mp$mp23$ctrl$mpLabel "s2q1_tqIGP(.01,.1)"
+mp$mp23$ctrl$mpLabel "s2q1_tqIGP(.01_.1)"
 mp$mp23$assess$fixqbar FALSE
 mp$mp23$assess$lnqbar -.51
 mp$mp23$assess$mlnq -.51
@@ -233,9 +233,9 @@ mp$mp23$assess$tauqPriorCode 0
 mp$mp23$assess$tauq2P1 .01
 mp$mp23$assess$tauq2P2 .1
 #
-# MP 24 : s2q.1_tqIGP(.01,.1)
+# MP 24 : s2q.1_tqIGP(.01_.1)
 #
-mp$mp24$ctrl$mpLabel "s2q.1_tqIGP(.01,.1)"
+mp$mp24$ctrl$mpLabel "s2q.1_tqIGP(.01_.1)"
 mp$mp24$assess$fixqbar TRUE
 mp$mp24$assess$lnqbar -.51
 mp$mp24$assess$mlnq -.51
@@ -244,9 +244,9 @@ mp$mp24$assess$tauqPriorCode 0
 mp$mp24$assess$tauq2P1 .01
 mp$mp24$assess$tauq2P2 .1
 #
-# MP 25 : s2q.01_tqIGP(.01,.1)
+# MP 25 : s2q.01_tqIGP(.01_.1)
 #
-mp$mp25$ctrl$mpLabel "s2q.01_tqIGP(.01,.1)"
+mp$mp25$ctrl$mpLabel "s2q.01_tqIGP(.01_.1)"
 mp$mp25$assess$fixqbar TRUE
 mp$mp25$assess$lnqbar -.51
 mp$mp25$assess$mlnq -.51
@@ -255,18 +255,18 @@ mp$mp25$assess$tauqPriorCode 0
 mp$mp25$assess$tauq2P1 .01
 mp$mp25$assess$tauq2P2 .1
 #
-# MP 26 : fixqbar_tqIGP(.01,1)
+# MP 26 : fixqbar_tqIGP(.01_1)
 #
-mp$mp26$ctrl$mpLabel "qbar.6_tqIGP(.01,1)"
+mp$mp26$ctrl$mpLabel "qbar.6_tqIGP(.01_1)"
 mp$mp26$assess$fixqbar TRUE
 mp$mp26$assess$lnqbar -.51
 mp$mp26$assess$tauqPriorCode 0
 mp$mp26$assess$tauq2P1 .01
 mp$mp26$assess$tauq2P2 1
 #
-# MP 27 : s2q10_tqIGP(.01,1)
+# MP 27 : s2q10_tqIGP(.01_1)
 #
-mp$mp27$ctrl$mpLabel "s2q10_tqIGP(.01,1)"
+mp$mp27$ctrl$mpLabel "s2q10_tqIGP(.01_1)"
 mp$mp27$assess$fixqbar FALSE
 mp$mp27$assess$lnqbar -.51
 mp$mp27$assess$mlnq -.51
@@ -275,9 +275,9 @@ mp$mp27$assess$tauqPriorCode 0
 mp$mp27$assess$tauq2P1 .01
 mp$mp27$assess$tauq2P2 1
 #
-# MP 28 : s2q1_tqIGP(.01,1)
+# MP 28 : s2q1_tqIGP(.01_1)
 #
-mp$mp28$ctrl$mpLabel "s2q1_tqIGP(.01,1)"
+mp$mp28$ctrl$mpLabel "s2q1_tqIGP(.01_1)"
 mp$mp28$assess$fixqbar FALSE
 mp$mp28$assess$lnqbar -.51
 mp$mp28$assess$mlnq -.51
@@ -286,9 +286,9 @@ mp$mp28$assess$tauqPriorCode 0
 mp$mp28$assess$tauq2P1 .01
 mp$mp28$assess$tauq2P2 1
 #
-# MP 29 : s2q.1_tqIGP(.01,1)
+# MP 29 : s2q.1_tqIGP(.01_1)
 #
-mp$mp29$ctrl$mpLabel "s2q.1_tqIGP(.01,1)"
+mp$mp29$ctrl$mpLabel "s2q.1_tqIGP(.01_1)"
 mp$mp29$assess$fixqbar TRUE
 mp$mp29$assess$lnqbar -.51
 mp$mp29$assess$mlnq -.51
@@ -297,9 +297,9 @@ mp$mp29$assess$tauqPriorCode 0
 mp$mp29$assess$tauq2P1 .01
 mp$mp29$assess$tauq2P2 1
 #
-# MP 30 : s2q.01_tqIGP(.01,1)
+# MP 30 : s2q.01_tqIGP(.01_1)
 #
-mp$mp30$ctrl$mpLabel "s2q.01_tqIGP(.01,1)"
+mp$mp30$ctrl$mpLabel "s2q.01_tqIGP(.01_1)"
 mp$mp30$assess$fixqbar TRUE
 mp$mp30$assess$lnqbar -.51
 mp$mp30$assess$mlnq -.51
@@ -308,18 +308,18 @@ mp$mp30$assess$tauqPriorCode 0
 mp$mp30$assess$tauq2P1 .01
 mp$mp30$assess$tauq2P2 1
 #
-# MP 31 : fixqbar_tqIGP(.01,10)
+# MP 31 : fixqbar_tqIGP(.01_10)
 #
-mp$mp31$ctrl$mpLabel "qbar.6_tqIGP(.01,10)"
+mp$mp31$ctrl$mpLabel "qbar.6_tqIGP(.01_10)"
 mp$mp31$assess$fixqbar TRUE
 mp$mp31$assess$lnqbar -.51
 mp$mp31$assess$tauqPriorCode 0
 mp$mp31$assess$tauq2P1 .01
 mp$mp31$assess$tauq2P2 10
 #
-# MP 32 : s2q10_tqIGP(.01,10)
+# MP 32 : s2q10_tqIGP(.01_10)
 #
-mp$mp32$ctrl$mpLabel "s2q10_tqIGP(.01,10)"
+mp$mp32$ctrl$mpLabel "s2q10_tqIGP(.01_10)"
 mp$mp32$assess$fixqbar FALSE
 mp$mp32$assess$lnqbar -.51
 mp$mp32$assess$mlnq -.51
@@ -328,9 +328,9 @@ mp$mp32$assess$tauqPriorCode 0
 mp$mp32$assess$tauq2P1 .01
 mp$mp32$assess$tauq2P2 10
 #
-# MP 33 : s2q1_tqIGP(.01,10)
+# MP 33 : s2q1_tqIGP(.01_10)
 #
-mp$mp33$ctrl$mpLabel "s2q1_tqIGP(.01,10)"
+mp$mp33$ctrl$mpLabel "s2q1_tqIGP(.01_10)"
 mp$mp33$assess$fixqbar FALSE
 mp$mp33$assess$lnqbar -.51
 mp$mp33$assess$mlnq -.51
@@ -339,9 +339,9 @@ mp$mp33$assess$tauqPriorCode 0
 mp$mp33$assess$tauq2P1 .01
 mp$mp33$assess$tauq2P2 10
 #
-# MP 34 : s2q.1_tqIGP(.01,10)
+# MP 34 : s2q.1_tqIGP(.01_10)
 #
-mp$mp34$ctrl$mpLabel "s2q.1_tqIGP(.01,10)"
+mp$mp34$ctrl$mpLabel "s2q.1_tqIGP(.01_10)"
 mp$mp34$assess$fixqbar TRUE
 mp$mp34$assess$lnqbar -.51
 mp$mp34$assess$mlnq -.51
@@ -350,9 +350,9 @@ mp$mp34$assess$tauqPriorCode 0
 mp$mp34$assess$tauq2P1 .01
 mp$mp34$assess$tauq2P2 10
 #
-# MP 35 : s2q.01_tqIGP(.01,10)
+# MP 35 : s2q.01_tqIGP(.01_10)
 #
-mp$mp35$ctrl$mpLabel "s2q.01_tqIGP(.01,10)"
+mp$mp35$ctrl$mpLabel "s2q.01_tqIGP(.01_10)"
 mp$mp35$assess$fixqbar TRUE
 mp$mp35$assess$lnqbar -.51
 mp$mp35$assess$mlnq -.51
@@ -362,18 +362,18 @@ mp$mp35$assess$tauq2P1 .01
 mp$mp35$assess$tauq2P2 10
 #
 
-# MP 36 : fixqbar_tqIGP(.1,.1)
+# MP 36 : fixqbar_tqIGP(.1_.1)
 #
-mp$mp36$ctrl$mpLabel "qbar.6_tqIGP(.1,.1)"
+mp$mp36$ctrl$mpLabel "qbar.6_tqIGP(.1_.1)"
 mp$mp36$assess$fixqbar TRUE
 mp$mp36$assess$lnqbar -.51
 mp$mp36$assess$tauqPriorCode 0
 mp$mp36$assess$tauq2P1 .1
 mp$mp36$assess$tauq2P2 .1
 #
-# MP 37 : s2q10_tqIGP(.1,.1)
+# MP 37 : s2q10_tqIGP(.1_.1)
 #
-mp$mp37$ctrl$mpLabel "s2q10_tqIGP(.1,.1)"
+mp$mp37$ctrl$mpLabel "s2q10_tqIGP(.1_.1)"
 mp$mp37$assess$fixqbar FALSE
 mp$mp37$assess$lnqbar -.51
 mp$mp37$assess$mlnq -.51
@@ -382,9 +382,9 @@ mp$mp37$assess$tauqPriorCode 0
 mp$mp37$assess$tauq2P1 .1
 mp$mp37$assess$tauq2P2 .1
 #
-# MP 38 : s2q1_tqIGP(.1,.1)
+# MP 38 : s2q1_tqIGP(.1_.1)
 #
-mp$mp38$ctrl$mpLabel "s2q1_tqIGP(.1,.1)"
+mp$mp38$ctrl$mpLabel "s2q1_tqIGP(.1_.1)"
 mp$mp38$assess$fixqbar FALSE
 mp$mp38$assess$lnqbar -.51
 mp$mp38$assess$mlnq -.51
@@ -393,9 +393,9 @@ mp$mp38$assess$tauqPriorCode 0
 mp$mp38$assess$tauq2P1 .1
 mp$mp38$assess$tauq2P2 .1
 #
-# MP 39 : s2q.1_tqIGP(.1,.1)
+# MP 39 : s2q.1_tqIGP(.1_.1)
 #
-mp$mp39$ctrl$mpLabel "s2q.1_tqIGP(.1,.1)"
+mp$mp39$ctrl$mpLabel "s2q.1_tqIGP(.1_.1)"
 mp$mp39$assess$fixqbar TRUE
 mp$mp39$assess$lnqbar -.51
 mp$mp39$assess$mlnq -.51
@@ -404,9 +404,9 @@ mp$mp39$assess$tauqPriorCode 0
 mp$mp39$assess$tauq2P1 .1
 mp$mp39$assess$tauq2P2 .1
 #
-# MP 40 : s2q.01_tqIGP(.1,.1)
+# MP 40 : s2q.01_tqIGP(.1_.1)
 #
-mp$mp40$ctrl$mpLabel "s2q.01_tqIGP(.1,.1)"
+mp$mp40$ctrl$mpLabel "s2q.01_tqIGP(.1_.1)"
 mp$mp40$assess$fixqbar TRUE
 mp$mp40$assess$lnqbar -.51
 mp$mp40$assess$mlnq -.51
@@ -415,18 +415,18 @@ mp$mp40$assess$tauqPriorCode 0
 mp$mp40$assess$tauq2P1 .1
 mp$mp40$assess$tauq2P2 .1
 #
-# MP 41 : fixqbar_tqIGP(.1,1)
+# MP 41 : fixqbar_tqIGP(.1_1)
 #
-mp$mp41$ctrl$mpLabel "qbar.6_tqIGP(.1,1)"
+mp$mp41$ctrl$mpLabel "qbar.6_tqIGP(.1_1)"
 mp$mp41$assess$fixqbar TRUE
 mp$mp41$assess$lnqbar -.51
 mp$mp41$assess$tauqPriorCode 0
 mp$mp41$assess$tauq2P1 .1
 mp$mp41$assess$tauq2P2 1
 #
-# MP 42 : s2q10_tqIGP(.1,1)
+# MP 42 : s2q10_tqIGP(.1_1)
 #
-mp$mp42$ctrl$mpLabel "s2q10_tqIGP(.1,1)"
+mp$mp42$ctrl$mpLabel "s2q10_tqIGP(.1_1)"
 mp$mp42$assess$fixqbar FALSE
 mp$mp42$assess$lnqbar -.51
 mp$mp42$assess$mlnq -.51
@@ -435,9 +435,9 @@ mp$mp42$assess$tauqPriorCode 0
 mp$mp42$assess$tauq2P1 .1
 mp$mp42$assess$tauq2P2 1
 #
-# MP 43 : s2q1_tqIGP(.1,1)
+# MP 43 : s2q1_tqIGP(.1_1)
 #
-mp$mp43$ctrl$mpLabel "s2q1_tqIGP(.1,1)"
+mp$mp43$ctrl$mpLabel "s2q1_tqIGP(.1_1)"
 mp$mp43$assess$fixqbar FALSE
 mp$mp43$assess$lnqbar -.51
 mp$mp43$assess$mlnq -.51
@@ -446,9 +446,9 @@ mp$mp43$assess$tauqPriorCode 0
 mp$mp43$assess$tauq2P1 .1
 mp$mp43$assess$tauq2P2 1
 #
-# MP 44 : s2q.1_tqIGP(.1,1)
+# MP 44 : s2q.1_tqIGP(.1_1)
 #
-mp$mp44$ctrl$mpLabel "s2q.1_tqIGP(.1,1)"
+mp$mp44$ctrl$mpLabel "s2q.1_tqIGP(.1_1)"
 mp$mp44$assess$fixqbar TRUE
 mp$mp44$assess$lnqbar -.51
 mp$mp44$assess$mlnq -.51
@@ -457,9 +457,9 @@ mp$mp44$assess$tauqPriorCode 0
 mp$mp44$assess$tauq2P1 .1
 mp$mp44$assess$tauq2P2 1
 #
-# MP 45 : s2q.01_tqIGP(.1,1)
+# MP 45 : s2q.01_tqIGP(.1_1)
 #
-mp$mp45$ctrl$mpLabel "s2q.01_tqIGP(.1,1)"
+mp$mp45$ctrl$mpLabel "s2q.01_tqIGP(.1_1)"
 mp$mp45$assess$fixqbar TRUE
 mp$mp45$assess$lnqbar -.51
 mp$mp45$assess$mlnq -.51
@@ -468,18 +468,18 @@ mp$mp45$assess$tauqPriorCode 0
 mp$mp45$assess$tauq2P1 .1
 mp$mp45$assess$tauq2P2 1
 #
-# MP 46 : fixqbar_tqIGP(.01,10)
+# MP 46 : fixqbar_tqIGP(.01_10)
 #
-mp$mp46$ctrl$mpLabel "qbar.6_tqIGP(.01,10)"
+mp$mp46$ctrl$mpLabel "qbar.6_tqIGP(.01_10)"
 mp$mp46$assess$fixqbar TRUE
 mp$mp46$assess$lnqbar -.51
 mp$mp46$assess$tauqPriorCode 0
 mp$mp46$assess$tauq2P1 .01
 mp$mp46$assess$tauq2P2 10
 #
-# MP 47 : s2q10_tqIGP(.01,10)
+# MP 47 : s2q10_tqIGP(.01_10)
 #
-mp$mp47$ctrl$mpLabel "s2q10_tqIGP(.01,10)"
+mp$mp47$ctrl$mpLabel "s2q10_tqIGP(.01_10)"
 mp$mp47$assess$fixqbar FALSE
 mp$mp47$assess$lnqbar -.51
 mp$mp47$assess$mlnq -.51
@@ -488,9 +488,9 @@ mp$mp47$assess$tauqPriorCode 0
 mp$mp47$assess$tauq2P1 .01
 mp$mp47$assess$tauq2P2 10
 #
-# MP 48 : s2q1_tqIGP(.01,10)
+# MP 48 : s2q1_tqIGP(.01_10)
 #
-mp$mp48$ctrl$mpLabel "s2q1_tqIGP(.01,10)"
+mp$mp48$ctrl$mpLabel "s2q1_tqIGP(.01_10)"
 mp$mp48$assess$fixqbar FALSE
 mp$mp48$assess$lnqbar -.51
 mp$mp48$assess$mlnq -.51
@@ -499,9 +499,9 @@ mp$mp48$assess$tauqPriorCode 0
 mp$mp48$assess$tauq2P1 .01
 mp$mp48$assess$tauq2P2 10
 #
-# MP 49 : s2q.1_tqIGP(.01,10)
+# MP 49 : s2q.1_tqIGP(.01_10)
 #
-mp$mp49$ctrl$mpLabel "s2q.1_tqIGP(.01,10)"
+mp$mp49$ctrl$mpLabel "s2q.1_tqIGP(.01_10)"
 mp$mp49$assess$fixqbar TRUE
 mp$mp49$assess$lnqbar -.51
 mp$mp49$assess$mlnq -.51
@@ -510,9 +510,9 @@ mp$mp49$assess$tauqPriorCode 0
 mp$mp49$assess$tauq2P1 .01
 mp$mp49$assess$tauq2P2 10
 #
-# MP 50 : s2q.01_tqIGP(.01,10)
+# MP 50 : s2q.01_tqIGP(.01_10)
 #
-mp$mp50$ctrl$mpLabel "s2q.01_tqIGP(.01,10)"
+mp$mp50$ctrl$mpLabel "s2q.01_tqIGP(.01_10)"
 mp$mp50$assess$fixqbar TRUE
 mp$mp50$assess$lnqbar -.51
 mp$mp50$assess$mlnq -.51
