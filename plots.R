@@ -9,8 +9,7 @@
 #
 # --------------------------------------------------------------------------
 
-plotPriorSens <- function ( tableName = "qSens_MRE",
-                            par = "q" )
+plotqPriorSens <- function ( tableName = "qSens_MRE")
 {
   # plotPriorSens()
   # Reads in a stats table for prior sensitivity analyses
@@ -19,6 +18,34 @@ plotPriorSens <- function ( tableName = "qSens_MRE",
   #             par=paremeter that is affected by sens analysis
   # outputs:    NULL
   # side-effs:  plots to quartz
+
+  # Load table
+  fileName <- paste( tableName, ".csv", sep = "" )
+  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
+  table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
+  # table <-  table %>%
+  #           mutate( msq     = qOM * msq + qOM,
+  #                   msq025  = qOM * msq025 + qOM,
+  #                   msq975  = qOM * msq975 + qOM )
+
+  # First, lets plot the performance for cases with
+  # fixed qbar
+  fixTable <- table %>%
+              filter( fixqbar == TRUE ) %>%
+              mutate( msq     = qOM * msq + qOM,
+                      msq025  = qOM * msq025 + qOM,
+                      msq975  = qOM * msq975 + qOM ) %>%
+              dplyr::select( msq, msq025, msq975, qbar, mp, species )
+  
+  fixSpecies  <- unique( fixTable$species )
+  fixMPs      <- unique( fixTable$mp )
+
+
+
+  browser()
+
+
+
 }
 
 

@@ -247,7 +247,7 @@ mp$mp24$assess$tauq2P2 .1
 # MP 25 : s2q.01_tqIGP(.01_.1)
 #
 mp$mp25$ctrl$mpLabel "s2q.01_tqIGP(.01_.1)"
-mp$mp25$assess$fixqbar TRUE
+mp$mp25$assess$fixqbar FALSE
 mp$mp25$assess$lnqbar -.51
 mp$mp25$assess$mlnq -.51
 mp$mp25$assess$s2lnq .01
@@ -300,7 +300,7 @@ mp$mp29$assess$tauq2P2 1
 # MP 30 : s2q.01_tqIGP(.01_1)
 #
 mp$mp30$ctrl$mpLabel "s2q.01_tqIGP(.01_1)"
-mp$mp30$assess$fixqbar TRUE
+mp$mp30$assess$fixqbar FALSE
 mp$mp30$assess$lnqbar -.51
 mp$mp30$assess$mlnq -.51
 mp$mp30$assess$s2lnq .01
@@ -308,7 +308,7 @@ mp$mp30$assess$tauqPriorCode 0
 mp$mp30$assess$tauq2P1 .01
 mp$mp30$assess$tauq2P2 1
 #
-# MP 31 : fixqbar_tqIGP(.01_10)
+# MP 31 : qbar.6_tqIGP(.01_10)
 #
 mp$mp31$ctrl$mpLabel "qbar.6_tqIGP(.01_10)"
 mp$mp31$assess$fixqbar TRUE
@@ -353,7 +353,7 @@ mp$mp34$assess$tauq2P2 10
 # MP 35 : s2q.01_tqIGP(.01_10)
 #
 mp$mp35$ctrl$mpLabel "s2q.01_tqIGP(.01_10)"
-mp$mp35$assess$fixqbar TRUE
+mp$mp35$assess$fixqbar FALSE
 mp$mp35$assess$lnqbar -.51
 mp$mp35$assess$mlnq -.51
 mp$mp35$assess$s2lnq .01
@@ -361,8 +361,7 @@ mp$mp35$assess$tauqPriorCode 0
 mp$mp35$assess$tauq2P1 .01
 mp$mp35$assess$tauq2P2 10
 #
-
-# MP 36 : fixqbar_tqIGP(.1_.1)
+# MP 36 : qbar.6_tqIGP(.1_.1)
 #
 mp$mp36$ctrl$mpLabel "qbar.6_tqIGP(.1_.1)"
 mp$mp36$assess$fixqbar TRUE
@@ -407,7 +406,7 @@ mp$mp39$assess$tauq2P2 .1
 # MP 40 : s2q.01_tqIGP(.1_.1)
 #
 mp$mp40$ctrl$mpLabel "s2q.01_tqIGP(.1_.1)"
-mp$mp40$assess$fixqbar TRUE
+mp$mp40$assess$fixqbar FALSE
 mp$mp40$assess$lnqbar -.51
 mp$mp40$assess$mlnq -.51
 mp$mp40$assess$s2lnq .01
@@ -460,7 +459,7 @@ mp$mp44$assess$tauq2P2 1
 # MP 45 : s2q.01_tqIGP(.1_1)
 #
 mp$mp45$ctrl$mpLabel "s2q.01_tqIGP(.1_1)"
-mp$mp45$assess$fixqbar TRUE
+mp$mp45$assess$fixqbar FALSE
 mp$mp45$assess$lnqbar -.51
 mp$mp45$assess$mlnq -.51
 mp$mp45$assess$s2lnq .01
@@ -513,7 +512,7 @@ mp$mp49$assess$tauq2P2 10
 # MP 50 : s2q.01_tqIGP(.01_10)
 #
 mp$mp50$ctrl$mpLabel "s2q.01_tqIGP(.01_10)"
-mp$mp50$assess$fixqbar TRUE
+mp$mp50$assess$fixqbar FALSE
 mp$mp50$assess$lnqbar -.51
 mp$mp50$assess$mlnq -.51
 mp$mp50$assess$s2lnq .01

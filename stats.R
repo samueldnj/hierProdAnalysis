@@ -253,6 +253,7 @@
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
   statTable$qbar            <- median(blob$am$ms$qbar,na.rm=TRUE)
+  statTable$qOM             <- blob$opMod$q[1:nS]
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
   statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
   statTable$Umsybar         <- median(blob$am$ms$Umsybar,na.rm=TRUE)
