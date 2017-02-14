@@ -9,7 +9,9 @@
 #
 # --------------------------------------------------------------------------
 
-plotqPriorSens <- function ( tableName = "qSens_MRE")
+plotqPriorSens <- function (  tableName = "qPriorSens_MRE",
+                              nSp = 2,
+                              mpContains = "s2q1" )
 {
   # plotPriorSens()
   # Reads in a stats table for prior sensitivity analyses
@@ -27,25 +29,99 @@ plotqPriorSens <- function ( tableName = "qSens_MRE")
   #           mutate( msq     = qOM * msq + qOM,
   #                   msq025  = qOM * msq025 + qOM,
   #                   msq975  = qOM * msq975 + qOM )
+  MPs         <- unique( table$mp )
+  MPs         <- MPs[ grep( mpContains, MPs ) ]
+  table       <- table %>% filter( mp %in% MPs )
 
-  # First, lets plot the performance for cases with
-  # fixed qbar
-  fixTable <- table %>%
-              filter( fixqbar == TRUE ) %>%
-              mutate( msq     = qOM * msq + qOM,
-                      msq025  = qOM * msq025 + qOM,
-                      msq975  = qOM * msq975 + qOM ) %>%
-              dplyr::select( msq, msq025, msq975, qbar, mp, species )
+  # restrict to the table with the 
+  plotTable <-  table %>%
+                # filter( fixqbar == TRUE ) %>%
+                filter( nS == nSp ) %>%
+                group_by( mp, species) %>%
+                summarise(  msq = mean(msq),
+                            qOM = mean(qOM),
+                            tauq2 = mean(tauq2),
+                            qbar = mean(qbar),
+                            msq025 = mean(msq025),
+                            msq975 = mean(msq975),
+                            qbar025 = mean(qbar025),
+                            qbar975 = mean(qbar975),
+                            tauq2025 = mean(tauq2025),
+                            tauq2975 = mean(tauq2975) ) %>%
+                mutate( msq     = qOM * msq + qOM,
+                        msq025  = qOM * msq025 + qOM,
+                        msq975  = qOM * msq975 + qOM ) %>%
+                dplyr::select(  msq, msq025, msq975, 
+                                qbar, qbar025, qbar975,
+                                mp, species, qOM, 
+                                tauq2, tauq2025, tauq2975 ) %>%
+                mutate( qDistHi = qbar + 1.645*sqrt(tauq2),
+                        qDistLo = qbar - 1.645*sqrt(tauq2) )
+
+  species     <- unique( plotTable$species )
+  MPs         <- unique( plotTable$mp )
   
-  fixSpecies  <- unique( fixTable$species )
-  fixMPs      <- unique( fixTable$mp )
+  
+  # plotting quantities
+  nMP         <- length(MPs)
+  nS          <- length(species)
+  # Species plotting locations
+  specX       <- seq (-0.2,0.2, length=nS )
 
+  # Get the central 95% of tauq2 and qbar estimates
+  tauq2       <- plotTable$tauq2
+  tauq2025    <- plotTable$tauq2025
+  tauq2975    <- plotTable$tauq2975
+  qbar        <- plotTable$qbar
+  qbar025     <- plotTable$qbar025
+  qbar975     <- plotTable$qbar975
 
+  fullX       <- c()
+  for( m in 1:nMP ) fullX <- c( fullX, m + specX ) 
 
-  browser()
-
-
-
+  # plot!
+  par( mfrow = c(2,1), las = 1, mar = c(1,1,1,1), oma = c(4,4,1,1) )
+  # plot q estimates against qbar estimates
+  plot( x = c( 0, nMP+1 ), y = c( 0, 1 ), type = "n",
+        axes = FALSE, xlab = "", ylab = "" )
+    polygon(  x = c( fullX, rev( fullX ) ), 
+              y = c( qbar025, rev( qbar975 ) ), 
+              col = "grey80",
+              border = NA )
+    lines( x = fullX, y = qbar, lty = 2, lwd = 2, col = "grey40" )
+    for( k in 1:nMP )
+    {
+      mpTable <- filter(plotTable, mp == MPs[k] ) 
+      
+      points( x = k + specX, y = as.numeric(mpTable$msq), 
+              pch = 16, col = "grey20" )
+      points( x = k + specX, y = as.numeric( mpTable$qOM ), 
+              pch = 1, col = "grey20" )
+      segments( x0 = k + specX, y0 = as.numeric( mpTable$msq025 ),
+                y1 = as.numeric( mpTable$msq975 ), 
+                col = "black", lwd = 3 )
+    }
+    panLegend(  x = 0.8, y = 1, legTxt = c( "q OM", "q Est", "qbar"),
+                bty = "n", pch = c( 1, 16, NA ), 
+                lty = c( NA, NA, 2 ),
+                lwd = c( NA, NA, 2 ) )
+    # axis( side = 1, at = 1:nMP, labels = MPs, las = 0 )
+    axis( side = 2 )
+    mtext(  side = 2, outer = FALSE, text = "Catchability", las = 0,
+            line = 3 )
+    browser()
+  # plot tauq2 estimates
+  plot( x = c( 0, nMP+1 ), y = c( 0, 1 ), type = "n",
+        axes = FALSE, xlab = "", ylab = "" )
+    polygon(  x = c(fullX,rev(fullX)), 
+              y = c(tauq2025,rev(tauq2975)), col = "grey80",
+              border = NA )
+    lines( x = fullX, y = tauq2, lty = 2, lwd = 2, col = "grey20" )
+    axis( side = 1, at = 1:nMP, labels = MPs, las = 0 )
+    axis( side = 2 )
+    mtext( side = 1, outer = TRUE, text = "AM", line = 2)
+    mtext( side = 2, outer = FALSE, text = "tauq2", las = 0,
+           line = 3 )
 }
 
 

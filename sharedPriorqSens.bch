@@ -202,7 +202,7 @@ mp$mp20$assess$s2lnq .01
 mp$mp20$assess$fixtauq2 TRUE
 mp$mp20$assess$lntauq2 2.30
 #
-# MP 21 : fixqbar_tqIGP(.01_.1)
+# MP 21 : qbar.6_tqIGP(.01_.1)
 #
 mp$mp21$ctrl$mpLabel "qbar.6_tqIGP(.01_.1)"
 mp$mp21$assess$fixqbar TRUE
