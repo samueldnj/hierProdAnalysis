@@ -1,7 +1,7 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "sameUsameq"
-ctrl$mpLabel "estqShared-Vague-IGtauq"
+ctrl$scenarioName "test"
+ctrl$mpLabel "qFE-lnqPriorOff"
 ctrl$nReps 10
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
@@ -41,17 +41,18 @@ assess$SigmaPriorCode 1
 assess$mBmsy c(40,12.5,26,52,495)
 assess$s2Bmsy c(1600,156.25,676,2704,245025)
 assess$lnUmsybar -1.2
-assess$lnsigUmsy2 10
-assess$fixsigU2 TRUE
+assess$lnsigUmsy2 1
+assess$fixsigU2 FALSE
 assess$fixUbar FALSE
 assess$mlnUmsy -1.2
 assess$s2lnUmsy 3
+assess$lnqPriorCode 1
 assess$lnqbar -.51
-assess$lntauq2 10
-assess$fixtauq2 TRUE
+assess$lntauq2 1
+assess$fixtauq2 FALSE
 assess$fixqbar FALSE
-assess$mlnq -0.51
-assess$s2lnq 5
+assess$mlnq -0.53
+assess$s2lnq 1
 assess$sigUPriorCode 0
 assess$sigU2Prior c(0.01,5)
 assess$sigU2P1 NULL

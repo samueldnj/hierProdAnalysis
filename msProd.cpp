@@ -43,9 +43,10 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(nS);             // No of species
   DATA_INTEGER(nT);             // No of time steps
   // Model switches
-  DATA_INTEGER(SigmaPriorCode)  // 0 => IG on diagonal element, 1 => IW on cov matrix
-  DATA_INTEGER(tauqPriorCode)   // 0 => IG on tauq2, 1 => normal
-  DATA_INTEGER(sigUPriorCode)   // 0 => IG on tauq2, 1 => normal
+  DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
+  DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
+  DATA_INTEGER(sigUPriorCode);  // 0 => IG on tauq2, 1 => normal
+  DATA_INTEGER(lnqPriorCode);   // 0 => OFF, 1 => ON (turns on/off all q priors)
 
 
   /*parameter section*/
@@ -137,8 +138,8 @@ Type objective_function<Type>::operator() ()
     Bt.col(t) *= exp(omegat(t) + zeta_st.col(t-1));
     for (int s=0; s<nS;s++)
     {
-      Bt(s,t) = posfun(Bt(s,t), Type(1.), pospen);
-      nllRE += Type(10.0)*pospen;  
+      Bt(s,t) = posfun(Bt(s,t), Type(1.e-1), pospen);
+      nllRE += Type(1000.0)*pospen;  
     } 
     // Add year effect contribution to objective function
     nllRE += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
@@ -152,7 +153,10 @@ Type objective_function<Type>::operator() ()
   vector<Type> ss(nS);
   vector<Type> tau2hat(nS);
   vector<Type> validObs(nS);
-  validObs.fill(0);
+  vector<Type> qhat(nS);
+  vector<Type> zSum(nS);
+  validObs.fill(0.0);
+  zSum.fill(0.0);
   Type nllObs = 0.0;
   // Compute observation likelihood
   for(int s=0; s<nS; s++)
@@ -164,11 +168,14 @@ Type objective_function<Type>::operator() ()
       {
         validObs(s) += int(1);
         Type res = log( It( s, t ) ) - log( Bt( s, t ) );
+        zSum += res;
         ss(s) += pow( res - lnq(s), 2 );
         nllObs += Type(0.5) * ( lntau2(s) + pow( res - lnq(s), 2 ) / tau2(s) );
       }
     }
     tau2hat( s ) = ss(s) / ( validObs(s) - 1 );
+    if( nS == 1) qhat(s) = exp( zSum(s) / validObs(s) );
+    if( nS > 1 ) qhat(s) = exp( ( zSum(s) / tau2(s) + lnqbar ) / ( validObs(s) / tau2(s) + 1 / tauq2 ) );
   }
   nll += nllObs;
 
@@ -180,7 +187,8 @@ Type objective_function<Type>::operator() ()
   for (int s=0; s<nS; s++ )
   {
     nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / s2Bmsy(s);  
-  } 
+  }
+
   // multispecies shared priors
   if (nS > 1)
   {
@@ -188,13 +196,19 @@ Type objective_function<Type>::operator() ()
     for (int s=0; s<nS;s++)
     {
       // catchability
-      nllqPrior += Type(0.5) * ( lntauq2 + pow( q(s) - qbar, 2 ) / tauq2 );
+      if (lnqPriorCode == 1)
+      {
+        nllqPrior += Type(0.5) * ( lntauq2 + pow( q(s) - qbar, 2 ) / tauq2 );  
+      }
       // productivity
       nllUprior += Type(0.5) * ( lnsigUmsy2 + pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 );
     }  
     // Hyperpriors
     // catchability
-    nllqPrior += Type(0.5) * pow( qbar - exp(mlnq), 2 ) / s2lnq;
+    if( lnqPriorCode == 1 )
+    {
+      nllqPrior += Type(0.5) * pow( qbar - exp(mlnq), 2 ) / s2lnq;  
+    }
     // productivity
     nllUprior += Type(0.5) * pow( Umsybar - exp(mlnUmsy), 2 ) / s2lnUmsy;
     // End multispecies shared priors
@@ -204,12 +218,15 @@ Type objective_function<Type>::operator() ()
     // Now for single species model
     for (int s=0; s<nS; s++)
     {
-      nllqPrior += Type(0.5) * pow( q(s) - exp(mlnq), 2 ) / s2lnq;
+      if( lnqPriorCode == 1 )
+      {
+        nllqPrior += Type(0.5) * pow( q(s) - exp(mlnq), 2 ) / s2lnq;  
+      }
       // productivity
       nllUprior += Type(0.5) * pow( Umsy(s) - exp(mlnUmsy), 2 ) / s2lnUmsy;
     }   
   }
-  nll += nllBprior + nllqPrior + nllUprior;
+  nll += nllBprior + Type(10.0) * nllqPrior + nllUprior;
   
   // Variance IG priors
   // Obs error var
@@ -292,6 +309,7 @@ Type objective_function<Type>::operator() ()
   REPORT(tau2);
   REPORT(kappa2);
   REPORT(tau2hat);
+  REPORT(qhat);
   if (nS > 1)
   {
     REPORT(Sigma);

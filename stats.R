@@ -217,7 +217,8 @@
   colLabels <- c( "scenario","mp","species","kappaTrue",
                   "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssDep","msDep",
-                  "ssq","msq", "msHessPD", "ssHessPD","nReps",
+                  "ssq", "msq", "msq025", "msq975", 
+                  "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", "tUtrough", "tau2OM","nS","lastNegCorr" )
   
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
@@ -273,18 +274,20 @@
   # Now errors
   for (s in 1:nS)
   {
-    statTable[s,"ssBnT"]    <- median (ss$err.mle$BnT[success,s], na.rm=TRUE)
-    statTable[s,"msBnT"]    <- median (ms$err.mle$BnT[success,s], na.rm=TRUE)
-    statTable[s,"ssUmsy"]   <- median (ss$err.mle$Umsy[success,s], na.rm=TRUE)
-    statTable[s,"msUmsy"]   <- median (ms$err.mle$Umsy[success,s], na.rm=TRUE)
-    statTable[s,"ssBmsy"]   <- median (ss$err.mle$Bmsy[success,s], na.rm=TRUE)
-    statTable[s,"msBmsy"]   <- median (ms$err.mle$Bmsy[success,s], na.rm=TRUE)
-    statTable[s,"ssDep"]    <- median (ss$err.mle$dep[success,s], na.rm=TRUE)
-    statTable[s,"msDep"]    <- median (ms$err.mle$dep[success,s], na.rm=TRUE)
-    statTable[s,"ssq"]      <- median (ss$err.mle$q[success,s], na.rm=TRUE)
-    statTable[s,"msq"]      <- median (ms$err.mle$q[success,s], na.rm=TRUE)
-    statTable[s,"ssHessPD"] <- sum ( ss$hesspd[,s] , na.rm=TRUE)
-    statTable[s,"msHessPD"] <- sum ( ms$hesspd , na.rm=TRUE)
+    statTable[s,"ssBnT"]    <- median (ss$err.mle$BnT[success,s], na.rm = TRUE )
+    statTable[s,"msBnT"]    <- median (ms$err.mle$BnT[success,s], na.rm = TRUE )
+    statTable[s,"ssUmsy"]   <- median (ss$err.mle$Umsy[success,s], na.rm = TRUE )
+    statTable[s,"msUmsy"]   <- median (ms$err.mle$Umsy[success,s], na.rm = TRUE )
+    statTable[s,"ssBmsy"]   <- median (ss$err.mle$Bmsy[success,s], na.rm = TRUE )
+    statTable[s,"msBmsy"]   <- median (ms$err.mle$Bmsy[success,s], na.rm = TRUE )
+    statTable[s,"ssDep"]    <- median (ss$err.mle$dep[success,s], na.rm = TRUE )
+    statTable[s,"msDep"]    <- median (ms$err.mle$dep[success,s], na.rm = TRUE )
+    statTable[s,"ssq"]      <- median (ss$err.mle$q[success,s], na.rm = TRUE )
+    statTable[s,"msq"]      <- median (ms$err.mle$q[success,s], na.rm = TRUE )
+    statTable[s,"msq025"]   <- quantile (ms$err.mle$q[success,s], probs=0.025, na.rm = TRUE )
+    statTable[s,"msq975"]   <- quantile (ms$err.mle$q[success,s], probs=0.975, na.rm = TRUE )
+    statTable[s,"ssHessPD"] <- sum ( ss$hesspd[,s] , na.rm = TRUE )
+    statTable[s,"msHessPD"] <- sum ( ms$hesspd , na.rm = TRUE )
   }
   
   # return

@@ -240,7 +240,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           nT              = nT,
                           SigmaPriorCode  = obj$assess$SigmaPriorCode,
                           sigUPriorCode   = obj$assess$sigUPriorCode,
-                          tauqPriorCode   = obj$assess$tauqPriorCode )
+                          tauqPriorCode   = obj$assess$tauqPriorCode,
+                          lnqPriorCode    = obj$assess$lnqPriorCode )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
@@ -364,7 +365,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   nT              = nT,
                   SigmaPriorCode  = obj$assess$SigmaPriorCode,
                   sigUPriorCode   = obj$assess$sigUPriorCode,
-                  tauqPriorCode   = obj$assess$tauqPriorCode
+                  tauqPriorCode   = obj$assess$tauqPriorCode,
+                  lnqPriorCode    = obj$assess$lnqPriorCode
 
                 )
 
@@ -754,6 +756,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Recover report from optimisation
       sdrep     <- simEst$msFit$sdrep
       fitrep    <- simEst$msFit$rep
+      CIs       <- simEst$msFit$CIs
       estList   <- as.list(sdrep,"Estimate")
       # Now save estimates
       blob$am$ms$Bmsy[i,]           <- fitrep$Bmsy
@@ -779,9 +782,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       }
       # Estimator Performance Flags
       blob$am$ms$hesspd[i]          <- sdrep$pdHess
-      # blob$am$ms$maxGrad[i]         <- max(sdrep$gradient.fixed)
+      blob$am$ms$maxGrad[i]         <- max(sdrep$gradient.fixed)
       blob$am$ms$sdrep[[i]]         <- sdrep
       blob$am$ms$fitrep[[i]]        <- fitrep
+      blob$am$ms$CIs[[i]]           <- CIs
     }
 
   }
