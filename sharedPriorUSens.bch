@@ -1,0 +1,524 @@
+# RE Experiments Batch File
+parameter value
+#
+# Scenarios
+#
+# Scenario 1 : nS2_
+#
+scenario$scenario1$ctrl$scenarioName 'nS2'
+scenario$scenario1$opMod$nS 2
+#
+# Management Procedure
+#
+# MP 1 : fixUbar_fixsig2U.01
+#
+mp$mp1$ctrl$mpLabel "fixUbar.6_fixsig2U.01"
+mp$mp1$assess$fixUbar TRUE
+mp$mp1$assess$lnUmsybar -1.238
+mp$mp1$assess$fixsigU2 TRUE
+mp$mp1$assess$lnsigUmsy2 -4.6
+#
+# MP 2 : s2U10_fixsig2U.01
+#
+mp$mp2$ctrl$mpLabel "s2U10_fixsig2U.01"
+mp$mp2$assess$fixUbar FALSE
+mp$mp2$assess$lnUmsybar -1.238
+mp$mp2$assess$mlnUmsy -1.238
+mp$mp2$assess$s2lnUmsy 10
+mp$mp2$assess$fixsigU2 TRUE
+mp$mp2$assess$lnsigUmsy2 -4.6
+#
+# MP 3 : s2U1_fixsig2U.01
+#
+mp$mp3$ctrl$mpLabel "s2U1_fixsig2U.01"
+mp$mp3$assess$fixUbar FALSE
+mp$mp3$assess$lnUmsybar -1.238
+mp$mp3$assess$mlnUmsy -1.238
+mp$mp3$assess$s2lnUmsy 1
+mp$mp3$assess$fixsigU2 TRUE
+mp$mp3$assess$lnsigUmsy2 -4.6
+#
+# MP 4 : s2U.1_fixsig2U.01
+#
+mp$mp4$ctrl$mpLabel "s2U.1_fixsig2U.01"
+mp$mp4$assess$fixUbar FALSE
+mp$mp4$assess$lnUmsybar -1.238
+mp$mp4$assess$mlnUmsy -1.238
+mp$mp4$assess$s2lnUmsy .1
+mp$mp4$assess$fixsigU2 TRUE
+mp$mp4$assess$lnsigUmsy2 -4.6
+#
+# MP 5 : s2U.01_fixsig2U.01
+#
+mp$mp5$ctrl$mpLabel "s2U.01_fixsig2U.01"
+mp$mp5$assess$fixUbar FALSE
+mp$mp5$assess$lnUmsybar -1.238
+mp$mp5$assess$mlnUmsy -1.238
+mp$mp5$assess$s2lnUmsy .01
+mp$mp5$assess$fixsigU2 TRUE
+mp$mp5$assess$lnsigUmsy2 -4.6
+#
+# MP 6 : fixUbar_fixsig2U.1
+#
+mp$mp6$ctrl$mpLabel "fixUbar.6_fixsig2U.1"
+mp$mp6$assess$fixUbar TRUE
+mp$mp6$assess$lnUmsybar -1.238
+mp$mp6$assess$fixsigU2 TRUE
+mp$mp6$assess$lnsigUmsy2 -2.3
+#
+# MP 7 : s2U10_fixsig2U.1
+#
+mp$mp7$ctrl$mpLabel "s2U10_fixsig2U.1"
+mp$mp7$assess$fixUbar FALSE
+mp$mp7$assess$lnUmsybar -1.238
+mp$mp7$assess$mlnUmsy -1.238
+mp$mp7$assess$s2lnUmsy 10
+mp$mp7$assess$fixsigU2 TRUE
+mp$mp7$assess$lnsigUmsy2 -2.3
+#
+# MP 8 : s2U1_fixsig2U.1
+#
+mp$mp8$ctrl$mpLabel "s2U1_fixsig2U.1"
+mp$mp8$assess$fixUbar FALSE
+mp$mp8$assess$lnUmsybar -1.238
+mp$mp8$assess$mlnUmsy -1.238
+mp$mp8$assess$s2lnUmsy 1
+mp$mp8$assess$fixsigU2 TRUE
+mp$mp8$assess$lnsigUmsy2 -2.3
+#
+# MP 9 : s2U.1_fixsig2U.1
+#
+mp$mp9$ctrl$mpLabel "s2U.1_fixsig2U.1"
+mp$mp9$assess$fixUbar FALSE
+mp$mp9$assess$lnUmsybar -1.238
+mp$mp9$assess$mlnUmsy -1.238
+mp$mp9$assess$s2lnUmsy .1
+mp$mp9$assess$fixsigU2 TRUE
+mp$mp9$assess$lnsigUmsy2 -2.3
+#
+# MP 10 : s2U.01_fixsig2U.1
+#
+mp$mp10$ctrl$mpLabel "s2U.01_fixsig2U.1"
+mp$mp10$assess$fixUbar FALSE
+mp$mp10$assess$lnUmsybar -1.238
+mp$mp10$assess$mlnUmsy -1.238
+mp$mp10$assess$s2lnUmsy .01
+mp$mp10$assess$fixsigU2 TRUE
+mp$mp10$assess$lnsigUmsy2 -2.3
+#
+# MP 11 : fixUbar_fixtauq1
+#
+mp$mp11$ctrl$mpLabel "fixUbar.6_fixsig2U1"
+mp$mp11$assess$fixUbar TRUE
+mp$mp11$assess$lnUmsybar -1.238
+mp$mp11$assess$fixsigU2 TRUE
+mp$mp11$assess$lnsigUmsy2 0
+#
+# MP 12 : s2U10_fixtauq1
+#
+mp$mp12$ctrl$mpLabel "s2U10_fixsig2U1"
+mp$mp12$assess$fixUbar FALSE
+mp$mp12$assess$lnUmsybar -1.238
+mp$mp12$assess$mlnUmsy -1.238
+mp$mp12$assess$s2lnUmsy 10
+mp$mp12$assess$fixsigU2 TRUE
+mp$mp12$assess$lnsigUmsy2 0
+#
+# MP 13 : s2U1_fixsig2U1
+#
+mp$mp13$ctrl$mpLabel "s2U1_fixsig2U1"
+mp$mp13$assess$fixUbar FALSE
+mp$mp13$assess$lnUmsybar -1.238
+mp$mp13$assess$mlnUmsy -1.238
+mp$mp13$assess$s2lnUmsy 1
+mp$mp13$assess$fixsigU2 TRUE
+mp$mp13$assess$lnsigUmsy2 0
+#
+# MP 14 : s2U.1_fixsig2U1
+#
+mp$mp14$ctrl$mpLabel "s2U.1_fixsig2U1"
+mp$mp14$assess$fixUbar FALSE
+mp$mp14$assess$lnUmsybar -1.238
+mp$mp14$assess$mlnUmsy -1.238
+mp$mp14$assess$s2lnUmsy .1
+mp$mp14$assess$fixsigU2 TRUE
+mp$mp14$assess$lnsigUmsy2 0
+#
+# MP 15 : s2U.01_fixsig2U1
+#
+mp$mp15$ctrl$mpLabel "s2U.01_fixsig2U1"
+mp$mp15$assess$fixUbar FALSE
+mp$mp15$assess$lnUmsybar -1.238
+mp$mp15$assess$mlnUmsy -1.238
+mp$mp15$assess$s2lnUmsy .01
+mp$mp15$assess$fixsigU2 TRUE
+mp$mp15$assess$lnsigUmsy2 0
+#
+# MP 16 : fixUbar_fixsig2U10
+#
+mp$mp16$ctrl$mpLabel "fixUbar.6_fixsig2U10"
+mp$mp16$assess$fixUbar TRUE
+mp$mp16$assess$lnUmsybar -1.238
+mp$mp16$assess$fixsigU2 TRUE
+mp$mp16$assess$lnsigUmsy2 2.3
+#
+# MP 17 : s2U10_fixsig2U10
+#
+mp$mp17$ctrl$mpLabel "s2U10_fixsig2U10"
+mp$mp17$assess$fixUbar FALSE
+mp$mp17$assess$lnUmsybar -1.238
+mp$mp17$assess$mlnUmsy -1.238
+mp$mp17$assess$s2lnUmsy 10
+mp$mp17$assess$fixsigU2 TRUE
+mp$mp17$assess$lnsigUmsy2 2.30
+#
+# MP 18 : s2U1_fixsig2U10
+#
+mp$mp18$ctrl$mpLabel "s2U1_fixsig2U10"
+mp$mp18$assess$fixUbar FALSE
+mp$mp18$assess$lnUmsybar -1.238
+mp$mp18$assess$mlnUmsy -1.238
+mp$mp18$assess$s2lnUmsy 1
+mp$mp18$assess$fixsigU2 TRUE
+mp$mp18$assess$lnsigUmsy2 2.30
+#
+# MP 19 : s2U.1_fixsig2U10
+#
+mp$mp19$ctrl$mpLabel "s2U.1_fixsig2U10"
+mp$mp19$assess$fixUbar FALSE
+mp$mp19$assess$lnUmsybar -1.238
+mp$mp19$assess$mlnUmsy -1.238
+mp$mp19$assess$s2lnUmsy .1
+mp$mp19$assess$fixsigU2 TRUE
+mp$mp19$assess$lnsigUmsy2 2.30
+#
+# MP 20 : s2U.01_fixsig2U10
+#
+mp$mp20$ctrl$mpLabel "s2U.01_fixsig2U10"
+mp$mp20$assess$fixUbar FALSE
+mp$mp20$assess$lnUmsybar -1.238
+mp$mp20$assess$mlnUmsy -1.238
+mp$mp20$assess$s2lnUmsy .01
+mp$mp20$assess$fixsigU2 TRUE
+mp$mp20$assess$lnsigUmsy2 2.30
+#
+# MP 21 : fixUbar_sUIGP(.01_.1)
+#
+mp$mp21$ctrl$mpLabel "qbar.6_sUIGP(.01_.1)"
+mp$mp21$assess$fixUbar TRUE
+mp$mp21$assess$lnUmsybar -1.238
+mp$mp21$assess$sigUPriorCode 0
+mp$mp21$assess$sigU2P1 .01
+mp$mp21$assess$sigU2P2 .1
+#
+# MP 22 : s2U10_sUIGP(.01_.1)
+#
+mp$mp22$ctrl$mpLabel "s2U10_sUIGP(.01_.1)"
+mp$mp22$assess$fixUbar FALSE
+mp$mp22$assess$lnUmsybar -1.238
+mp$mp22$assess$mlnUmsy -1.238
+mp$mp22$assess$s2lnUmsy 10
+mp$mp22$assess$sigUPriorCode 0
+mp$mp22$assess$sigU2P1 .01
+mp$mp22$assess$sigU2P2 .1
+#
+# MP 23 : s2U1_sUIGP(.01_.1)
+#
+mp$mp23$ctrl$mpLabel "s2U1_sUIGP(.01_.1)"
+mp$mp23$assess$fixUbar FALSE
+mp$mp23$assess$lnUmsybar -1.238
+mp$mp23$assess$mlnUmsy -1.238
+mp$mp23$assess$s2lnUmsy 1
+mp$mp23$assess$sigUPriorCode 0
+mp$mp23$assess$sigU2P1 .01
+mp$mp23$assess$sigU2P2 .1
+#
+# MP 24 : s2U.1_sUIGP(.01_.1)
+#
+mp$mp24$ctrl$mpLabel "s2U.1_sUIGP(.01_.1)"
+mp$mp24$assess$fixUbar FALSE
+mp$mp24$assess$lnUmsybar -1.238
+mp$mp24$assess$mlnUmsy -1.238
+mp$mp24$assess$s2lnUmsy .1
+mp$mp24$assess$sigUPriorCode 0
+mp$mp24$assess$sigU2P1 .01
+mp$mp24$assess$sigU2P2 .1
+#
+# MP 25 : s2U.01_sUIGP(.01_.1)
+#
+mp$mp25$ctrl$mpLabel "s2U.01_sUIGP(.01_.1)"
+mp$mp25$assess$fixUbar TRUE
+mp$mp25$assess$lnUmsybar -1.238
+mp$mp25$assess$mlnUmsy -1.238
+mp$mp25$assess$s2lnUmsy .01
+mp$mp25$assess$sigUPriorCode 0
+mp$mp25$assess$sigU2P1 .01
+mp$mp25$assess$sigU2P2 .1
+#
+# MP 26 : fixUbar_sUIGP(.01_1)
+#
+mp$mp26$ctrl$mpLabel "qbar.6_sUIGP(.01_1)"
+mp$mp26$assess$fixUbar TRUE
+mp$mp26$assess$lnUmsybar -1.238
+mp$mp26$assess$sigUPriorCode 0
+mp$mp26$assess$sigU2P1 .01
+mp$mp26$assess$sigU2P2 1
+#
+# MP 27 : s2U10_sUIGP(.01_1)
+#
+mp$mp27$ctrl$mpLabel "s2U10_sUIGP(.01_1)"
+mp$mp27$assess$fixUbar FALSE
+mp$mp27$assess$lnUmsybar -1.238
+mp$mp27$assess$mlnUmsy -1.238
+mp$mp27$assess$s2lnUmsy 10
+mp$mp27$assess$sigUPriorCode 0
+mp$mp27$assess$sigU2P1 .01
+mp$mp27$assess$sigU2P2 1
+#
+# MP 28 : s2U1_sUIGP(.01_1)
+#
+mp$mp28$ctrl$mpLabel "s2U1_sUIGP(.01_1)"
+mp$mp28$assess$fixUbar FALSE
+mp$mp28$assess$lnUmsybar -1.238
+mp$mp28$assess$mlnUmsy -1.238
+mp$mp28$assess$s2lnUmsy 1
+mp$mp28$assess$sigUPriorCode 0
+mp$mp28$assess$sigU2P1 .01
+mp$mp28$assess$sigU2P2 1
+#
+# MP 29 : s2U.1_sUIGP(.01_1)
+#
+mp$mp29$ctrl$mpLabel "s2U.1_sUIGP(.01_1)"
+mp$mp29$assess$fixUbar FALSE
+mp$mp29$assess$lnUmsybar -1.238
+mp$mp29$assess$mlnUmsy -1.238
+mp$mp29$assess$s2lnUmsy .1
+mp$mp29$assess$sigUPriorCode 0
+mp$mp29$assess$sigU2P1 .01
+mp$mp29$assess$sigU2P2 1
+#
+# MP 30 : s2U.01_sUIGP(.01_1)
+#
+mp$mp30$ctrl$mpLabel "s2U.01_sUIGP(.01_1)"
+mp$mp30$assess$fixUbar TRUE
+mp$mp30$assess$lnUmsybar -1.238
+mp$mp30$assess$mlnUmsy -1.238
+mp$mp30$assess$s2lnUmsy .01
+mp$mp30$assess$sigUPriorCode 0
+mp$mp30$assess$sigU2P1 .01
+mp$mp30$assess$sigU2P2 1
+#
+# MP 31 : fixUbar_sUIGP(.01_10)
+#
+mp$mp31$ctrl$mpLabel "qbar.6_sUIGP(.01_10)"
+mp$mp31$assess$fixUbar TRUE
+mp$mp31$assess$lnUmsybar -1.238
+mp$mp31$assess$sigUPriorCode 0
+mp$mp31$assess$sigU2P1 .01
+mp$mp31$assess$sigU2P2 10
+#
+# MP 32 : s2U10_sUIGP(.01_10)
+#
+mp$mp32$ctrl$mpLabel "s2U10_sUIGP(.01_10)"
+mp$mp32$assess$fixUbar FALSE
+mp$mp32$assess$lnUmsybar -1.238
+mp$mp32$assess$mlnUmsy -1.238
+mp$mp32$assess$s2lnUmsy 10
+mp$mp32$assess$sigUPriorCode 0
+mp$mp32$assess$sigU2P1 .01
+mp$mp32$assess$sigU2P2 10
+#
+# MP 33 : s2U1_sUIGP(.01_10)
+#
+mp$mp33$ctrl$mpLabel "s2U1_sUIGP(.01_10)"
+mp$mp33$assess$fixUbar FALSE
+mp$mp33$assess$lnUmsybar -1.238
+mp$mp33$assess$mlnUmsy -1.238
+mp$mp33$assess$s2lnUmsy 1
+mp$mp33$assess$sigUPriorCode 0
+mp$mp33$assess$sigU2P1 .01
+mp$mp33$assess$sigU2P2 10
+#
+# MP 34 : s2U.1_sUIGP(.01_10)
+#
+mp$mp34$ctrl$mpLabel "s2U.1_sUIGP(.01_10)"
+mp$mp34$assess$fixUbar FALSE
+mp$mp34$assess$lnUmsybar -1.238
+mp$mp34$assess$mlnUmsy -1.238
+mp$mp34$assess$s2lnUmsy .1
+mp$mp34$assess$sigUPriorCode 0
+mp$mp34$assess$sigU2P1 .01
+mp$mp34$assess$sigU2P2 10
+#
+# MP 35 : s2U.01_sUIGP(.01_10)
+#
+mp$mp35$ctrl$mpLabel "s2U.01_sUIGP(.01_10)"
+mp$mp35$assess$fixUbar TRUE
+mp$mp35$assess$lnUmsybar -1.238
+mp$mp35$assess$mlnUmsy -1.238
+mp$mp35$assess$s2lnUmsy .01
+mp$mp35$assess$sigUPriorCode 0
+mp$mp35$assess$sigU2P1 .01
+mp$mp35$assess$sigU2P2 10
+#
+
+# MP 36 : fixUbar_sUIGP(.1_.1)
+#
+mp$mp36$ctrl$mpLabel "qbar.6_sUIGP(.1_.1)"
+mp$mp36$assess$fixUbar TRUE
+mp$mp36$assess$lnUmsybar -1.238
+mp$mp36$assess$sigUPriorCode 0
+mp$mp36$assess$sigU2P1 .1
+mp$mp36$assess$sigU2P2 .1
+#
+# MP 37 : s2U10_sUIGP(.1_.1)
+#
+mp$mp37$ctrl$mpLabel "s2U10_sUIGP(.1_.1)"
+mp$mp37$assess$fixUbar FALSE
+mp$mp37$assess$lnUmsybar -1.238
+mp$mp37$assess$mlnUmsy -1.238
+mp$mp37$assess$s2lnUmsy 10
+mp$mp37$assess$sigUPriorCode 0
+mp$mp37$assess$sigU2P1 .1
+mp$mp37$assess$sigU2P2 .1
+#
+# MP 38 : s2U1_sUIGP(.1_.1)
+#
+mp$mp38$ctrl$mpLabel "s2U1_sUIGP(.1_.1)"
+mp$mp38$assess$fixUbar FALSE
+mp$mp38$assess$lnUmsybar -1.238
+mp$mp38$assess$mlnUmsy -1.238
+mp$mp38$assess$s2lnUmsy 1
+mp$mp38$assess$sigUPriorCode 0
+mp$mp38$assess$sigU2P1 .1
+mp$mp38$assess$sigU2P2 .1
+#
+# MP 39 : s2U.1_sUIGP(.1_.1)
+#
+mp$mp39$ctrl$mpLabel "s2U.1_sUIGP(.1_.1)"
+mp$mp39$assess$fixUbar FALSE
+mp$mp39$assess$lnUmsybar -1.238
+mp$mp39$assess$mlnUmsy -1.238
+mp$mp39$assess$s2lnUmsy .1
+mp$mp39$assess$sigUPriorCode 0
+mp$mp39$assess$sigU2P1 .1
+mp$mp39$assess$sigU2P2 .1
+#
+# MP 40 : s2U.01_sUIGP(.1_.1)
+#
+mp$mp40$ctrl$mpLabel "s2U.01_sUIGP(.1_.1)"
+mp$mp40$assess$fixUbar TRUE
+mp$mp40$assess$lnUmsybar -1.238
+mp$mp40$assess$mlnUmsy -1.238
+mp$mp40$assess$s2lnUmsy .01
+mp$mp40$assess$sigUPriorCode 0
+mp$mp40$assess$sigU2P1 .1
+mp$mp40$assess$sigU2P2 .1
+#
+# MP 41 : fixUbar_sUIGP(.1_1)
+#
+mp$mp41$ctrl$mpLabel "qbar.6_sUIGP(.1_1)"
+mp$mp41$assess$fixUbar TRUE
+mp$mp41$assess$lnUmsybar -1.238
+mp$mp41$assess$sigUPriorCode 0
+mp$mp41$assess$sigU2P1 .1
+mp$mp41$assess$sigU2P2 1
+#
+# MP 42 : s2U10_sUIGP(.1_1)
+#
+mp$mp42$ctrl$mpLabel "s2U10_sUIGP(.1_1)"
+mp$mp42$assess$fixUbar FALSE
+mp$mp42$assess$lnUmsybar -1.238
+mp$mp42$assess$mlnUmsy -1.238
+mp$mp42$assess$s2lnUmsy 10
+mp$mp42$assess$sigUPriorCode 0
+mp$mp42$assess$sigU2P1 .1
+mp$mp42$assess$sigU2P2 1
+#
+# MP 43 : s2U1_sUIGP(.1_1)
+#
+mp$mp43$ctrl$mpLabel "s2U1_sUIGP(.1_1)"
+mp$mp43$assess$fixUbar FALSE
+mp$mp43$assess$lnUmsybar -1.238
+mp$mp43$assess$mlnUmsy -1.238
+mp$mp43$assess$s2lnUmsy 1
+mp$mp43$assess$sigUPriorCode 0
+mp$mp43$assess$sigU2P1 .1
+mp$mp43$assess$sigU2P2 1
+#
+# MP 44 : s2U.1_sUIGP(.1_1)
+#
+mp$mp44$ctrl$mpLabel "s2U.1_sUIGP(.1_1)"
+mp$mp44$assess$fixUbar FALSE
+mp$mp44$assess$lnUmsybar -1.238
+mp$mp44$assess$mlnUmsy -1.238
+mp$mp44$assess$s2lnUmsy .1
+mp$mp44$assess$sigUPriorCode 0
+mp$mp44$assess$sigU2P1 .1
+mp$mp44$assess$sigU2P2 1
+#
+# MP 45 : s2U.01_sUIGP(.1_1)
+#
+mp$mp45$ctrl$mpLabel "s2U.01_sUIGP(.1_1)"
+mp$mp45$assess$fixUbar TRUE
+mp$mp45$assess$lnUmsybar -1.238
+mp$mp45$assess$mlnUmsy -1.238
+mp$mp45$assess$s2lnUmsy .01
+mp$mp45$assess$sigUPriorCode 0
+mp$mp45$assess$sigU2P1 .1
+mp$mp45$assess$sigU2P2 1
+#
+# MP 46 : fixUbar_sUIGP(.01_10)
+#
+mp$mp46$ctrl$mpLabel "qbar.6_sUIGP(.01_10)"
+mp$mp46$assess$fixUbar TRUE
+mp$mp46$assess$lnUmsybar -1.238
+mp$mp46$assess$sigUPriorCode 0
+mp$mp46$assess$sigU2P1 .01
+mp$mp46$assess$sigU2P2 10
+#
+# MP 47 : s2U10_sUIGP(.01_10)
+#
+mp$mp47$ctrl$mpLabel "s2U10_sUIGP(.01_10)"
+mp$mp47$assess$fixUbar FALSE
+mp$mp47$assess$lnUmsybar -1.238
+mp$mp47$assess$mlnUmsy -1.238
+mp$mp47$assess$s2lnUmsy 10
+mp$mp47$assess$sigUPriorCode 0
+mp$mp47$assess$sigU2P1 .01
+mp$mp47$assess$sigU2P2 10
+#
+# MP 48 : s2U1_sUIGP(.01_10)
+#
+mp$mp48$ctrl$mpLabel "s2U1_sUIGP(.01_10)"
+mp$mp48$assess$fixUbar FALSE
+mp$mp48$assess$lnUmsybar -1.238
+mp$mp48$assess$mlnUmsy -1.238
+mp$mp48$assess$s2lnUmsy 1
+mp$mp48$assess$sigUPriorCode 0
+mp$mp48$assess$sigU2P1 .01
+mp$mp48$assess$sigU2P2 10
+#
+# MP 49 : s2U.1_sUIGP(.01_10)
+#
+mp$mp49$ctrl$mpLabel "s2U.1_sUIGP(.01_10)"
+mp$mp49$assess$fixUbar FALSE
+mp$mp49$assess$lnUmsybar -1.238
+mp$mp49$assess$mlnUmsy -1.238
+mp$mp49$assess$s2lnUmsy .1
+mp$mp49$assess$sigUPriorCode 0
+mp$mp49$assess$sigU2P1 .01
+mp$mp49$assess$sigU2P2 10
+#
+# MP 50 : s2U.01_sUIGP(.01_10)
+#
+mp$mp50$ctrl$mpLabel "s2U.01_sUIGP(.01_10)"
+mp$mp50$assess$fixUbar TRUE
+mp$mp50$assess$lnUmsybar -1.238
+mp$mp50$assess$mlnUmsy -1.238
+mp$mp50$assess$s2lnUmsy .01
+mp$mp50$assess$sigUPriorCode 0
+mp$mp50$assess$sigU2P1 .01
+mp$mp50$assess$sigU2P2 10
+#
+# File Ends <Not Run>
