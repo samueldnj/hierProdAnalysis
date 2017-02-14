@@ -10,17 +10,17 @@ scenario$scenario1$opMod$nS 2
 #
 # Management Procedure
 #
-# MP 1 : fixUbar_fixsig2U.01
+# MP 1 : fixUbar_sig2U.01
 #
-mp$mp1$ctrl$mpLabel "fixUbar.6_fixsig2U.01"
+mp$mp1$ctrl$mpLabel "Ubar.6_sig2U.01"
 mp$mp1$assess$fixUbar TRUE
 mp$mp1$assess$lnUmsybar -1.238
 mp$mp1$assess$fixsigU2 TRUE
 mp$mp1$assess$lnsigUmsy2 -4.6
 #
-# MP 2 : s2U10_fixsig2U.01
+# MP 2 : s2U10_sig2U.01
 #
-mp$mp2$ctrl$mpLabel "s2U10_fixsig2U.01"
+mp$mp2$ctrl$mpLabel "s2U10_sig2U.01"
 mp$mp2$assess$fixUbar FALSE
 mp$mp2$assess$lnUmsybar -1.238
 mp$mp2$assess$mlnUmsy -1.238
@@ -28,9 +28,9 @@ mp$mp2$assess$s2lnUmsy 10
 mp$mp2$assess$fixsigU2 TRUE
 mp$mp2$assess$lnsigUmsy2 -4.6
 #
-# MP 3 : s2U1_fixsig2U.01
+# MP 3 : s2U1_sig2U.01
 #
-mp$mp3$ctrl$mpLabel "s2U1_fixsig2U.01"
+mp$mp3$ctrl$mpLabel "s2U1_sig2U.01"
 mp$mp3$assess$fixUbar FALSE
 mp$mp3$assess$lnUmsybar -1.238
 mp$mp3$assess$mlnUmsy -1.238
@@ -38,9 +38,9 @@ mp$mp3$assess$s2lnUmsy 1
 mp$mp3$assess$fixsigU2 TRUE
 mp$mp3$assess$lnsigUmsy2 -4.6
 #
-# MP 4 : s2U.1_fixsig2U.01
+# MP 4 : s2U.1_sig2U.01
 #
-mp$mp4$ctrl$mpLabel "s2U.1_fixsig2U.01"
+mp$mp4$ctrl$mpLabel "s2U.1_sig2U.01"
 mp$mp4$assess$fixUbar FALSE
 mp$mp4$assess$lnUmsybar -1.238
 mp$mp4$assess$mlnUmsy -1.238
@@ -48,9 +48,9 @@ mp$mp4$assess$s2lnUmsy .1
 mp$mp4$assess$fixsigU2 TRUE
 mp$mp4$assess$lnsigUmsy2 -4.6
 #
-# MP 5 : s2U.01_fixsig2U.01
+# MP 5 : s2U.01_sig2U.01
 #
-mp$mp5$ctrl$mpLabel "s2U.01_fixsig2U.01"
+mp$mp5$ctrl$mpLabel "s2U.01_sig2U.01"
 mp$mp5$assess$fixUbar FALSE
 mp$mp5$assess$lnUmsybar -1.238
 mp$mp5$assess$mlnUmsy -1.238
@@ -58,17 +58,17 @@ mp$mp5$assess$s2lnUmsy .01
 mp$mp5$assess$fixsigU2 TRUE
 mp$mp5$assess$lnsigUmsy2 -4.6
 #
-# MP 6 : fixUbar_fixsig2U.1
+# MP 6 : fixUbar_sig2U.1
 #
-mp$mp6$ctrl$mpLabel "fixUbar.6_fixsig2U.1"
+mp$mp6$ctrl$mpLabel "Ubar.6_sig2U.1"
 mp$mp6$assess$fixUbar TRUE
 mp$mp6$assess$lnUmsybar -1.238
 mp$mp6$assess$fixsigU2 TRUE
 mp$mp6$assess$lnsigUmsy2 -2.3
 #
-# MP 7 : s2U10_fixsig2U.1
+# MP 7 : s2U10_sig2U.1
 #
-mp$mp7$ctrl$mpLabel "s2U10_fixsig2U.1"
+mp$mp7$ctrl$mpLabel "s2U10_sig2U.1"
 mp$mp7$assess$fixUbar FALSE
 mp$mp7$assess$lnUmsybar -1.238
 mp$mp7$assess$mlnUmsy -1.238
@@ -76,9 +76,9 @@ mp$mp7$assess$s2lnUmsy 10
 mp$mp7$assess$fixsigU2 TRUE
 mp$mp7$assess$lnsigUmsy2 -2.3
 #
-# MP 8 : s2U1_fixsig2U.1
+# MP 8 : s2U1_sig2U.1
 #
-mp$mp8$ctrl$mpLabel "s2U1_fixsig2U.1"
+mp$mp8$ctrl$mpLabel "s2U1_sig2U.1"
 mp$mp8$assess$fixUbar FALSE
 mp$mp8$assess$lnUmsybar -1.238
 mp$mp8$assess$mlnUmsy -1.238
@@ -86,9 +86,9 @@ mp$mp8$assess$s2lnUmsy 1
 mp$mp8$assess$fixsigU2 TRUE
 mp$mp8$assess$lnsigUmsy2 -2.3
 #
-# MP 9 : s2U.1_fixsig2U.1
+# MP 9 : s2U.1_sig2U.1
 #
-mp$mp9$ctrl$mpLabel "s2U.1_fixsig2U.1"
+mp$mp9$ctrl$mpLabel "s2U.1_sig2U.1"
 mp$mp9$assess$fixUbar FALSE
 mp$mp9$assess$lnUmsybar -1.238
 mp$mp9$assess$mlnUmsy -1.238
@@ -96,9 +96,9 @@ mp$mp9$assess$s2lnUmsy .1
 mp$mp9$assess$fixsigU2 TRUE
 mp$mp9$assess$lnsigUmsy2 -2.3
 #
-# MP 10 : s2U.01_fixsig2U.1
+# MP 10 : s2U.01_sig2U.1
 #
-mp$mp10$ctrl$mpLabel "s2U.01_fixsig2U.1"
+mp$mp10$ctrl$mpLabel "s2U.01_sig2U.1"
 mp$mp10$assess$fixUbar FALSE
 mp$mp10$assess$lnUmsybar -1.238
 mp$mp10$assess$mlnUmsy -1.238
@@ -106,17 +106,17 @@ mp$mp10$assess$s2lnUmsy .01
 mp$mp10$assess$fixsigU2 TRUE
 mp$mp10$assess$lnsigUmsy2 -2.3
 #
-# MP 11 : fixUbar_fixtauq1
+# MP 11 : fixUbar_tauq1
 #
-mp$mp11$ctrl$mpLabel "fixUbar.6_fixsig2U1"
+mp$mp11$ctrl$mpLabel "Ubar.6_sig2U1"
 mp$mp11$assess$fixUbar TRUE
 mp$mp11$assess$lnUmsybar -1.238
 mp$mp11$assess$fixsigU2 TRUE
 mp$mp11$assess$lnsigUmsy2 0
 #
-# MP 12 : s2U10_fixtauq1
+# MP 12 : s2U10_tauq1
 #
-mp$mp12$ctrl$mpLabel "s2U10_fixsig2U1"
+mp$mp12$ctrl$mpLabel "s2U10_sig2U1"
 mp$mp12$assess$fixUbar FALSE
 mp$mp12$assess$lnUmsybar -1.238
 mp$mp12$assess$mlnUmsy -1.238
@@ -124,9 +124,9 @@ mp$mp12$assess$s2lnUmsy 10
 mp$mp12$assess$fixsigU2 TRUE
 mp$mp12$assess$lnsigUmsy2 0
 #
-# MP 13 : s2U1_fixsig2U1
+# MP 13 : s2U1_sig2U1
 #
-mp$mp13$ctrl$mpLabel "s2U1_fixsig2U1"
+mp$mp13$ctrl$mpLabel "s2U1_sig2U1"
 mp$mp13$assess$fixUbar FALSE
 mp$mp13$assess$lnUmsybar -1.238
 mp$mp13$assess$mlnUmsy -1.238
@@ -134,9 +134,9 @@ mp$mp13$assess$s2lnUmsy 1
 mp$mp13$assess$fixsigU2 TRUE
 mp$mp13$assess$lnsigUmsy2 0
 #
-# MP 14 : s2U.1_fixsig2U1
+# MP 14 : s2U.1_sig2U1
 #
-mp$mp14$ctrl$mpLabel "s2U.1_fixsig2U1"
+mp$mp14$ctrl$mpLabel "s2U.1_sig2U1"
 mp$mp14$assess$fixUbar FALSE
 mp$mp14$assess$lnUmsybar -1.238
 mp$mp14$assess$mlnUmsy -1.238
@@ -144,9 +144,9 @@ mp$mp14$assess$s2lnUmsy .1
 mp$mp14$assess$fixsigU2 TRUE
 mp$mp14$assess$lnsigUmsy2 0
 #
-# MP 15 : s2U.01_fixsig2U1
+# MP 15 : s2U.01_sig2U1
 #
-mp$mp15$ctrl$mpLabel "s2U.01_fixsig2U1"
+mp$mp15$ctrl$mpLabel "s2U.01_sig2U1"
 mp$mp15$assess$fixUbar FALSE
 mp$mp15$assess$lnUmsybar -1.238
 mp$mp15$assess$mlnUmsy -1.238
@@ -154,17 +154,17 @@ mp$mp15$assess$s2lnUmsy .01
 mp$mp15$assess$fixsigU2 TRUE
 mp$mp15$assess$lnsigUmsy2 0
 #
-# MP 16 : fixUbar_fixsig2U10
+# MP 16 : fixUbar_sig2U10
 #
-mp$mp16$ctrl$mpLabel "fixUbar.6_fixsig2U10"
+mp$mp16$ctrl$mpLabel "Ubar.6_sig2U10"
 mp$mp16$assess$fixUbar TRUE
 mp$mp16$assess$lnUmsybar -1.238
 mp$mp16$assess$fixsigU2 TRUE
 mp$mp16$assess$lnsigUmsy2 2.3
 #
-# MP 17 : s2U10_fixsig2U10
+# MP 17 : s2U10_sig2U10
 #
-mp$mp17$ctrl$mpLabel "s2U10_fixsig2U10"
+mp$mp17$ctrl$mpLabel "s2U10_sig2U10"
 mp$mp17$assess$fixUbar FALSE
 mp$mp17$assess$lnUmsybar -1.238
 mp$mp17$assess$mlnUmsy -1.238
@@ -172,9 +172,9 @@ mp$mp17$assess$s2lnUmsy 10
 mp$mp17$assess$fixsigU2 TRUE
 mp$mp17$assess$lnsigUmsy2 2.30
 #
-# MP 18 : s2U1_fixsig2U10
+# MP 18 : s2U1_sig2U10
 #
-mp$mp18$ctrl$mpLabel "s2U1_fixsig2U10"
+mp$mp18$ctrl$mpLabel "s2U1_sig2U10"
 mp$mp18$assess$fixUbar FALSE
 mp$mp18$assess$lnUmsybar -1.238
 mp$mp18$assess$mlnUmsy -1.238
@@ -182,9 +182,9 @@ mp$mp18$assess$s2lnUmsy 1
 mp$mp18$assess$fixsigU2 TRUE
 mp$mp18$assess$lnsigUmsy2 2.30
 #
-# MP 19 : s2U.1_fixsig2U10
+# MP 19 : s2U.1_sig2U10
 #
-mp$mp19$ctrl$mpLabel "s2U.1_fixsig2U10"
+mp$mp19$ctrl$mpLabel "s2U.1_sig2U10"
 mp$mp19$assess$fixUbar FALSE
 mp$mp19$assess$lnUmsybar -1.238
 mp$mp19$assess$mlnUmsy -1.238
@@ -192,9 +192,9 @@ mp$mp19$assess$s2lnUmsy .1
 mp$mp19$assess$fixsigU2 TRUE
 mp$mp19$assess$lnsigUmsy2 2.30
 #
-# MP 20 : s2U.01_fixsig2U10
+# MP 20 : s2U.01_sig2U10
 #
-mp$mp20$ctrl$mpLabel "s2U.01_fixsig2U10"
+mp$mp20$ctrl$mpLabel "s2U.01_sig2U10"
 mp$mp20$assess$fixUbar FALSE
 mp$mp20$assess$lnUmsybar -1.238
 mp$mp20$assess$mlnUmsy -1.238
