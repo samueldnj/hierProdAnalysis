@@ -109,8 +109,8 @@ plotqPriorSens <- function (  tableName = "qPriorSens_MRE",
     axis( side = 2 )
     mtext(  side = 2, outer = FALSE, text = "Catchability", las = 0,
             line = 3 )
-    browser()
-  # plot tauq2 estimates
+
+  # plot tauq2 estimates (or fixed values)
   plot( x = c( 0, nMP+1 ), y = c( 0, 1 ), type = "n",
         axes = FALSE, xlab = "", ylab = "" )
     polygon(  x = c(fullX,rev(fullX)), 

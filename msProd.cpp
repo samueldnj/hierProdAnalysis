@@ -193,10 +193,10 @@ Type objective_function<Type>::operator() ()
   if (nS > 1)
   {
     // 1st level priors
-    for (int s=0; s<nS;s++)
+    for( int s = 0; s < nS; s++ )
     {
       // catchability
-      if (lnqPriorCode == 1)
+      if( lnqPriorCode == 1 )
       {
         nllqPrior += Type(0.5) * ( lntauq2 + pow( q(s) - qbar, 2 ) / tauq2 );  
       }

@@ -467,57 +467,217 @@ mp$mp45$assess$tauqPriorCode 0
 mp$mp45$assess$tauq2P1 .1
 mp$mp45$assess$tauq2P2 1
 #
-# MP 46 : fixqbar_tqIGP(.01_10)
+# MP 46 : fixqbar_tqIGP(.1_10)
 #
-mp$mp46$ctrl$mpLabel "qbar.6_tqIGP(.01_10)"
+mp$mp46$ctrl$mpLabel "qbar.6_tqIGP(.1_10)"
 mp$mp46$assess$fixqbar TRUE
 mp$mp46$assess$lnqbar -.51
 mp$mp46$assess$tauqPriorCode 0
-mp$mp46$assess$tauq2P1 .01
+mp$mp46$assess$tauq2P1 .1
 mp$mp46$assess$tauq2P2 10
 #
-# MP 47 : s2q10_tqIGP(.01_10)
+# MP 47 : s2q10_tqIGP(.1_10)
 #
-mp$mp47$ctrl$mpLabel "s2q10_tqIGP(.01_10)"
+mp$mp47$ctrl$mpLabel "s2q10_tqIGP(.1_10)"
 mp$mp47$assess$fixqbar FALSE
 mp$mp47$assess$lnqbar -.51
 mp$mp47$assess$mlnq -.51
 mp$mp47$assess$s2lnq 10
 mp$mp47$assess$tauqPriorCode 0
-mp$mp47$assess$tauq2P1 .01
+mp$mp47$assess$tauq2P1 .1
 mp$mp47$assess$tauq2P2 10
 #
-# MP 48 : s2q1_tqIGP(.01_10)
+# MP 48 : s2q1_tqIGP(.1_10)
 #
-mp$mp48$ctrl$mpLabel "s2q1_tqIGP(.01_10)"
+mp$mp48$ctrl$mpLabel "s2q1_tqIGP(.1_10)"
 mp$mp48$assess$fixqbar FALSE
 mp$mp48$assess$lnqbar -.51
 mp$mp48$assess$mlnq -.51
 mp$mp48$assess$s2lnq 1
 mp$mp48$assess$tauqPriorCode 0
-mp$mp48$assess$tauq2P1 .01
+mp$mp48$assess$tauq2P1 .1
 mp$mp48$assess$tauq2P2 10
 #
-# MP 49 : s2q.1_tqIGP(.01_10)
+# MP 49 : s2q.1_tqIGP(.1_10)
 #
-mp$mp49$ctrl$mpLabel "s2q.1_tqIGP(.01_10)"
+mp$mp49$ctrl$mpLabel "s2q.1_tqIGP(.1_10)"
 mp$mp49$assess$fixqbar FALSE
 mp$mp49$assess$lnqbar -.51
 mp$mp49$assess$mlnq -.51
 mp$mp49$assess$s2lnq .1
 mp$mp49$assess$tauqPriorCode 0
-mp$mp49$assess$tauq2P1 .01
+mp$mp49$assess$tauq2P1 .1
 mp$mp49$assess$tauq2P2 10
 #
-# MP 50 : s2q.01_tqIGP(.01_10)
+# MP 50 : s2q.01_tqIGP(.1_10)
 #
-mp$mp50$ctrl$mpLabel "s2q.01_tqIGP(.01_10)"
+mp$mp50$ctrl$mpLabel "s2q.01_tqIGP(.1_10)"
 mp$mp50$assess$fixqbar FALSE
 mp$mp50$assess$lnqbar -.51
 mp$mp50$assess$mlnq -.51
 mp$mp50$assess$s2lnq .01
 mp$mp50$assess$tauqPriorCode 0
-mp$mp50$assess$tauq2P1 .01
+mp$mp50$assess$tauq2P1 .1
 mp$mp50$assess$tauq2P2 10
+#
+
+# MP 51 : qbar.6_tqIGP(.1_.1)
+#
+mp$mp51$ctrl$mpLabel "qbar.6_tqIGP(1_.1)"
+mp$mp51$assess$fixqbar TRUE
+mp$mp51$assess$lnqbar -.51
+mp$mp51$assess$tauqPriorCode 0
+mp$mp51$assess$tauq2P1 1
+mp$mp51$assess$tauq2P2 .1
+#
+# MP 52 : s2q10_tqIGP(1_.1)
+#
+mp$mp52$ctrl$mpLabel "s2q10_tqIGP(1_.1)"
+mp$mp52$assess$fixqbar FALSE
+mp$mp52$assess$lnqbar -.51
+mp$mp52$assess$mlnq -.51
+mp$mp52$assess$s2lnq 10
+mp$mp52$assess$tauqPriorCode 0
+mp$mp52$assess$tauq2P1 1
+mp$mp52$assess$tauq2P2 .1
+#
+# MP 53 : s2q1_tqIGP(1_.1)
+#
+mp$mp53$ctrl$mpLabel "s2q1_tqIGP(1_.1)"
+mp$mp53$assess$fixqbar FALSE
+mp$mp53$assess$lnqbar -.51
+mp$mp53$assess$mlnq -.51
+mp$mp53$assess$s2lnq 1
+mp$mp53$assess$tauqPriorCode 0
+mp$mp53$assess$tauq2P1 1
+mp$mp53$assess$tauq2P2 .1
+#
+# MP 54 : s2q.1_tqIGP(1_.1)
+#
+mp$mp54$ctrl$mpLabel "s2q.1_tqIGP(1_.1)"
+mp$mp54$assess$fixqbar FALSE
+mp$mp54$assess$lnqbar -.51
+mp$mp54$assess$mlnq -.51
+mp$mp54$assess$s2lnq .1
+mp$mp54$assess$tauqPriorCode 0
+mp$mp54$assess$tauq2P1 1
+mp$mp54$assess$tauq2P2 .1
+#
+# MP 55 : s2q.01_tqIGP(1_.1)
+#
+mp$mp55$ctrl$mpLabel "s2q.01_tqIGP(1_.1)"
+mp$mp55$assess$fixqbar FALSE
+mp$mp55$assess$lnqbar -.51
+mp$mp55$assess$mlnq -.51
+mp$mp55$assess$s2lnq .01
+mp$mp55$assess$tauqPriorCode 0
+mp$mp55$assess$tauq2P1 1
+mp$mp55$assess$tauq2P2 .1
+#
+# MP 56 : fixqbar_tqIGP(1_1)
+#
+mp$mp56$ctrl$mpLabel "qbar.6_tqIGP(1_1)"
+mp$mp56$assess$fixqbar TRUE
+mp$mp56$assess$lnqbar -.51
+mp$mp56$assess$tauqPriorCode 0
+mp$mp56$assess$tauq2P1 1
+mp$mp56$assess$tauq2P2 1
+#
+# MP 57 : s2q10_tqIGP(1_1)
+#
+mp$mp57$ctrl$mpLabel "s2q10_tqIGP(1_1)"
+mp$mp57$assess$fixqbar FALSE
+mp$mp57$assess$lnqbar -.51
+mp$mp57$assess$mlnq -.51
+mp$mp57$assess$s2lnq 10
+mp$mp57$assess$tauqPriorCode 0
+mp$mp57$assess$tauq2P1 1
+mp$mp57$assess$tauq2P2 1
+#
+# MP 58 : s2q1_tqIGP(1_1)
+#
+mp$mp58$ctrl$mpLabel "s2q1_tqIGP(1_1)"
+mp$mp58$assess$fixqbar FALSE
+mp$mp58$assess$lnqbar -.51
+mp$mp58$assess$mlnq -.51
+mp$mp58$assess$s2lnq 1
+mp$mp58$assess$tauqPriorCode 0
+mp$mp58$assess$tauq2P1 1
+mp$mp58$assess$tauq2P2 1
+#
+# MP 59 : s2q.1_tqIGP(1_1)
+#
+mp$mp59$ctrl$mpLabel "s2q.1_tqIGP(1_1)"
+mp$mp59$assess$fixqbar FALSE
+mp$mp59$assess$lnqbar -.51
+mp$mp59$assess$mlnq -.51
+mp$mp59$assess$s2lnq .1
+mp$mp59$assess$tauqPriorCode 0
+mp$mp59$assess$tauq2P1 1
+mp$mp59$assess$tauq2P2 1
+#
+# MP 60 : s2q.01_tqIGP(1_1)
+#
+mp$mp60$ctrl$mpLabel "s2q.01_tqIGP(1_1)"
+mp$mp60$assess$fixqbar FALSE
+mp$mp60$assess$lnqbar -.51
+mp$mp60$assess$mlnq -.51
+mp$mp60$assess$s2lnq .01
+mp$mp60$assess$tauqPriorCode 0
+mp$mp60$assess$tauq2P1 1
+mp$mp60$assess$tauq2P2 1
+#
+# MP 61 : fixqbar_tqIGP(1_10)
+#
+mp$mp61$ctrl$mpLabel "qbar.6_tqIGP(1_10)"
+mp$mp61$assess$fixqbar TRUE
+mp$mp61$assess$lnqbar -.51
+mp$mp61$assess$tauqPriorCode 0
+mp$mp61$assess$tauq2P1 1
+mp$mp61$assess$tauq2P2 10
+#
+# MP 62 : s2q10_tqIGP(1_10)
+#
+mp$mp62$ctrl$mpLabel "s2q10_tqIGP(1_10)"
+mp$mp62$assess$fixqbar FALSE
+mp$mp62$assess$lnqbar -.51
+mp$mp62$assess$mlnq -.51
+mp$mp62$assess$s2lnq 10
+mp$mp62$assess$tauqPriorCode 0
+mp$mp62$assess$tauq2P1 1
+mp$mp62$assess$tauq2P2 10
+#
+# MP 63 : s2q1_tqIGP(1_10)
+#
+mp$mp63$ctrl$mpLabel "s2q1_tqIGP(1_10)"
+mp$mp63$assess$fixqbar FALSE
+mp$mp63$assess$lnqbar -.51
+mp$mp63$assess$mlnq -.51
+mp$mp63$assess$s2lnq 1
+mp$mp63$assess$tauqPriorCode 0
+mp$mp63$assess$tauq2P1 1
+mp$mp63$assess$tauq2P2 10
+#
+# MP 64 : s2q.1_tqIGP(.1_10)
+#
+mp$mp64$ctrl$mpLabel "s2q.1_tqIGP(1_10)"
+mp$mp64$assess$fixqbar FALSE
+mp$mp64$assess$lnqbar -.51
+mp$mp64$assess$mlnq -.51
+mp$mp64$assess$s2lnq .1
+mp$mp64$assess$tauqPriorCode 0
+mp$mp64$assess$tauq2P1 1
+mp$mp64$assess$tauq2P2 10
+#
+# MP 65 : s2q.01_tqIGP(1_10)
+#
+mp$mp65$ctrl$mpLabel "s2q.01_tqIGP(1_10)"
+mp$mp65$assess$fixqbar FALSE
+mp$mp65$assess$lnqbar -.51
+mp$mp65$assess$mlnq -.51
+mp$mp65$assess$s2lnq .01
+mp$mp65$assess$tauqPriorCode 0
+mp$mp65$assess$tauq2P1 1
+mp$mp65$assess$tauq2P2 10
 #
 # File Ends <Not Run>
