@@ -10,17 +10,17 @@ scenario$scenario1$opMod$nS 2
 #
 # Management Procedure
 #
-# MP 1 : fixqbar_fixtau2q.01
+# MP 1 : qbar.6_tau2q.01
 #
-mp$mp1$ctrl$mpLabel "fixqbar.6_fixtau2q.01"
+mp$mp1$ctrl$mpLabel "qbar.6_tau2q.01"
 mp$mp1$assess$fixqbar TRUE
 mp$mp1$assess$lnqbar -.51
 mp$mp1$assess$fixtauq2 TRUE
 mp$mp1$assess$lntauq2 -4.6
 #
-# MP 2 : s2q10_fixtau2q.01
+# MP 2 : s2q10_tau2q.01
 #
-mp$mp2$ctrl$mpLabel "s2q10_fixtau2q.01"
+mp$mp2$ctrl$mpLabel "s2q10_tau2q.01"
 mp$mp2$assess$fixqbar FALSE
 mp$mp2$assess$lnqbar -.51
 mp$mp2$assess$mlnq -.51
@@ -28,9 +28,9 @@ mp$mp2$assess$s2lnq 10
 mp$mp2$assess$fixtauq2 TRUE
 mp$mp2$assess$lntauq2 -4.6
 #
-# MP 3 : s2q1_fixtau2q.01
+# MP 3 : s2q1_tau2q.01
 #
-mp$mp3$ctrl$mpLabel "s2q1_fixtau2q.01"
+mp$mp3$ctrl$mpLabel "s2q1_tau2q.01"
 mp$mp3$assess$fixqbar FALSE
 mp$mp3$assess$lnqbar -.51
 mp$mp3$assess$mlnq -.51
@@ -38,9 +38,9 @@ mp$mp3$assess$s2lnq 1
 mp$mp3$assess$fixtauq2 TRUE
 mp$mp3$assess$lntauq2 -4.6
 #
-# MP 4 : s2q.1_fixtau2q.01
+# MP 4 : s2q.1_tau2q.01
 #
-mp$mp4$ctrl$mpLabel "s2q.1_fixtau2q.01"
+mp$mp4$ctrl$mpLabel "s2q.1_tau2q.01"
 mp$mp4$assess$fixqbar FALSE
 mp$mp4$assess$lnqbar -.51
 mp$mp4$assess$mlnq -.51
@@ -48,9 +48,9 @@ mp$mp4$assess$s2lnq .1
 mp$mp4$assess$fixtauq2 TRUE
 mp$mp4$assess$lntauq2 -4.6
 #
-# MP 5 : s2q.01_fixtau2q.01
+# MP 5 : s2q.01_tau2q.01
 #
-mp$mp5$ctrl$mpLabel "s2q.01_fixtau2q.01"
+mp$mp5$ctrl$mpLabel "s2q.01_tau2q.01"
 mp$mp5$assess$fixqbar FALSE
 mp$mp5$assess$lnqbar -.51
 mp$mp5$assess$mlnq -.51
@@ -58,17 +58,17 @@ mp$mp5$assess$s2lnq .01
 mp$mp5$assess$fixtauq2 TRUE
 mp$mp5$assess$lntauq2 -4.6
 #
-# MP 6 : fixqbar_fixtau2q.1
+# MP 6 : qbar.6_tau2q.1
 #
-mp$mp6$ctrl$mpLabel "fixqbar.6_fixtau2q.1"
+mp$mp6$ctrl$mpLabel "qbar.6_tau2q.1"
 mp$mp6$assess$fixqbar TRUE
 mp$mp6$assess$lnqbar -.51
 mp$mp6$assess$fixtauq2 TRUE
 mp$mp6$assess$lntauq2 -2.3
 #
-# MP 7 : s2q10_fixtau2q.1
+# MP 7 : s2q10_tau2q.1
 #
-mp$mp7$ctrl$mpLabel "s2q10_fixtau2q.1"
+mp$mp7$ctrl$mpLabel "s2q10_tau2q.1"
 mp$mp7$assess$fixqbar FALSE
 mp$mp7$assess$lnqbar -.51
 mp$mp7$assess$mlnq -.51
@@ -76,9 +76,9 @@ mp$mp7$assess$s2lnq 10
 mp$mp7$assess$fixtauq2 TRUE
 mp$mp7$assess$lntauq2 -2.3
 #
-# MP 8 : s2q1_fixtau2q.1
+# MP 8 : s2q1_tau2q.1
 #
-mp$mp8$ctrl$mpLabel "s2q1_fixtau2q.1"
+mp$mp8$ctrl$mpLabel "s2q1_tau2q.1"
 mp$mp8$assess$fixqbar FALSE
 mp$mp8$assess$lnqbar -.51
 mp$mp8$assess$mlnq -.51
@@ -86,9 +86,9 @@ mp$mp8$assess$s2lnq 1
 mp$mp8$assess$fixtauq2 TRUE
 mp$mp8$assess$lntauq2 -2.3
 #
-# MP 9 : s2q.1_fixtau2q.1
+# MP 9 : s2q.1_tau2q.1
 #
-mp$mp9$ctrl$mpLabel "s2q.1_fixtau2q.1"
+mp$mp9$ctrl$mpLabel "s2q.1_tau2q.1"
 mp$mp9$assess$fixqbar FALSE
 mp$mp9$assess$lnqbar -.51
 mp$mp9$assess$mlnq -.51
@@ -96,9 +96,9 @@ mp$mp9$assess$s2lnq .1
 mp$mp9$assess$fixtauq2 TRUE
 mp$mp9$assess$lntauq2 -2.3
 #
-# MP 10 : s2q.01_fixtau2q.1
+# MP 10 : s2q.01_tau2q.1
 #
-mp$mp10$ctrl$mpLabel "s2q.01_fixtau2q.1"
+mp$mp10$ctrl$mpLabel "s2q.01_tau2q.1"
 mp$mp10$assess$fixqbar FALSE
 mp$mp10$assess$lnqbar -.51
 mp$mp10$assess$mlnq -.51
@@ -106,9 +106,9 @@ mp$mp10$assess$s2lnq .01
 mp$mp10$assess$fixtauq2 TRUE
 mp$mp10$assess$lntauq2 -2.3
 #
-# MP 11 : fixqbar_fixtauq1
+# MP 11 : qbar.6_fixtauq1
 #
-mp$mp11$ctrl$mpLabel "fixqbar.6_fixtau2q1"
+mp$mp11$ctrl$mpLabel "qbar.6_tau2q1"
 mp$mp11$assess$fixqbar TRUE
 mp$mp11$assess$lnqbar -.51
 mp$mp11$assess$fixtauq2 TRUE
@@ -116,7 +116,7 @@ mp$mp11$assess$lntauq2 0
 #
 # MP 12 : s2q10_fixtauq1
 #
-mp$mp12$ctrl$mpLabel "s2q10_fixtau2q1"
+mp$mp12$ctrl$mpLabel "s2q10_tau2q1"
 mp$mp12$assess$fixqbar FALSE
 mp$mp12$assess$lnqbar -.51
 mp$mp12$assess$mlnq -.51
@@ -124,9 +124,9 @@ mp$mp12$assess$s2lnq 10
 mp$mp12$assess$fixtauq2 TRUE
 mp$mp12$assess$lntauq2 0
 #
-# MP 13 : s2q1_fixtau2q1
+# MP 13 : s2q1_tau2q1
 #
-mp$mp13$ctrl$mpLabel "s2q1_fixtau2q1"
+mp$mp13$ctrl$mpLabel "s2q1_tau2q1"
 mp$mp13$assess$fixqbar FALSE
 mp$mp13$assess$lnqbar -.51
 mp$mp13$assess$mlnq -.51
@@ -134,9 +134,9 @@ mp$mp13$assess$s2lnq 1
 mp$mp13$assess$fixtauq2 TRUE
 mp$mp13$assess$lntauq2 0
 #
-# MP 14 : s2q.1_fixtau2q1
+# MP 14 : s2q.1_tau2q1
 #
-mp$mp14$ctrl$mpLabel "s2q.1_fixtau2q1"
+mp$mp14$ctrl$mpLabel "s2q.1_tau2q1"
 mp$mp14$assess$fixqbar FALSE
 mp$mp14$assess$lnqbar -.51
 mp$mp14$assess$mlnq -.51
@@ -144,9 +144,9 @@ mp$mp14$assess$s2lnq .1
 mp$mp14$assess$fixtauq2 TRUE
 mp$mp14$assess$lntauq2 0
 #
-# MP 15 : s2q.01_fixtau2q1
+# MP 15 : s2q.01_tau2q1
 #
-mp$mp15$ctrl$mpLabel "s2q.01_fixtau2q1"
+mp$mp15$ctrl$mpLabel "s2q.01_tau2q1"
 mp$mp15$assess$fixqbar FALSE
 mp$mp15$assess$lnqbar -.51
 mp$mp15$assess$mlnq -.51
@@ -154,17 +154,17 @@ mp$mp15$assess$s2lnq .01
 mp$mp15$assess$fixtauq2 TRUE
 mp$mp15$assess$lntauq2 0
 #
-# MP 16 : fixqbar_fixtau2q10
+# MP 16 : fixqbar_tau2q10
 #
-mp$mp16$ctrl$mpLabel "fixqbar.6_fixtau2q10"
+mp$mp16$ctrl$mpLabel "qbar.6_tau2q10"
 mp$mp16$assess$fixqbar TRUE
 mp$mp16$assess$lnqbar -.51
 mp$mp16$assess$fixtauq2 TRUE
 mp$mp16$assess$lntauq2 2.3
 #
-# MP 17 : s2q10_fixtau2q10
+# MP 17 : s2q10_tau2q10
 #
-mp$mp17$ctrl$mpLabel "s2q10_fixtau2q10"
+mp$mp17$ctrl$mpLabel "s2q10_tau2q10"
 mp$mp17$assess$fixqbar FALSE
 mp$mp17$assess$lnqbar -.51
 mp$mp17$assess$mlnq -.51
@@ -172,9 +172,9 @@ mp$mp17$assess$s2lnq 10
 mp$mp17$assess$fixtauq2 TRUE
 mp$mp17$assess$lntauq2 2.30
 #
-# MP 18 : s2q1_fixtau2q10
+# MP 18 : s2q1_tau2q10
 #
-mp$mp18$ctrl$mpLabel "s2q1_fixtau2q10"
+mp$mp18$ctrl$mpLabel "s2q1_tau2q10"
 mp$mp18$assess$fixqbar FALSE
 mp$mp18$assess$lnqbar -.51
 mp$mp18$assess$mlnq -.51
@@ -182,9 +182,9 @@ mp$mp18$assess$s2lnq 1
 mp$mp18$assess$fixtauq2 TRUE
 mp$mp18$assess$lntauq2 2.30
 #
-# MP 19 : s2q.1_fixtau2q10
+# MP 19 : s2q.1_tau2q10
 #
-mp$mp19$ctrl$mpLabel "s2q.1_fixtau2q10"
+mp$mp19$ctrl$mpLabel "s2q.1_tau2q10"
 mp$mp19$assess$fixqbar FALSE
 mp$mp19$assess$lnqbar -.51
 mp$mp19$assess$mlnq -.51
@@ -192,9 +192,9 @@ mp$mp19$assess$s2lnq .1
 mp$mp19$assess$fixtauq2 TRUE
 mp$mp19$assess$lntauq2 2.30
 #
-# MP 20 : s2q.01_fixtau2q10
+# MP 20 : s2q.01_tau2q10
 #
-mp$mp20$ctrl$mpLabel "s2q.01_fixtau2q10"
+mp$mp20$ctrl$mpLabel "s2q.01_tau2q10"
 mp$mp20$assess$fixqbar FALSE
 mp$mp20$assess$lnqbar -.51
 mp$mp20$assess$mlnq -.51

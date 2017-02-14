@@ -9,6 +9,18 @@
 #
 # --------------------------------------------------------------------------
 
+plotPriorSens <- function ( tableName = "qSens_MRE",
+                            par = "q" )
+{
+  # plotPriorSens()
+  # Reads in a stats table for prior sensitivity analyses
+  # and plots the performance
+  # inputs:     tableName = character name of stats table
+  #             par=paremeter that is affected by sens analysis
+  # outputs:    NULL
+  # side-effs:  plots to quartz
+}
+
 
 plotObsRasters <- function  ( tableName = "obsErr_MARE",
                               pars = c("BnT","Umsy","q","Dep"),
@@ -270,7 +282,6 @@ plotObsModContour <- function (   tableName   = "obsErr_MARE.csv",
 }
 
 
-
 # plotObsCompContour()
 # Plots the correlation comparative experiment performance contours for
 # estimation of BnT and Umsy (abundance and productivity) by species
@@ -283,8 +294,7 @@ plotObsModContour <- function (   tableName   = "obsErr_MARE.csv",
 #         method="deviance" for log2(SS/MS), difference for SS-MS
 #         compMean=compute the mean for the complex?
 #         tUtr=integer value for tUtrough in Fhist scenarios
-#         negCorr=logical value of simCtl par lastNegCorr in corr scenarios
-#         tcex=cex of text in taster cells
+#         tcex=cex of text in raster cells
 plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv", 
                                   axes        = c("corr", "kappaMult"),
                                   pars        = c("BnT", "Umsy", "q", "Dep"),

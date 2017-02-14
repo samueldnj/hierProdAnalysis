@@ -219,7 +219,8 @@
                   "ssBmsy","msBmsy","ssDep","msDep",
                   "ssq", "msq", "msq025", "msq975", 
                   "msHessPD", "ssHessPD","nReps",
-                  "Umax", "tUpeak", "tUtrough", "tau2OM","nS","lastNegCorr" )
+                  "Umax", "tUpeak", "tUtrough", 
+                  "tau2OM","nS","lastNegCorr" )
   
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
   
@@ -249,6 +250,8 @@
   statTable$nS              <- opMod$nS
   statTable$s2q             <- blob$assess$s2lnq
   statTable$tauq2           <- median(blob$am$ms$tauq2,na.rm=TRUE)
+  statTable$fixqbar         <- blob$assess$fixqbar
+  statTable$fixtauq2        <- blob$assess$fixqbar
   statTable$qbar            <- median(blob$am$ms$qbar,na.rm=TRUE)
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
   statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
