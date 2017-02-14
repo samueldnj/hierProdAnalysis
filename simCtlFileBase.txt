@@ -46,6 +46,7 @@ assess$fixsigU2 FALSE
 assess$fixUbar FALSE
 assess$mlnUmsy -1.32
 assess$s2lnUmsy 10
+assess$lnqPriorCode 1
 assess$lnqbar -.51
 assess$lntauq2 2.5 
 assess$fixtauq2 FALSE
