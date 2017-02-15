@@ -1,7 +1,7 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "test"
-ctrl$mpLabel "qFE-lnqPriorOff"
+ctrl$scenarioName "highinitF"
+ctrl$mpLabel "bothEff"
 ctrl$nReps 10
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
@@ -14,7 +14,7 @@ opMod$lastNegCorr FALSE
 opMod$nS 3
 opMod$nT 30
 opMod$Umult c(0.2,2,0.8)
-opMod$Umax NULL
+opMod$Umax 3
 opMod$tUpeak 5
 opMod$tUtrough 15
 opMod$q c(0.518,0.628,0.488,0.648,0.718)
@@ -27,7 +27,7 @@ assess$autoIG TRUE
 assess$msAR1 FALSE
 assess$msCorr FALSE
 assess$ssAR1 FALSE
-assess$quiet FALSE
+assess$quiet TRUE
 assess$fitTrials 3
 assess$maxfn 1000
 assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
@@ -46,7 +46,7 @@ assess$fixsigU2 FALSE
 assess$fixUbar FALSE
 assess$mlnUmsy -1.2
 assess$s2lnUmsy 3
-assess$lnqPriorCode 0
+assess$lnqPriorCode 1
 assess$lnqbar -.51
 assess$lntauq2 1
 assess$fixtauq2 TRUE

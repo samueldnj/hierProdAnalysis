@@ -226,7 +226,7 @@ Type objective_function<Type>::operator() ()
       nllUprior += Type(0.5) * pow( Umsy(s) - exp(mlnUmsy), 2 ) / s2lnUmsy;
     }   
   }
-  nll += nllBprior + Type(10.0) * nllqPrior + nllUprior;
+  nll += nllBprior +  nllqPrior + nllUprior;
   
   // Variance IG priors
   // Obs error var
