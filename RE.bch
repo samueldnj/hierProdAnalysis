@@ -528,18 +528,24 @@ scenario$scenario75$opMod$kappaMult 2
 #
 # Management Procedures
 #
-# MP 1 : corrTRUE_SigPrior0
+# MP 1 : s2q.05_tqIGP(.001_.5)
 #
-mp$mp1$ctrl$mpLabel 'corrTRUE_SigPriorIG'
-mp$mp1$assess$msCorr TRUE
-mp$mp1$assess$SigmaPriorCode 0
+mp$mp1$ctrl$mpLabel 's2q.05_tqIGP(.001_.5)'
+mp$mp1$assess$s2lnq .05
+mp$mp1$assess$tauq2Prior c(.001,.5)
 #
-# MP 2 : corrFALSE_SigPrior0
-#
-mp$mp2$ctrl$mpLabel 'corrFALSE_SigPriorIG'
-mp$mp2$assess$msCorr FALSE
-mp$mp2$assess$SigmaPriorCode 0
-#
+## MP 1 : corrTRUE_SigPrior0
+##
+#mp$mp1$ctrl$mpLabel 'corrTRUE_SigPriorIG'
+#mp$mp1$assess$msCorr TRUE
+#mp$mp1$assess$SigmaPriorCode 0
+##
+## MP 2 : corrFALSE_SigPrior0
+##
+#mp$mp2$ctrl$mpLabel 'corrFALSE_SigPriorIG'
+#mp$mp2$assess$msCorr FALSE
+#mp$mp2$assess$SigmaPriorCode 0
+##
 ## MP 3 : corrTRUE_SigPrior1_wishTypediag_
 ##
 #mp$mp3$ctrl$mpLabel 'corrTRUE_SigPrior1_wishTypediag'

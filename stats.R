@@ -250,14 +250,11 @@
   statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS              <- opMod$nS
   statTable$s2q             <- blob$assess$s2lnq
-  statTable$tauq2           <- median(blob$am$ms$tauq2[success],na.rm=TRUE)
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
-  statTable$qbar            <- median(blob$am$ms$qbar[success],na.rm=TRUE)
   statTable$qOM             <- blob$opMod$q[1:nS]
+  statTable$UmsyOM          <- blob$opMod$Umsy[1:nS]
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
-  statTable$Umsybar         <- median(blob$am$ms$Umsybar,na.rm=TRUE)
   if (is.null(blob$assess$tauq2Prior))
   {
     statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
@@ -283,6 +280,8 @@
     statTable[s,"msBnT"]    <- median (ms$err.mle$BnT[success,s], na.rm = TRUE )
     statTable[s,"ssUmsy"]   <- median (ss$err.mle$Umsy[success,s], na.rm = TRUE )
     statTable[s,"msUmsy"]   <- median (ms$err.mle$Umsy[success,s], na.rm = TRUE )
+    statTable[s,"msUmsy025"]<- quantile (ms$err.mle$Umsy[success,s], probs = 0.025, na.rm = TRUE )
+    statTable[s,"msUmsy975"]<- quantile (ms$err.mle$Umsy[success,s], probs = 0.975, na.rm = TRUE )
     statTable[s,"ssBmsy"]   <- median (ss$err.mle$Bmsy[success,s], na.rm = TRUE )
     statTable[s,"msBmsy"]   <- median (ms$err.mle$Bmsy[success,s], na.rm = TRUE )
     statTable[s,"ssDep"]    <- median (ss$err.mle$dep[success,s], na.rm = TRUE )
@@ -294,11 +293,18 @@
     statTable[s,"ssHessPD"] <- sum ( ss$hesspd[,s] , na.rm = TRUE )
     statTable[s,"msHessPD"] <- sum ( ms$hesspd , na.rm = TRUE )
   }
-  statTable$qbar025  <- quantile (blob$am$ms$qbar[success], probs = 0.025, na.rm = TRUE )
-  statTable$qbar975  <- quantile (blob$am$ms$qbar[success], probs = 0.975, na.rm = TRUE )
-  statTable$tauq2025 <- quantile (blob$am$ms$tauq2[success], probs = 0.025, na.rm = TRUE )
-  statTable$tauq2975 <- quantile (blob$am$ms$tauq2[success], probs = 0.975, na.rm = TRUE )
-  
+  statTable$qbar     <- median( blob$am$ms$qbar[success], na.rm=TRUE)
+  statTable$qbar025  <- quantile( blob$am$ms$qbar[success], probs = 0.025, na.rm = TRUE )
+  statTable$qbar975  <- quantile( blob$am$ms$qbar[success], probs = 0.975, na.rm = TRUE )
+  statTable$tauq2    <- median( blob$am$ms$tauq2[success], na.rm=TRUE)
+  statTable$tauq2025 <- quantile( blob$am$ms$tauq2[success], probs = 0.025, na.rm = TRUE )
+  statTable$tauq2975 <- quantile( blob$am$ms$tauq2[success], probs = 0.975, na.rm = TRUE )
+  statTable$sigU2    <- median( blob$am$ms$sigU2[success], na.rm=TRUE)
+  statTable$Umsybar  <- median( blob$am$ms$Umsybar[success],na.rm=TRUE)
+  statTable$sigU2025 <- quantile( blob$am$ms$sigU2[success], probs = 0.025, na.rm = TRUE )
+  statTable$sigU2975 <- quantile( blob$am$ms$sigU2[success], probs = 0.975, na.rm = TRUE )
+  statTable$Ubar025  <- quantile( blob$am$ms$Umsybar[success], probs = 0.025, na.rm = TRUE )
+  statTable$Ubar975  <- quantile( blob$am$ms$Umsybar[success], probs = 0.975, na.rm = TRUE )
   # return
   statTable
 }
