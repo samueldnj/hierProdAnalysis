@@ -210,10 +210,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$Sigma2IG[2]    <- (obj$assess$Sigma2IG[1]+1)*Sigma2
   }
 
-  if( !is.null(obj$assess$tau2qP1) ) obj$assess$tau2qPrior[1] <- obj$assess$tau2qP1
-  if( !is.null(obj$assess$tau2qP2) ) obj$assess$tau2qPrior[2] <- obj$assess$tau2qP2
-  if( !is.null(obj$assess$sig2UP1) ) obj$assess$sig2UPrior[1] <- obj$assess$sig2UP1
-  if( !is.null(obj$assess$sig2UP2) ) obj$assess$sig2UPrior[2] <- obj$assess$sig2UP2
+  if( !is.null(obj$assess$tauq2P1) ) obj$assess$tauq2Prior[1] <- obj$assess$tauq2P1
+  if( !is.null(obj$assess$tauq2P2) ) obj$assess$tauq2Prior[2] <- obj$assess$tauq2P2
+  if( !is.null(obj$assess$sigU2P1) ) obj$assess$sigU2Prior[1] <- obj$assess$sigU2P1
+  if( !is.null(obj$assess$sigU2P2) ) obj$assess$sigU2Prior[2] <- obj$assess$sigU2P2
 
   # Create IW scale matrix
   if( obj$assess$wishType == "diag" ) wishScale <- diag( obj$om$Sigma2 )
