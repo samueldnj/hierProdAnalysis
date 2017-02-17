@@ -455,7 +455,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if ( obj$assess$msCorr == "off" ) 
     msMap$logitSigmaOffDiag <- factor( rep( NA, nS * ( nS - 1 ) / 2 ) )
   if ( obj$assess$msCorr == "ident" ) 
-    msMap$logitSigmaOffDiag <- factor( rep( 2, nS * ( nS - 1 ) / 2 ) )
+    msMap$logitSigmaOffDiag <- factor( rep( 1, nS * ( nS - 1 ) / 2 ) )
   if ( obj$assess$fixtauq2 )
     msMap$lntauq2 <- factor( NA )
   if ( obj$assess$fixsigU2 )
@@ -464,6 +464,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     msMap$lnUmsybar <- factor( NA )
   if ( obj$assess$fixqbar )
     msMap$lnqbar <- factor( NA )
+
+  # browser()
   # return list of dat and pin objects for running estimators
   outlist <- list ( ssDat = ssDat, 
                     ssPar = ssPar,

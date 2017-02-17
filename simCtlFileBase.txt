@@ -26,7 +26,7 @@ opMod$kappaMult 1
 assess$profiles FALSE
 assess$autoIG TRUE
 assess$msAR1 FALSE
-assess$msCorr TRUE
+assess$msCorr "off"
 assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$fitTrials 3
@@ -38,7 +38,7 @@ assess$tau2 c(0.01,0.01,0.01,0.01,0.01)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1,1,1,1)
-assess$SigmaPriorCode 1
+assess$SigmaPriorCode 0
 assess$mBmsy c(40,6.25,26.8,26.12,495.4)
 assess$s2Bmsy c(1600,39.0625,718.24,682.25,245421.16)
 assess$lnUmsybar -1.23
@@ -55,11 +55,11 @@ assess$fixqbar FALSE
 assess$mlnq -0.51
 assess$s2lnq 0.09
 assess$sigUPriorCode 0
-assess$sigU2Prior c(0.001,0.5)
+assess$sigU2Prior c(0.001,0.2)
 assess$sigU2P1 NULL
 assess$sigU2P2 NULL
 assess$tauqPriorCode 0
-assess$tauq2Prior c(0.001,0.5)
+assess$tauq2Prior c(0.001,0.2)
 assess$tauq2P1 NULL
 assess$tauq2P2 NULL
 assess$kappa2IG c(0.1,0.5)
