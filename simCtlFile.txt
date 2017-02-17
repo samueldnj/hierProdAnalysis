@@ -26,7 +26,7 @@ opMod$kappaMult 1
 assess$profiles FALSE
 assess$autoIG TRUE
 assess$msAR1 FALSE
-assess$msCorr TRUE
+assess$msCorrEst "off"
 assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$fitTrials 3
