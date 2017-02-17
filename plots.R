@@ -177,7 +177,7 @@ plotUPriorSens <- function (  tableName = "UPriorSens_MRE",
   sigU2       <- plotTable$sigU2
   sigU2025    <- plotTable$sigU2025
   sigU2975    <- plotTable$sigU2975
-  browser()
+  # browser()
   Umsybar        <- plotTable$Umsybar
   Umsybar025     <- plotTable$Umsybar025
   Umsybar975     <- plotTable$Umsybar975
@@ -201,7 +201,7 @@ plotUPriorSens <- function (  tableName = "UPriorSens_MRE",
       
       points( x = k + specX, y = as.numeric(mpTable$msUmsy), 
               pch = 16, col = "grey20" )
-      points( x = k + specX, y = as.numeric( mpTable$msUmsy ), 
+      points( x = k + specX, y = as.numeric( mpTable$UmsyOM ), 
               pch = 1, col = "grey20" )
       segments( x0 = k + specX, y0 = as.numeric( mpTable$msUmsy025 ),
                 y1 = as.numeric( mpTable$msUmsy975 ), 
@@ -771,8 +771,8 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
     # plot the rasters, without legends
     for ( k in 1:length(titles) )
     {
-      plotBrick[[ k ]][plotBrick[[k]] > 10 ] <- 99
-      plotBrick[[ k ]][plotBrick[[k]] < -10 ] <- -99 
+      plotBrick[[ k ]][plotBrick[[k]] > 100 ] <- 99
+      plotBrick[[ k ]][plotBrick[[k]] < -100 ] <- -99 
       if(s == 1) plot( plotBrick[[k]],main = titles[k], legend = FALSE, 
                         breaks = colBreaks, col=colScale, asp=NA, axes = FALSE )
       else plot( plotBrick[[k]],main = "", legend = FALSE, axes = FALSE, 
@@ -855,7 +855,7 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
       # Get rows
       scenName <- paste( "nS", nS, "_CVc(", xVal, ",", yVal, ")", sep = "" )
       # Get rows
-      rows <- which ( specTab[,"scenario"] == scenName )
+      rows <- which ( compTable[,"scenario"] == scenName )
       if( length(rows) == 0 ) next
       # Recover MSE comparison
       z[length(CVs) - yIdx + 1,xIdx,] <- as.numeric(compTable[rows,pars])

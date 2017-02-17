@@ -1,7 +1,8 @@
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 // msProd_TMB.cpp
 // 
-// TMB version of of the multispecies production model
+// A multi-stock surplus production (Schaefer) state-space model with joint prior
+// distributions applied to catchability (q) and productivity (U_msy)
 // 
 // Author: Samuel Johnson
 // Date: August 25, 2014                    

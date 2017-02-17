@@ -490,7 +490,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 .callProcTMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], map = ssMap,
                             fitTrials = 3, maxfn = 10000, quiet = TRUE, 
                             TMBlib="msProd", UB = ssUB, LB = ssLB,
-                            RE = c("eps_t","lnq","lnUmsy","zeta_st") )
+                            RE = c("eps_t","lnq","lnUmsy","zeta_st"),
+                            profiles = FALSE )
 { 
   # browser()
   # Make the AD function
@@ -538,10 +539,50 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                       lCI = val - 1.645 * se,
                       uCI = val + 1.645 * se ) %>%
               dplyr::select( par, val, se, lCI, uCI )
-  }
+    if ( profiles )
+    {
+      if( dat$nS == 1 )
+      {
+        # Calculate SS profiles
+        lnqProfile      <- tmbprofile( obj, "lnq", trace = FALSE,
+                                        parm.range = c(-10,5) )
+        lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE,
+                                        parm.range = c(-10,5) )
+        lntau2Profile   <- tmbprofile( obj, "lntau2", trace = FALSE,
+                                        parm.range = c(-10,5) )
+        lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE,
+                                        parm.range = c(-10,5) )
+        # Save to an output list
+        profileList <- list ( lnq       = lnqProfile,
+                              lnUmsy    = lnUmsyProfile,
+                              lntau2    = lntau2Profile,
+                              lnkappa2  = lnkappa2Profile )
+      }
+      if( dat$nS > 1 )
+      {
+        # Calculate profiles for shared prior hyperpars
+        lnqbarProfile       <- tmbprofile( obj, "lnqbar", trace = FALSE,
+                                            parm.range = c(-15,5) )
+        lntauq2Profile      <- tmbprofile( obj, "lntauq2", trace = FALSE,
+                                            parm.range = c(-15,5) )
+        lnUmsybarProfile    <- tmbprofile( obj, "lnUmsybar", trace = FALSE,
+                                            parm.range = c(-15,5) )
+        lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy2", trace = FALSE,
+                                            parm.range = c(-15,5) ) 
+        # Save to output list
+        profileList <- list ( lnqbar      = lnqbarProfile,
+                              lntauq2     = lntauq2Profile,
+                              lnUmsybar   = lnUmsybarProfile,
+                              lnsigUmsy2  = lnsigUmsy2Profile )
+      }
+    }
+  } else profileList <- NA
 
   # Return
-  list(sdrep=sdrep, rep=rep, CIs = CIs)
+  out <- list(sdrep=sdrep, rep=rep, CIs = CIs)
+  if( profiles ) out$profiles <- profileList
+
+  out
 }
 
 # seedFit()
@@ -577,7 +618,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                                   quiet = obj$assess$quiet,
                                   RE = obj$assess$ssRE,
                                   LB = datPar$ssLB[[s]],
-                                  UB = datPar$ssUB[[s]] )
+                                  UB = datPar$ssUB[[s]],
+                                  profiles = obj$assess$profiles )
   }
   cat ( "Fitting ", obj$opMod$nS," species hierarchically.\n", 
                     sep = "")
@@ -590,7 +632,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           quiet = obj$assess$quiet,
                           RE = obj$assess$msRE,
                           LB = datPar$msLB,
-                          UB = datPar$msUB )
+                          UB = datPar$msUB,
+                          profiles = obj$assess$profiles )
 
   cat ( "Completed replicate ", seed - obj$ctrl$rSeed, " of ", 
         obj$ctrl$nReps, ".\n", sep = "" )
@@ -658,6 +701,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   CIs     = vector( mode = "list", length = nReps ),
                   fitrep  = vector( mode = "list", length = nReps ) )
 
+  # add a list for likelihood profiles
+  if( obj$assess$profiles ) 
+    am$ss$profiles <- vector( mode = "list", length = nReps )
+
   # multispecies (coastwide)
   am$ms <- list ( Umsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   Bmsy    = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
@@ -682,8 +729,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   sdrep   = vector( mode = "list", length = nReps ),
                   CIs     = vector( mode = "list", length = nReps ),
                   fitrep  = vector( mode = "list", length = nReps ) )
-
-
+  
+  # add a list for likelihood profiles
+  if( obj$assess$profiles ) 
+    am$ms$profiles <- vector( mode = "list", length = nReps )
+  
   # The BLOOOOOOBBBBBB
   blob <- obj
   blob$om <- om
@@ -718,7 +768,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Loop over single species
     # blob$am$ss$rep <- vector(mode = "list", length = nS)
     blob$am$ss$sdrep[[i]]       <- vector( mode = "list", length = nS )
-    blob$am$ss$CIs[[i]]       <- vector( mode = "list", length = nS )
+    blob$am$ss$fitrep[[i]]       <- vector( mode = "list", length = nS )
+    blob$am$ss$CIs[[i]]         <- vector( mode = "list", length = nS )
+    if( obj$assess$profiles ) 
+      blob$am$ss$profiles[[i]] <- vector( mode = "list", length = nS )
     for ( s in 1:nS )
     {
       if (  !is.na(simEst$ssFit[[s]]$sdrep) )
@@ -745,7 +798,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ss$hesspd[i,s]      <- sdrep$pdHess
         blob$am$ss$sdrep[[i]][[s]]  <- sdrep
         blob$am$ss$CIs[[i]][[s]]    <- CIs
-        blob$am$ss$fitrep[[i]]      <- fitrep
+        blob$am$ss$fitrep[[i]][[s]] <- fitrep
+
+        if( obj$assess$profiles )
+          blob$am$ss$profiles[[i]][[s]] <- simEst$ssFit[[s]]$profiles
       }
      
     }
@@ -786,6 +842,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ms$sdrep[[i]]         <- sdrep
       blob$am$ms$fitrep[[i]]        <- fitrep
       blob$am$ms$CIs[[i]]           <- CIs
+
+      if( obj$assess$profiles )
+        blob$am$ms$profiles[[i]] <- simEst$msFit$profiles
     }
 
   }
