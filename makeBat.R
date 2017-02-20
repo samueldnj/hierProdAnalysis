@@ -40,10 +40,10 @@ scenarioCreate <- function ( parList, outFile, label )
   cat ( "# File Ends <not run>.", file = outFile, append = TRUE )
 }
 
-mpParList <- list ( "assess$s2lnUmsy" = c(0.1,1,1.9),
-                    "assess$sigU2IGb" = c(0.2,0.6,1.0) )
+mpParList <- list ( "assess$s2lnUmsy" = c(0.0025,0.01,0.09,0.36),
+                    "assess$sigU2P2" = c(0.01,0.1,0.2,0.3) )
 
-mpLabels <- c("corr", "SigPrior" )
+mpLabels <- c("s2U", "betaU" )
 
 mpCreate <- function ( parList, label, outFile )
 {
@@ -55,15 +55,15 @@ mpCreate <- function ( parList, label, outFile )
     for ( k in 1:ncol ( exp ) ) 
       lab <- paste ( lab, label[k], as.character(exp[j,k]),"_", sep = "" )
     # Print MP name
-      if (j == 1) cat ( "# MP ", j, " : ", lab,
+      if (j == 1) cat ( "# MP ", j+16, " : ", lab,
             "\n", sep = "", file = outFile, append = FALSE)
-      else cat (  "# MP ", j, " : ", lab, 
+      else cat (  "# MP ", j+16, " : ", lab, 
                   "\n", sep = "", file = outFile, append = TRUE )
       cat ( "#\n", file = outFile, append = TRUE )
-      cat ( "mp$mp", j, "$ctrl$mpLabel '", lab, "'\n", sep = "", append = TRUE, 
+      cat ( "mp$mp", j+16, "$ctrl$mpLabel '", lab, "'\n", sep = "", append = TRUE, 
             file = outFile )
       for ( k in 1:ncol ( exp ) )
-        cat ( "mp$mp", j, "$", names(exp)[k], " ", exp[j,k], "\n", sep ="",
+        cat ( "mp$mp", j+16, "$", names(exp)[k], " ", exp[j,k], "\n", sep ="",
               file = outFile, append = TRUE )
       cat ( "#\n", file = outFile, append = TRUE )
   }
@@ -71,5 +71,5 @@ mpCreate <- function ( parList, label, outFile )
 }
 
 
-scenarioCreate(scenParList,"autoBat.txt",scenLabels)
-# mpCreate ( mpParList,mpLabels,"mpAutoBat.txt")
+# scenarioCreate(scenParList,"autoBat.txt",scenLabels)
+mpCreate ( mpParList,mpLabels,"mpAutoBat.txt")

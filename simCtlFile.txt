@@ -1,7 +1,7 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "base"
-ctrl$mpLabel "base"
+ctrl$scenarioName "test"
+ctrl$mpLabel "bothEff"
 ctrl$nReps 200
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
