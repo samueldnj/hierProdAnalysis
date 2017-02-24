@@ -217,7 +217,7 @@
   colLabels <- c( "scenario","mp","species","kappaTrue",
                   "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssDep","msDep",
-                  "ssq", "msq", "msq025", "msq975", 
+                  "ssq", "msq", "msq025", "msq975", "ssq025", "ssq975",
                   "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", "tUtrough", 
                   "tau2OM","nS","lastNegCorr",
@@ -279,6 +279,8 @@
     statTable[s,"ssBnT"]    <- median (ss$err.mle$BnT[success,s], na.rm = TRUE )
     statTable[s,"msBnT"]    <- median (ms$err.mle$BnT[success,s], na.rm = TRUE )
     statTable[s,"ssUmsy"]   <- median (ss$err.mle$Umsy[success,s], na.rm = TRUE )
+    statTable[s,"ssUmsy025"]<- quantile (ss$err.mle$Umsy[success,s], probs = 0.025, na.rm = TRUE )
+    statTable[s,"ssUmsy975"]<- quantile (ss$err.mle$Umsy[success,s], probs = 0.975, na.rm = TRUE )
     statTable[s,"msUmsy"]   <- median (ms$err.mle$Umsy[success,s], na.rm = TRUE )
     statTable[s,"msUmsy025"]<- quantile (ms$err.mle$Umsy[success,s], probs = 0.025, na.rm = TRUE )
     statTable[s,"msUmsy975"]<- quantile (ms$err.mle$Umsy[success,s], probs = 0.975, na.rm = TRUE )
@@ -287,6 +289,8 @@
     statTable[s,"ssDep"]    <- median (ss$err.mle$dep[success,s], na.rm = TRUE )
     statTable[s,"msDep"]    <- median (ms$err.mle$dep[success,s], na.rm = TRUE )
     statTable[s,"ssq"]      <- median (ss$err.mle$q[success,s], na.rm = TRUE )
+    statTable[s,"ssq025"]   <- quantile (ss$err.mle$q[success,s], probs = 0.025, na.rm = TRUE )
+    statTable[s,"ssq975"]   <- quantile (ss$err.mle$q[success,s], probs = 0.975, na.rm = TRUE )
     statTable[s,"msq"]      <- median (ms$err.mle$q[success,s], na.rm = TRUE )
     statTable[s,"msq025"]   <- quantile (ms$err.mle$q[success,s], probs = 0.025, na.rm = TRUE )
     statTable[s,"msq975"]   <- quantile (ms$err.mle$q[success,s], probs = 0.975, na.rm = TRUE )

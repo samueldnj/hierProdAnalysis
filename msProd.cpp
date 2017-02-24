@@ -1,13 +1,14 @@
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 // msProd_TMB.cpp
 // 
-// A multi-stock surplus production (Schaefer) state-space model with joint prior
-// distributions applied to catchability (q) and productivity (U_msy)
+// A multi-stock surplus production (Schaefer) state-space model with 
+// joint prior distributions applied to catchability (q) 
+// and productivity (U_msy)
 // 
 // Author: Samuel Johnson
-// Date: August 25, 2014                    
-// Purpose: To fit a multi-species RH production model to commercial catch
-// and survey CPUE data.
+// Date: 1 November, 2016
+// Purpose: The assessment model in a simulation study of multi-stock
+// robin hood methods.
 // 
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 

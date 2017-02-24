@@ -528,8 +528,14 @@ scenario$scenario75$opMod$kappaMult 2
 #
 # Management Procedures
 #
-# MP 1 : pubAM
+# MP 1 : fixq
 #
-mp$mp1$ctrl$mpLabel 'pubAM'
+mp$mp1$ctrl$mpLabel 'fixq'
+mp$mp1$assess$lnq c(-0.6577800,-0.4652151,-0.7174399,-0.4338646,-0.3312857)
+mp$mp1$assess$fixtauq2 TRUE
+mp$mp1$assess$fixqbar TRUE
+mp$mp1$assess$estqms "fix"
+mp$mp1$assess$fixqss TRUE
+mp$mp1$assess$lnqPriorCode 0
 #
 # File ends <not run>

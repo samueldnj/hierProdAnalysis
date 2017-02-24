@@ -49,9 +49,11 @@ assess$mlnUmsy -1.23
 assess$s2lnUmsy 0.09
 assess$lnqPriorCode 1
 assess$lnqbar -.51
-assess$lntauq2 2.5 
+assess$lntauq2 -1
 assess$fixtauq2 FALSE
 assess$fixqbar FALSE
+assess$estqms "unique"
+assess$fixqss FALSE
 assess$mlnq -0.51
 assess$s2lnq 0.09
 assess$sigUPriorCode 0

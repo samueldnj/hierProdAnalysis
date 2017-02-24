@@ -11,10 +11,10 @@
 
 plotProfiles <- function ( sim = 2 )
 {
-  # plotFhist()
+  # plotProfiles()
   # This function plots likelihood profiles for the selected sims,
   # as long as they were calculated during the simulations
-  # 
+  # input:    sim = int 1-vector indicating the simulation in project folder
 }
 
 
@@ -123,11 +123,12 @@ plotFhist <- function ( sims = 1:4,
 }
 
 
-plotUPriorSens <- function (  tableName = "UPriorSens_MRE",
+plotUPriorSens <- function (  tableName = "priorSens_pub_MRE",
                               nSp = 2,
-                              mpContains = "s2U1" )
+                              betaU = c(.01,.3),
+                              showLegend = FALSE )
 {
-  # plotPriorSens()
+  # plotUPriorSens()
   # Reads in a stats table for prior sensitivity analyses
   # and plots the performance
   # inputs:     tableName = character name of stats table
@@ -139,113 +140,118 @@ plotUPriorSens <- function (  tableName = "UPriorSens_MRE",
   fileName <- paste( tableName, ".csv", sep = "" )
   tablePath <- file.path ( getwd(), "project/Statistics", fileName )
   table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
-  # table <-  table %>%
-  #           mutate( msq     = qOM * msq + qOM,
-  #                   msq025  = qOM * msq025 + qOM,
-  #                   msq975  = qOM * msq975 + qOM )
-  MPs         <- unique( table$mp )
-  MPs         <- MPs[ grep( mpContains, MPs ) ]
-  table       <- table %>% filter( mp %in% MPs )
-
-  # browser()
-
+  
   # restrict to the table with the 
-  plotTable <-  table %>%
+  table     <-  table %>%
                 # filter( fixqbar == TRUE ) %>%
                 filter( nS == nSp ) %>%
                 group_by( mp, species) %>%
                 summarise(  msUmsy = mean(msUmsy),
-                            UmsyOM = mean(UmsyOM),
-                            sigU2 = mean(sigU2),
-                            Umsybar = mean(Umsybar),
                             msUmsy025 = mean(msUmsy025),
                             msUmsy975 = mean(msUmsy975),
+                            UmsyOM = mean(UmsyOM),
+                            sigU2 = mean(sigU2),
+                            sigU2P2 = mean(sigU2P2),
+                            Umsybar = mean(Umsybar),
                             Umsybar025 = mean(Ubar025),
                             Umsybar975 = mean(Ubar975),
                             sigU2025 = mean(sigU2025),
-                            sigU2975 = mean(sigU2975) ) %>%
+                            sigU2975 = mean(sigU2975),
+                            ssUmsy = mean(ssUmsy),
+                            ssUmsy025 = mean(ssUmsy025),
+                            ssUmsy975 = mean(ssUmsy975),
+                            s2U       = mean(s2Umsy) ) %>%
                 mutate( msUmsy      = UmsyOM * msUmsy + UmsyOM,
                         msUmsy025   = UmsyOM * msUmsy025 + UmsyOM,
-                        msUmsy975   = UmsyOM * msUmsy975 + UmsyOM ) %>%
+                        msUmsy975   = UmsyOM * msUmsy975 + UmsyOM,
+                        ssUmsy      = UmsyOM * ssUmsy + UmsyOM,
+                        ssUmsy025   = UmsyOM * ssUmsy025 + UmsyOM,
+                        ssUmsy975   = UmsyOM * ssUmsy975 + UmsyOM ) %>%
                 dplyr::select(  msUmsy, msUmsy025, msUmsy975, 
+                                ssUmsy, ssUmsy025, ssUmsy975, 
                                 Umsybar, Umsybar025, Umsybar975,
                                 mp, species, UmsyOM, 
-                                sigU2, sigU2025, sigU2975 )
+                                sigU2, sigU2025, sigU2975, s2U,
+                                sigU2P2 )
 
-  species     <- unique( plotTable$species )
-  MPs         <- unique( plotTable$mp )
-  
-  
   # plotting quantities
-  nMP         <- length(MPs)
-  nS          <- length(species)
+                browser()
+  s2U <- unique(table$s2U)
+  s2U <- s2U[ order(s2U) ]
+
+  species     <- unique( table$species )
+  nS          <- length( species )
+
   # Species plotting locations
-  specX       <- seq (-0.2,0.2, length=nS )
-
-  # Get the central 95% of tauq2 and qbar estimates
-  sigU2       <- plotTable$sigU2
-  sigU2025    <- plotTable$sigU2025
-  sigU2975    <- plotTable$sigU2975
-  # browser()
-  Umsybar        <- plotTable$Umsybar
-  Umsybar025     <- plotTable$Umsybar025
-  Umsybar975     <- plotTable$Umsybar975
-
+  specX       <- seq (-0.3,0.3, length=nS )
   fullX       <- c()
-  for( m in 1:nMP ) fullX <- c( fullX, m + specX ) 
+  for( k in 1:length(s2U) ) fullX <- c( fullX, k + specX ) 
 
-  # plot!
-  par( mfrow = c(2,1), las = 1, mar = c(1,1,1,1), oma = c(4,4,1,1) )
-  # plot q estimates against qbar estimates
-  plot( x = c( 0, nMP+1 ), y = c( 0, 1 ), type = "n",
-        axes = FALSE, xlab = "", ylab = "" )
-    polygon(  x = c( fullX, rev( fullX ) ), 
-              y = c( Umsybar025, rev( Umsybar975 ) ), 
-              col = "grey80",
-              border = NA )
-    lines( x = fullX, y = Umsybar, lty = 2, lwd = 2, col = "grey40" )
-    for( k in 1:nMP )
-    {
-      mpTable <- filter(plotTable, mp == MPs[k] ) 
-      
-      points( x = k + specX, y = as.numeric(mpTable$msUmsy), 
-              pch = 16, col = "grey20" )
-      points( x = k + specX, y = as.numeric( mpTable$UmsyOM ), 
-              pch = 1, col = "grey20" )
-      segments( x0 = k + specX, y0 = as.numeric( mpTable$msUmsy025 ),
-                y1 = as.numeric( mpTable$msUmsy975 ), 
-                col = "black", lwd = 3 )
-    }
-    panLegend(  x = 0.8, y = 1, legTxt = c( "U OM", "U Est", "Umsybar"),
-                bty = "n", pch = c( 1, 16, NA ), 
-                lty = c( NA, NA, 2 ),
-                lwd = c( NA, NA, 2 ) )
-    # axis( side = 1, at = 1:nMP, labels = MPs, las = 0 )
-    axis( side = 2 )
-    mtext(  side = 2, outer = FALSE, text = "Catchability", las = 0,
-            line = 3 )
+  # pch for each species
+  pchSpec <- c(0,1,2,5,6)
+  
+  textLab <- c("(a)","(b)","(c)","(d)")
 
-  # plot tauq2 estimates (or fixed values)
-  plot( x = c( 0, nMP+1 ), y = c( 0, 1 ), type = "n",
-        axes = FALSE, xlab = "", ylab = "" )
-    polygon(  x = c(fullX,rev(fullX)), 
-              y = c(sigU2025,rev(sigU2975)), col = "grey80",
-              border = NA )
-    lines( x = fullX, y = sigU2, lty = 2, lwd = 2, col = "grey20" )
-    axis( side = 1, at = 1:nMP, labels = MPs, las = 0 )
-    axis( side = 2 )
-    mtext( side = 1, outer = TRUE, text = "AM", line = 2)
-    mtext( side = 2, outer = FALSE, text = "tauq2", las = 0,
-           line = 3 )
+  par( mfrow = c(length(betaU),1), mar = c(1,1,2,1), oma = c(3,3,0,0) )
+  for( bIdx in 1:length(betaU) )
+  {
+    beta <- betaU[bIdx]
+    # plotMat <- matrix(NA, nrow=nS*length(s2U), ncol = 7 )
+    plotTable <-  table %>% filter( sigU2P2 == beta ) 
+    # browser()
+    Umsybar <- plotTable %>% group_by(s2U) %>% 
+            dplyr::select(s2U,Umsybar,Umsybar025,Umsybar975)
+
+    sigU2 <- plotTable %>% group_by(s2U) %>% 
+            dplyr::select(s2U,sigU2,sigU2025,sigU2975)
+
+    Uspec <- plotTable %>% group_by(s2U) %>% 
+            dplyr::select(s2U,msUmsy,msUmsy025,msUmsy975,UmsyOM,ssUmsy,ssUmsy025,ssUmsy975 )
+    
+    plot( x = c( 0, length(s2U) + 1 ), y = c( 0.9*min(plotTable$msUmsy025, plotTable$UmsyOM), 1.1*max(plotTable$msUmsy975, plotTable$UmsyOM) ), 
+          type = "n",
+          axes = FALSE, xlab = "", ylab = "" )
+      polygon(  x = c( fullX, rev(fullX) ),
+                y = c(Umsybar$Umsybar025, rev(Umsybar$Umsybar975) ),
+                col = "grey90", border = NA )
+      lines( x = fullX, y = Umsybar$Umsybar, lty = 2, lwd = 2 )
+      abline( h = exp(-1.23), lty = 3, lwd = 2 )
+      points( x = fullX, y = Uspec$msUmsy, pch = pchSpec[1:nS], cex = 1.5 )
+      points( x = fullX+0.05, y = Uspec$ssUmsy, pch = pchSpec[1:nS], cex = 1.5 )
+      points( x = fullX, y = Uspec$UmsyOM, pch = 20, cex = 1.5 )
+      segments( x0 = fullX, y0 = as.numeric( Uspec$msUmsy025 ),
+                y1 = as.numeric( Uspec$msUmsy975 ), 
+                col = "grey40", lwd = 2 )
+      segments( x0 = fullX+0.05, y0 = as.numeric( Uspec$ssUmsy025 ),
+                y1 = as.numeric( Uspec$ssUmsy975 ), 
+                col = "grey40", lwd = 2, lty = 4 )
+      panLab( x = 0.05, y = 0.8, txt = textLab[bIdx] )
+      if( showLegend & bIdx == 1)
+        panLegend(  x = 0.05, y = 0.1, legTxt = c( "q OM", "q Est", "qbar"),
+                    bty = "n", pch = c( 1, 16, NA ), 
+                    lty = c( NA, NA, 2 ),
+                    lwd = c( NA, NA, 2 ),
+                    cex = c( 1.5, 1.5, NA ) )
+      axis( side = 1, at = 1:length(s2U), labels = s2U )
+      axis( side = 2, las = 1 )
+      if( bIdx > 1 ) axis( side = 3, at = 1:length(s2U), labels = FALSE )
+  }
+
+  mtext ( side = 2, text = "Optimal exploitation rate (Umsy)", las = 0 , outer = TRUE,
+          line = 2 )
+
+  mtext ( side = 1, text = "Mean Hyperprior Variance (v_U)", 
+          las = 0 , outer = TRUE,
+          line = 2 )
 }
 
 
-
-plotqPriorSens <- function (  tableName = "qPriorSens_MRE",
+plotqPriorSens <- function (  tableName = "priorSens_pub_MRE",
                               nSp = 2,
-                              mpContains = "s2q1" )
+                              betaq = c(.01,.3),
+                              showLegend = FALSE )
 {
-  # plotPriorSens()
+  # plotqPriorSens()
   # Reads in a stats table for prior sensitivity analyses
   # and plots the performance
   # inputs:     tableName = character name of stats table
@@ -257,18 +263,11 @@ plotqPriorSens <- function (  tableName = "qPriorSens_MRE",
   fileName <- paste( tableName, ".csv", sep = "" )
   tablePath <- file.path ( getwd(), "project/Statistics", fileName )
   table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
-  # table <-  table %>%
-  #           mutate( msq     = qOM * msq + qOM,
-  #                   msq025  = qOM * msq025 + qOM,
-  #                   msq975  = qOM * msq975 + qOM )
-  MPs         <- unique( table$mp )
-  MPs         <- MPs[ grep( mpContains, MPs ) ]
-  table       <- table %>% filter( mp %in% MPs )
 
   # restrict to the table with the 
-  plotTable <-  table %>%
+  table <-      table %>%
                 # filter( fixqbar == TRUE ) %>%
-                filter( nS == nSp ) %>%
+                filter( nS == nSp, tauq2P2 %in% betaq ) %>%
                 group_by( mp, species) %>%
                 summarise(  msq = mean(msq),
                             qOM = mean(qOM),
@@ -279,81 +278,91 @@ plotqPriorSens <- function (  tableName = "qPriorSens_MRE",
                             qbar025 = mean(qbar025),
                             qbar975 = mean(qbar975),
                             tauq2025 = mean(tauq2025),
-                            tauq2975 = mean(tauq2975) ) %>%
+                            tauq2975 = mean(tauq2975),
+                            tauq2P2 = mean(tauq2P2),
+                            s2q     = mean(s2q),
+                            ssq     = mean(ssq),
+                            ssq025  = mean(ssq025),
+                            ssq975  = mean(ssq975) ) %>%
                 mutate( msq     = qOM * msq + qOM,
                         msq025  = qOM * msq025 + qOM,
-                        msq975  = qOM * msq975 + qOM ) %>%
+                        msq975  = qOM * msq975 + qOM,
+                        ssq     = qOM * ssq + qOM,
+                        ssq025  = qOM * ssq025 + qOM,
+                        ssq975  = qOM * ssq975 + qOM ) %>%
                 dplyr::select(  msq, msq025, msq975, 
                                 qbar, qbar025, qbar975,
-                                mp, species, qOM, 
-                                tauq2, tauq2025, tauq2975 ) %>%
-                mutate( qDistHi = qbar + 1.645*sqrt(tauq2),
-                        qDistLo = qbar - 1.645*sqrt(tauq2) )
-
-  species     <- unique( plotTable$species )
-  MPs         <- unique( plotTable$mp )
-  
-  
+                                mp, species, qOM, s2q, tauq2P2,
+                                tauq2, tauq2025, tauq2975, species,
+                                ssq025, ssq975, ssq )
   # plotting quantities
-  nMP         <- length(MPs)
-  nS          <- length(species)
+  s2q <- unique(table$s2q)
+  s2q <- s2q[ order(s2q) ]
+
+  species     <- unique( table$species )
+  nS          <- length( species )
+
   # Species plotting locations
-  specX       <- seq (-0.2,0.2, length=nS )
-
-  # Get the central 95% of tauq2 and qbar estimates
-  tauq2       <- plotTable$tauq2
-  tauq2025    <- plotTable$tauq2025
-  tauq2975    <- plotTable$tauq2975
-  qbar        <- plotTable$qbar
-  qbar025     <- plotTable$qbar025
-  qbar975     <- plotTable$qbar975
-
+  specX       <- seq (-0.3,0.3, length=nS )
   fullX       <- c()
-  for( m in 1:nMP ) fullX <- c( fullX, m + specX ) 
+  for( k in 1:length(s2q) ) fullX <- c( fullX, k + specX ) 
 
-  # plot!
-  par( mfrow = c(2,1), las = 1, mar = c(1,1,1,1), oma = c(4,4,1,1) )
-  # plot q estimates against qbar estimates
-  plot( x = c( 0, nMP+1 ), y = c( 0, 1 ), type = "n",
-        axes = FALSE, xlab = "", ylab = "" )
-    polygon(  x = c( fullX, rev( fullX ) ), 
-              y = c( qbar025, rev( qbar975 ) ), 
-              col = "grey80",
-              border = NA )
-    lines( x = fullX, y = qbar, lty = 2, lwd = 2, col = "grey40" )
-    for( k in 1:nMP )
-    {
-      mpTable <- filter(plotTable, mp == MPs[k] ) 
-      
-      points( x = k + specX, y = as.numeric(mpTable$msq), 
-              pch = 16, col = "grey20" )
-      points( x = k + specX, y = as.numeric( mpTable$qOM ), 
-              pch = 1, col = "grey20" )
-      segments( x0 = k + specX, y0 = as.numeric( mpTable$msq025 ),
-                y1 = as.numeric( mpTable$msq975 ), 
-                col = "black", lwd = 3 )
-    }
-    panLegend(  x = 0.8, y = 1, legTxt = c( "q OM", "q Est", "qbar"),
-                bty = "n", pch = c( 1, 16, NA ), 
-                lty = c( NA, NA, 2 ),
-                lwd = c( NA, NA, 2 ) )
-    # axis( side = 1, at = 1:nMP, labels = MPs, las = 0 )
-    axis( side = 2 )
-    mtext(  side = 2, outer = FALSE, text = "Catchability", las = 0,
-            line = 3 )
+  # pch for each species
+  pchSpec <- c(0,1,2,5,6)
+  
+  textLab <- c("(a)","(b)","(c)","(d)")
 
-  # plot tauq2 estimates (or fixed values)
-  plot( x = c( 0, nMP+1 ), y = c( 0, 1 ), type = "n",
-        axes = FALSE, xlab = "", ylab = "" )
-    polygon(  x = c(fullX,rev(fullX)), 
-              y = c(tauq2025,rev(tauq2975)), col = "grey80",
-              border = NA )
-    lines( x = fullX, y = tauq2, lty = 2, lwd = 2, col = "grey20" )
-    axis( side = 1, at = 1:nMP, labels = MPs, las = 0 )
-    axis( side = 2 )
-    mtext( side = 1, outer = TRUE, text = "AM", line = 2)
-    mtext( side = 2, outer = FALSE, text = "tauq2", las = 0,
-           line = 3 )
+  par( mfrow = c(length(betaq),1), mar = c(1,1,2,1), oma = c(3,3,0,0) )
+  for( bIdx in 1:length(betaq) )
+  {
+    beta <- betaq[bIdx]
+    # plotMat <- matrix(NA, nrow=nS*length(s2q), ncol = 7 )
+    plotTable <-  table %>% filter( tauq2P2 == beta ) 
+    # browser()
+    qbar <- plotTable %>% group_by(s2q) %>% 
+            dplyr::select(s2q,qbar,qbar025,qbar975)
+
+    tauq2 <- plotTable %>% group_by(s2q) %>% 
+            dplyr::select(s2q,tauq2,tauq2025,tauq2975)
+
+    qSpec <- plotTable %>% group_by(s2q) %>% 
+            dplyr::select(s2q,msq,msq025,msq975,qOM,ssq,ssq025,ssq975 )
+    
+    plot( x = c( 0, length(s2q) + 1 ), y = c( 0.9*min(plotTable$msq025, plotTable$qOM), 1.1*max(plotTable$msq975, plotTable$qOM) ), 
+          type = "n",
+          axes = FALSE, xlab = "", ylab = "" )
+      polygon(  x = c( fullX, rev(fullX) ),
+                y = c(qbar$qbar025, rev(qbar$qbar975) ),
+                col = "grey90", border = NA )
+      lines( x = fullX, y = qbar$qbar, lty = 2, lwd = 2 )
+      abline( h = exp(-0.51), lty = 3, lwd = 2 )
+      points( x = fullX, y = qSpec$msq, pch = pchSpec[1:nS], cex = 1.5 )
+      points( x = fullX+0.05, y = qSpec$ssq, pch = pchSpec[1:nS], cex = 1.5 )
+      points( x = fullX, y = qSpec$qOM, pch = 20, cex = 1.5 )
+      segments( x0 = fullX, y0 = as.numeric( qSpec$msq025 ),
+                y1 = as.numeric( qSpec$msq975 ), 
+                col = "grey40", lwd = 2 )
+      segments( x0 = fullX+0.05, y0 = as.numeric( qSpec$ssq025 ),
+                y1 = as.numeric( qSpec$ssq975 ), 
+                col = "grey40", lwd = 2, lty = 4 )
+      panLab( x = 0.05, y = 0.8, txt = textLab[bIdx] )
+      if( showLegend & bIdx == 1)
+        panLegend(  x = 0.05, y = 0.1, legTxt = c( "q OM", "q Est", "qbar"),
+                    bty = "n", pch = c( 1, 16, NA ), 
+                    lty = c( NA, NA, 2 ),
+                    lwd = c( NA, NA, 2 ),
+                    cex = c( 1.5, 1.5, NA ) )
+      axis( side = 1, at = 1:length(s2q), labels = s2q )
+      axis( side = 2, las = 1 )
+      if( bIdx > 1 ) axis( side = 3, at = 1:length(s2q), labels = FALSE )
+  }
+
+  mtext ( side = 2, text = "Catchability", las = 0 , outer = TRUE,
+          line = 2 )
+
+  mtext ( side = 1, text = "Mean Hyperprior Variance (v_q)", 
+          las = 0 , outer = TRUE,
+          line = 2 )
 }
 
 

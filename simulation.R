@@ -357,7 +357,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         wishScale         = factor( NA ),
                         nu                = factor( NA ) )
   # Turn off autocorrelation estimation if set
-  if ( !obj$assess$ssAR1 ) ssMap$logit_gammaYr <- factor( NA )
+  if( !obj$assess$ssAR1 ) 
+    ssMap$logit_gammaYr <- factor( NA )
+  if( obj$assess$fixqss )
+    ssMap$lnq <- factor( NA )
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It              = obj$om$It,
                   Ct              = obj$om$Ct,
@@ -464,6 +467,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     msMap$lnUmsybar <- factor( NA )
   if ( obj$assess$fixqbar )
     msMap$lnqbar <- factor( NA )
+  if ( obj$assess$estqms == "fix" )
+    msMap$lnq <- factor( rep( NA, nS ) )
+  if ( obj$assess$estqms == "ident" )
+    msMap$lnq <- factor( rep( 2, nS ) )
 
   # browser()
   # return list of dat and pin objects for running estimators
