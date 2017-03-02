@@ -241,7 +241,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           SigmaPriorCode  = obj$assess$SigmaPriorCode,
                           sigUPriorCode   = obj$assess$sigUPriorCode,
                           tauqPriorCode   = obj$assess$tauqPriorCode,
-                          lnqPriorCode    = obj$assess$lnqPriorCode )
+                          lnqPriorCode    = obj$assess$lnqPriorCode,
+                          lnUPriorCode    = obj$assess$lnUPriorCode )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
@@ -369,8 +370,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   SigmaPriorCode  = obj$assess$SigmaPriorCode,
                   sigUPriorCode   = obj$assess$sigUPriorCode,
                   tauqPriorCode   = obj$assess$tauqPriorCode,
-                  lnqPriorCode    = obj$assess$lnqPriorCode
-
+                  lnqPriorCode    = obj$assess$lnqPriorCode,
+                  lnUPriorCode    = obj$assess$lnUPriorCode
                 )
 
   msPar <- list ( lnBmsy            = log(sumCat[1:nS]/2),
@@ -453,24 +454,29 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   nu                = factor( NA )
                 )
   # Disable autocorrelation in estimation if set.
-  if ( !obj$assess$msAR1 ) 
+  if( !obj$assess$msAR1 ) 
     msMap$logit_gammaYr <- factor( NA )
-  if ( obj$assess$msCorr == "off" ) 
+  if( obj$assess$msCorr == "off" ) 
     msMap$logitSigmaOffDiag <- factor( rep( NA, nS * ( nS - 1 ) / 2 ) )
-  if ( obj$assess$msCorr == "ident" ) 
+  if( obj$assess$msCorr == "ident" ) 
     msMap$logitSigmaOffDiag <- factor( rep( 1, nS * ( nS - 1 ) / 2 ) )
-  if ( obj$assess$fixtauq2 )
+  if( obj$assess$fixtauq2 )
     msMap$lntauq2 <- factor( NA )
-  if ( obj$assess$fixsigU2 )
+  if( obj$assess$fixsigU2 )
     msMap$lnsigUmsy2 <- factor( NA )
-  if ( obj$assess$fixUbar )
+  if( obj$assess$fixUbar )
     msMap$lnUmsybar <- factor( NA )
-  if ( obj$assess$fixqbar )
+  if( obj$assess$fixqbar )
     msMap$lnqbar <- factor( NA )
-  if ( obj$assess$estqms == "fix" )
+  if( obj$assess$estqms == "fix" )
     msMap$lnq <- factor( rep( NA, nS ) )
-  if ( obj$assess$estqms == "ident" )
+  if( obj$assess$estqms == "ident" )
     msMap$lnq <- factor( rep( 2, nS ) )
+  if( !obj$assess$estYearEff )
+  {
+    msMap$lnkappa2 <- factor( NA )
+    msMap$eps_t <- factor( rep( NA, nT - 1 ) )
+  }
 
   # browser()
   # return list of dat and pin objects for running estimators

@@ -1,7 +1,7 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "test"
-ctrl$mpLabel "bothEff"
+ctrl$scenarioName "baseOM"
+ctrl$mpLabel "baseAM"
 ctrl$nReps 200
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
@@ -30,6 +30,7 @@ assess$msCorr "off"
 assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$fitTrials 3
+assess$estYearEff TRUE
 assess$maxfn 1000
 assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
 assess$lnq c(-.51,-.51,-.51,-.51,-.51)
@@ -41,6 +42,7 @@ assess$SigmaDiagMult c(1,1,1,1,1)
 assess$SigmaPriorCode 0
 assess$mBmsy c(40,6.25,26.8,26.12,495.4)
 assess$s2Bmsy c(1600,39.0625,718.24,682.25,245421.16)
+assess$lnUPriorCode 1
 assess$lnUmsybar -1.23
 assess$lnsigUmsy2 2.5
 assess$fixsigU2 FALSE
