@@ -530,9 +530,6 @@ scenario$scenario75$opMod$kappaMult 2
 #
 # MP 1 : noYearEff
 #
-mp$mp1$ctrl$mpLabel 'noYearEff'
-mp$mp1$assess$estYearEff FALSE
-mp$mp1$assess$kappa2 1e-4
-mp$mp1$assess$msRE c("lnq","lnUmsy","zeta_st")
+mp$mp1$ctrl$mpLabel 'baseAM'
 #
 # File ends <not run>

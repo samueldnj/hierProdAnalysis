@@ -262,4 +262,8 @@ mp$mp1$assess$estYearEff FALSE
 mp$mp1$assess$kappa2 1e-4
 mp$mp1$assess$msRE c("lnq","lnUmsy","zeta_st")
 #
+# MP 2 : baseAM
+#
+mp$mp2$ctrl$mpLabel 'baseAM'
+#
 # File ends <not run>
