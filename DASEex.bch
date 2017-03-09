@@ -1,0 +1,92 @@
+# Batch Control File, created Thu Mar  9 12:51:42 2017 by makeDesignDover() 
+#
+# Scenarios 
+#
+# Scenario 1 : exp1
+#
+scenario$scenario1$opMod$Umsy c(0.2929,.29,.29,.29,.29)
+scenario$scenario1$opMod$Bmsy c(10.1,10,10,10,10)
+scenario$scenario1$opMod$q c(0.606,.6,.6,.6,.6)
+scenario$scenario1$opMod$tau2 c(0.0404,.04,.04,.04,.04)
+scenario$scenario1$opMod$kappa2 c(0.02525)
+scenario$scenario1$opMod$SigmaDiag c(0.02525,.025,.025,.025,.025)
+scenario$scenario1$opMod$corrOffDiag c(0.505)
+#
+# Scenario 2 : exp2
+#
+scenario$scenario2$opMod$Umsy c(0.29,.29,.29,.29,.29)
+scenario$scenario2$opMod$Bmsy c(10.1,10,10,10,10)
+scenario$scenario2$opMod$q c(0.606,.6,.6,.6,.6)
+scenario$scenario2$opMod$tau2 c(0.04,.04,.04,.04,.04)
+scenario$scenario2$opMod$kappa2 c(0.025)
+scenario$scenario2$opMod$SigmaDiag c(0.02525,.025,.025,.025,.025)
+scenario$scenario2$opMod$corrOffDiag c(0.5)
+#
+# Scenario 3 : exp3
+#
+scenario$scenario3$opMod$Umsy c(0.2929,.29,.29,.29,.29)
+scenario$scenario3$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario3$opMod$q c(0.606,.6,.6,.6,.6)
+scenario$scenario3$opMod$tau2 c(0.04,.04,.04,.04,.04)
+scenario$scenario3$opMod$kappa2 c(0.02525)
+scenario$scenario3$opMod$SigmaDiag c(0.025,.025,.025,.025,.025)
+scenario$scenario3$opMod$corrOffDiag c(0.5)
+#
+# Scenario 4 : exp4
+#
+scenario$scenario4$opMod$Umsy c(0.29,.29,.29,.29,.29)
+scenario$scenario4$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario4$opMod$q c(0.606,.6,.6,.6,.6)
+scenario$scenario4$opMod$tau2 c(0.0404,.04,.04,.04,.04)
+scenario$scenario4$opMod$kappa2 c(0.025)
+scenario$scenario4$opMod$SigmaDiag c(0.025,.025,.025,.025,.025)
+scenario$scenario4$opMod$corrOffDiag c(0.505)
+#
+# Scenario 5 : exp5
+#
+scenario$scenario5$opMod$Umsy c(0.2929,.29,.29,.29,.29)
+scenario$scenario5$opMod$Bmsy c(10.1,10,10,10,10)
+scenario$scenario5$opMod$q c(0.6,.6,.6,.6,.6)
+scenario$scenario5$opMod$tau2 c(0.0404,.04,.04,.04,.04)
+scenario$scenario5$opMod$kappa2 c(0.025)
+scenario$scenario5$opMod$SigmaDiag c(0.025,.025,.025,.025,.025)
+scenario$scenario5$opMod$corrOffDiag c(0.5)
+#
+# Scenario 6 : exp6
+#
+scenario$scenario6$opMod$Umsy c(0.29,.29,.29,.29,.29)
+scenario$scenario6$opMod$Bmsy c(10.1,10,10,10,10)
+scenario$scenario6$opMod$q c(0.6,.6,.6,.6,.6)
+scenario$scenario6$opMod$tau2 c(0.04,.04,.04,.04,.04)
+scenario$scenario6$opMod$kappa2 c(0.02525)
+scenario$scenario6$opMod$SigmaDiag c(0.025,.025,.025,.025,.025)
+scenario$scenario6$opMod$corrOffDiag c(0.505)
+#
+# Scenario 7 : exp7
+#
+scenario$scenario7$opMod$Umsy c(0.2929,.29,.29,.29,.29)
+scenario$scenario7$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario7$opMod$q c(0.6,.6,.6,.6,.6)
+scenario$scenario7$opMod$tau2 c(0.04,.04,.04,.04,.04)
+scenario$scenario7$opMod$kappa2 c(0.025)
+scenario$scenario7$opMod$SigmaDiag c(0.02525,.025,.025,.025,.025)
+scenario$scenario7$opMod$corrOffDiag c(0.505)
+#
+# Scenario 8 : exp8
+#
+scenario$scenario8$opMod$Umsy c(0.29,.29,.29,.29,.29)
+scenario$scenario8$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario8$opMod$q c(0.6,.6,.6,.6,.6)
+scenario$scenario8$opMod$tau2 c(0.0404,.04,.04,.04,.04)
+scenario$scenario8$opMod$kappa2 c(0.02525)
+scenario$scenario8$opMod$SigmaDiag c(0.02525,.025,.025,.025,.025)
+scenario$scenario8$opMod$corrOffDiag c(0.5)
+#
+#
+# Management Procedures 
+#
+# MP 1 : baseAM 
+# 
+mp$mp1$ctrl$mpLabel 'baseAM' 
+# 
+# File Ends <not run>

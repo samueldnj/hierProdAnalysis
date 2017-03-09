@@ -19,6 +19,107 @@
 # 
 # --------------------------------------------------------------------------
 
+
+# makeDesignDover()
+# Creates a l^(k-p) resolution III design for a simulation experiment,
+# following DASE methodology (Kleijnen, 2008, Ch 2.4, ex 2.1). Currently
+# only modifies Dover Sole entries in DERPA complex parameters
+# inputs:   l = # of levels for each factor (make constant)
+#           p = log2(fraction) of full factorial design
+#           levels = list of factor names and their levels
+#           bchName = character root of batch file name
+# ouputs:   table = design table data.frame
+# side-eff: creates <bchName>.bch in working directory
+makeDesignDover <- function ( l = 2,
+                              p = 4,
+                              levels = list(  Umsy  = c( 0.29, 0.2929 ),
+                                              Bmsy  = c( 10, 10.1 ),
+                                              q     = c( .6, .606 ),
+                                              tau2  = c( .04, .0404 ),
+                                              kappa2= c( .025, .02525),
+                                              Sigma2= c( .025, .02525),
+                                              corrOD= c( .5, .505 )
+                                            ),
+                              generators = list( c(1,2), c(1,3), c(2,3),
+                                                  c(1,2,3) ),
+                              bchName = "DASEex" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+  # Squawk if there aren't enough combinations to saturate
+  if( 2^(k-p) < k + 1 ) return("Not enough combinations to saturate, decrease p or k, or increase l")
+
+  # Now, start building the design matrix
+  desMtx <- matrix( 1, nrow = 2^(k-p), ncol = k, 
+                    dimnames = list(  paste("exp",1:(2^(k-p)),sep=""),
+                                      names(levels) ) )
+  
+  # Fill the first k-p columns with a fully factorial design
+  for( c in 1:(k-p) )
+  {
+    pmPattern <- rep(x = c(+1,-1), times = c(2^(c-1),2^(c-1)))
+    nReps     <- 2^(k-p) / length( pmPattern )
+    desMtx[,c]<- rep( pmPattern, nReps )
+  }
+  
+  # Now squawk if the list of generators is the wrong length 
+  if( length(generators) != p ) return( "Wrong number of generators, revise and try again." )
+
+  # Now apply generators to fill remaining columns
+  for( gIdx in 1:p )
+  {
+    cIdx <- k - p + gIdx
+    g <- generators[[gIdx]]
+    for( genIdx in 1:length(g) ) desMtx[, cIdx] <- desMtx[,cIdx] * desMtx[,g[genIdx]]
+  }
+
+  # Create a copy of desMtx that has factor level list entry numbers
+  entryMtx <- desMtx
+  entryMtx[ entryMtx == 1 ] <- 2
+  entryMtx[ entryMtx == -1 ] <- 1
+
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(desMtx) )
+  {
+    cat( "# Scenario ", rIdx, " : ", rownames(desMtx)[rIdx], "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", levels$Umsy[entryMtx[rIdx,"Umsy"]], 
+          ",.29,.29,.29,.29)\n", sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", levels$Bmsy[entryMtx[rIdx,"Bmsy"]], 
+          ",10,10,10,10)\n", sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$q c(", levels$q[entryMtx[rIdx,"q"]], 
+          ",.6,.6,.6,.6)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$tau2 c(", levels$tau2[entryMtx[rIdx,"tau2"]], 
+          ",.04,.04,.04,.04)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$kappa2 c(", levels$kappa2[entryMtx[rIdx,"kappa2"]], 
+          ")\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$SigmaDiag c(", levels$Sigma2[entryMtx[rIdx,"Sigma2"]], 
+          ",.025,.025,.025,.025)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag c(", levels$corrOD[entryMtx[rIdx,"corrOD"]], 
+          ")\n", sep = "", append = T, file = outFile )
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Management Procedures \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  desMtx
+}
+
 # Should only need to use a couple of times, to fix the naming in blob
 fixBlob <- function ( sim = 1)
 {
