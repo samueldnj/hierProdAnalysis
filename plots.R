@@ -18,21 +18,136 @@ plotProfiles <- function ( sim = 2 )
 }
 
 
-
-plotProdSlice <- function(  tableName = "Fhist_pub_MARE",
-                            nSp = 5,
-                            axes = c("tUpeak","Umax"),
-                            specProd = c( Arrowtooth = 0.15, 
-                                          Petrale = 0.25,
-                                          Dover = 0.30,
-                                          Rock = 0.35,
-                                          English = 0.40)
-                          )
+plotGroupPars <- function(  tableName = "RE_coarse_pub_MARE",
+                            axes = c("kappaMult","corr"),
+                            nSp   = 5 )
 {
-  # plotProdSlice()
+  # plotTableCols()
+  # Plots par as a function of axes[1], grouped by axes[2].
+  # inputs:   tableName = RE table in statistics folder
+  #           nSp = number of species to restrict to
+  #           axes = 2-numeric giving factor levels to plot over
+  #           par = character name of group level parameter to plot
+  # outputs:  NULL
+  # side-eff: plots to quartz
+
+  # Load table
+  fileName <- paste( tableName, ".csv", sep = "" )
+  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
+  table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
+
+  # restrict to correct number of species
+  table  <-   table %>%
+              filter( nS == nSp ) %>%
+              group_by( scenario, mp ) %>%
+              summarise(  Umsybar = mean(Umsybar),
+                          qbar = mean(qbar),
+                          sigU2 = mean(sigU2),
+                          tauq2 = mean(tauq2),
+                          corr = mean(corr),
+                          kappaMult = mean(kappaMult),
+                          Umax = mean(Umax),
+                          tUpeak = mean(tUpeak) )
+
+
+
+  # Get levels for axes
+  axesCols <- integer(length=2)
+  for ( i in 1:2)
+  {
+    axesCols[i] <- which(names(table) == axes[i])
+  }
+  # order levels
+  x   <- unique(table %>% pull(axesCols[1]))
+  x   <- x[order(x)]
+  y   <- unique(table %>% pull(axesCols[2]))
+  y   <- y[order(y)]
+
+  groupPars <- c("qbar","Umsybar","tauq2","sigU2")
+  
+  # Create an array to hold info
+  z <- array( NA, dim = c( length(x), length(y), length(groupPars) ),
+              dimnames = list(  paste(axes[1],x,sep = ""),
+                                paste(axes[2],y,sep = ""),
+                                groupPars ) )
+
+  # Fill the array, looping over species and axes
+  for( xIdx in 1:length(x) )
+  {
+    for( yIdx in 1:length(y) )
+    {
+      # Get x and y values
+      xVal <- x[ xIdx ]
+      yVal <- y[ yIdx ]
+      # Get rows
+      xRows <- which ( table[,axesCols[1]] == xVal)
+      yRows <- which ( table[,axesCols[2]] == yVal)
+      rows <- intersect(xRows,yRows)
+      if( length(rows) == 0 ) next
+      # Fill array
+      z[xIdx,yIdx,] <- as.numeric(table[rows,groupPars])
+    }
+  }
+
+  cols <- brewer.pal( n = length(y), name = "Dark2" )
+  par(mfrow = c(2,2), mar = c(2,2,1,1), oma = c(3,3,2,2) )
+  for( p in 1:length(groupPars) )
+  {
+    plot( x = range(x), y = range(z[,,groupPars[p]]), axes = F, type = "n",
+        xlab = "", ylab = "", main = groupPars[p] )
+    axis( side = 1, at = x )
+    axis( side = 2, las = 1 )
+    for( yIdx in 1:length(y) )
+    {
+      lines( x = x, y = z[,yIdx,groupPars[p]], col = cols[yIdx], lwd = 1.5 )
+      points( x = x, y = z[,yIdx,groupPars[p]], col = cols[yIdx], pch = 16 )
+    }
+  }
+  
+  panLegend(  legTxt = paste( axes[2], " = ", y ),
+              lty = 1, pch = 16, cex = 1,
+              lwd = 0.8, col = cols,
+              x = 0.1, y = 0.9, bty = "n" )
+  mtext( side = 1, outer = TRUE, text = axes[1], line = 1.5 )  
+}
+
+
+specQ <- c( Dover = 0.518,
+            English = 0.628,
+            Rock = 0.488,
+            Petrale = 0.648,
+            Arrowtooth = 0.718 )
+
+specB <- c( Dover = 40,
+            English = 6.25,
+            Rock = 26.8,
+            Petrale = 26.12,
+            Arrowtooth = 495.4 )
+
+plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
+                              nSp = 5,
+                              axes = c("tUpeak","Umax"),
+                              specVals = c( Dover = 0.30,
+                                            English = 0.40,
+                                            Rock = 0.35,
+                                            Petrale = 0.25,
+                                            Arrowtooth = 0.15 ),
+                              par = "Umsy"
+                            )
+{
+  # plotREtableSlice()
   # Plots MARE/MRE (response variable) values as a function
-  # of species productivity. Will group lines corresponding to the first axis
-  # and create panels based on the second
+  # of given specVals (OM values of q, Umsy, etc). 
+  # Will group lines corresponding to the first axis and create panel rows 
+  # corresponding to the second. Panel columns are single and Joint
+  # AMs.
+  # inputs:   tableName = RE table in statistics folder
+  #           nSp = number of species to restrict to
+  #           axes = 2-char vector naming RE table columns
+  #           specVals = named numeric of OM quantities to use as plot x axis
+  #           par = estimated parameter of interest for MRE/MARE values
+  # outputs:  NULL
+  # side-eff: plots to quartz
 
   # Load table
   fileName <- paste( tableName, ".csv", sep = "" )
@@ -43,7 +158,9 @@ plotProdSlice <- function(  tableName = "Fhist_pub_MARE",
   table  <-   table %>%
               filter( nS == nSp )
 
-  specProd <- specProd[1:nSp]
+  specVals <- specVals[1:nSp]
+  specVals <- specVals[order(specVals)]
+
 
   # Get levels for axes
   axesCols <- integer(length=2)
@@ -58,13 +175,13 @@ plotProdSlice <- function(  tableName = "Fhist_pub_MARE",
   y   <- y[order(y)]
 
   # Create an array to hold info
-  z <- array( NA, dim = c( length(x), length(y), length(specProd), 2 ),
-              dimnames = list( x, y, names(specProd), c("ss","ms") ) )
+  z <- array( NA, dim = c( length(x), length(y), length(specVals), 2 ),
+              dimnames = list( x, y, names(specVals), c("ss","ms") ) )
 
   # Fill the array, looping over species and axes
-  for(sIdx in 1:length(specProd) )
+  for(sIdx in 1:length(specVals) )
   {
-    spec <- names( specProd )[ sIdx ]
+    spec <- names( specVals )[ sIdx ]
     specTab <- table %>% filter( species == spec )
     for( xIdx in 1:length(x) )
     {
@@ -79,7 +196,8 @@ plotProdSlice <- function(  tableName = "Fhist_pub_MARE",
         rows <- intersect(xRows,yRows)
         if( length(rows) == 0 ) next
         # Fill array
-        z[xIdx,yIdx,sIdx,] <- as.numeric(specTab[rows,c("ssUmsy","msUmsy")])
+        parColNames <- paste(c("ss","ms"),par, sep = "")
+        z[xIdx,yIdx,sIdx,] <- as.numeric(specTab[rows,parColNames])
       }
     }
   }
@@ -88,11 +206,11 @@ plotProdSlice <- function(  tableName = "Fhist_pub_MARE",
   
   # Plot contents. Use x values as line groupings, y values as
   # panel groupings, and species productivities as x values
-  par( mfrow = c(length(y), 2), mar = c(1,1,1,1), oma = c(2,2,2,2) )
+  par( mfrow = c(length(y), 2), mar = c(2,2,2,1), oma = c(3,3,2,2) )
   for( yIdx in 1:length(y) )
   {
     # Plot SS model
-    plot( x = c(min(specProd), max(specProd)), 
+    plot( x = c(1,length(specVals)), 
           y = c( min( z ), max( z ) ), type = "n",
           axes = FALSE )
       if( yIdx == 1 ) panLegend(  legTxt = paste( axes[1], " = ", x ),
@@ -100,37 +218,41 @@ plotProdSlice <- function(  tableName = "Fhist_pub_MARE",
                                   lwd = 0.8, col = cols,
                                   x = 0.1, y = 0.7, bty = "n" )
       if( yIdx == 1 ) mtext( side = 3, text = "Single Species Model", cex = 0.8)
-      axis( side = 1 )
+      axis( side = 1, at = 1:length(specVals),labels = specVals )
       axis( side = 2, las = 1 )
+      axis( side = 3, at = 1:length(specVals), labels = names(specVals))
       abline(h = 0, lty = 2, lwd = 0.8)
       for( xIdx in 1:length(x) )
       {
-        lines(  x = specProd, y = z[ xIdx, yIdx, , "ss" ], col = cols[xIdx],
+        lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss" ], col = cols[xIdx],
                 lty = 1, lwd = 0.8 )
-        points( x = specProd, y = z[ xIdx, yIdx, , "ss" ], col = cols[xIdx],
+        points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss" ], col = cols[xIdx],
                 pch = 16, cex = 0.5 )
       }
       panLab( x = 0.8, y = 0.8, 
               txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
 
-    plot( x = c(min(specProd), max(specProd)), 
+    plot( x = c(1,length(specVals)), 
           y = c( min( z ), max( z ) ), type = "n",
           axes = FALSE )
-      axis( side = 1 )
+      axis( side = 1, at = 1:length(specVals),labels = specVals )
       axis( side = 2, las = 1 )
+      axis( side = 3, at = 1:length(specVals), labels = names(specVals))
       abline(h = 0, lty = 2, lwd = 0.8)
       if( yIdx == 1 ) mtext( side = 3, text = "Joint Model", cex = 0.8)
       for( xIdx in 1:length(x) )
       {
-        lines(  x = specProd, y = z[ xIdx, yIdx, , "ms" ], col = cols[xIdx],
+        lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms" ], col = cols[xIdx],
                 lty = 1, lwd = 0.8 )
-        points( x = specProd, y = z[ xIdx, yIdx, , "ms" ], col = cols[xIdx],
+        points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms" ], col = cols[xIdx],
                 pch = 16, cex = 0.5 )
       }
       panLab( x = 0.8, y = 0.8, 
               txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
   }
   mtext( side = 3, outer = T, text = tableName, cex = 1.2 )
+  mtext( side = 1, outer = T, text = par, cex = 1, col = "grey80",
+          adj = 0.9, line = 1.5 )
 }
 
 plotFhist <- function ( sims = 1:4,
@@ -2155,6 +2277,114 @@ plotCIbio <- function ( rep = 1, sim=1)
     lines ( x=1:nT, y = omBio[s,],col="black", lwd = 2)
   }
 }
+
+plotBenvelopes <- function( sim = 1,
+                              sYear = 1988,
+                              est = FALSE,
+                              labSize = 2, 
+                              tickSize = 1.2,
+                              devLabels = TRUE,
+                              alpha = .8 )
+{
+  # First, load blob
+  .loadSim(sim)
+
+  # Create a stamp from scenario and mp name
+  scenario  <- blob$ctrl$scenario
+  mp        <- blob$ctrl$mp
+  stamp     <- paste(scenario,":",mp,sep="")
+
+  # Recover blob elements for plotting
+  nS <- blob$opMod$nS
+  nT <- blob$opMod$nT
+
+  # Species names
+  specNames <- blob$ctrl$speciesNames
+
+  # True OM quantities
+  omBt  <- blob$om$Bt
+  Bmsy  <- blob$opMod$Bmsy
+
+  # Single species model
+  ssBt  <- blob$am$ss$Bt
+
+  # Multispecies model
+  msBt  <- blob$am$ms$Bt
+
+  years <- sYear:(sYear + nT - 1)
+
+  for( s in 1:nS )
+  {
+    omBt[,s,]  <- omBt[,s,]/Bmsy[s]/2
+    ssBt[,s,]  <- ssBt[,s,]/Bmsy[s]/2
+    msBt[,s,]  <- msBt[,s,]/Bmsy[s]/2
+  }  
+  
+  # Set colours
+  ssCol <- "steelblue"
+  msCol <- "salmon"
+  # Create transparent fill colours for polys
+  ssFill <- col2rgb(ssCol)/255
+  ssFill <- rgb(ssFill[1],ssFill[2],ssFill[3],alpha=0.4)
+  msFill <- col2rgb(msCol)/255
+  msFill <- rgb(msFill[1],msFill[2],msFill[3],alpha=0.4)
+
+  ## CHECK THAT THESE ARRAY CALCS ARE WORKING ##
+  # Now, reduce to envelopes
+  # OM values
+  omBt  <- apply( X = omBt, FUN = quantile, MARGIN = c(2,3), 
+                  probs = c(0.025,0.5,0.975), na.rm = TRUE )
+  # SS AM 
+  ssBt  <- apply( X = ssBt, FUN = quantile, MARGIN = c(2,3), 
+                  probs = c(0.025,0.5,0.975), na.rm = TRUE )
+  
+  # MS AM 
+  msBt  <- apply( X = msBt, FUN = quantile, MARGIN = c(2,3), 
+                  probs = c(0.025,0.5,0.975), na.rm = TRUE )
+  
+  # Set up plotting environment
+  par ( mfrow = c(nS,1), mar = c(1,2,2,0), oma = c(4,4,2,0.5),
+        las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
+  # loop over species and plot biomass
+  for( s in 1:nS )
+  {
+    plot    ( x = c(sYear,max(years)), y = c(0,1.1), type = "n",
+              ylim = c(0,1.1), ylab = "", axes=FALSE, las = 1, xlab = ""  )
+      axis( side = 1, las = 0 )
+      axis( side = 2, las = 1 )
+      mtext( side = 2, text = specNames[s], line = 2.5, las = 0 )
+      # OM
+      polygon(  x = c(years,rev(years)),
+                y = c(omBt[1,s,],rev(omBt[3,s,])),
+                border = NA, col = "grey80" )
+      if( est )
+      {
+        # SS envelope
+        polygon( x = c( years, rev( years ) ),
+                 y = c( ssBt[ 1, s, ], rev( ssBt[ 3, s, ] ) ),
+                 border = NA, col = ssFill )
+        # MS envelop
+        polygon( x = c( years, rev( years ) ),
+                 y = c( msBt[ 1, s, ], rev( msBt[ 3, s, ] ) ),
+                 border = NA, col = msFill )
+        # median
+        lines( x = years, y = ssBt[ 2, s, ], col = ssCol, lwd = 2, lty = 2 )
+        lines( x = years, y = msBt[ 2, s, ], col = msCol, lwd = 2, lty = 2 )
+
+      }
+      lines( x = years, y = omBt[ 2, s, ], lwd = 2, lty = 2 )
+      abline( h = (1 - alpha / 2), lty = 3, lwd = .8 )
+    
+  }
+  mtext( text = "Depletion", side = 2, line = 2.5, las = 0, outer = T, cex = 1.5 )
+  mtext( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = 1.5, line = 2)
+  if( devLabels )
+    mtext ( text = c(stamp),side=1, outer = TRUE, 
+            at = c(0.9),padj=2,col="grey50",cex=0.8 )
+}
+
+
+
 
 plotBCUenvelopes <- function( sim = 1,
                               sYear = 1988,

@@ -1,0 +1,39 @@
+# RE Experiments Batch File
+parameter value
+#
+# Scenarios
+#
+# Scenario 1 : nS2
+#
+scenario$scenario1$ctrl$scenarioName 'nS2_allSame'
+scenario$scenario1$opMod$nS 2
+scenario$scenario1$opMod$Bmsy rep(10,5)
+scenario$scenario1$opMod$Umsy rep(.29,5)
+scenario$scenario1$opMod$q rep(.6,5)
+#
+# Scenario 2 : nS4
+#
+scenario$scenario2$ctrl$scenarioName 'nS4_allSame'
+scenario$scenario2$opMod$nS 4
+scenario$scenario2$opMod$Bmsy rep(10,5)
+scenario$scenario2$opMod$Umsy rep(.29,5)
+scenario$scenario2$opMod$q rep(.6,5)
+#
+# Scenario 3 : nS5
+#
+scenario$scenario3$ctrl$scenarioName 'nS5_allSame'
+scenario$scenario3$opMod$nS 5
+scenario$scenario3$opMod$Bmsy rep(10,5)
+scenario$scenario3$opMod$Umsy rep(.29,5)
+scenario$scenario3$opMod$q rep(.6,5)
+#
+# Management Procedure
+#
+# MP 1 : baseAM
+#
+mp$mp1$ctrl$mpLabel "baseAM"
+mp$mp1$assess$mBmsy rep(10,5)
+mp$mp1$assess$s2Bmsy rep(100,5)
+mp$mp1$assess$Umsy rep(.29,5)
+#
+# File Ends <not run>.
