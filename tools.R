@@ -82,6 +82,7 @@ makeDesignDover <- function ( l = 2,
   outFile <- paste( bchName, ".bch", sep = "")
   cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
         file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
   cat( "#\n", file = outFile, append = T )
   cat( "# Scenarios \n", file = outFile, append = T )
   cat( "#\n", file = outFile, append = T )
