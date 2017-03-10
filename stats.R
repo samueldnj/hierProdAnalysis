@@ -10,6 +10,79 @@
 #
 # --------------------------------------------------------------------------
 
+# .DASEexperiment()
+# Function to apply the DASE methodology to the DASEex.csv table, my
+# first attempt at discovering interactions between model inputs. I
+# think I've tinkered with too many factors, tbh, but such is life
+# inputs:   tabName = character giving the root of the statTable
+#           par = character indicating response variable parameter
+#           species = character name of species to look at for effect
+#           scaled = logical indicating whether to scale factor levels identically
+#           rhs = character containing rhs of formula object for linear meta-model
+# outputs:  fit = lm output for metamodel
+.DASEexperiment <- function(  tabName = "DASEex.csv",
+                              par = "q",
+                              spec = "Dover",
+                              scaled = TRUE,
+                              rhs = "qOM + UmsyOM + BmsyOM + tau2OM + kappaTrue + SigmaTrue + corr" )
+{
+  tabPath <- file.path(getwd(),"project/statistics",tabName)
+  table <- read.csv( tabPath, header=TRUE, stringsAsFactors=FALSE ) 
+
+  # restrict to correct number of species
+  table  <-   table %>%
+              filter( species == spec )
+
+  # Scale inputs
+  if( scaled )
+  {
+    # Calculate ranges of inputs
+    qRange      <- range(table$qOM)
+    URange      <- range(table$UmsyOM)
+    BRange      <- range(table$BmsyOM)
+    tauRange    <- range(table$tau2OM)
+    kappaRange  <- range(table$kappaTrue)
+    corrRange   <- range(table$corr)
+    SigmaRange  <- range(table$SigmaTrue)
+
+    # Now calculate gradients of inputs
+    qGrad       <- 2 / (qRange[2] - qRange[1])
+    UGrad       <- 2 / (URange[2] - URange[1])
+    BGrad       <- 2 / (BRange[2] - BRange[1])
+    tauGrad     <- 2 / (tauRange[2] - tauRange[1])
+    kappaGrad   <- 2 / (kappaRange[2] - kappaRange[1])
+    corrGrad    <- 2 / (corrRange[2] - corrRange[1])
+    SigmaGrad   <- 2 / (SigmaRange[2] - SigmaRange[1])
+
+    table <-  table %>%
+              mutate( qOM = qGrad*qOM + (1 - qGrad*qRange[2]),
+                      UmsyOM = UGrad*UmsyOM + (1 - UGrad*URange[2]),
+                      BmsyOM = BGrad*BmsyOM + (1 - BGrad*BRange[2]),
+                      tau2OM = tauGrad*tau2OM + (1 - tauGrad*tauRange[2]),
+                      kappaTrue = kappaGrad*kappaTrue + (1 - kappaGrad*kappaRange[2]),
+                      corr = corrGrad*corr + (1 - corrGrad*corrRange[2]),
+                      SigmaTrue = SigmaGrad*SigmaTrue + (1 - SigmaGrad*SigmaRange[2]))  
+  }
+
+
+  # Create LHS of LM formula object
+  ssPar <- paste( "ss", par, sep = "" )
+  msPar <- paste( "ms", par, sep = "" )
+  # Paste together as a formula
+  ssForm <- as.formula( paste( ssPar, "~", rhs, sep = "" ) )
+  msForm <- as.formula( paste( msPar, "~", rhs, sep = "" ) )
+
+
+
+  # Fit object
+  ssObj <- lm( formula = ssForm, data = table )
+  msObj <- lm( formula = msForm, data = table )
+
+
+
+  return( list ( ss = ssObj, ms = msObj ) )
+}
+
 #.statTables()
 # Wrapper for .statTableXXX functions, produces stacked tables of stats 
 # for a group of simulations.
@@ -25,6 +98,26 @@
   .statTableMRE(sims,paste(tabNameRoot,"_MRE.csv",sep=""))
   # MARE
   .statTableMARE(sims,paste(tabNameRoot,"_MARE.csv",sep=""))
+}
+
+#.statTableRE()
+# Wrapper for .simStatRE, produces stacked tables of relative errors 
+# for a group of simulations.
+# inputs:   sims=integer vector indicating simulations in ./project/
+# outputs:  statTable=table of statistics for a project/group
+# usage:    to produce output for a project and create .csv tables of 
+#           performance statistics
+# side-eff: creates tables of statistics in ./project/stats/
+.statTableRE <- function (sims=1,tabName = "statTable.csv")
+{ 
+  # call function
+  tableList <- lapply ( X = sims, FUN = .simStatRE )
+
+  # now make the table and return
+  statTable <-  do.call("rbind",tableList)
+  savePath <- file.path(getwd(),"project","Statistics",tabName)
+  write.csv ( statTable, file = savePath )
+  statTable
 }
 
 #.statTableMSE()
@@ -221,6 +314,7 @@
                   "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", "tUtrough", 
                   "tau2OM","nS","lastNegCorr",
+                  "UmsyOM", "BmsyOM", "qOM",
                   "qbar025", "qbar975", "tauq2025", "tauq2975" )
   
   statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
@@ -249,6 +343,9 @@
   statTable$tau2OM          <- opMod$tau2[1:nS]
   statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS              <- opMod$nS
+  statTable$UmsyOM          <- opMod$Umsy
+  statTable$BmsyOM          <- opMod$Bmsy
+  statTable$qOM             <- opMod$q
   statTable$s2q             <- blob$assess$s2lnq
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
@@ -309,6 +406,118 @@
   statTable$sigU2975 <- quantile( blob$am$ms$sigU2[success], probs = 0.975, na.rm = TRUE )
   statTable$Ubar025  <- quantile( blob$am$ms$Umsybar[success], probs = 0.025, na.rm = TRUE )
   statTable$Ubar975  <- quantile( blob$am$ms$Umsybar[success], probs = 0.975, na.rm = TRUE )
+  # return
+  statTable
+}
+
+# .simStatMRE()
+# Produces a statistics table for leading pars in a simulation from
+# the output produced by a runSimEst() call
+# inputs:   sim=int indicating which simulation to compute stats for
+# outputs:  statTable=data.frame of mean squared error BnT and Umsy
+# usage:    in lapply to produce stats for a group of simulations
+.simStatRE <- function ( sim=1 )
+{
+  # First, load blob
+  .loadSim(sim)
+  om    <- blob$om
+  opMod <- blob$opMod
+  pars  <- blob$opMod$pars
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+  
+  # Control info
+  nS      <- blob$opMod$nS
+  nT      <- blob$opMod$nT
+  species <- blob$ctrl$speciesName[1:nS]
+  nReps   <- blob$ctrl$nReps
+
+  # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
+  success <- blob$goodReps
+
+  # First, create a data.frame of NAs with a row for each of MRE,MARE
+  colLabels <- c( "scenario","mp","species","kappaTrue",
+                  "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
+                  "ssBmsy","msBmsy","ssDep","msDep",
+                  "ssq", "msq",
+                  "msHessPD", "ssHessPD","nReps",
+                  "Umax", "tUpeak", "tUtrough", 
+                  "tau2OM","nS","lastNegCorr",
+                  "UmsyOM", "BmsyOM", "qOM", "rep")
+  
+  statTable <- matrix(NA,nrow=nS*nReps,ncol=length(colLabels))
+  
+
+  colnames(statTable)   <- colLabels
+  statTable             <- as.data.frame(statTable)
+
+  # get multiplier for shared effects
+  kappaMult <- opMod$kappaMult
+  if (is.null(opMod$kappaMult)) kappaMult <- 1
+
+  # Start filling stat table
+  # First, info and true pars
+  statTable$scenario        <- blob$ctrl$scenarioName
+  statTable$mp              <- blob$ctrl$mpLabel
+  statTable$species         <- species
+  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
+  statTable$kappaMult       <- kappaMult
+  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
+  statTable$nReps           <- nReps
+  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUtrough        <- opMod$tUtrough
+  statTable$tUpeak          <- opMod$tUpeak
+  statTable$tau2OM          <- opMod$tau2[1:nS]
+  statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
+  statTable$nS              <- opMod$nS
+  statTable$UmsyOM          <- opMod$Umsy
+  statTable$BmsyOM          <- opMod$Bmsy
+  statTable$qOM             <- opMod$q
+  statTable$s2q             <- blob$assess$s2lnq
+  statTable$fixqbar         <- blob$assess$fixqbar
+  statTable$fixtauq2        <- blob$assess$fixqbar
+  statTable$qOM             <- blob$opMod$q[1:nS]
+  statTable$UmsyOM          <- blob$opMod$Umsy[1:nS]
+  statTable$s2Umsy          <- blob$assess$s2lnUmsy
+  if (is.null(blob$assess$tauq2Prior))
+  {
+    statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
+    statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
+    statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
+    statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
+  } else {
+    statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
+    statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
+    statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
+    statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
+  }
+  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
+  statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
+  statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
+
+  # Now errors
+  for (r in 1:nReps)
+  {
+    statTable[(r-1)*nS+(1:nS),"rep"]      <- r
+    statTable[(r-1)*nS+(1:nS),"ssBnT"]    <- (ss$err.mle$BnT[r,] )
+    statTable[(r-1)*nS+(1:nS),"msBnT"]    <- (ms$err.mle$BnT[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssUmsy"]   <- (ss$err.mle$Umsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"msUmsy"]   <- (ms$err.mle$Umsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssBmsy"]   <- (ss$err.mle$Bmsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"msBmsy"]   <- (ms$err.mle$Bmsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssDep"]    <- (ss$err.mle$dep[r,] )
+    statTable[(r-1)*nS+(1:nS),"msDep"]    <- (ms$err.mle$dep[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssq"]      <- (ss$err.mle$q[r,] )
+    statTable[(r-1)*nS+(1:nS),"msq"]      <- (ms$err.mle$q[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssHessPD"] <- (ss$hesspd[r,] )
+    statTable[(r-1)*nS+(1:nS),"msHessPD"] <- ms$hesspd[r]
+    statTable[(r-1)*nS+(1:nS),"qbar"]     <- ( blob$am$ms$qbar[r])
+    statTable[(r-1)*nS+(1:nS),"tauq2"]    <- ( blob$am$ms$tauq2[r])
+    statTable[(r-1)*nS+(1:nS),"sigU2"]    <- ( blob$am$ms$sigU2[r])
+    statTable[(r-1)*nS+(1:nS),"Umsybar"]  <- ( blob$am$ms$Umsybar[r])
+  }
+  
   # return
   statTable
 }

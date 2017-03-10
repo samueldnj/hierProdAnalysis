@@ -32,13 +32,13 @@
 # side-eff: creates <bchName>.bch in working directory
 makeDesignDover <- function ( l = 2,
                               p = 4,
-                              levels = list(  Umsy  = c( 0.29, 0.2929 ),
-                                              Bmsy  = c( 10, 10.1 ),
-                                              q     = c( .6, .606 ),
-                                              tau2  = c( .04, .0404 ),
-                                              kappa2= c( .025, .02525),
-                                              Sigma2= c( .025, .02525),
-                                              corrOD= c( .5, .505 )
+                              levels = list(  Umsy  = c( 0.292, 0.4 ),
+                                              Bmsy  = c( 10, 15 ),
+                                              q     = c( .6, .7 ),
+                                              tau2  = c( .04, .06 ),
+                                              kappa2= c( .025, .05),
+                                              Sigma2= c( .025, .05),
+                                              corrOD= c( 0, .5 )
                                             ),
                               generators = list( c(1,2), c(1,3), c(2,3),
                                                   c(1,2,3) ),
