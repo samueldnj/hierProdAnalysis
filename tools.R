@@ -19,6 +19,74 @@
 # 
 # --------------------------------------------------------------------------
 
+# makeFacDesignDover()
+# Creates a fully factorial design for a simulation experiment,
+# following DASE methodology (Kleijnen, 2008). Currently
+# only modifies Dover Sole entries in DERPA complex parameters
+# inputs:   levels = list of factor names and their levels
+#           bchName = character root of batch file name
+# ouputs:   table = design table data.frame
+# side-eff: creates <bchName>.bch in working directory
+makeFacDesignDover <- function ( l = 2,
+                              p = 4,
+                              levels = list(  Umsy  = seq(0.1,0.4, by = .05),
+                                              Bmsy  = c(seq(5,20,by = 5),100),
+                                              q     = seq(0.4,0.8,by=.1)
+                                            ),
+                              generators = list( c(1,2), c(1,3), c(2,3),
+                                                  c(1,2,3) ),
+                              bchName = "rKqExp" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+
+  # expand.grid the factor levels
+  combos <- expand.grid(levels)
+  
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(combos) )
+  {
+    scenLabel <- ""
+    for( fIdx in 1:ncol(combos) )
+    {
+      scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
+      if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", combos[rIdx,"Umsy"], 
+          ",.29,.29,.29,.29)\n", sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", combos[rIdx,"Bmsy"], 
+          ",10,10,10,10)\n", sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$q c(", combos[rIdx,"q"], 
+          ",.6,.6,.6,.6)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$assess$mBmsy c(", combos[rIdx,"Bmsy"], 
+          ",10,10,10,10)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$assess$s2Bmsy c(", combos[rIdx,"Bmsy"]^2, 
+          ",100,100,100,100)\n", sep = "", append = T, file = outFile )
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Management Procedures \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  combos
+}
 
 # makeDesignDover()
 # Creates a l^(k-p) resolution III design for a simulation experiment,

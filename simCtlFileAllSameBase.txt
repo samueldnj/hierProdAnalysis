@@ -2,7 +2,7 @@
 parameter value
 ctrl$scenarioName "baseOM"
 ctrl$mpLabel "baseAM"
-ctrl$nReps 200
+ctrl$nReps 50
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
 opMod$Bmsy rep(10,5)

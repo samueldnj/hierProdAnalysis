@@ -174,9 +174,11 @@ plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
   y   <- unique(table %>% pull(axesCols[2]))
   y   <- y[order(y)]
 
+  mps <- unique( table %>% pull(mp) )
+
   # Create an array to hold info
-  z <- array( NA, dim = c( length(x), length(y), length(specVals), 2 ),
-              dimnames = list( x, y, names(specVals), c("ss","ms") ) )
+  z <- array( NA, dim = c( length(x), length(y), length(specVals), 2, length(mps) ),
+              dimnames = list( x, y, names(specVals), c("ss","ms"), mps ) )
 
   # Fill the array, looping over species and axes
   for(sIdx in 1:length(specVals) )
@@ -197,7 +199,7 @@ plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
         if( length(rows) == 0 ) next
         # Fill array
         parColNames <- paste(c("ss","ms"),par, sep = "")
-        z[xIdx,yIdx,sIdx,] <- as.numeric(specTab[rows,parColNames])
+        z[xIdx,yIdx,sIdx,,] <- as.numeric(specTab[rows,parColNames])
       }
     }
   }
@@ -222,12 +224,15 @@ plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
       axis( side = 2, las = 1 )
       axis( side = 3, at = 1:length(specVals), labels = names(specVals))
       abline(h = 0, lty = 2, lwd = 0.8)
-      for( xIdx in 1:length(x) )
+      for( m in 1:length(mps) )
       {
-        lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss" ], col = cols[xIdx],
-                lty = 1, lwd = 0.8 )
-        points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss" ], col = cols[xIdx],
-                pch = 16, cex = 0.5 )
+        for( xIdx in 1:length(x) )
+              {
+                lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss", m ], col = cols[xIdx],
+                        lwd = 0.8, lty = m )
+                points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss", m ], col = cols[xIdx],
+                        pch = 16, cex = 0.5 )
+              }
       }
       panLab( x = 0.8, y = 0.8, 
               txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
@@ -240,12 +245,15 @@ plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
       axis( side = 3, at = 1:length(specVals), labels = names(specVals))
       abline(h = 0, lty = 2, lwd = 0.8)
       if( yIdx == 1 ) mtext( side = 3, text = "Joint Model", cex = 0.8)
-      for( xIdx in 1:length(x) )
+      for( m in 1:length(mps) )
       {
-        lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms" ], col = cols[xIdx],
-                lty = 1, lwd = 0.8 )
-        points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms" ], col = cols[xIdx],
-                pch = 16, cex = 0.5 )
+        for( xIdx in 1:length(x) )
+        {
+          lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms", m ], col = cols[xIdx],
+                  lwd = 0.8, lty = m )
+          points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms", m ], col = cols[xIdx],
+                  pch = 16, cex = 0.5 )
+        }  
       }
       panLab( x = 0.8, y = 0.8, 
               txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
