@@ -27,15 +27,11 @@
 #           bchName = character root of batch file name
 # ouputs:   table = design table data.frame
 # side-eff: creates <bchName>.bch in working directory
-makeFacDesignDover <- function ( l = 2,
-                              p = 4,
-                              levels = list(  Umsy  = seq(0.1,0.4, by = .05),
-                                              Bmsy  = c(seq(5,20,by = 5),100),
-                                              q     = seq(0.4,0.8,by=.1)
-                                            ),
-                              generators = list( c(1,2), c(1,3), c(2,3),
-                                                  c(1,2,3) ),
-                              bchName = "rKqExp" )
+makeFacDesignDover <- function (  levels = list(  Umsy  = seq(0.1,0.5, by = .1),
+                                                  Bmsy  = c(seq(2,10,by = 2)),
+                                                  q     = seq(0.3,0.8,by=.1)
+                                                ),
+                                  bchName = "rKqExp" )
 {
   # First, recover the number of factors
   k <- length(levels)
@@ -63,6 +59,8 @@ makeFacDesignDover <- function ( l = 2,
     }
     cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
     cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", combos[rIdx,"Umsy"], 
           ",.29,.29,.29,.29)\n", sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", combos[rIdx,"Bmsy"], 

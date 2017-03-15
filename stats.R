@@ -20,18 +20,20 @@
 #           scaled = logical indicating whether to scale factor levels identically
 #           rhs = character containing rhs of formula object for linear meta-model
 # outputs:  fit = lm output for metamodel
-.DASEexperiment <- function(  tabName = "DASEex.csv",
+.DASEexperiment <- function(  tabName = "rKqExp.csv",
                               par = "q",
                               spec = "Dover",
                               scaled = TRUE,
-                              rhs = "qOM + UmsyOM + BmsyOM + tau2OM + kappaTrue + SigmaTrue + corr" )
+                              rhs = "qOM + UmsyOM + BmsyOM" )
 {
   tabPath <- file.path(getwd(),"project/statistics",tabName)
   table <- read.csv( tabPath, header=TRUE, stringsAsFactors=FALSE ) 
 
   # restrict to correct number of species
   table  <-   table %>%
-              filter( species == spec )
+              filter( species == spec,
+                      BmsyOM < 100 )
+
 
   # Scale inputs
   if( scaled )
@@ -72,11 +74,11 @@
   ssForm <- as.formula( paste( ssPar, "~", rhs, sep = "" ) )
   msForm <- as.formula( paste( msPar, "~", rhs, sep = "" ) )
 
-
-
   # Fit object
-  ssObj <- lm( formula = ssForm, data = table )
-  msObj <- lm( formula = msForm, data = table )
+  ssObj <- glm( formula = ssForm, data = table, na.action = "na.omit" )
+  msObj <- glm( formula = msForm, data = table, na.action = "na.omit" )
+
+
 
 
 

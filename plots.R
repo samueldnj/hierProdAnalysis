@@ -18,12 +18,133 @@ plotProfiles <- function ( sim = 2 )
 }
 
 
+plotSpecResponse <- function( tabName = "rKqExp",
+                              resp = "q",
+                              spec = "Dover",
+                              axes = c("qOM","UmsyOM","BmsyOM")  )
+{
+  # Load table
+  fileName <- paste( tabName, ".csv", sep = "" )
+  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
+  tab <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
+
+  # browser()
+
+  # restrict to correct number of species
+  tab  <-   tab %>%
+            filter( species == spec ) %>%
+            group_by( qOM, UmsyOM, BmsyOM ) %>%
+            summarise(  nReps = sum(!is.na(ssq)),
+                        varssq = var(ssq,na.rm =T),
+                        varmsq = var(msq,na.rm =T),
+                        varssUmsy = var(ssUmsy,na.rm =T),
+                        varmsUmsy = var(msUmsy,na.rm =T),
+                        varssBmsy = var(ssBmsy,na.rm =T),
+                        varmsBmsy = var(msBmsy,na.rm =T), 
+                        ssq = median(ssq,na.rm =T),
+                        msq = median(msq,na.rm =T),
+                        ssUmsy = median(ssUmsy,na.rm =T),
+                        msUmsy = median(msUmsy,na.rm =T),
+                        ssBmsy = median(ssBmsy,na.rm =T),
+                        msBmsy = median(msBmsy,na.rm =T)
+                      )
+
+
+  
+  # Get levels for axes
+  axesCols <- integer(length=length(axes))
+  for ( i in 1:3)
+  {
+    axesCols[i] <- which(names(tab) == axes[i])
+  }
+  # order levels
+  w   <- unique(tab %>% pull(axesCols[1]))
+  w   <- w[order(w)]
+  x   <- unique(tab %>% pull(axesCols[2]))
+  x   <- x[order(x)]
+  y   <- unique(tab %>% pull(axesCols[3]))
+  y   <- y[order(y)]
+
+  # response colnames
+  respCols <- paste(c("ss","ms"),resp,sep = "")
+ 
+  # Create an array to hold info
+  z <- array( NA, dim = c( length(w), length(x), length(y), 2 ),
+              dimnames = list(  paste(axes[1],w,sep = ""),
+                                paste(axes[2],x,sep = ""),
+                                paste(axes[3],y,sep = ""),
+                                respCols ) )
+
+  # Fill the array, looping over species and axes
+  for( wIdx in 1:length(w) )
+  {
+    for( xIdx in 1:length(x) )
+    {
+      for( yIdx in 1:length(y) )
+      {
+        # Get x and y values
+        wVal <- w[ wIdx ]
+        xVal <- x[ xIdx ]
+        yVal <- y[ yIdx ]
+        # Get rows
+        wRows <- which ( tab[,axesCols[1]] == wVal)
+        xRows <- which ( tab[,axesCols[2]] == xVal)
+        yRows <- which ( tab[,axesCols[3]] == yVal)
+        rows <- intersect(intersect(wRows,xRows),yRows)
+        if( length(rows) == 0 ) next
+        # Fill array
+        # browser()
+        z[wIdx,xIdx,yIdx,] <- as.numeric(tab[rows,respCols])
+      }
+    }
+  }
+
+  cols <- brewer.pal( n = length(x), name = "Dark2" )
+  par(mfrow = c(length(y),2), mar = c(2,2,1,1), oma = c(3,3,2,2) )
+  for( yIdx in 1:length(y) )
+  {
+    # Plot one model
+    plot( x = range(w), y = range(z[,,,respCols[1]]), axes = F, type = "n",
+        xlab = "", ylab = "", main = respCols[1] )
+    axis( side = 1, at = w )
+    axis( side = 2, las = 1 )
+    for( xIdx in 1:length(x) )
+    {
+      lines( x = w, y = z[,xIdx,yIdx,1], col = cols[xIdx], lwd = 1.5 )
+      points( x = w, y = z[,xIdx,yIdx,1], col = cols[xIdx], pch = 16 )
+    }
+    mtext( text = paste( axes[3], " = ", y[yIdx], sep = ""), side = 2, las = 0,
+            line = 3 )
+
+    # And t'other
+    plot( x = range(w), y = range(z[,,,respCols[2]]), axes = F, type = "n",
+        xlab = "", ylab = "", main = respCols[2] )
+    axis( side = 1, at = w )
+    axis( side = 2, las = 1 )
+    for( xIdx in 1:length(x) )
+    {
+      lines( x = w, y = z[,xIdx,yIdx,2], col = cols[xIdx], lwd = 1.5 )
+      points( x = w, y = z[,xIdx,yIdx,2], col = cols[xIdx], pch = 16 )
+    }
+  }
+  
+  panLegend(  legTxt = paste( axes[2], " = ", x ),
+              lty = 1, pch = 16, cex = 1,
+              lwd = 0.8, col = cols,
+              x = 0.1, y = 0.9, bty = "n" )
+  mtext( side = 1, outer = TRUE, text = axes[1], line = 1.5 )  
+  
+  tab
+}
+
+
 plotGroupPars <- function(  tableName = "RE_coarse_pub_MARE",
                             axes = c("kappaMult","corr"),
                             nSp   = 5 )
 {
-  # plotTableCols()
-  # Plots par as a function of axes[1], grouped by axes[2].
+  # plotGroupPars()
+  # Plots group prior parameter estimates 
+  # as a function of axes[1], grouped by axes[2].
   # inputs:   tableName = RE table in statistics folder
   #           nSp = number of species to restrict to
   #           axes = 2-numeric giving factor levels to plot over
@@ -933,7 +1054,6 @@ plotObsModContour <- function (   tableName   = "obsErr_MARE.csv",
 #         tUtr=integer value for tUtrough in Fhist scenarios
 #         tcex=cex of text in raster cells
 plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv", 
-                                  axes        = c("corr", "kappaMult"),
                                   pars        = c("BnT", "Umsy", "q", "Dep"),
                                   nSp         = 2,
                                   method      = "deviance",
@@ -971,7 +1091,8 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
     table <- table %>% mutate(  BnT     = log2(abs(ssBnT/msBnT)),
                                 Umsy    = log2(abs(ssUmsy/msUmsy)),
                                 q       = log2(abs(ssq/msq)),
-                                Dep     = log2(abs(ssDep/msDep)) )
+                                Dep     = log2(abs(ssDep/msDep)),
+                                Bmsy    = log2(abs(ssBmsy/msBmsy)) )
   }   
   # Difference is just ss - ms
   if ( method == "difference")
@@ -979,7 +1100,8 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
     table <- table %>% mutate(  BnT     = abs(ssBnT) - abs(msBnT),
                                 Umsy    = abs(ssUmsy) - abs(msUmsy),
                                 q       = abs(ssq) - abs(msq),
-                                Dep     = abs(ssDep) - abs(msDep) )
+                                Dep     = abs(ssDep) - abs(msDep),
+                                Bmsy    = log2(abs(ssBmsy/msBmsy)) )
   }
 
   species   <- as.character(unique( table$species))
@@ -1055,6 +1177,8 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
                                       msBnT = sum( msBnT ),
                                       ssUmsy = sum( ssUmsy ),
                                       msUmsy = sum( msUmsy ),
+                                      ssBmsy = sum( ssBmsy ),
+                                      msBmsy = sum( msBmsy ),
                                       ssq = sum( ssq ),
                                       msq = sum( msq ),
                                       ssHessPD = sum( ssHessPD ),
@@ -1078,7 +1202,7 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
                   mutate( BnT = log2( abs(ssBnT) / abs(msBnT) ),
                           Umsy = log2( abs(ssUmsy) / abs(msUmsy) ),
                           q = log2( abs(ssq) / abs(msq) ),
-                          # MSY = log2( ssMSY / msMSY ),
+                          Bmsy = log2( abs(ssBmsy) / abs(msBmsy) ),
                           Dep = log2 ( abs(ssDep) / abs(msDep) ) 
                         )
   }
@@ -1089,7 +1213,7 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
                   mutate( BnT = abs(ssBnT) - abs(msBnT) ,
                           Umsy = abs(ssUmsy) - abs(msUmsy) ,
                           q = abs(ssq) - abs(msq) ,
-                          # MSY = abs(ssMSY) - abs(msMSY) ,
+                          Bmsy = abs(ssBmsy) - abs(msBmsy) ,
                           Dep = abs(ssDep) - abs(msDep) 
                         )
     if( compMean )
