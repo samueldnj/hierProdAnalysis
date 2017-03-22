@@ -16,7 +16,7 @@ library( "TMB" )
 library( "raster" )
 library( "grid" )
 library( "RColorBrewer" )
-
+library( "HapEstXXR" )
 
 # compile and load msProd objective function.
 compile ("msProd.cpp")

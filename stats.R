@@ -10,21 +10,176 @@
 #
 # --------------------------------------------------------------------------
 
+checkCorr <- function(  tabName = "rKqExp.csv",
+                        cols = c("ssq","ssUmsy","ssBmsy"),
+                        spec = NULL )
+{
+  # first read in the table
+  tabPath <- file.path(getwd(),"project/statistics",tabName)
+  table <- read.csv( tabPath, header=TRUE, stringsAsFactors=FALSE ) 
+
+  # restrict to correct number of species
+  if( !is.null(spec) ) table <- table %>% filter( species == spec )
+
+  # Now compute the correlation
+  corrMtx <- cor( table[, cols], use = "pairwise.complete.obs" )
+
+  corrMtx
+}
+
+# .DASEmodelSelection()
+# Uses the following procedure to select candidate models for
+# analysing simulation model output.
+# Basic idea, uses strong heredity of main effects: 
+#   1. Fit all main effects, check for significance
+#   2. Choose main effects model with lowest AIC value from among significant models, 
+#       repeat 1 with all possible interactions and second order effects from that model
+#   3. Choose among first order, fo+interactions, fo+second order and
+#       fo+so+interactions models using AICc
+# Models from out$ms$sel and out$ss$sel can be used in plotOMSpecResponse 
+# to plot the glm fits next to the observed values.
+.DASEmodelSelection <- function(  tabName = "rKqExp_MRE.csv",
+                                  resp = "q",
+                                  spec = "Dover",
+                                  expVars = c("qOM","UmsyOM","BmsyOM"),
+                                  sig = 0.05, maxDeltaAICc = 20 )
+{
+  # First, fit main effects
+  mainEff <- .DASEexperiment( tabName = tabName,
+                              resp = resp, spec = spec,
+                              scaled = FALSE,
+                              baseRHS = NULL,
+                              newExp = expVars )
+
+  # Then, look at the main effects summary
+  mainSummSS <- lapply( X = mainEff$ssGLM, FUN = summary )
+  mainSummMS <- lapply( X = mainEff$msGLM, FUN = summary )
+
+  coeffSS <- coef(mainSummSS[[length(mainSummSS)]])
+  coeffMS <- coef(mainSummSS[[length(mainSummSS)]])  
+
+  ssInsig <- which( coeffSS[,4] >= sig )
+  msInsig <- which( coeffMS[,4] >= sig )
+
+  dropSS <- names(ssInsig)
+  dropMS <- names(msInsig)
+
+  signifSS <- expVars[ !(expVars %in% dropSS) ]
+  signifMS <- expVars[ !(expVars %in% dropMS) ]
+
+  # Function to make interactions out of main effects
+  makeIntEff <- function ( main = expVars )
+  {
+    interactions <- character(length = 0)
+    for( i in 1:(length(main)-1) )
+    {
+      for( j in (i+1):length(main) )
+      {
+        interactions <- c( interactions, paste( main[i], main[j], sep = ":" ) )
+      }
+    }
+    interactions
+  }
+  # make interactions and second order effects
+  intSS <- makeIntEff ( signifSS )
+  soSS  <- paste( "I(", signifSS, "^2)", sep = "" )
+
+  # Now paste main effects together
+  signifSSrhs <- paste(signifSS, collapse = " + ")
+  # And run the experiment again
+  fullSS <- .DASEexperiment(  tabName = tabName, resp = resp,
+                              spec = spec, scaled = FALSE,
+                              baseRHS = signifSSrhs,
+                              newExp = c(intSS,soSS) )
+
+  # Run for fullMS if different main effects
+  if( length(setdiff(signifMS,signifSS)) != 0 )
+  {
+    signifMSrhs <- paste(signifMS, collapse = " + ")
+    # make interactions and second order effects
+    intMS <- makeIntEff ( signifMS )
+    soMS  <- paste( "I(", signifMS, "^2)", sep = "" )
+
+
+    fullMS <- .DASEexperiment(  tabName = tabName, resp = resp,
+                              spec = spec, scaled = FALSE,
+                              baseRHS = signifMSrhs,
+                              newExp = c(intMS,soMS) )
+  } else
+    fullMS <- fullSS
+  
+  fullSummSS <- lapply( X = fullSS$ssGLM, FUN = summary )
+  fullSummMS <- lapply( X = fullMS$msGLM, FUN = summary )
+
+  # Now rank AICc values in each model
+  aicRankSS <- AICrank( fullSummSS )
+  aicRankMS <- AICrank( fullSummMS )
+
+  # Now pull the models that fit the AIC and significance criteria
+  modelNumSS  <- aicRankSS[ which( (  aicRankSS$maxPr < sig) &
+                                      aicRankSS$deltaAICc < maxDeltaAICc ), "Number" ]
+  modelNumMS  <- aicRankSS[ which( (  aicRankSS$maxPr < sig) &
+                                      aicRankSS$deltaAICc < maxDeltaAICc ), "Number" ]
+
+  ms <- list( sel = fullMS$msGLM[modelNumMS],
+              aicRank = aicRankMS,
+              fullMS = fullMS 
+            )
+
+  ss <- list( sel = fullMS$ssGLM[modelNumSS],
+              aicRank = aicRankSS,
+              fullSS = fullSS 
+            )
+
+  out <- list( ms = ms, ss = ss )
+
+  out
+}
+
+
+# Automate checking for AIC values
+AICrank <- function ( summList )
+{
+  # Count models
+  nModels <- length( summList )
+
+  # Create a data frame to hold the info
+  rank.df <- matrix(NA, ncol = 4, nrow = nModels )
+  colnames(rank.df) <- c( "Number", "AICc", "deltaAICc", "maxPr" )
+  rank.df <- as.data.frame(rank.df)
+
+  rank.df[,1] <- 1:nModels
+  for(k in 1:nModels)
+  {
+    nPar <- nrow(summList[[k]]$coefficients)
+    nObs <- length(summList[[k]]$deviance.resid)
+    rank.df[k,"AICc"] <- summList[[k]]$aic + nPar*(nPar + 1) / (nObs - nPar - 1)
+    rank.df[k,"maxPr"] <- max(coef(summList[[k]])[,4])
+  } 
+
+  rank.df[,"deltaAICc"] <- rank.df[,"AICc"] - min(rank.df[,"AICc"])
+  rank.df <- rank.df[order(rank.df[,"deltaAICc"]),]
+  
+  rank.df
+}
+
+
 # .DASEexperiment()
 # Function to apply the DASE methodology to the DASEex.csv table, my
-# first attempt at discovering interactions between model inputs. I
-# think I've tinkered with too many factors, tbh, but such is life
+# first attempt at discovering interactions between model inputs. Following
+# exposition in Ch2 of Kleijnen, 2008: Design and Analysis of Simulation Experiments
 # inputs:   tabName = character giving the root of the statTable
 #           par = character indicating response variable parameter
 #           species = character name of species to look at for effect
 #           scaled = logical indicating whether to scale factor levels identically
 #           rhs = character containing rhs of formula object for linear meta-model
 # outputs:  fit = lm output for metamodel
-.DASEexperiment <- function(  tabName = "rKqExp.csv",
-                              par = "q",
+.DASEexperiment <- function(  tabName = "lowK_rKq_RE.csv",
+                              resp = "q",
                               spec = "Dover",
                               scaled = TRUE,
-                              rhs = "qOM + UmsyOM + BmsyOM" )
+                              baseRHS = NULL,
+                              newExp = c( "qOM", "UmsyOM", "BmsyOM" ) )
 {
   tabPath <- file.path(getwd(),"project/statistics",tabName)
   table <- read.csv( tabPath, header=TRUE, stringsAsFactors=FALSE ) 
@@ -32,7 +187,28 @@
   # restrict to correct number of species
   table  <-   table %>%
               filter( species == spec,
-                      BmsyOM < 100 )
+                      BmsyOM < 100, BmsyOM > 5 )
+  # Calculate a table with median bias
+  medTab <- table %>%
+            group_by( qOM, UmsyOM, BmsyOM ) %>%
+            summarise(  nReps = sum(!is.na(ssq)),
+                        varssq = var(ssq,na.rm =T),
+                        varmsq = var(msq,na.rm =T),
+                        varssUmsy = var(ssUmsy,na.rm =T),
+                        varmsUmsy = var(msUmsy,na.rm =T),
+                        varssBmsy = var(ssBmsy,na.rm =T),
+                        varmsBmsy = var(msBmsy,na.rm =T), 
+                        ssq = median(ssq,na.rm =T),
+                        msq = median(msq,na.rm =T),
+                        ssUmsy = median(ssUmsy,na.rm =T),
+                        msUmsy = median(msUmsy,na.rm =T),
+                        ssBmsy = median(ssBmsy,na.rm =T),
+                        msBmsy = median(msBmsy,na.rm =T)
+                      )
+
+  # medTab <- file.path(getwd(),"project/statistics",medTab)
+  # medTab <- read.csv( medTab, header=TRUE, stringsAsFactors=FALSE )   
+  # medTab <- medTab %>% filter( species == spec )
 
 
   # Scale inputs
@@ -66,23 +242,60 @@
                       SigmaTrue = SigmaGrad*SigmaTrue + (1 - SigmaGrad*SigmaRange[2]))  
   }
 
+  # Function to fit GLMs given...
+  fitGLM <- function( rhs = expVars[1],
+                      resp = ssPar,
+                      dat = table )
+  {
+    form    <- as.formula( paste( resp, "~", rhs, sep = "" ) )
+    glmObj  <- glm( formula = form, data = dat, na.action = "na.omit" )
+
+    return(glmObj)
+  }
+
+  # Function to make interactions out of main effects
+  makeIntEff <- function ( main = expVars )
+  {
+    interactions <- character(length = 0)
+    for( i in 1:(length(main)-1) )
+    {
+      for( j in (i+1):length(main) )
+      {
+        interactions <- c( interactions, paste( main[i], main[j], sep = ":" ) )
+      }
+    }
+    interactions
+  }
 
   # Create LHS of LM formula object
-  ssPar <- paste( "ss", par, sep = "" )
-  msPar <- paste( "ms", par, sep = "" )
-  # Paste together as a formula
-  ssForm <- as.formula( paste( ssPar, "~", rhs, sep = "" ) )
-  msForm <- as.formula( paste( msPar, "~", rhs, sep = "" ) )
+  ssResp <- paste( "ss", resp, sep = "" )
+  msResp <- paste( "ms", resp, sep = "" )
 
-  # Fit object
-  ssObj <- glm( formula = ssForm, data = table, na.action = "na.omit" )
-  msObj <- glm( formula = msForm, data = table, na.action = "na.omit" )
+  # Generate the sets of possible effects
+  # First, take the power set of main effects and collapse into formulae
+  newExpCombos  <- powerset( newExp )
+  newExpCombos  <- lapply( X = newExpCombos, FUN = paste, collapse = " + " )
+  rhsList       <- paste( baseRHS, newExpCombos, sep = " + " )
+  # Fit to all possible main effects for both models
+  ssGLM       <- lapply( X = rhsList, FUN = fitGLM, resp = ssResp, dat = table )
+  msGLM       <- lapply( X = rhsList, FUN = fitGLM, resp = msResp, dat = table )
+
+  # A function to lapply to the glmObjects and compute the AIC
+  medResids   <- function( glmObj, data, resp )
+  {
+    pred <- predict( glmObj, newdata = data )
+    resids <- data[,resp] - pred
+    resids
+  }
+
+  # Now run predict the medTab from the models
+  ssResids    <- lapply( X = ssGLM, FUN = medResids, data = medTab, resp = ssResp )
+  msResids    <- lapply( X = msGLM, FUN = medResids, data = medTab, resp = msResp )
 
 
-
-
-
-  return( list ( ss = ssObj, ms = msObj ) )
+  return( list (  ssGLM = ssGLM, ssResids = ssResids,
+                  msGLM = msGLM, msResids = msResids,
+                  medTab = medTab ) )
 }
 
 #.statTables()
@@ -100,6 +313,8 @@
   .statTableMRE(sims,paste(tabNameRoot,"_MRE.csv",sep=""))
   # MARE
   .statTableMARE(sims,paste(tabNameRoot,"_MARE.csv",sep=""))
+  # raw RE distributions
+  .statTableRE(sims,paste(tabNameRoot,"_RE.csv", sep = ""))
 }
 
 #.statTableRE()
@@ -232,7 +447,7 @@
   statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult       <- kappaMult
   statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps           <- nReps
+  statTable$nReps           <- length(success)
   statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough        <- opMod$tUtrough
   statTable$tUpeak          <- opMod$tUpeak
@@ -338,7 +553,7 @@
   statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult       <- kappaMult
   statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps           <- nReps
+  statTable$nReps           <- length(success)
   statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough        <- opMod$tUtrough
   statTable$tUpeak          <- opMod$tUpeak

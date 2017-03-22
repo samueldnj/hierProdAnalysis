@@ -17,11 +17,34 @@ plotProfiles <- function ( sim = 2 )
   # input:    sim = int 1-vector indicating the simulation in project folder
 }
 
+lowK_qModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "q" )
+lowK_BmsyModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "Bmsy" )
+lowK_UmsyModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "Umsy" )
 
-plotSpecResponse <- function( tabName = "rKqExp",
-                              resp = "q",
-                              spec = "Dover",
-                              axes = c("qOM","UmsyOM","BmsyOM")  )
+# plotOMSpecResponse( "lowK_rKq_MRE", resp = "q", 
+#                     ssModel = lowK_qModels$ss$sel[[1]],
+#                     msModel = lowK_qModels$ms$sel[[1]] )
+
+# plotOMSpecResponse( "lowK_rKq_MRE", resp = "Umsy", 
+#                     ssModel = lowK_UmsyModels$ss$sel[[1]],
+#                     msModel = lowK_UmsyModels$ms$sel[[1]] )
+
+qModels <- .DASEmodelSelection( resp = "q" )
+UmsyModels <- .DASEmodelSelection( resp = "Umsy" )
+BmsyModels <- .DASEmodelSelection( resp = "Bmsy" )
+
+# plotOMSpecResponse(ssModel = qModels$ss$sel[[1]], msModel = qModels$ms$sel[[1]])
+# plotOMSpecResponse(resp = "Umsy", ssModel = UmsyModels$ss$sel[[1]], msModel = UmsyModels$ms$sel[[1]])
+# plotOMSpecResponse(resp = "Bmsy", ssModel = BmsyModels$ss$sel[[1]], msModel = BmsyModels$ms$sel[[1]])
+
+# Plots response variable curves as a function of the axes,
+# restricted to the nominated speies.
+plotOMSpecResponse <- function( tabName = "rKqExp_MRE",
+                                resp = "q",
+                                spec = "Dover",
+                                axes = c("qOM","UmsyOM","BmsyOM"),
+                                ssModel = NULL,
+                                msModel = NULL  )
 {
   # Load table
   fileName <- paste( tabName, ".csv", sep = "" )
@@ -30,32 +53,35 @@ plotSpecResponse <- function( tabName = "rKqExp",
 
   # browser()
 
-  # restrict to correct number of species
   tab  <-   tab %>%
-            filter( species == spec ) %>%
-            group_by( qOM, UmsyOM, BmsyOM ) %>%
-            summarise(  nReps = sum(!is.na(ssq)),
-                        varssq = var(ssq,na.rm =T),
-                        varmsq = var(msq,na.rm =T),
-                        varssUmsy = var(ssUmsy,na.rm =T),
-                        varmsUmsy = var(msUmsy,na.rm =T),
-                        varssBmsy = var(ssBmsy,na.rm =T),
-                        varmsBmsy = var(msBmsy,na.rm =T), 
-                        ssq = median(ssq,na.rm =T),
-                        msq = median(msq,na.rm =T),
-                        ssUmsy = median(ssUmsy,na.rm =T),
-                        msUmsy = median(msUmsy,na.rm =T),
-                        ssBmsy = median(ssBmsy,na.rm =T),
-                        msBmsy = median(msBmsy,na.rm =T)
-                      )
+            filter( species == spec )
 
+
+  # response colnames
+  respCols <- paste(c("ss","ms"),resp,sep = "")
+
+  # Run predictions if explanatory model supplied
+  predTab <- tab %>% mutate( ssPred = NA, msPred = NA )
+  if( !is.null(ssModel) )
+  {
+    predTab <-  predTab %>% 
+                mutate( ssPred = predict( ssModel, newdata = predTab ) )
+  }
+
+  if( !is.null(msModel) )
+  {
+    predTab <-  predTab %>% 
+                mutate( msPred = predict( msModel, newdata = predTab ) )
+  }
 
   
   # Get levels for axes
   axesCols <- integer(length=length(axes))
+  predAxesCols <- integer(length=length(axes))
   for ( i in 1:3)
   {
-    axesCols[i] <- which(names(tab) == axes[i])
+    axesCols[i]     <- which(names(tab) == axes[i])
+    predAxesCols[i] <- which(names(predTab) == axes[i])
   }
   # order levels
   w   <- unique(tab %>% pull(axesCols[1]))
@@ -64,9 +90,6 @@ plotSpecResponse <- function( tabName = "rKqExp",
   x   <- x[order(x)]
   y   <- unique(tab %>% pull(axesCols[3]))
   y   <- y[order(y)]
-
-  # response colnames
-  respCols <- paste(c("ss","ms"),resp,sep = "")
  
   # Create an array to hold info
   z <- array( NA, dim = c( length(w), length(x), length(y), 2 ),
@@ -74,6 +97,13 @@ plotSpecResponse <- function( tabName = "rKqExp",
                                 paste(axes[2],x,sep = ""),
                                 paste(axes[3],y,sep = ""),
                                 respCols ) )
+
+  # Create an array to hold info
+  zPred <- array( NA, dim = c( length(w), length(x), length(y), 2 ),
+                  dimnames = list(  paste(axes[1],w,sep = ""),
+                                    paste(axes[2],x,sep = ""),
+                                    paste(axes[3],y,sep = ""),
+                                    respCols ) )
 
   # Fill the array, looping over species and axes
   for( wIdx in 1:length(w) )
@@ -90,41 +120,54 @@ plotSpecResponse <- function( tabName = "rKqExp",
         wRows <- which ( tab[,axesCols[1]] == wVal)
         xRows <- which ( tab[,axesCols[2]] == xVal)
         yRows <- which ( tab[,axesCols[3]] == yVal)
-        rows <- intersect(intersect(wRows,xRows),yRows)
+        wRowsPred <- which ( predTab[,predAxesCols[1]] == wVal)
+        xRowsPred <- which ( predTab[,predAxesCols[2]] == xVal)
+        yRowsPred <- which ( predTab[,predAxesCols[3]] == yVal)
+        rows      <- intersect(intersect(wRows,xRows),yRows)
+        predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
         if( length(rows) == 0 ) next
         # Fill array
         # browser()
         z[wIdx,xIdx,yIdx,] <- as.numeric(tab[rows,respCols])
+        zPred[wIdx,xIdx,yIdx,] <- as.numeric(predTab[predRows,c("ssPred","msPred")])
       }
     }
   }
 
   cols <- brewer.pal( n = length(x), name = "Dark2" )
-  par(mfrow = c(length(y),2), mar = c(2,2,1,1), oma = c(3,3,2,2) )
+  par(mfrow = c(length(y),2), mar = c(2,2,1,1), oma = c(3,3,3,2) )
   for( yIdx in 1:length(y) )
   {
     # Plot one model
     plot( x = range(w), y = range(z[,,,respCols[1]]), axes = F, type = "n",
-        xlab = "", ylab = "", main = respCols[1] )
+        xlab = "", ylab = "" )
+    if( yIdx == 1) title( main = respCols[1])
     axis( side = 1, at = w )
     axis( side = 2, las = 1 )
     for( xIdx in 1:length(x) )
     {
       lines( x = w, y = z[,xIdx,yIdx,1], col = cols[xIdx], lwd = 1.5 )
       points( x = w, y = z[,xIdx,yIdx,1], col = cols[xIdx], pch = 16 )
+
+      lines( x = w, y = zPred[,xIdx,yIdx,1], col = cols[xIdx], lwd = 1.5, lty = 3 )
+      points( x = w, y = zPred[,xIdx,yIdx,1], col = cols[xIdx], pch = 1 )
+
     }
     mtext( text = paste( axes[3], " = ", y[yIdx], sep = ""), side = 2, las = 0,
             line = 3 )
 
     # And t'other
     plot( x = range(w), y = range(z[,,,respCols[2]]), axes = F, type = "n",
-        xlab = "", ylab = "", main = respCols[2] )
+        xlab = "", ylab = "" )
+    if( yIdx == 1) title( main = respCols[2])
     axis( side = 1, at = w )
     axis( side = 2, las = 1 )
     for( xIdx in 1:length(x) )
     {
       lines( x = w, y = z[,xIdx,yIdx,2], col = cols[xIdx], lwd = 1.5 )
       points( x = w, y = z[,xIdx,yIdx,2], col = cols[xIdx], pch = 16 )
+      lines( x = w, y = zPred[,xIdx,yIdx,2], col = cols[xIdx], lwd = 1.5, lty = 3 )
+      points( x = w, y = zPred[,xIdx,yIdx,2], col = cols[xIdx], pch = 1 )
     }
   }
   
@@ -133,10 +176,101 @@ plotSpecResponse <- function( tabName = "rKqExp",
               lwd = 0.8, col = cols,
               x = 0.1, y = 0.9, bty = "n" )
   mtext( side = 1, outer = TRUE, text = axes[1], line = 1.5 )  
+  mtext( side = 3, outer = TRUE, text = tabName, line = 1 )
   
   tab
 }
 
+plotGroupPars_rKq <- function(  tableName = "rKqExp_MRE",
+                                axes = c("qOM","UmsyOM"),
+                                spec = "Dover" )
+{
+  # plotGroupPars()
+  # Plots group prior parameter estimates 
+  # as a function of axes[1], grouped by axes[2].
+  # inputs:   tableName = RE table in statistics folder
+  #           nSp = number of species to restrict to
+  #           axes = 2-numeric giving factor levels to plot over
+  #           par = character name of group level parameter to plot
+  # outputs:  NULL
+  # side-eff: plots to quartz
+
+  # Load table
+  fileName <- paste( tableName, ".csv", sep = "" )
+  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
+  table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
+
+  # restrict to correct number of species, summarise group pars since we're
+  # only using 2 axes
+  table  <-   table %>%
+              filter( species == spec ) %>%
+              group_by( qOM, UmsyOM ) %>%
+              summarise(  qbar = mean(qbar),
+                          Umsybar = mean(Umsybar),
+                          tauq2 = mean(tauq2),
+                          sigU2 = mean(sigU2) )
+
+
+  # Get levels for axes
+  axesCols <- integer(length=2)
+  for ( i in 1:2)
+  {
+    axesCols[i] <- which(names(table) == axes[i])
+  }
+  # order levels
+  x   <- unique(table %>% pull(axesCols[1]))
+  x   <- x[order(x)]
+  y   <- unique(table %>% pull(axesCols[2]))
+  y   <- y[order(y)]
+
+  groupPars <- c("qbar","Umsybar","tauq2","sigU2")
+  
+  # Create an array to hold info
+  z <- array( NA, dim = c( length(x), length(y), length(groupPars) ),
+              dimnames = list(  paste(axes[1],x,sep = ""),
+                                paste(axes[2],y,sep = ""),
+                                groupPars ) )
+
+  # Fill the array, looping over species and axes
+  for( xIdx in 1:length(x) )
+  {
+    for( yIdx in 1:length(y) )
+    {
+      # Get x and y values
+      xVal <- x[ xIdx ]
+      yVal <- y[ yIdx ]
+      # Get rows
+      xRows <- which ( table[,axesCols[1]] == xVal)
+      yRows <- which ( table[,axesCols[2]] == yVal)
+      rows <- intersect(xRows,yRows)
+      # browser()
+      if( length(rows) == 0 ) next
+      # Fill array
+      z[xIdx,yIdx,] <- as.numeric(table[rows,groupPars])
+    }
+  }
+
+  cols <- brewer.pal( n = length(y), name = "Dark2" )
+  par(mfrow = c(2,2), mar = c(2,2,1,1), oma = c(3,3,2,2) )
+  for( p in 1:length(groupPars) )
+  {
+    plot( x = range(x), y = range(z[,,groupPars[p]]), axes = F, type = "n",
+        xlab = "", ylab = "", main = groupPars[p] )
+    axis( side = 1, at = x )
+    axis( side = 2, las = 1 )
+    for( yIdx in 1:length(y) )
+    {
+      lines( x = x, y = z[,yIdx,groupPars[p]], col = cols[yIdx], lwd = 1.5 )
+      points( x = x, y = z[,yIdx,groupPars[p]], col = cols[yIdx], pch = 16 )
+    }
+  }
+  
+  panLegend(  legTxt = paste( axes[2], " = ", y ),
+              lty = 1, pch = 16, cex = 1,
+              lwd = 0.8, col = cols,
+              x = 0.1, y = 0.9, bty = "n" )
+  mtext( side = 1, outer = TRUE, text = axes[1], line = 1.5 )  
+}
 
 plotGroupPars <- function(  tableName = "RE_coarse_pub_MARE",
                             axes = c("kappaMult","corr"),
@@ -629,6 +763,8 @@ plotqPriorSens <- function (  tableName = "priorSens_pub_MRE",
   tablePath <- file.path ( getwd(), "project/Statistics", fileName )
   table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
 
+  DERPAcols <- brewer.pal(n = 5, name = "Set1" )
+
   # restrict to the table with the 
   table <-      table %>%
                 # filter( fixqbar == TRUE ) %>%
@@ -673,7 +809,7 @@ plotqPriorSens <- function (  tableName = "priorSens_pub_MRE",
   for( k in 1:length(s2q) ) fullX <- c( fullX, k + specX ) 
 
   # pch for each species
-  pchSpec <- c(0,1,2,5,6)
+  pchSpec <- 1:5
   
   textLab <- c("(a)","(b)","(c)","(d)")
 
@@ -701,15 +837,17 @@ plotqPriorSens <- function (  tableName = "priorSens_pub_MRE",
                 col = "grey90", border = NA )
       lines( x = fullX, y = qbar$qbar, lty = 2, lwd = 2 )
       abline( h = exp(-0.51), lty = 3, lwd = 2 )
-      points( x = fullX, y = qSpec$msq, pch = pchSpec[1:nS], cex = 1.5 )
-      points( x = fullX+0.05, y = qSpec$ssq, pch = pchSpec[1:nS], cex = 1.5 )
-      points( x = fullX, y = qSpec$qOM, pch = 20, cex = 1.5 )
+      points( x = fullX, y = qSpec$msq, pch = pchSpec[1:nS], cex = 1.5,
+              col = DERPAcols )
+      points( x = fullX+0.05, y = qSpec$ssq, pch = pchSpec[1:nS], cex = 1.5,
+              col = DERPAcols )
+      points( x = fullX, y = qSpec$qOM, pch = 20, cex = 1.5, col = DERPAcols )
       segments( x0 = fullX, y0 = as.numeric( qSpec$msq025 ),
                 y1 = as.numeric( qSpec$msq975 ), 
-                col = "grey40", lwd = 2 )
+                col = DERPAcols, lwd = 2 )
       segments( x0 = fullX+0.05, y0 = as.numeric( qSpec$ssq025 ),
                 y1 = as.numeric( qSpec$ssq975 ), 
-                col = "grey40", lwd = 2, lty = 4 )
+                col = DERPAcols, lwd = 2, lty = 4 )
       panLab( x = 0.05, y = 0.8, txt = textLab[bIdx] )
       if( showLegend & bIdx == 1)
         panLegend(  x = 0.05, y = 0.1, legTxt = c( "q OM", "q Est", "qbar"),
@@ -1307,7 +1445,7 @@ plotComplexPubRasters <- function(  tableRoot = "RE_coarse_pub",
                                     legend = FALSE,
                                     mpLabel   = "pubAM",
                                     hess = FALSE,
-                                    nSp       = 2,
+                                    nSp       = 5,
                                     tUtr      = 15,
                                     negCorr   = FALSE,
                                     devLabels = FALSE,
@@ -1851,8 +1989,8 @@ plotModContour <- function (  tableName = "RE_coarse_Bmsy_MARE.csv",
 #         tUtr=integer value for tUtrough in Fhist scenarios
 #         negCorr=logical value of simCtl par lastNegCorr in corr scenarios
 #         tcex=cex of text in taster cells
-plotCompContour <- function ( tableName   = "RE_coarse_Bmsy_MARE.csv", 
-                              mpLabel     = "corrTRUE_SigPriorIG",
+plotCompContour <- function ( tableName   = "RE_coarse_pub_MARE.csv", 
+                              mpLabel     = "pubAM",
                               axes        = c("corr","kappaMult"),
                               pars        = c("BnT","Umsy","q","Dep"),
                               nSp         = 2,
@@ -1929,6 +2067,7 @@ plotCompContour <- function ( tableName   = "RE_coarse_Bmsy_MARE.csv",
   {
     spec <- species[s]
     specTab <- table %>% filter (species == spec )
+    # browser()
     z <- array( NA, dim = c( length( y ), length( x ), length(pars) ),
                 dimnames=list(  y[ length( y ):1 ], x,
                                 pars ) )
@@ -2955,7 +3094,7 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
 # outputs:  NULL
 plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE"), sim=1, 
                           est="MLE", devLabels = TRUE,
-                          title = TRUE )
+                          title = TRUE, plotMARE = FALSE )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -2985,11 +3124,20 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
     return(t(quants))
   }
 
+  # browser()
+  ssARE <- lapply(X = ssRE, FUN = abs)
+  msARE <- lapply(X = msRE, FUN = abs)
+
   # generate quantiles
   ssQuant <- lapply ( X = seq_along(ssRE), FUN = quantWrap, x=ssRE, 
                       MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
   msQuant <- lapply ( X = seq_along(msRE), FUN = quantWrap, x=msRE, 
                       MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+
+  ssAQuant <- lapply ( X = seq_along(ssARE), FUN = quantWrap, x=ssARE, 
+                      MARGIN = 2, probs = c(0.5), na.rm = TRUE)
+  msAQuant <- lapply ( X = seq_along(msARE), FUN = quantWrap, x=msARE, 
+                      MARGIN = 2, probs = c(0.5), na.rm = TRUE)
 
   # get names of parameters
   ssPars <- names ( ssRE )
@@ -2997,6 +3145,8 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
   names ( ssQuant) <- ssPars
   names ( msQuant) <- msPars
 
+  names ( ssAQuant) <- ssPars
+  names ( msAQuant) <- msPars
   # Create an array of quantile values 
   # (dims = species,percentiles,parameters,models)
   quantiles <- array ( NA, dim = c(nS,3,length(pars),2))
@@ -3005,6 +3155,9 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
                                   pars,
                                   c("ss","ms") )
 
+  MARE <- array ( NA, dim = c(nS,length(pars),2),
+                  dimnames = list ( 1:nS, pars,
+                                    c("ss","ms") ) )
 
 
   # populate table
@@ -3014,6 +3167,9 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
     {
       quantiles[s,,p,1] <- ssQuant[pars[p]][[1]][s,]
       quantiles[s,,p,2] <- msQuant[pars[p]][[1]][s,]
+      # browser()
+      MARE[s,p,1] <- ssAQuant[[pars[p]]][s]
+      MARE[s,p,2] <- msAQuant[[pars[p]]][s]
     }
   }
   # Set plotting window
@@ -3022,6 +3178,7 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
   for ( s in 1:nS )
   {
     med <- quantiles[s,"50%",,]
+    mare <- MARE[s,,]
     q975 <- quantiles[s,"97.5%",,]
     q025 <- quantiles[s,"2.5%",,]
 
@@ -3041,6 +3198,11 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
       plotY <- 2 * p + 2 * (p-1)
       segments( q025[pars[parIdx],"ss"],plotY-1,q975[pars[parIdx],"ss"],plotY-1,lty=1,col="grey60", lwd=3)  
       segments( q025[pars[parIdx],"ms"],plotY,q975[pars[parIdx],"ms"],plotY,lty=1,col="grey60", lwd=3)  
+      if(plotMARE) 
+      {
+        points(x = mare[parIdx,"ss"],y = plotY-1, pch = 2, cex = 1.2 )
+        points(x = mare[parIdx,"ms"],y = plotY, pch = 2, cex = 1.2 )
+      }
     }
 
     abline ( v = 0, lty = 3, lwd = 0.5 )
