@@ -50,6 +50,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(sigUPriorCode);  // 0 => IG on tauq2, 1 => normal
   DATA_INTEGER(lnqPriorCode);   // 0 => OFF, 1 => ON (turns on/off all q priors)
   DATA_INTEGER(lnUPriorCode);   // 0 => OFF, 1 => ON (turns on/off all U priors)
+  DATA_IVECTOR(initT);          // first year of reconstructed catch hist
 
 
   /*parameter section*/
@@ -77,8 +78,9 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(Sigma2IG);           // IG parameters for Sigma2 prior
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
   PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
+  PARAMETER_VECTOR(lnIota_s);           // initial biomass multiplier (initialising fished)
   // Random Effects
-  PARAMETER_VECTOR(eps_t);              // year effect
+  PARAMETER_VECTOR(eps_t);              // year effect  
   PARAMETER(lnkappa2);                  // year effect uncorrelated variance
   PARAMETER_ARRAY(zeta_st);             // species effect
   PARAMETER(lnSigmaDiag);               // Species effect cov matrix diag
@@ -93,6 +95,7 @@ Type objective_function<Type>::operator() ()
   vector<Type>      Umsy    = exp(lnUmsy);
   vector<Type>      tau2    = exp(lntau2);
   vector<Type>      q       = exp(lnq);
+  vector<Type>      iota_s  = Type(0.95) / (Type(1.) + exp(Type(-2.)*lnIota_s) ) + Type(0.05);
   // Prior hyperpars
   Type              qbar    = exp(lnqbar);
   Type              tauq2   = exp(lntauq2);
@@ -109,8 +112,9 @@ Type objective_function<Type>::operator() ()
   matrix<Type>      Sigma(nS,nS);
   vector<Type>      omegat(nT);
   // Scalars
-  Type              nll    = 0.0;   // objective function (neg log likelihood)
-  Type              pospen = 0.0;   // posfun penalty
+  Type              nll     = 0.0;   // objective function (neg log likelihood)
+  Type              nllRE   = 0.0;   // process error likelihood
+  Type              pospen  = 0.0;   // posfun penalty
   // Derived variables
   vector<Type>      msy = Bmsy * Umsy;
   array<Type>       Ut(nS,nT);
@@ -128,27 +132,36 @@ Type objective_function<Type>::operator() ()
   Sigma *= SigmaD;
 
   // Generate Population Dynamics
-  // initialise first year effect at 0
+  // initialise first year effect at 0, then loop to fill in
   omegat(0) = 0;
-  // pop at eqbm
-  Bt.col(0) = Type(2)*Bmsy;
-  // Initialise RE nll
-  Type nllRE = 0.0;
+  for( int t=1; t<nT; t++ )
+  {
+    omegat(t) = gammaYr * omegat(t-1) + (1 - gammaYr) * eps_t(t-1);  
+  }
+  
+  Bt.fill(-1);
+  // Now loop over species, reconstruct history from initT
+  for( int s = 0; s < nS; s++ )
+  {
+    // initialise population, if iota_s=0 this will be eqbm
+    Bt(s,initT(s)) = Type(2) * Bmsy(s) * iota_s(s);
+    for( int t = initT(s)+1; t < nT; t++ )
+    {
+      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
+      Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
+      Bt(s,t) = posfun(Bt(s,t), Type(1.e-5), pospen);
+      nllRE += Type(1000.0)*pospen;      
+    }
+  }
+  // Loop again to add species and year effects
   for (int t=1; t<nT; t++)
   {
-    omegat(t) = gammaYr * omegat(t-1) + eps_t(t-1);
-    Bt.col(t) = Bt.col(t-1) + exp(log(Bt.col(t-1))+lnUmsy) * (Type(2.0) - exp(log(Bt.col(t-1))-lnBmsy)) - Ct.col(t-1);
-    Bt.col(t) *= exp(omegat(t) + zeta_st.col(t-1));
-    for (int s=0; s<nS;s++)
-    {
-      Bt(s,t) = posfun(Bt(s,t), Type(1.e-1), pospen);
-      nllRE += Type(1000.0)*pospen;  
-    } 
     // Add year effect contribution to objective function
     nllRE += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
     // Add correlated species effects contribution to likelihood
     if (nS > 1) nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
   }
+  // add REs to joint nll
   nll += nllRE;
 
   // Concentrate species specific obs error likelihood?
@@ -162,9 +175,9 @@ Type objective_function<Type>::operator() ()
   zSum.fill(0.0);
   Type nllObs = 0.0;
   // Compute observation likelihood
-  for(int s=0; s<nS; s++)
+  for( int s=0; s < nS; s++ )
   {
-    for (int t=0; t<nT; t++)
+    for( int t = initT(s); t < nT; t++ )
     {
       // only add a contribution if the data exists (Ist < 0 is missing)
       if (It(s,t) > 0) 
@@ -183,10 +196,11 @@ Type objective_function<Type>::operator() ()
   nll += nllObs;
 
   // Add priors
-  // eqbm biomass
   Type nllBprior = 0.0;
   Type nllqPrior = 0.0;
   Type nllUprior = 0.0;
+
+  // eqbm biomass
   for (int s=0; s<nS; s++ )
   {
     nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / s2Bmsy(s);  
@@ -286,6 +300,8 @@ Type objective_function<Type>::operator() ()
     }
   }
   nll += nllVarPrior;
+  // And a jeffries prior for iota_s
+  nll += Type(0.5) * ((lnIota_s * lnIota_s).sum());
 
   // Derive some output variables
   Ut  = Ct / Bt;
@@ -323,6 +339,7 @@ Type objective_function<Type>::operator() ()
   REPORT(kappa2);
   REPORT(tau2hat);
   REPORT(qhat);
+  REPORT(iota_s);
   if (nS > 1)
   {
     REPORT(Sigma);

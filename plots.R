@@ -2581,6 +2581,7 @@ plotBenvelopes <- function( sim = 1,
 
   # Multispecies model
   msBt  <- blob$am$ms$Bt
+  msBt[ msBt < 0 ] <- NA
 
   years <- sYear:(sYear + nT - 1)
 
@@ -2674,7 +2675,17 @@ plotBCUenvelopes <- function( sim = 1,
 
   # Recover blob elements for plotting
   nS <- blob$opMod$nS
-  nT <- blob$opMod$nT
+
+  # Year indexing
+  if(!is.null(blob$opMod$sYear)) 
+  {
+    nT <- blob$opMod$fYear - min(blob$opMod$sYear) + 1
+    sYear <- min(blob$opMod$sYear)
+  } else nT <- blob$opMod$nT
+
+
+  years <- sYear:(sYear + nT - 1)
+
 
   # Species names
   specNames <- blob$ctrl$speciesNames
@@ -2689,6 +2700,7 @@ plotBCUenvelopes <- function( sim = 1,
 
   # Multispecies model
   msBt  <- blob$am$ms$Bt
+  msBt[msBt < 0] <- NA
 
   years <- sYear:(sYear + nT - 1)
 
@@ -2851,7 +2863,7 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
 
   # Recover blob elements for plotting
   nS <- blob$opMod$nS
-  nT <- blob$opMod$nT
+  
 
   # Species names
   specNames <- blob$ctrl$speciesNames
@@ -2868,8 +2880,15 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
 
   # Multispecies model
   msBt  <- blob$am$ms$Bt[rep,,]
+  msBt[msBt < 0] <- NA
   msq   <- blob$am$ms$q[rep,]  
 
+  # Year indexing
+  if(!is.null(blob$opMod$sYear)) 
+  {
+    nT <- blob$opMod$fYear - min(blob$opMod$sYear) + 1
+    sYear <- min(blob$opMod$sYear)
+  } else nT <- blob$opMod$nT
   years <- sYear:(sYear + nT - 1)
 
   # Estimated Ut

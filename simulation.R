@@ -61,8 +61,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if ( !is.null(seed) ) set.seed(seed)
 
   # Now recover multi-species parameters
-  nT <- obj$opMod$nT          # length of simulation
-  nS <- obj$opMod$nS          # number of species
+  sYear <- obj$opMod$sYear        # starting year of catch history
+  fYear <- obj$opMod$fYear        # Final year (now) of catch history 
+  nT    <- fYear - sYear + 1      # Total length of sim for each species
+  sT    <- sYear - min(sYear) + 1 # initial time step of observations
+  # nT    <- obj$opMod$nT           # length of simulation
+  nS    <- obj$opMod$nS           # number of species
 
   # Process error component vars
   kappa <- sqrt(obj$opMod$kappa2)    # longitudinal shared proc error sd
@@ -87,15 +91,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   tau <- sqrt(obj$opMod$tau2[1:nS])
 
   # Initialise list to hold the data
-  om <- list (  Bt        = matrix (NA,nrow=nS, ncol=nT ),
-                Ct        = matrix (NA,nrow=nS, ncol=nT ),
-                Ut        = matrix (NA,nrow=nS, ncol=nT ),
-                ItTrue    = matrix (NA,nrow=nS, ncol=nT ),
-                epst      = numeric (length=nT ),
-                zetat     = matrix (NA,nrow=nS, ncol=nT ),
-                deltat    = matrix (NA,nrow=nS, ncol=nT ),
-                It        = matrix (NA,nrow=nS, ncol=nT ),
-                dep       = matrix (NA,nrow=nS, ncol=nT ),
+  om <- list (  Bt        = matrix (NA,nrow=nS, ncol=max(nT) ),
+                Ct        = matrix (NA,nrow=nS, ncol=max(nT) ),
+                Ut        = matrix (NA,nrow=nS, ncol=max(nT) ),
+                ItTrue    = matrix (NA,nrow=nS, ncol=max(nT) ),
+                epst      = numeric (length=max(nT) ),
+                zetat     = matrix (NA,nrow=nS, ncol=max(nT) ),
+                deltat    = matrix (NA,nrow=nS, ncol=max(nT) ),
+                It        = matrix (NA,nrow=nS, ncol=max(nT) ),
+                dep       = matrix (NA,nrow=nS, ncol=max(nT) ),
                 kappa2    = kappa*kappa,
                 Sigma2    = Sigma*Sigma,
                 msCorr    = msCorr,
@@ -103,25 +107,28 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 tau2      = tau*tau,
                 q         = obj$opMod$q[1:nS],
                 nT        = nT,
+                sT        = sT,
                 nS        = nS,
                 Bmsy      = obj$opMod$Bmsy[1:nS],
                 Umsy      = obj$opMod$Umsy[1:nS],
-                specNames = obj$opMod$speciesNames[1:nS] )
+                specNames = obj$ctrl$speciesNames[1:nS] )
+
+  # browser()
 
   # Now create epst and zetat vectors using the proc error components
-  epst      <- .fillRanWalk(  z=rnorm(n = nT), s=kappa,
+  epst      <- .fillRanWalk(  z=rnorm(n = max(nT)), s=kappa,
                               gamma=gammaYr )
-  zetat     <- matrix  (rnorm ( n = nS*nT ), nrow = nS, ncol = nT)
+  zetat     <- matrix  (rnorm ( n = nS*max(nT) ), nrow = nS, ncol = max(nT))
   zetat     <- .genCorrDevs ( zetat,
                               Mcorr=msCorr,
                               Sigma=Sigma )
 
   # standard normal deviations for obs error (uncorrelated)
-  deltat    <- matrix(rnorm ( n = nS*nT ), nrow = nS, ncol = nT) 
+  deltat    <- matrix(rnorm ( n = nS*max(nT) ), nrow = nS, ncol = max(nT)) 
 
   # Create Ut time series
   ## REPLACE WITH A FUNCTION LATER FOR MULTIPLE correlated Ft TRAJECTORIES ##
-  UtProp <- numeric ( length = nT )
+  UtProp <- numeric ( length = max(nT) )
   Umult <- obj$opMod$Umult
   if (!is.null(obj$opMod$Umax)) Umult[2] <- obj$opMod$Umax
   # Then get time of peak fishing mortality
@@ -131,13 +138,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   Ugrad1 <- ( Umult [ 2 ] - Umult [ 1 ] ) / (tUpeak - 1 )
   Ugrad2 <- ( Umult [ 3 ] - Umult [ 2 ] ) / 
                   ( tUtrough - tUpeak )
+
   # Populate Ut with multipliers of Umsy
   UtProp [ 1:tUpeak ]                <- Umult [ 1 ] + 0:(tUpeak - 1) * Ugrad1
   UtProp [ (tUpeak + 1):tUtrough  ]  <- Umult [ 2 ] + 1:(tUtrough - tUpeak) * Ugrad2
-  UtProp [ (tUtrough+1):nT        ]  <- Umult [ 3 ]
+  UtProp [ (tUtrough+1):max(nT)        ]  <- Umult [ 3 ]
 
   # Overwrite Ft with actual F values
-  Ust <- matrix ( UtProp, nrow = nS, ncol = nT, byrow = TRUE )
+  Ust <- matrix ( UtProp, nrow = nS, ncol = max(nT), byrow = TRUE )
   for ( s in 1:nS ) Ust[s,] <- obj$opMod$Umsy[s] * Ust[s,]
 
   # Loop over species and fill list entries with biological
@@ -146,12 +154,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   {
     bio <- .logProdModel (  Bmsy = obj$opMod$Bmsy[s], 
                             Umsy = obj$opMod$Umsy[s],
-                            nT = nT, Ut = Ust[s,], 
+                            nT = max(nT), Ut = Ust[s,], 
                             epst = epst,
                             zetat = zetat[s,] )
     if( obj$opMod$identObs & (s > 1) ) deltat[s,] <- deltat[1,]
-    obs <- .obsModel (  Bt = bio $ Bt, q = obj$opMod$q[s], nT = nT,
-                        deltat = deltat[s,], tau = tau[s] )
+    obs <- .obsModel (  Bt = bio $ Bt, q = obj$opMod$q[s], sT = sT[s],
+                        nT = max(nT), deltat = deltat[s,], tau = tau[s] )
 
     om$Bt[s,]       <- bio$Bt
     om$Ct[s,]       <- bio$Ct
@@ -184,11 +192,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Needs to create nS SS dat and par lists, and 1 MS dat and par list.
   # First, SS:
   # Recover number of species
-  nS <- obj$opMod$nS
-  nT <- obj$opMod$nT
+  nS <- opMod$nS
+  nT <- om$nT
+  sT <- om$sT
   # Make dat and par lists
   ssDat <- vector ( mode = "list", length = nS )
   ssPar <- vector ( mode = "list", length = nS )
+  ssMap <- vector ( mode = "list", length = nS )
   ssLB  <- vector ( mode = "list", length = nS )
   ssUB  <- vector ( mode = "list", length = nS )
 
@@ -234,15 +244,16 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   for (s in 1:nS )
   {
     # Make dat list 
-    ssDat[[s]] <- list (  It              = matrix(obj$om$It[s,], nrow=1),
-                          Ct              = matrix(obj$om$Ct[s,], nrow=1),
+    ssDat[[s]] <- list (  It              = matrix(obj$om$It[s,sT[s]:max(nT)], nrow=1),
+                          Ct              = matrix(obj$om$Ct[s,sT[s]:max(nT)], nrow=1),
                           nS              = 1,
-                          nT              = nT,
+                          nT              = nT[s],
                           SigmaPriorCode  = obj$assess$SigmaPriorCode,
                           sigUPriorCode   = obj$assess$sigUPriorCode,
                           tauqPriorCode   = obj$assess$tauqPriorCode,
                           lnqPriorCode    = obj$assess$lnqPriorCode,
-                          lnUPriorCode    = obj$assess$lnUPriorCode )
+                          lnUPriorCode    = obj$assess$lnUPriorCode,
+                          initT           = 0 )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
@@ -266,9 +277,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2IG          = obj$assess$Sigma2IG,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
-                          eps_t             = rep( 0, nT-1 ),
+                          lnIota_s          = obj$assess$lnIota_s[s],
+                          eps_t             = rep( 0, nT[s]-1 ),
                           lnkappa2          = log( obj$assess$kappa2 ),
-                          zeta_st           = matrix( 0, nrow = 1, ncol = nT-1 ),
+                          zeta_st           = matrix( 0, nrow = 1, ncol = nT[s]-1 ),
                           lnSigmaDiag       = 0,
                           SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 ),
@@ -297,9 +309,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           sigU2Prior        = obj$assess$LB$sigU2Prior,
                           kappa2IG          = obj$assess$LB$kappa2IG,
                           Sigma2IG          = obj$assess$LB$Sigma2IG,
-                          eps_t             = rep( obj$assess$LB$eps_t, nT-1 ),
+                          lnIota_s          = obj$assess$LB$iota_s,
+                          eps_t             = rep( obj$assess$LB$eps_t, nT[s]-1 ),
                           lnkappa2          = obj$assess$LB$lnkappa2,
-                          zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = 1, ncol = nT-1 ),
+                          zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = 1, ncol = nT[s]-1 ),
                           lnSigmaDiag       = obj$assess$LB$lnSigmaDiag,
                           SigmaDiagMult     = obj$assess$LB$SigmaDiagMult,
                           logitSigmaOffDiag = numeric( length = 0 ),
@@ -326,54 +339,58 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           sigU2Prior        = obj$assess$UB$sigU2Prior,
                           kappa2IG          = obj$assess$UB$kappa2IG,
                           Sigma2IG          = obj$assess$UB$Sigma2IG,
-                          eps_t             = rep( obj$assess$UB$eps_t, nT-1 ),
+                          lnIota_s          = obj$assess$LB$iota_s,
+                          eps_t             = rep( obj$assess$UB$eps_t, nT[s]-1 ),
                           lnkappa2          = obj$assess$UB$lnkappa2,
-                          zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = 1, ncol = nT-1 ),
+                          zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = 1, ncol = nT[s]-1 ),
                           lnSigmaDiag       = obj$assess$UB$lnSigmaDiag,
                           SigmaDiagMult     = obj$assess$UB$SigmaDiagMult,
                           logitSigmaOffDiag = numeric( length = 0 ),
                           logit_gammaYr     = obj$assess$UB$logit_gammaYr  
                         )
+    # Make map list to turn off parameters
+    ssMap[[s]]  <-  list( mBmsy             = factor( rep( NA, 1 ) ),
+                          s2Bmsy            = factor( rep( NA, 1 ) ),
+                          lnUmsybar         = factor( NA ),
+                          lnsigUmsy2        = factor( NA ),
+                          mlnUmsy           = factor( NA ),
+                          s2lnUmsy          = factor( NA ),
+                          lnqbar            = factor( NA ),
+                          lntauq2           = factor( NA ),
+                          mlnq              = factor( NA ),
+                          s2lnq             = factor( NA ),
+                          zeta_st           = factor( rep( NA, nT[s]-1 ) ),
+                          lnSigmaDiag       = factor( NA ),
+                          SigmaDiagMult     = factor( NA ),
+                          tau2IGa           = factor( NA ),
+                          tau2IGb           = factor( NA ),
+                          sigU2Prior        = factor( rep( NA, 2 ) ),
+                          tauq2Prior        = factor( rep( NA, 2 ) ),
+                          kappa2IG          = factor( rep( NA, 2 ) ),
+                          Sigma2IG          = factor( rep( NA, 2 ) ),
+                          wishScale         = factor( NA ),
+                          nu                = factor( NA ) )
+    if( !obj$assess$ssAR1 ) 
+      ssMap[[s]]$logit_gammaYr <- factor( NA )
+    if( obj$assess$fixqss )
+      ssMap[[s]]$lnq <- factor( NA )
+    if( obj$assess$initBioCode[s] == 0 )
+      ssMap[[s]]$lnIota_s <- factor(NA)
   }
-  # Make map list to turn off parameters
-  ssMap     <-  list(   mBmsy             = factor( rep( NA, 1 ) ),
-                        s2Bmsy            = factor( rep( NA, 1 ) ),
-                        lnUmsybar         = factor( NA ),
-                        lnsigUmsy2        = factor( NA ),
-                        mlnUmsy           = factor( NA ),
-                        s2lnUmsy          = factor( NA ),
-                        lnqbar            = factor( NA ),
-                        lntauq2           = factor( NA ),
-                        mlnq              = factor( NA ),
-                        s2lnq             = factor( NA ),
-                        zeta_st           = factor( rep( NA, nT-1 ) ),
-                        lnSigmaDiag       = factor( NA ),
-                        SigmaDiagMult     = factor( NA ),
-                        tau2IGa           = factor( NA ),
-                        tau2IGb           = factor( NA ),
-                        sigU2Prior        = factor( rep( NA, 2 ) ),
-                        tauq2Prior        = factor( rep( NA, 2 ) ),
-                        kappa2IG          = factor( rep( NA, 2 ) ),
-                        Sigma2IG          = factor( rep( NA, 2 ) ),
-                        wishScale         = factor( NA ),
-                        nu                = factor( NA ) )
-  # Turn off autocorrelation estimation if set
-  if( !obj$assess$ssAR1 ) 
-    ssMap$logit_gammaYr <- factor( NA )
-  if( obj$assess$fixqss )
-    ssMap$lnq <- factor( NA )
+  
+  
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It              = obj$om$It,
                   Ct              = obj$om$Ct,
                   nS              = nS,
-                  nT              = nT,
+                  nT              = max(nT),
                   SigmaPriorCode  = obj$assess$SigmaPriorCode,
                   sigUPriorCode   = obj$assess$sigUPriorCode,
                   tauqPriorCode   = obj$assess$tauqPriorCode,
                   lnqPriorCode    = obj$assess$lnqPriorCode,
-                  lnUPriorCode    = obj$assess$lnUPriorCode
+                  lnUPriorCode    = obj$assess$lnUPriorCode,
+                  initT           = as.integer(sT - 1)[1:nS]         # correct for indexing starting at 0 in TMB
                 )
-
   msPar <- list ( lnBmsy            = log(sumCat[1:nS]/2),
                   lnUmsy            = log(obj$assess$Umsy[1:nS]),
                   lntau2            = log(obj$assess$tau2[1:nS]),
@@ -396,9 +413,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = obj$assess$Sigma2IG,
                   wishScale         = wishScale,
                   nu                = nS,
-                  eps_t             = rep(0, nT-1),
+                  lnIota_s          = obj$assess$lnIota_s[1:nS],
+                  eps_t             = rep(0, max(nT)-1),
                   lnkappa2          = log(obj$assess$kappa2),              
-                  zeta_st           = matrix(0, nrow = nS, ncol = nT-1),
+                  zeta_st           = matrix(0, nrow = nS, ncol = max(nT)-1),
                   lnSigmaDiag       = log(obj$assess$Sigma2),
                   SigmaDiagMult     = obj$assess$SigmaDiagMult[1:nS],
                   logitSigmaOffDiag = rep(0, length = nS*(nS-1)/2),
@@ -413,9 +431,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lntauq2           = obj$assess$LB$lntauq2,
                   lnUmsybar         = obj$assess$LB$lnUmsybar,
                   lnsigUmsy2        = obj$assess$LB$lnsigUmsy2,
-                  eps_t             = rep( obj$assess$LB$eps_t, nT-1 ),
+                  lnIota_s          = obj$assess$LB$iota_s,
+                  eps_t             = rep( obj$assess$LB$eps_t, max(nT)-1 ),
                   lnkappa2          = obj$assess$LB$lnkappa2,
-                  zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = nS, ncol = nT-1 ),
+                  zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = nS, ncol = max(nT)-1 ),
                   lnSigmaDiag       = obj$assess$LB$lnSigmaDiag,
                   logitSigmaOffDiag = rep( obj$assess$LB$logitSigmaOffDiag, nS*(nS-1)/2 ),
                   logit_gammaYr     = obj$assess$LB$logit_gammaYr  
@@ -429,13 +448,20 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lntauq2           = obj$assess$UB$lntauq2,
                   lnUmsybar         = obj$assess$UB$lnUmsybar,
                   lnsigUmsy2        = obj$assess$UB$lnsigUmsy2,
-                  eps_t             = rep( obj$assess$UB$eps_t, nT-1 ),
+                  lnIota_s          = obj$assess$UB$iota_s,
+                  eps_t             = rep( obj$assess$UB$eps_t, max(nT)-1 ),
                   lnkappa2          = obj$assess$UB$lnkappa2,
-                  zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = nS, ncol = nT-1 ),
+                  zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = nS, ncol = max(nT)-1 ),
                   lnSigmaDiag       = obj$assess$UB$lnSigmaDiag,
                   logitSigmaOffDiag = rep( obj$assess$UB$logitSigmaOffDiag, nS*(nS-1)/2 ),
                   logit_gammaYr     = obj$assess$UB$logit_gammaYr  
                 )
+
+  lnIotaMap <- 1:nS
+  lnIotaMap[ obj$assess$initBioCode[1:nS] == 0] <- NA
+
+  # zeta_stMap <- matrix(101:(100+nS*max(nT)), nrow = nS, ncol = nT )
+  # for( s in 1:nS ) if( sT[s] > 1) zeta_stMap[s,1:(sT[s]-1)] <- NA
 
   msMap <- list ( mBmsy             = factor( rep( NA, nS ) ),
                   s2Bmsy            = factor( rep( NA, nS ) ),
@@ -451,7 +477,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   kappa2IG          = factor( rep( NA, 2 ) ),
                   Sigma2IG          = factor( rep( NA, 2 ) ),
                   wishScale         = factor( rep( NA, nS*nS ) ),
-                  nu                = factor( NA )
+                  nu                = factor( NA ),
+                  lnIota_s          = factor( lnIotaMap )
+                  # zeta_st           = factor( zeta_stMap )
                 )
   # Disable autocorrelation in estimation if set.
   if( !obj$assess$msAR1 ) 
@@ -459,7 +487,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if( obj$assess$msCorr == "off" ) 
     msMap$logitSigmaOffDiag <- factor( rep( NA, nS * ( nS - 1 ) / 2 ) )
   if( obj$assess$msCorr == "ident" ) 
-    msMap$logitSigmaOffDiag <- factor( rep( 1, nS * ( nS - 1 ) / 2 ) )
+    msMap$logitSigmaOffDiag <- factor( rep( 10, nS * ( nS - 1 ) / 2 ) )
   if( obj$assess$fixtauq2 )
     msMap$lntauq2 <- factor( NA )
   if( obj$assess$fixsigU2 )
@@ -471,11 +499,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if( obj$assess$estqms == "fix" )
     msMap$lnq <- factor( rep( NA, nS ) )
   if( obj$assess$estqms == "ident" )
-    msMap$lnq <- factor( rep( 2, nS ) )
+    msMap$lnq <- factor( rep( 11, nS ) )
   if( !obj$assess$estYearEff )
   {
     msMap$lnkappa2 <- factor( NA )
-    msMap$eps_t <- factor( rep( NA, nT - 1 ) )
+    msMap$eps_t <- factor( rep( NA, max(nT) - 1 ) )
   }
 
   # browser()
@@ -504,13 +532,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 #           localMin=Logical indicating if local minimum was found
 #           hessPosDef=logical indicating if MCMC was possible
 # usage:    fitting TMB model to a replicate OM run's catch and CPUE
-.callProcTMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], map = ssMap,
+.callProcTMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], map = ssMap[[1]],
                             fitTrials = 3, maxfn = 10000, quiet = TRUE, 
                             TMBlib="msProd", UB = ssUB, LB = ssLB,
                             RE = c("eps_t","lnq","lnUmsy","zeta_st"),
                             profiles = FALSE )
 { 
-  # browser()
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
@@ -523,6 +550,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   LB = unlist(LB[!member(names(LB),names(map))])
   UB = unlist(UB[!member(names(UB),names(map))])
 
+  # browser()
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
                         objective = obj$fn,
@@ -628,7 +656,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     cat ( "Fitting species ", s, " of ", obj$opMod$nS, "\n", sep = "")
     ssFit[[s]] <- .callProcTMB (  dat = datPar$ssDat[[s]], 
                                   par = datPar$ssPar[[s]],
-                                  map = datPar$ssMap,
+                                  map = datPar$ssMap[[s]],
                                   fitTrials = obj$assess$fitTrials, 
                                   TMBlib = obj$assess$TMBlib,
                                   maxfn = obj$assess$maxfn,
@@ -677,7 +705,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   nReps   <- obj$ctrl$nReps
   rSeed   <- obj$ctrl$rSeed
   nS      <- obj$opMod$nS
-  nT      <- obj$opMod$nT
+  sYear   <- obj$opMod$sYear
+  fYear   <- obj$opMod$fYear
+  nT      <- max(fYear - sYear + 1)
+  sT      <- sYear - min(sYear) + 1
 
   # Create dimension names for arrays
   rNames <- paste("Rep",1:nReps, sep ="")
@@ -785,7 +816,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Loop over single species
     # blob$am$ss$rep <- vector(mode = "list", length = nS)
     blob$am$ss$sdrep[[i]]       <- vector( mode = "list", length = nS )
-    blob$am$ss$fitrep[[i]]       <- vector( mode = "list", length = nS )
+    blob$am$ss$fitrep[[i]]      <- vector( mode = "list", length = nS )
     blob$am$ss$CIs[[i]]         <- vector( mode = "list", length = nS )
     if( obj$assess$profiles ) 
       blob$am$ss$profiles[[i]] <- vector( mode = "list", length = nS )
@@ -800,22 +831,22 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         estList   <- as.list(sdrep,"Estimate")
 
         # Now save estimates
-        blob$am$ss$Bmsy[i,s]        <- fitrep$Bmsy
-        blob$am$ss$Umsy[i,s]        <- fitrep$Umsy
-        blob$am$ss$msy[i,s]         <- fitrep$msy
-        blob$am$ss$q[i,s]           <- fitrep$q
-        blob$am$ss$kappa2[i,s]      <- fitrep$kappa2
-        blob$am$ss$tau2[i,s]        <- fitrep$tau2
-        blob$am$ss$dep[i,s,]        <- fitrep$Bt/fitrep$Bmsy/2
-        blob$am$ss$epst[i,s,2:nT]   <- estList$eps_t
-        blob$am$ss$gamma[i,s]       <- fitrep$gammaYr
-        blob$am$ss$Bt[i,s,]         <- fitrep$Bt
+        blob$am$ss$Bmsy[i,s]                  <- fitrep$Bmsy
+        blob$am$ss$Umsy[i,s]                  <- fitrep$Umsy
+        blob$am$ss$msy[i,s]                   <- fitrep$msy
+        blob$am$ss$q[i,s]                     <- fitrep$q
+        blob$am$ss$kappa2[i,s]                <- fitrep$kappa2
+        blob$am$ss$tau2[i,s]                  <- fitrep$tau2
+        blob$am$ss$dep[i,s,sT[s]:nT]          <- fitrep$Bt/fitrep$Bmsy/2
+        blob$am$ss$epst[i,s,(sT[s]+1):nT]     <- estList$eps_t
+        blob$am$ss$gamma[i,s]                 <- fitrep$gammaYr
+        blob$am$ss$Bt[i,s,sT[s]:nT]           <- fitrep$Bt
         # Estimator performance flags
-        blob$am$ss$maxGrad[i,s]     <- max(sdrep$gradient.fixed)
-        blob$am$ss$hesspd[i,s]      <- sdrep$pdHess
-        blob$am$ss$sdrep[[i]][[s]]  <- sdrep
-        blob$am$ss$CIs[[i]][[s]]    <- CIs
-        blob$am$ss$fitrep[[i]][[s]] <- fitrep
+        blob$am$ss$maxGrad[i,s]               <- max(sdrep$gradient.fixed)
+        blob$am$ss$hesspd[i,s]                <- sdrep$pdHess
+        blob$am$ss$sdrep[[i]][[s]]            <- sdrep
+        blob$am$ss$CIs[[i]][[s]]              <- CIs
+        blob$am$ss$fitrep[[i]][[s]]           <- fitrep
 
         if( obj$assess$profiles )
           blob$am$ss$profiles[[i]][[s]] <- simEst$ssFit[[s]]$profiles
@@ -832,26 +863,26 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       CIs       <- simEst$msFit$CIs
       estList   <- as.list(sdrep,"Estimate")
       # Now save estimates
-      blob$am$ms$Bmsy[i,]           <- fitrep$Bmsy
-      blob$am$ms$Umsy[i,]           <- fitrep$Umsy
-      blob$am$ms$msy[i,]            <- fitrep$msy
-      blob$am$ms$q[i,]              <- fitrep$q
-      blob$am$ms$Sigma2[i,]         <- fitrep$SigmaDiag
-      blob$am$ms$kappa2[i,]         <- fitrep$kappa2
-      blob$am$ms$tau2[i,]           <- fitrep$tau2
-      blob$am$ms$epst[i,2:nT]       <- estList$eps_t
-      blob$am$ms$zetat[i,,2:nT]     <- estList$zeta_st
-      blob$am$ms$gamma[i]           <- fitrep$gammaYr
-      blob$am$ms$Bt[i,,]            <- fitrep$Bt
-      blob$am$ms$qbar[i,]           <- fitrep$qbar
-      blob$am$ms$tauq2[i,]          <- fitrep$tauq2
-      blob$am$ms$Umsybar[i,]        <- fitrep$Umsybar
-      blob$am$ms$sigU2[i,]          <- fitrep$sigUmsy2
-      blob$am$ms$SigmaCor[i,,]      <- fitrep$SigmaCorr
+      blob$am$ms$Bmsy[i,]                 <- fitrep$Bmsy
+      blob$am$ms$Umsy[i,]                 <- fitrep$Umsy
+      blob$am$ms$msy[i,]                  <- fitrep$msy
+      blob$am$ms$q[i,]                    <- fitrep$q
+      blob$am$ms$Sigma2[i,]               <- fitrep$SigmaDiag
+      blob$am$ms$kappa2[i,]               <- fitrep$kappa2
+      blob$am$ms$Bt[i,,]                  <- fitrep$Bt
+      blob$am$ms$epst[i,2:nT]             <- estList$eps_t
+      blob$am$ms$zetat[i,,2:nT]           <- estList$zeta_st
+      blob$am$ms$tau2[i,]                 <- fitrep$tau2
+      blob$am$ms$gamma[i]                 <- fitrep$gammaYr
+      blob$am$ms$qbar[i,]                 <- fitrep$qbar
+      blob$am$ms$tauq2[i,]                <- fitrep$tauq2
+      blob$am$ms$Umsybar[i,]              <- fitrep$Umsybar
+      blob$am$ms$sigU2[i,]                <- fitrep$sigUmsy2
+      blob$am$ms$SigmaCor[i,,]            <- fitrep$SigmaCorr
       # Some require looping over species
       for (s in 1:nS)
-      {
-        blob$am$ms$dep[i,s,]        <- blob$am$ms$Bt[i,s,]/fitrep$Bmsy[s]/2
+      { 
+        blob$am$ms$dep[i,s,sT[s]:nT]        <- blob$am$ms$Bt[i,s,sT[s]:nT]/fitrep$Bmsy[s]/2
       }
       # Estimator Performance Flags
       blob$am$ms$hesspd[i]          <- sdrep$pdHess
@@ -942,16 +973,19 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 # given true series of biomass and observation model parameters.
 # inputs:			Bt=true series of biomass; q=survey catchability parameter
 #							nT=length of time series; deltat=nT-vector of standard errors
+#             sT=time step of initial observations
 # 						tau=obs error standard deviation (uncorrelated)
 # outputs:		It=nT-vector of survey observations
 # usage:			creates survey observations which are supplied to the estimator
-.obsModel <- function ( Bt, q = 0.05, nT = length (Bt), 
+.obsModel <- function ( Bt, q = 0.05, nT = length (Bt), sT = 1, 
 												deltat = rnorm(nT), tau = 0.4 )
 {
   # browser()
+  It <- rep( -1, length(Bt) )
   deltat <- deltat*tau
   tau2 <- tau*tau
-	It <- q * Bt * exp ( deltat - tau2/2.0 )
+	It[sT:nT] <- (q * Bt * exp ( deltat - tau2/2.0 ) )[sT:nT]
+  deltat[-(sT:nT)] <- NA
 	outList <- list ( It = It, deltat = deltat )
 }
 
