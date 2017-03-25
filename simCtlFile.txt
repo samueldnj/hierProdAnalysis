@@ -13,13 +13,13 @@ opMod$corrOffDiag 0.5
 opMod$lastNegCorr FALSE
 opMod$nS 5
 opMod$nT 30
-opMod$sYear c(1985,1975,1975,1975,1980)
+opMod$sYear c(1995,1975,1975,1975,1985)
 opMod$fYear 2017
 opMod$initDep rep(1,5)
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
 opMod$tUpeak 5
-opMod$tUtrough 15
+opMod$tUtrough 25
 opMod$q c(0.518,0.628,0.488,0.648,0.718)
 opMod$gammaYr 0.0
 opMod$tau2 c(0.04,0.04,0.04,0.04,0.04)
@@ -46,7 +46,7 @@ assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1,1,1,1)
 assess$SigmaPriorCode 0
 assess$mBmsy c(40,6.25,26.8,26.12,495.4)
-assess$s2Bmsy c(1000,39.0625,718.24,682.25,15000)
+assess$s2Bmsy c(1600,39.0625,718.24,682.25,245000)
 assess$lnUPriorCode 1
 assess$lnUmsybar -1.23
 assess$lnsigUmsy2 2.5
@@ -83,6 +83,7 @@ assess$LB$lnBmsy c(-Inf,-Inf,-Inf,-Inf,-Inf)
 assess$LB$lnUmsy c(-Inf,-Inf,-Inf,-Inf,-Inf)
 assess$LB$lntau2 c(-5,-5,-5,-5,-5)
 assess$LB$lnq c(-5,-5,-5,-5,-5)
+assess$LB$lnBmsy c(-Inf,-Inf,-Inf,-Inf,-Inf)
 assess$LB$lnqbar -5
 assess$LB$lntauq2 -10
 assess$LB$lnUmsybar -3
@@ -98,6 +99,7 @@ assess$UB$lnBmsy c(Inf,Inf,Inf,Inf,Inf)
 assess$UB$lnUmsy c(Inf,Inf,Inf,Inf,Inf)
 assess$UB$lntau2 c(5,5,5,5,5)
 assess$UB$lnq c(5,5,5,5,5)
+assess$LB$lnBmsy c(10,10,10,10,10)
 assess$UB$lnqbar 5
 assess$UB$lntauq2 5
 assess$UB$lnUmsybar 5

@@ -51,6 +51,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(lnqPriorCode);   // 0 => OFF, 1 => ON (turns on/off all q priors)
   DATA_INTEGER(lnUPriorCode);   // 0 => OFF, 1 => ON (turns on/off all U priors)
   DATA_IVECTOR(initT);          // first year of reconstructed catch hist
+  DATA_IVECTOR(initBioCode);    // initial biomass at 0 => unfished, 1=> fished
 
 
   /*parameter section*/
@@ -59,6 +60,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(lnUmsy);             // Optimal exploitation rate            
   PARAMETER_VECTOR(lntau2);             // species obs error var
   PARAMETER_VECTOR(lnq);                // Species specific catchability
+  PARAMETER_VECTOR(lnBinit);            // Non-equilibrium initial biomass
   // Priors
   PARAMETER(lnqbar);                    // prior mean catchability
   PARAMETER(lntauq2);                   // prior catchability variance 
@@ -78,7 +80,6 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(Sigma2IG);           // IG parameters for Sigma2 prior
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
   PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
-  PARAMETER_VECTOR(lnIota_s);           // initial biomass multiplier (initialising fished)
   // Random Effects
   PARAMETER_VECTOR(eps_t);              // year effect  
   PARAMETER(lnkappa2);                  // year effect uncorrelated variance
@@ -95,7 +96,7 @@ Type objective_function<Type>::operator() ()
   vector<Type>      Umsy    = exp(lnUmsy);
   vector<Type>      tau2    = exp(lntau2);
   vector<Type>      q       = exp(lnq);
-  vector<Type>      iota_s  = Type(0.95) / (Type(1.) + exp(Type(-2.)*lnIota_s) ) + Type(0.05);
+  vector<Type>      Binit   = exp(lnBinit);
   // Prior hyperpars
   Type              qbar    = exp(lnqbar);
   Type              tauq2   = exp(lntauq2);
@@ -144,7 +145,8 @@ Type objective_function<Type>::operator() ()
   for( int s = 0; s < nS; s++ )
   {
     // initialise population, if iota_s=0 this will be eqbm
-    Bt(s,initT(s)) = Type(2) * Bmsy(s) * iota_s(s);
+    if( initBioCode(s) == 0 ) Bt(s,initT(s)) = Type(2) * Bmsy(s);
+    if( initBioCode(s) == 1 ) Bt(s,initT(s)) = Binit(s);
     for( int t = initT(s)+1; t < nT; t++ )
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
@@ -203,7 +205,8 @@ Type objective_function<Type>::operator() ()
   // eqbm biomass
   for (int s=0; s<nS; s++ )
   {
-    nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / s2Bmsy(s);  
+    nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / s2Bmsy(s); 
+    // if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / s2Bmsy(s); 
   }
 
   // multispecies shared priors
@@ -300,8 +303,6 @@ Type objective_function<Type>::operator() ()
     }
   }
   nll += nllVarPrior;
-  // And a jeffries prior for iota_s
-  nll += Type(0.5) * ((lnIota_s * lnIota_s).sum());
 
   // Derive some output variables
   Ut  = Ct / Bt;
@@ -314,6 +315,7 @@ Type objective_function<Type>::operator() ()
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
   ADREPORT(msy);
+  ADREPORT(Binit);
   ADREPORT(tau2);
   ADREPORT(kappa2);
   if (nS > 1 )
@@ -329,6 +331,7 @@ Type objective_function<Type>::operator() ()
   // Everything else //
   REPORT(Bt);
   REPORT(Ut);
+  REPORT(Binit);
   REPORT(DnT);
   REPORT(q);
   REPORT(msy);
@@ -339,7 +342,6 @@ Type objective_function<Type>::operator() ()
   REPORT(kappa2);
   REPORT(tau2hat);
   REPORT(qhat);
-  REPORT(iota_s);
   if (nS > 1)
   {
     REPORT(Sigma);

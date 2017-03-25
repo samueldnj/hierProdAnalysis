@@ -203,7 +203,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   ssUB  <- vector ( mode = "list", length = nS )
 
   # Sum catch to get starting biomass
-  sumCat <- apply ( X = obj$om$Ct, MARGIN=1, FUN = sum )
+  sumCat <- numeric(length = nS)
+  for(s in 1:nS)
+  {
+    sumCat[s] <- sum( obj$om$Ct[sT[s]:max(nT)] )
+  }
   sumCat <- as.numeric(sumCat)
   
   # change IG parameters for tau, kappa and Sigma if autoIG is on
@@ -253,12 +257,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           tauqPriorCode   = obj$assess$tauqPriorCode,
                           lnqPriorCode    = obj$assess$lnqPriorCode,
                           lnUPriorCode    = obj$assess$lnUPriorCode,
-                          initT           = 0 )
+                          initT           = 0,
+                          initBioCode     = obj$assess$initBioCode[s] )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
                           lntau2            = log(obj$assess$tau2[s]),
                           lnq               = obj$assess$lnq[s],
+                          lnBinit           = log(sumCat[s]/2),
                           lnqbar            = obj$assess$lnqbar,
                           lntauq2           = obj$assess$lntauq2,
                           mlnq              = obj$assess$mlnq,
@@ -293,6 +299,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lnUmsy            = obj$assess$LB$lnUmsy[s],
                           lntau2            = obj$assess$LB$lntau2[s],
                           lnq               = obj$assess$LB$lnq[s],
+                          lnBinit           = obj$assess$LB$lnBmsy[s],
                           lnqbar            = obj$assess$LB$lnqbar,
                           lntauq2           = obj$assess$LB$lntauq2,
                           mlnq              = obj$assess$LB$mlnq,
@@ -323,6 +330,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lnUmsy            = obj$assess$UB$lnUmsy[s],
                           lntau2            = obj$assess$UB$lntau2[s],
                           lnq               = obj$assess$UB$lnq[s],
+                          lnBinit           = obj$assess$UB$lnBmsy[s],
                           lnqbar            = obj$assess$UB$lnqbar,
                           lntauq2           = obj$assess$UB$lntauq2,
                           mlnq              = obj$assess$UB$mlnq,
@@ -375,7 +383,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if( obj$assess$fixqss )
       ssMap[[s]]$lnq <- factor( NA )
     if( obj$assess$initBioCode[s] == 0 )
-      ssMap[[s]]$lnIota_s <- factor(NA)
+      ssMap[[s]]$lnBinit <- factor(NA)
   }
   
   
@@ -389,12 +397,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   tauqPriorCode   = obj$assess$tauqPriorCode,
                   lnqPriorCode    = obj$assess$lnqPriorCode,
                   lnUPriorCode    = obj$assess$lnUPriorCode,
-                  initT           = as.integer(sT - 1)[1:nS]         # correct for indexing starting at 0 in TMB
+                  initT           = as.integer(sT - 1)[1:nS],         # correct for indexing starting at 0 in TMB
+                  initBioCode     = as.integer(obj$assess$initBioCode[1:nS])
                 )
   msPar <- list ( lnBmsy            = log(sumCat[1:nS]/2),
                   lnUmsy            = log(obj$assess$Umsy[1:nS]),
                   lntau2            = log(obj$assess$tau2[1:nS]),
                   lnq               = obj$assess$lnq[1:nS],
+                  lnBinit           = log(sumCat[1:nS]/2),
                   lnqbar            = obj$assess$lnqbar,
                   lntauq2           = obj$assess$lntauq2,
                   mlnq              = obj$assess$mlnq,
@@ -413,7 +423,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = obj$assess$Sigma2IG,
                   wishScale         = wishScale,
                   nu                = nS,
-                  lnIota_s          = obj$assess$lnIota_s[1:nS],
                   eps_t             = rep(0, max(nT)-1),
                   lnkappa2          = log(obj$assess$kappa2),              
                   zeta_st           = matrix(0, nrow = nS, ncol = max(nT)-1),
@@ -427,6 +436,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnUmsy            = obj$assess$LB$lnUmsy[1:nS],
                   lntau2            = obj$assess$LB$lntau2[1:nS],
                   lnq               = obj$assess$LB$lnq[1:nS],
+                  lnBinit           = obj$assess$LB$lnBinit[1:nS],
                   lnqbar            = obj$assess$LB$lnqbar,
                   lntauq2           = obj$assess$LB$lntauq2,
                   lnUmsybar         = obj$assess$LB$lnUmsybar,
@@ -444,6 +454,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnUmsy            = obj$assess$UB$lnUmsy[1:nS],
                   lntau2            = obj$assess$UB$lntau2[1:nS],
                   lnq               = obj$assess$UB$lnq[1:nS],
+                  lnBinit           = obj$assess$UB$lnBinit[1:nS],
                   lnqbar            = obj$assess$UB$lnqbar,
                   lntauq2           = obj$assess$UB$lntauq2,
                   lnUmsybar         = obj$assess$UB$lnUmsybar,
@@ -457,8 +468,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   logit_gammaYr     = obj$assess$UB$logit_gammaYr  
                 )
 
-  lnIotaMap <- 1:nS
-  lnIotaMap[ obj$assess$initBioCode[1:nS] == 0] <- NA
+  lnBinitMap <- 1:nS
+  lnBinitMap[ obj$assess$initBioCode[1:nS] == 0] <- NA
 
   # zeta_stMap <- matrix(101:(100+nS*max(nT)), nrow = nS, ncol = nT )
   # for( s in 1:nS ) if( sT[s] > 1) zeta_stMap[s,1:(sT[s]-1)] <- NA
@@ -478,7 +489,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = factor( rep( NA, 2 ) ),
                   wishScale         = factor( rep( NA, nS*nS ) ),
                   nu                = factor( NA ),
-                  lnIota_s          = factor( lnIotaMap )
+                  lnBinit           = factor( lnBinitMap )
                   # zeta_st           = factor( zeta_stMap )
                 )
   # Disable autocorrelation in estimation if set.
@@ -551,13 +562,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   UB = unlist(UB[!member(names(UB),names(map))])
 
   # browser()
+
+  # browser()
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
                         objective = obj$fn,
                         gradient = obj$gr,
                         control = ctrl,
-                        lower = LB,
-                        upper= UB ) )
+                        lower = -Inf,
+                        upper= Inf ) )
 
   # Run SD report on the fit if it works, and get the rep file
   if( class ( fit ) == "try-error" ) 
