@@ -42,17 +42,19 @@ for( i in 1:nExp)
 
   # Now remove the simulation folders and the contents of the batch sub-dir
   # from the project folder
-  sims <- grep(pattern = "sim", x = prjContents)
+  sims <- grep(pattern = "sim", x = list.files("./project/"), value = T)
   simsPath <- file.path( getwd(),"project",sims)
-  batchFldrContents <- list.files( getwd(), "project", "Batch" )
+  batchFldrContents <- list.files( file.path(getwd(), "project", "Batch") )
   batchContentsPath <- file.path( getwd(), "project", "Batch", batchFldrContents )
 
   cat("Removing simulations from ./project/ \n", sep="")
-  system(command=paste("rm -d -R ",simsPath,sep=""))
+  for(k in 1:length(simsPath))
+    system(command=paste("rm -d -R ",simsPath[k],sep=""))
 
   cat("Removing batch files from ./project/batch folder\n", sep="")
-  system(command=paste("rm -d -R ",batchContentsPath,sep=""))
+  for(k in 1:length(batchContentsPath))
+    system(command=paste("rm -d -R ",batchContentsPath[k],sep=""))
 
-  cat("Experiment and tidy-up complete, ready to start next experiment\n")
+  cat("Experiment and tidy-up complete, ready to start next experiment.\n")
 }
 
