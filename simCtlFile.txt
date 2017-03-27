@@ -1,8 +1,8 @@
 # Base sim control file
 parameter value
 ctrl$scenarioName "diffStarts"
-ctrl$mpLabel "noneqInit"
-ctrl$nReps 10
+ctrl$mpLabel "noneqInit-noYE"
+ctrl$nReps 200
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
 opMod$Bmsy c(40,6.25,26.8,26.12,495.4)
@@ -13,7 +13,7 @@ opMod$corrOffDiag 0.5
 opMod$lastNegCorr FALSE
 opMod$nS 5
 opMod$nT 30
-opMod$sYear c(1995,1975,1975,1975,1985)
+opMod$sYear c(1980,1975,1975,1975,1985)
 opMod$fYear 2017
 opMod$initDep rep(1,5)
 opMod$Umult c(0.2,2,0.8)
@@ -32,7 +32,7 @@ assess$msAR1 FALSE
 assess$msCorr "off"
 assess$ssAR1 FALSE
 assess$quiet TRUE
-assess$estYearEff TRUE
+assess$estYearEff FALSE
 assess$fitTrials 3
 assess$maxfn 1000
 assess$lnIota_s c(0,10,10,10,0)

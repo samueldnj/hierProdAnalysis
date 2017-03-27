@@ -206,7 +206,7 @@ Type objective_function<Type>::operator() ()
   for (int s=0; s<nS; s++ )
   {
     nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / s2Bmsy(s); 
-    // if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / s2Bmsy(s); 
+    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / s2Bmsy(s); 
   }
 
   // multispecies shared priors
