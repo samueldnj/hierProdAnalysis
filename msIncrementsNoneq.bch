@@ -23,6 +23,7 @@ scenario$scenario2$opMod$sYear c(1995,rep(1988,9))
 #
 # Management Procedures
 #
+#
 # MP 1: noJointPriors
 # 
 mp$mp1$ctrl$mpLabel 'noJointPriors'
@@ -38,7 +39,8 @@ mp$mp1$assess$lntauq2 -2.4
 mp$mp1$assess$fixqbar TRUE
 mp$mp1$assess$estqms 'unique'
 mp$mp1$assess$fixqss FALSE
-mp$mp1$assess$initBioCode c(1,rep(0,9))
+mp$mp1$assess$msRE c('zeta_st')
+mp$mp1$assess$ssRE c('eps_t')
 #
 # MP 1: YearEffOnly
 # 
@@ -55,7 +57,8 @@ mp$mp2$assess$lntauq2 -2.4
 mp$mp2$assess$fixqbar TRUE
 mp$mp2$assess$estqms 'unique'
 mp$mp2$assess$fixqss FALSE
-mp$mp2$assess$initBioCode c(1,rep(0,9))
+mp$mp2$assess$msRE c('zeta_st','eps_t')
+mp$mp2$assess$ssRE c('eps_t')
 #
 # MP 3: qPriorOnly
 # 
@@ -72,7 +75,8 @@ mp$mp3$assess$lntauq2 -2.4
 mp$mp3$assess$fixqbar FALSE
 mp$mp3$assess$estqms 'unique'
 mp$mp3$assess$fixqss FALSE
-mp$mp3$assess$initBioCode c(1,rep(0,9))
+mp$mp3$assess$msRE c('zeta_st','lnq')
+mp$mp3$assess$ssRE c('eps_t')
 #
 # MP 4: UmsyPriorOnly
 # 
@@ -89,7 +93,8 @@ mp$mp4$assess$lntauq2 -2.4
 mp$mp4$assess$fixqbar TRUE
 mp$mp4$assess$estqms 'unique'
 mp$mp4$assess$fixqss FALSE
-mp$mp4$assess$initBioCode c(1,rep(0,9))
+mp$mp4$assess$msRE c('zeta_st','lnUmsy')
+mp$mp4$assess$ssRE c('eps_t')
 #
 # MP 5: qUpriors
 # 
@@ -106,7 +111,8 @@ mp$mp5$assess$lntauq2 -2.4
 mp$mp5$assess$fixqbar FALSE
 mp$mp5$assess$estqms 'unique'
 mp$mp5$assess$fixqss FALSE
-mp$mp5$assess$initBioCode c(1,rep(0,9))
+mp$mp5$assess$msRE c('zeta_st','lnUmsy','lnq')
+mp$mp5$assess$ssRE c('eps_t')
 #
 # MP 6: qYEpriors
 # 
@@ -123,7 +129,8 @@ mp$mp6$assess$lntauq2 -2.4
 mp$mp6$assess$fixqbar FALSE
 mp$mp6$assess$estqms 'unique'
 mp$mp6$assess$fixqss FALSE
-mp$mp6$assess$initBioCode c(1,rep(0,9))
+mp$mp6$assess$msRE c('zeta_st','eps_t','lnq')
+mp$mp6$assess$ssRE c('eps_t')
 #
 # MP 7: UmsyYEpriors
 # 
@@ -140,7 +147,8 @@ mp$mp7$assess$lntauq2 -2.4
 mp$mp7$assess$fixqbar TRUE
 mp$mp7$assess$estqms 'unique'
 mp$mp7$assess$fixqss FALSE
-mp$mp7$assess$initBioCode c(1,rep(0,9))
+mp$mp7$assess$msRE c('zeta_st','eps_t','lnUmsy')
+mp$mp7$assess$ssRE c('eps_t')
 #
 # MP 8: allJointPriors
 # 
@@ -157,5 +165,6 @@ mp$mp8$assess$lntauq2 -2.4
 mp$mp8$assess$fixqbar FALSE
 mp$mp8$assess$estqms 'unique'
 mp$mp8$assess$fixqss FALSE
-mp$mp8$assess$initBioCode c(1,rep(0,9))
+mp$mp8$assess$msRE c('zeta_st','eps_t','lnUmsy','lnq')
+mp$mp8$assess$ssRE c('eps_t')
 #
