@@ -44,8 +44,8 @@ for( i in 1:nExp)
   # from the project folder
   sims <- grep(pattern = "sim", x = prjContents)
   simsPath <- file.path( getwd(),"project",sims)
-  batchFldrContents <- list.files( getwd(), "project", "batch" )
-  batchContentsPath <- file.path( getwd(), "project", "batch", batchFldrContents )
+  batchFldrContents <- list.files( getwd(), "project", "Batch" )
+  batchContentsPath <- file.path( getwd(), "project", "Batch", batchFldrContents )
 
   cat("Removing simulations from ./project/ \n", sep="")
   system(command=paste("rm -d -R ",simsPath,sep=""))
