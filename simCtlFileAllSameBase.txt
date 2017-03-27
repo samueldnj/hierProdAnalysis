@@ -18,7 +18,7 @@ opMod$fYear 2017
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
 opMod$tUpeak 5
-opMod$tUtrough 25
+opMod$tUtrough 15
 opMod$q rep(.6,10)
 opMod$gammaYr 0.0
 opMod$tau2 rep(.04,10)
