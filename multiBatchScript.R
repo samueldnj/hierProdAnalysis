@@ -32,7 +32,7 @@ for( i in 1:nExp)
   .runBatchJob( par = T, prefix = expPrefix[i] )
 
   # Now copy the project folder to dropbox
-  copyDest <- file.path("~/Dropbox/Work/cwMS_experiments",expPrefix[i])
+  copyDest <- file.path("~/Dropbox/Work/cwMS_experiments/TMB",expPrefix[i])
   dir.create( copyDest )
 
   # Copy project folder contents recursively to copyDest
