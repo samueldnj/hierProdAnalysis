@@ -32,13 +32,12 @@ for( i in 1:nExp)
   .runBatchJob( par = T, prefix = expPrefix[i] )
 
   # Now copy the project folder to dropbox
-  prjContents <- list.files("./project/")
   copyDest <- file.path("~/Dropbox/Work/cwMSexperiments",expPrefix[i])
   dir.create( copyDest )
 
   # Copy project folder contents recursively to copyDest
   cat( "Copying project folder contents to ", copyDest, "\n", sep = "" )
-  file.copy(  from = file.path( getwd(),"/project", prjContents), to = copyDest, 
+  file.copy(  from = file.path( getwd(),"/project"), to = copyDest, 
               recursive = TRUE )
 
   # Now remove the simulation folders and the contents of the batch sub-dir
