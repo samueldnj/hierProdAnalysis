@@ -159,7 +159,7 @@ Type objective_function<Type>::operator() ()
   for (int t=1; t<nT; t++)
   {
     // Add year effect contribution to objective function
-    nllRE += Type(0.5)*(lnkappa2 + pow(eps_t(t-1),2)/kappa2) + eps_t(t-1);
+    nllRE += Type(0.5)*(lnkappa2 + pow( eps_t( t - 1 ), 2 ) / kappa2 ) + eps_t(t-1);
     // Add correlated species effects contribution to likelihood
     if (nS > 1) nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
   }
@@ -176,6 +176,8 @@ Type objective_function<Type>::operator() ()
   validObs.fill(0.0);
   zSum.fill(0.0);
   Type nllObs = 0.0;
+  qhat.fill(0.0);
+  tau2hat.fill(0.0);
   // Compute observation likelihood
   for( int s=0; s < nS; s++ )
   {
@@ -263,10 +265,10 @@ Type objective_function<Type>::operator() ()
   Type nllVarPrior = 0.0;
   for( int s = 0; s < nS; s++ )
   {
-    nllVarPrior += (tau2IGa[s]+Type(1))*lntau2(s)+tau2IGb[s]/tau2(s);  
+    nllVarPrior += (tau2IGa(s)+Type(1))*lntau2(s)+tau2IGb(s)/tau2(s);  
   }
   // year effect deviations var
-  nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2+kappa2IG(1)/kappa2;
+  nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
   // Now multispecies priors
   if (nS > 1)
   {

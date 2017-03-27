@@ -447,14 +447,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             RE = c("eps_t","lnq","lnUmsy","zeta_st"),
                             profiles = FALSE )
 { 
-  # browser()
+  
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
-
-  # browser()
 
   # browser()
   # optimise the model
@@ -520,11 +518,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                                             parm.range = c(-15,5) )
         lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy2", trace = FALSE,
                                             parm.range = c(-15,5) ) 
+        lnkappa2Profile     <- tmbprofile( obj, "lnkappa2", trace = FALSE,
+                                            parm.range = c(-10,5) )
         # Save to output list
         profileList <- list ( lnqbar      = lnqbarProfile,
                               lntauq2     = lntauq2Profile,
                               lnUmsybar   = lnUmsybarProfile,
-                              lnsigUmsy2  = lnsigUmsy2Profile )
+                              lnsigUmsy2  = lnsigUmsy2Profile,
+                              lnkappa2    = lnkappa2Profile )
       }
     }
   } else profileList <- NA

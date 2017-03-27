@@ -11,8 +11,7 @@ opMod$kappa2 0.025
 opMod$SigmaDiag rep(0.025,10)
 opMod$corrOffDiag 0.
 opMod$lastNegCorr FALSE
-opMod$nS 10
-opMod$nT 40
+opMod$nS 5
 opMod$sYear rep(1988,10)
 opMod$fYear 2017
 opMod$Umult c(0.2,2,0.8)
@@ -24,7 +23,7 @@ opMod$gammaYr 0.0
 opMod$tau2 rep(.04,10)
 opMod$identObs FALSE
 opMod$corrMult 1
-opMod$kappaMult 0
+opMod$kappaMult 1
 assess$profiles FALSE
 assess$autoIG TRUE
 assess$msAR1 FALSE
@@ -39,7 +38,7 @@ assess$lnq rep(-.51,10)
 assess$logit_gammaYr 0
 assess$tau2 rep(0.01,10)
 assess$initBioCode rep(0,10)
-assess$kappa2 0.1
+assess$kappa2 0.02
 assess$Sigma2 0.1
 assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
@@ -69,8 +68,8 @@ assess$tauqPriorCode 0
 assess$tauq2Prior c(0.001,0.2)
 assess$tauq2P1 NULL
 assess$tauq2P2 NULL
-assess$kappa2IG c(0.1,0.5)
-assess$Sigma2IG c(0.1,0.5)
+assess$kappa2IG c(.1,0.5)
+assess$Sigma2IG c(.1,0.5)
 assess$tau2IGa rep(0.1,10)
 assess$tau2IGb rep(0.5,10)
 assess$msRE c("lnq","lnUmsy","zeta_st","eps_t")

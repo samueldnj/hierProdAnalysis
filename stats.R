@@ -862,7 +862,9 @@ AICrank <- function ( summList )
   # Get control constants
   nReps <- ctrl$nReps
   nS    <- opMod$nS
-  nT    <- opMod$nT
+  sYear <- opMod$sYear
+  fYear <- opMod$fYear
+  nT    <- fYear - min(sYear) + 1
 
   # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
   ssHess <- ss$hesspd
