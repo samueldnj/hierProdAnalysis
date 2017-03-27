@@ -35,7 +35,6 @@ assess$quiet TRUE
 assess$estYearEff FALSE
 assess$fitTrials 3
 assess$maxfn 1000
-assess$lnIota_s c(0,10,10,10,0)
 assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
 assess$lnq c(-.51,-.51,-.51,-.51,-.51)
 assess$logit_gammaYr 0

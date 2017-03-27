@@ -283,7 +283,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2IG          = obj$assess$Sigma2IG,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
-                          lnIota_s          = obj$assess$lnIota_s[s],
                           eps_t             = rep( 0, nT[s]-1 ),
                           lnkappa2          = log( obj$assess$kappa2 ),
                           zeta_st           = matrix( 0, nrow = 1, ncol = nT[s]-1 ),
@@ -316,7 +315,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           sigU2Prior        = obj$assess$LB$sigU2Prior,
                           kappa2IG          = obj$assess$LB$kappa2IG,
                           Sigma2IG          = obj$assess$LB$Sigma2IG,
-                          lnIota_s          = obj$assess$LB$iota_s,
                           eps_t             = rep( obj$assess$LB$eps_t, nT[s]-1 ),
                           lnkappa2          = obj$assess$LB$lnkappa2,
                           zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = 1, ncol = nT[s]-1 ),
@@ -347,7 +345,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           sigU2Prior        = obj$assess$UB$sigU2Prior,
                           kappa2IG          = obj$assess$UB$kappa2IG,
                           Sigma2IG          = obj$assess$UB$Sigma2IG,
-                          lnIota_s          = obj$assess$LB$iota_s,
                           eps_t             = rep( obj$assess$UB$eps_t, nT[s]-1 ),
                           lnkappa2          = obj$assess$UB$lnkappa2,
                           zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = 1, ncol = nT[s]-1 ),
@@ -441,7 +438,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lntauq2           = obj$assess$LB$lntauq2,
                   lnUmsybar         = obj$assess$LB$lnUmsybar,
                   lnsigUmsy2        = obj$assess$LB$lnsigUmsy2,
-                  lnIota_s          = obj$assess$LB$iota_s,
                   eps_t             = rep( obj$assess$LB$eps_t, max(nT)-1 ),
                   lnkappa2          = obj$assess$LB$lnkappa2,
                   zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = nS, ncol = max(nT)-1 ),
@@ -459,7 +455,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lntauq2           = obj$assess$UB$lntauq2,
                   lnUmsybar         = obj$assess$UB$lnUmsybar,
                   lnsigUmsy2        = obj$assess$UB$lnsigUmsy2,
-                  lnIota_s          = obj$assess$UB$iota_s,
                   eps_t             = rep( obj$assess$UB$eps_t, max(nT)-1 ),
                   lnkappa2          = obj$assess$UB$lnkappa2,
                   zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = nS, ncol = max(nT)-1 ),
@@ -549,6 +544,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             RE = c("eps_t","lnq","lnUmsy","zeta_st"),
                             profiles = FALSE )
 { 
+  browser()
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
