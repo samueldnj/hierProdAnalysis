@@ -199,8 +199,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   ssDat <- vector ( mode = "list", length = nS )
   ssPar <- vector ( mode = "list", length = nS )
   ssMap <- vector ( mode = "list", length = nS )
-  ssLB  <- vector ( mode = "list", length = nS )
-  ssUB  <- vector ( mode = "list", length = nS )
 
   # Sum catch to get starting biomass
   sumCat <- numeric(length = nS)
@@ -293,66 +291,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         )
     # modify SS IG parameters to account for sum of REs
     ssPar[[s]]$kappa2IG[2] <- obj$assess$kappa2IG[2] + obj$assess$Sigma2IG[2]
-    # Add bounds
-    ssLB[[s]] <- list  (  lnBmsy            = obj$assess$LB$lnBmsy[s],
-                          lnUmsy            = obj$assess$LB$lnUmsy[s],
-                          lntau2            = obj$assess$LB$lntau2[s],
-                          lnq               = obj$assess$LB$lnq[s],
-                          lnBinit           = obj$assess$LB$lnBmsy[s],
-                          lnqbar            = obj$assess$LB$lnqbar,
-                          lntauq2           = obj$assess$LB$lntauq2,
-                          mlnq              = obj$assess$LB$mlnq,
-                          s2lnq             = obj$assess$LB$s2lnq,
-                          lnUmsybar         = obj$assess$LB$lnUmsybar,
-                          lnsigUmsy2        = obj$assess$LB$lnsigUmsy2,
-                          mlnUmsy           = obj$assess$LB$mlnUmsy,
-                          s2lnUmsy          = obj$assess$LB$s2lnUmsy,
-                          mBmsy             = obj$assess$LB$mBmsy[s],
-                          s2Bmsy            = obj$assess$LB$s2Bmsy[s],
-                          tau2IGa           = obj$assess$LB$tau2IGa[s],
-                          tau2IGb           = obj$assess$LB$tau2IGb[s],
-                          tauq2Prior        = obj$assess$LB$tauq2Prior,
-                          sigU2Prior        = obj$assess$LB$sigU2Prior,
-                          kappa2IG          = obj$assess$LB$kappa2IG,
-                          Sigma2IG          = obj$assess$LB$Sigma2IG,
-                          eps_t             = rep( obj$assess$LB$eps_t, nT[s]-1 ),
-                          lnkappa2          = obj$assess$LB$lnkappa2,
-                          zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = 1, ncol = nT[s]-1 ),
-                          lnSigmaDiag       = obj$assess$LB$lnSigmaDiag,
-                          SigmaDiagMult     = obj$assess$LB$SigmaDiagMult,
-                          logitSigmaOffDiag = numeric( length = 0 ),
-                          logit_gammaYr     = obj$assess$LB$logit_gammaYr  
-                        )
-
-    ssUB[[s]] <- list  (  lnBmsy            = obj$assess$UB$lnBmsy[s],
-                          lnUmsy            = obj$assess$UB$lnUmsy[s],
-                          lntau2            = obj$assess$UB$lntau2[s],
-                          lnq               = obj$assess$UB$lnq[s],
-                          lnBinit           = obj$assess$UB$lnBmsy[s],
-                          lnqbar            = obj$assess$UB$lnqbar,
-                          lntauq2           = obj$assess$UB$lntauq2,
-                          mlnq              = obj$assess$UB$mlnq,
-                          s2lnq             = obj$assess$UB$s2lnq,
-                          lnUmsybar         = obj$assess$UB$lnUmsybar,
-                          lnsigUmsy2        = obj$assess$UB$lnsigUmsy2,
-                          mlnUmsy           = obj$assess$UB$mlnUmsy,
-                          s2lnUmsy          = obj$assess$UB$s2lnUmsy,
-                          mBmsy             = obj$assess$UB$mBmsy[s],
-                          s2Bmsy            = obj$assess$UB$s2Bmsy[s],
-                          tau2IGa           = obj$assess$UB$tau2IGa[s],
-                          tau2IGb           = obj$assess$UB$tau2IGb[s],
-                          tauq2Prior        = obj$assess$UB$tauq2Prior,
-                          sigU2Prior        = obj$assess$UB$sigU2Prior,
-                          kappa2IG          = obj$assess$UB$kappa2IG,
-                          Sigma2IG          = obj$assess$UB$Sigma2IG,
-                          eps_t             = rep( obj$assess$UB$eps_t, nT[s]-1 ),
-                          lnkappa2          = obj$assess$UB$lnkappa2,
-                          zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = 1, ncol = nT[s]-1 ),
-                          lnSigmaDiag       = obj$assess$UB$lnSigmaDiag,
-                          SigmaDiagMult     = obj$assess$UB$SigmaDiagMult,
-                          logitSigmaOffDiag = numeric( length = 0 ),
-                          logit_gammaYr     = obj$assess$UB$logit_gammaYr  
-                        )
+    
     # Make map list to turn off parameters
     ssMap[[s]]  <-  list( mBmsy             = factor( rep( NA, 1 ) ),
                           s2Bmsy            = factor( rep( NA, 1 ) ),
@@ -429,40 +368,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   logit_gammaYr     = obj$assess$logit_gammaYr
                 )
 
-  msLB <- list  ( lnBmsy            = obj$assess$LB$lnBmsy[1:nS],
-                  lnUmsy            = obj$assess$LB$lnUmsy[1:nS],
-                  lntau2            = obj$assess$LB$lntau2[1:nS],
-                  lnq               = obj$assess$LB$lnq[1:nS],
-                  lnBinit           = obj$assess$LB$lnBinit[1:nS],
-                  lnqbar            = obj$assess$LB$lnqbar,
-                  lntauq2           = obj$assess$LB$lntauq2,
-                  lnUmsybar         = obj$assess$LB$lnUmsybar,
-                  lnsigUmsy2        = obj$assess$LB$lnsigUmsy2,
-                  eps_t             = rep( obj$assess$LB$eps_t, max(nT)-1 ),
-                  lnkappa2          = obj$assess$LB$lnkappa2,
-                  zeta_st           = matrix( obj$assess$LB$zeta_st, nrow = nS, ncol = max(nT)-1 ),
-                  lnSigmaDiag       = obj$assess$LB$lnSigmaDiag,
-                  logitSigmaOffDiag = rep( obj$assess$LB$logitSigmaOffDiag, nS*(nS-1)/2 ),
-                  logit_gammaYr     = obj$assess$LB$logit_gammaYr  
-                )
-
-  msUB <- list  ( lnBmsy            = obj$assess$UB$lnBmsy[1:nS],
-                  lnUmsy            = obj$assess$UB$lnUmsy[1:nS],
-                  lntau2            = obj$assess$UB$lntau2[1:nS],
-                  lnq               = obj$assess$UB$lnq[1:nS],
-                  lnBinit           = obj$assess$UB$lnBinit[1:nS],
-                  lnqbar            = obj$assess$UB$lnqbar,
-                  lntauq2           = obj$assess$UB$lntauq2,
-                  lnUmsybar         = obj$assess$UB$lnUmsybar,
-                  lnsigUmsy2        = obj$assess$UB$lnsigUmsy2,
-                  eps_t             = rep( obj$assess$UB$eps_t, max(nT)-1 ),
-                  lnkappa2          = obj$assess$UB$lnkappa2,
-                  zeta_st           = matrix( obj$assess$UB$zeta_st, nrow = nS, ncol = max(nT)-1 ),
-                  lnSigmaDiag       = obj$assess$UB$lnSigmaDiag,
-                  logitSigmaOffDiag = rep( obj$assess$UB$logitSigmaOffDiag, nS*(nS-1)/2 ),
-                  logit_gammaYr     = obj$assess$UB$logit_gammaYr  
-                )
-
   lnBinitMap <- 1:nS
   lnBinitMap[ obj$assess$initBioCode[1:nS] == 0] <- NA
 
@@ -514,16 +419,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # browser()
   # return list of dat and pin objects for running estimators
-  outlist <- list ( ssDat = ssDat, 
+  outlist <- list ( 
+                    ssDat = ssDat, 
                     ssPar = ssPar,
                     ssMap = ssMap,
-                    ssLB  = ssLB,
-                    ssUB  = ssUB,
                     msDat = msDat, 
                     msPar = msPar,
-                    msMap = msMap,
-                    msLB  = msLB,
-                    msUB  = msUB )
+                    msMap = msMap 
+                  )
   return(outlist)
 }
 
@@ -544,18 +447,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             RE = c("eps_t","lnq","lnUmsy","zeta_st"),
                             profiles = FALSE )
 { 
-  browser()
+  # browser()
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
-
-  member <- function(x,y) !is.na(match(x,y))
-  LB <- LB[!member(names(LB),RE)]
-  UB <- UB[!member(names(UB),RE)]
-  LB = unlist(LB[!member(names(LB),names(map))])
-  UB = unlist(UB[!member(names(UB),names(map))])
 
   # browser()
 
