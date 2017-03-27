@@ -17,21 +17,21 @@ plotProfiles <- function ( sim = 2 )
   # input:    sim = int 1-vector indicating the simulation in project folder
 }
 
-lowK_qModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "q" )
-lowK_BmsyModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "Bmsy" )
-lowK_UmsyModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "Umsy" )
+# lowK_qModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "q" )
+# lowK_BmsyModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "Bmsy" )
+# lowK_UmsyModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "Umsy" )
 
-# plotOMSpecResponse( "lowK_rKq_MRE", resp = "q", 
-#                     ssModel = lowK_qModels$ss$sel[[1]],
-#                     msModel = lowK_qModels$ms$sel[[1]] )
+# # plotOMSpecResponse( "lowK_rKq_MRE", resp = "q", 
+# #                     ssModel = lowK_qModels$ss$sel[[1]],
+# #                     msModel = lowK_qModels$ms$sel[[1]] )
 
-# plotOMSpecResponse( "lowK_rKq_MRE", resp = "Umsy", 
-#                     ssModel = lowK_UmsyModels$ss$sel[[1]],
-#                     msModel = lowK_UmsyModels$ms$sel[[1]] )
+# # plotOMSpecResponse( "lowK_rKq_MRE", resp = "Umsy", 
+# #                     ssModel = lowK_UmsyModels$ss$sel[[1]],
+# #                     msModel = lowK_UmsyModels$ms$sel[[1]] )
 
-qModels <- .DASEmodelSelection( resp = "q" )
-UmsyModels <- .DASEmodelSelection( resp = "Umsy" )
-BmsyModels <- .DASEmodelSelection( resp = "Bmsy" )
+# qModels <- .DASEmodelSelection( resp = "q" )
+# UmsyModels <- .DASEmodelSelection( resp = "Umsy" )
+# BmsyModels <- .DASEmodelSelection( resp = "Bmsy" )
 
 # plotOMSpecResponse(ssModel = qModels$ss$sel[[1]], msModel = qModels$ms$sel[[1]])
 # plotOMSpecResponse(resp = "Umsy", ssModel = UmsyModels$ss$sel[[1]], msModel = UmsyModels$ms$sel[[1]])
