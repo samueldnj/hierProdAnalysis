@@ -27,8 +27,8 @@
 #           bchName = character root of batch file name
 # ouputs:   table = design table data.frame
 # side-eff: creates <bchName>.bch in working directory
-makeFacDesignDover <- function (  levels = list(  Umsy  = seq(0.1,0.5, by = .1),
-                                                  Bmsy  = c(seq(2,10,by = 2)),
+makeFacDesignDover <- function (  levels = list(  Umsy  = seq(0.1,0.4, by = .1),
+                                                  Bmsy  = c(seq(5,30,by = 5)),
                                                   q     = seq(0.3,0.8,by=.1)
                                                 ),
                                   bchName = "rKqExp" )

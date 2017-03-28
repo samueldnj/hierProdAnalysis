@@ -9,9 +9,9 @@ opMod$Bmsy rep(20,10)
 opMod$Umsy rep(0.25,10)
 opMod$kappa2 0.025
 opMod$SigmaDiag rep(0.025,10)
-opMod$corrOffDiag 0.
+opMod$corrOffDiag 0.5
 opMod$lastNegCorr FALSE
-opMod$nS 5
+opMod$nS 10
 opMod$sYear rep(1988,10)
 opMod$fYear 2017
 opMod$Umult c(0.2,2,0.8)

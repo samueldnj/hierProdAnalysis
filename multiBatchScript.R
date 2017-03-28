@@ -12,18 +12,19 @@
 source("control.R")
 
 # Number of experiments:
-nExp <- 2
+nExp <- 4
 
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("msIncrements.bch", "msIncrementsNoneq.bch")
-baseCtlFiles  <- c("simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt")
-expPrefix     <- c("msIncrements", "msIncrements_noneq")
+batchFiles    <- c("RE.bch", "Fhist.bch", "obsErr.bch", "rKq.bch")
+baseCtlFiles  <- c( "simCtlFileAllSameBase.txt", "simCtlFileAllSameBase.txt",
+                    "simCtlFileAllSameBase.txt", "simCtlFileAllSameBase.txt" )
+expPrefix     <- c("RE_incMS", "Fhist_incMS", "obsErr_incMS", "rKq_incMS")
 
 # Now loop over the experiments
 
-for( i in 1:nExp)
+for( i in 1:length(batchFiles))
 {
   # Make batch design
   makeBatch(  batchCtlFile = batchFiles[i],

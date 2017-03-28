@@ -5,19 +5,19 @@ parameter value
 #
 # Scenario 1 : nS2_allSame
 #
-scenario$scenario1$ctrl$scenarioName 'nS2_identStocks'
+scenario$scenario1$ctrl$scenarioName 'nS2_identStocks_nonEq'
 scenario$scenario1$opMod$nS 2
 scenario$scenario1$opMod$sYear c(1995,rep(1988,9))
 #
 # Scenario 2 : nS6_allSame
 #
-scenario$scenario2$ctrl$scenarioName 'nS6_identStocks'
+scenario$scenario2$ctrl$scenarioName 'nS6_identStocks_nonEq'
 scenario$scenario2$opMod$nS 6
 scenario$scenario2$opMod$sYear c(1995,rep(1988,9))
 #
 # Scenario 1 : nS10_allSame
 #
-scenario$scenario3$ctrl$scenarioName 'nS10_identStocks'
+scenario$scenario3$ctrl$scenarioName 'nS10_identStocks_nonEq'
 scenario$scenario3$opMod$nS 10
 scenario$scenario2$opMod$sYear c(1995,rep(1988,9))
 #

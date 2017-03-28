@@ -1,1363 +1,1448 @@
-# Batch Control File, created Wed Mar 15 09:54:05 2017 by makeDesignDover() 
+# Batch Control File, created Mon Mar 27 20:28:32 2017 by makeDesignDover() 
 parameter value
 #
 # Scenarios 
 #
-# Scenario 1 : Umsy0.1_Bmsy2_q0.3
+# Scenario 1 : Umsy0.1_Bmsy5_q0.3
 #
-scenario$scenario1$ctrl$scenarioName 'Umsy0.1_Bmsy2_q0.3'
+scenario$scenario1$ctrl$scenarioName 'Umsy0.1_Bmsy5_q0.3'
 scenario$scenario1$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario1$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario1$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario1$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario1$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario1$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario1$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario1$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 2 : Umsy0.2_Bmsy2_q0.3
+# Scenario 2 : Umsy0.2_Bmsy5_q0.3
 #
-scenario$scenario2$ctrl$scenarioName 'Umsy0.2_Bmsy2_q0.3'
+scenario$scenario2$ctrl$scenarioName 'Umsy0.2_Bmsy5_q0.3'
 scenario$scenario2$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario2$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario2$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario2$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario2$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario2$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario2$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario2$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 3 : Umsy0.3_Bmsy2_q0.3
+# Scenario 3 : Umsy0.3_Bmsy5_q0.3
 #
-scenario$scenario3$ctrl$scenarioName 'Umsy0.3_Bmsy2_q0.3'
+scenario$scenario3$ctrl$scenarioName 'Umsy0.3_Bmsy5_q0.3'
 scenario$scenario3$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario3$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario3$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario3$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario3$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario3$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario3$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario3$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 4 : Umsy0.4_Bmsy2_q0.3
+# Scenario 4 : Umsy0.4_Bmsy5_q0.3
 #
-scenario$scenario4$ctrl$scenarioName 'Umsy0.4_Bmsy2_q0.3'
+scenario$scenario4$ctrl$scenarioName 'Umsy0.4_Bmsy5_q0.3'
 scenario$scenario4$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario4$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario4$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario4$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario4$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario4$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario4$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario4$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 5 : Umsy0.5_Bmsy2_q0.3
+# Scenario 5 : Umsy0.1_Bmsy10_q0.3
 #
-scenario$scenario5$ctrl$scenarioName 'Umsy0.5_Bmsy2_q0.3'
-scenario$scenario5$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario5$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario5$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.3'
+scenario$scenario5$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario5$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario5$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario5$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario5$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario5$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario5$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 6 : Umsy0.1_Bmsy4_q0.3
+# Scenario 6 : Umsy0.2_Bmsy10_q0.3
 #
-scenario$scenario6$ctrl$scenarioName 'Umsy0.1_Bmsy4_q0.3'
-scenario$scenario6$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario6$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario6$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.3'
+scenario$scenario6$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario6$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario6$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario6$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario6$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario6$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario6$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 7 : Umsy0.2_Bmsy4_q0.3
+# Scenario 7 : Umsy0.3_Bmsy10_q0.3
 #
-scenario$scenario7$ctrl$scenarioName 'Umsy0.2_Bmsy4_q0.3'
-scenario$scenario7$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario7$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario7$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.3'
+scenario$scenario7$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario7$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario7$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario7$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario7$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario7$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario7$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 8 : Umsy0.3_Bmsy4_q0.3
+# Scenario 8 : Umsy0.4_Bmsy10_q0.3
 #
-scenario$scenario8$ctrl$scenarioName 'Umsy0.3_Bmsy4_q0.3'
-scenario$scenario8$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario8$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario8$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.3'
+scenario$scenario8$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario8$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario8$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario8$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario8$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario8$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario8$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 9 : Umsy0.4_Bmsy4_q0.3
+# Scenario 9 : Umsy0.1_Bmsy15_q0.3
 #
-scenario$scenario9$ctrl$scenarioName 'Umsy0.4_Bmsy4_q0.3'
-scenario$scenario9$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario9$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario9$ctrl$scenarioName 'Umsy0.1_Bmsy15_q0.3'
+scenario$scenario9$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario9$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario9$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario9$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario9$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario9$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario9$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 10 : Umsy0.5_Bmsy4_q0.3
+# Scenario 10 : Umsy0.2_Bmsy15_q0.3
 #
-scenario$scenario10$ctrl$scenarioName 'Umsy0.5_Bmsy4_q0.3'
-scenario$scenario10$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario10$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario10$ctrl$scenarioName 'Umsy0.2_Bmsy15_q0.3'
+scenario$scenario10$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario10$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario10$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario10$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario10$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario10$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario10$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 11 : Umsy0.1_Bmsy6_q0.3
+# Scenario 11 : Umsy0.3_Bmsy15_q0.3
 #
-scenario$scenario11$ctrl$scenarioName 'Umsy0.1_Bmsy6_q0.3'
-scenario$scenario11$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario11$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario11$ctrl$scenarioName 'Umsy0.3_Bmsy15_q0.3'
+scenario$scenario11$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario11$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario11$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario11$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario11$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario11$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario11$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 12 : Umsy0.2_Bmsy6_q0.3
+# Scenario 12 : Umsy0.4_Bmsy15_q0.3
 #
-scenario$scenario12$ctrl$scenarioName 'Umsy0.2_Bmsy6_q0.3'
-scenario$scenario12$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario12$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario12$ctrl$scenarioName 'Umsy0.4_Bmsy15_q0.3'
+scenario$scenario12$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario12$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario12$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario12$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario12$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario12$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario12$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 13 : Umsy0.3_Bmsy6_q0.3
+# Scenario 13 : Umsy0.1_Bmsy20_q0.3
 #
-scenario$scenario13$ctrl$scenarioName 'Umsy0.3_Bmsy6_q0.3'
-scenario$scenario13$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario13$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario13$ctrl$scenarioName 'Umsy0.1_Bmsy20_q0.3'
+scenario$scenario13$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario13$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario13$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario13$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario13$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario13$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario13$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 14 : Umsy0.4_Bmsy6_q0.3
+# Scenario 14 : Umsy0.2_Bmsy20_q0.3
 #
-scenario$scenario14$ctrl$scenarioName 'Umsy0.4_Bmsy6_q0.3'
-scenario$scenario14$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario14$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario14$ctrl$scenarioName 'Umsy0.2_Bmsy20_q0.3'
+scenario$scenario14$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario14$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario14$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario14$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario14$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario14$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario14$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 15 : Umsy0.5_Bmsy6_q0.3
+# Scenario 15 : Umsy0.3_Bmsy20_q0.3
 #
-scenario$scenario15$ctrl$scenarioName 'Umsy0.5_Bmsy6_q0.3'
-scenario$scenario15$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario15$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario15$ctrl$scenarioName 'Umsy0.3_Bmsy20_q0.3'
+scenario$scenario15$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario15$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario15$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario15$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario15$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario15$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario15$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 16 : Umsy0.1_Bmsy8_q0.3
+# Scenario 16 : Umsy0.4_Bmsy20_q0.3
 #
-scenario$scenario16$ctrl$scenarioName 'Umsy0.1_Bmsy8_q0.3'
-scenario$scenario16$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario16$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario16$ctrl$scenarioName 'Umsy0.4_Bmsy20_q0.3'
+scenario$scenario16$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario16$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario16$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario16$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario16$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario16$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario16$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 17 : Umsy0.2_Bmsy8_q0.3
+# Scenario 17 : Umsy0.1_Bmsy25_q0.3
 #
-scenario$scenario17$ctrl$scenarioName 'Umsy0.2_Bmsy8_q0.3'
-scenario$scenario17$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario17$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario17$ctrl$scenarioName 'Umsy0.1_Bmsy25_q0.3'
+scenario$scenario17$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario17$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario17$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario17$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario17$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario17$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario17$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 18 : Umsy0.3_Bmsy8_q0.3
+# Scenario 18 : Umsy0.2_Bmsy25_q0.3
 #
-scenario$scenario18$ctrl$scenarioName 'Umsy0.3_Bmsy8_q0.3'
-scenario$scenario18$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario18$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario18$ctrl$scenarioName 'Umsy0.2_Bmsy25_q0.3'
+scenario$scenario18$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario18$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario18$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario18$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario18$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario18$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario18$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 19 : Umsy0.4_Bmsy8_q0.3
+# Scenario 19 : Umsy0.3_Bmsy25_q0.3
 #
-scenario$scenario19$ctrl$scenarioName 'Umsy0.4_Bmsy8_q0.3'
-scenario$scenario19$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario19$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario19$ctrl$scenarioName 'Umsy0.3_Bmsy25_q0.3'
+scenario$scenario19$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario19$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario19$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario19$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario19$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario19$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario19$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 20 : Umsy0.5_Bmsy8_q0.3
+# Scenario 20 : Umsy0.4_Bmsy25_q0.3
 #
-scenario$scenario20$ctrl$scenarioName 'Umsy0.5_Bmsy8_q0.3'
-scenario$scenario20$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario20$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario20$ctrl$scenarioName 'Umsy0.4_Bmsy25_q0.3'
+scenario$scenario20$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario20$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario20$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario20$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario20$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario20$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario20$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 21 : Umsy0.1_Bmsy10_q0.3
+# Scenario 21 : Umsy0.1_Bmsy30_q0.3
 #
-scenario$scenario21$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.3'
+scenario$scenario21$ctrl$scenarioName 'Umsy0.1_Bmsy30_q0.3'
 scenario$scenario21$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario21$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario21$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario21$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario21$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario21$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario21$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario21$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 22 : Umsy0.2_Bmsy10_q0.3
+# Scenario 22 : Umsy0.2_Bmsy30_q0.3
 #
-scenario$scenario22$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.3'
+scenario$scenario22$ctrl$scenarioName 'Umsy0.2_Bmsy30_q0.3'
 scenario$scenario22$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario22$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario22$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario22$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario22$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario22$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario22$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario22$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 23 : Umsy0.3_Bmsy10_q0.3
+# Scenario 23 : Umsy0.3_Bmsy30_q0.3
 #
-scenario$scenario23$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.3'
+scenario$scenario23$ctrl$scenarioName 'Umsy0.3_Bmsy30_q0.3'
 scenario$scenario23$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario23$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario23$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario23$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario23$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario23$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario23$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario23$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 24 : Umsy0.4_Bmsy10_q0.3
+# Scenario 24 : Umsy0.4_Bmsy30_q0.3
 #
-scenario$scenario24$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.3'
+scenario$scenario24$ctrl$scenarioName 'Umsy0.4_Bmsy30_q0.3'
 scenario$scenario24$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario24$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario24$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario24$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario24$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario24$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario24$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario24$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 25 : Umsy0.5_Bmsy10_q0.3
+# Scenario 25 : Umsy0.1_Bmsy5_q0.4
 #
-scenario$scenario25$ctrl$scenarioName 'Umsy0.5_Bmsy10_q0.3'
-scenario$scenario25$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario25$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario25$opMod$q c(0.3,.6,.6,.6,.6)
-scenario$scenario25$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario25$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario25$ctrl$scenarioName 'Umsy0.1_Bmsy5_q0.4'
+scenario$scenario25$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario25$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario25$opMod$q c(0.4,.6,.6,.6,.6)
+scenario$scenario25$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario25$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 26 : Umsy0.1_Bmsy2_q0.4
+# Scenario 26 : Umsy0.2_Bmsy5_q0.4
 #
-scenario$scenario26$ctrl$scenarioName 'Umsy0.1_Bmsy2_q0.4'
-scenario$scenario26$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario26$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario26$ctrl$scenarioName 'Umsy0.2_Bmsy5_q0.4'
+scenario$scenario26$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario26$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario26$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario26$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario26$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario26$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario26$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 27 : Umsy0.2_Bmsy2_q0.4
+# Scenario 27 : Umsy0.3_Bmsy5_q0.4
 #
-scenario$scenario27$ctrl$scenarioName 'Umsy0.2_Bmsy2_q0.4'
-scenario$scenario27$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario27$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario27$ctrl$scenarioName 'Umsy0.3_Bmsy5_q0.4'
+scenario$scenario27$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario27$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario27$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario27$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario27$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario27$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario27$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 28 : Umsy0.3_Bmsy2_q0.4
+# Scenario 28 : Umsy0.4_Bmsy5_q0.4
 #
-scenario$scenario28$ctrl$scenarioName 'Umsy0.3_Bmsy2_q0.4'
-scenario$scenario28$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario28$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario28$ctrl$scenarioName 'Umsy0.4_Bmsy5_q0.4'
+scenario$scenario28$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario28$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario28$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario28$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario28$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario28$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario28$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 29 : Umsy0.4_Bmsy2_q0.4
+# Scenario 29 : Umsy0.1_Bmsy10_q0.4
 #
-scenario$scenario29$ctrl$scenarioName 'Umsy0.4_Bmsy2_q0.4'
-scenario$scenario29$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario29$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario29$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.4'
+scenario$scenario29$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario29$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario29$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario29$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario29$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario29$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario29$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 30 : Umsy0.5_Bmsy2_q0.4
+# Scenario 30 : Umsy0.2_Bmsy10_q0.4
 #
-scenario$scenario30$ctrl$scenarioName 'Umsy0.5_Bmsy2_q0.4'
-scenario$scenario30$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario30$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario30$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.4'
+scenario$scenario30$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario30$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario30$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario30$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario30$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario30$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario30$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 31 : Umsy0.1_Bmsy4_q0.4
+# Scenario 31 : Umsy0.3_Bmsy10_q0.4
 #
-scenario$scenario31$ctrl$scenarioName 'Umsy0.1_Bmsy4_q0.4'
-scenario$scenario31$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario31$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario31$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.4'
+scenario$scenario31$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario31$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario31$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario31$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario31$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario31$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario31$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 32 : Umsy0.2_Bmsy4_q0.4
+# Scenario 32 : Umsy0.4_Bmsy10_q0.4
 #
-scenario$scenario32$ctrl$scenarioName 'Umsy0.2_Bmsy4_q0.4'
-scenario$scenario32$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario32$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario32$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.4'
+scenario$scenario32$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario32$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario32$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario32$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario32$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario32$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario32$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 33 : Umsy0.3_Bmsy4_q0.4
+# Scenario 33 : Umsy0.1_Bmsy15_q0.4
 #
-scenario$scenario33$ctrl$scenarioName 'Umsy0.3_Bmsy4_q0.4'
-scenario$scenario33$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario33$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario33$ctrl$scenarioName 'Umsy0.1_Bmsy15_q0.4'
+scenario$scenario33$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario33$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario33$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario33$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario33$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario33$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario33$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 34 : Umsy0.4_Bmsy4_q0.4
+# Scenario 34 : Umsy0.2_Bmsy15_q0.4
 #
-scenario$scenario34$ctrl$scenarioName 'Umsy0.4_Bmsy4_q0.4'
-scenario$scenario34$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario34$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario34$ctrl$scenarioName 'Umsy0.2_Bmsy15_q0.4'
+scenario$scenario34$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario34$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario34$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario34$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario34$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario34$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario34$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 35 : Umsy0.5_Bmsy4_q0.4
+# Scenario 35 : Umsy0.3_Bmsy15_q0.4
 #
-scenario$scenario35$ctrl$scenarioName 'Umsy0.5_Bmsy4_q0.4'
-scenario$scenario35$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario35$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario35$ctrl$scenarioName 'Umsy0.3_Bmsy15_q0.4'
+scenario$scenario35$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario35$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario35$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario35$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario35$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario35$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario35$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 36 : Umsy0.1_Bmsy6_q0.4
+# Scenario 36 : Umsy0.4_Bmsy15_q0.4
 #
-scenario$scenario36$ctrl$scenarioName 'Umsy0.1_Bmsy6_q0.4'
-scenario$scenario36$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario36$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario36$ctrl$scenarioName 'Umsy0.4_Bmsy15_q0.4'
+scenario$scenario36$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario36$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario36$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario36$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario36$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario36$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario36$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 37 : Umsy0.2_Bmsy6_q0.4
+# Scenario 37 : Umsy0.1_Bmsy20_q0.4
 #
-scenario$scenario37$ctrl$scenarioName 'Umsy0.2_Bmsy6_q0.4'
-scenario$scenario37$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario37$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario37$ctrl$scenarioName 'Umsy0.1_Bmsy20_q0.4'
+scenario$scenario37$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario37$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario37$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario37$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario37$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario37$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario37$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 38 : Umsy0.3_Bmsy6_q0.4
+# Scenario 38 : Umsy0.2_Bmsy20_q0.4
 #
-scenario$scenario38$ctrl$scenarioName 'Umsy0.3_Bmsy6_q0.4'
-scenario$scenario38$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario38$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario38$ctrl$scenarioName 'Umsy0.2_Bmsy20_q0.4'
+scenario$scenario38$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario38$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario38$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario38$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario38$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario38$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario38$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 39 : Umsy0.4_Bmsy6_q0.4
+# Scenario 39 : Umsy0.3_Bmsy20_q0.4
 #
-scenario$scenario39$ctrl$scenarioName 'Umsy0.4_Bmsy6_q0.4'
-scenario$scenario39$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario39$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario39$ctrl$scenarioName 'Umsy0.3_Bmsy20_q0.4'
+scenario$scenario39$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario39$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario39$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario39$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario39$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario39$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario39$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 40 : Umsy0.5_Bmsy6_q0.4
+# Scenario 40 : Umsy0.4_Bmsy20_q0.4
 #
-scenario$scenario40$ctrl$scenarioName 'Umsy0.5_Bmsy6_q0.4'
-scenario$scenario40$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario40$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario40$ctrl$scenarioName 'Umsy0.4_Bmsy20_q0.4'
+scenario$scenario40$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario40$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario40$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario40$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario40$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario40$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario40$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 41 : Umsy0.1_Bmsy8_q0.4
+# Scenario 41 : Umsy0.1_Bmsy25_q0.4
 #
-scenario$scenario41$ctrl$scenarioName 'Umsy0.1_Bmsy8_q0.4'
+scenario$scenario41$ctrl$scenarioName 'Umsy0.1_Bmsy25_q0.4'
 scenario$scenario41$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario41$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario41$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario41$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario41$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario41$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario41$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario41$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 42 : Umsy0.2_Bmsy8_q0.4
+# Scenario 42 : Umsy0.2_Bmsy25_q0.4
 #
-scenario$scenario42$ctrl$scenarioName 'Umsy0.2_Bmsy8_q0.4'
+scenario$scenario42$ctrl$scenarioName 'Umsy0.2_Bmsy25_q0.4'
 scenario$scenario42$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario42$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario42$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario42$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario42$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario42$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario42$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario42$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 43 : Umsy0.3_Bmsy8_q0.4
+# Scenario 43 : Umsy0.3_Bmsy25_q0.4
 #
-scenario$scenario43$ctrl$scenarioName 'Umsy0.3_Bmsy8_q0.4'
+scenario$scenario43$ctrl$scenarioName 'Umsy0.3_Bmsy25_q0.4'
 scenario$scenario43$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario43$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario43$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario43$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario43$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario43$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario43$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario43$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 44 : Umsy0.4_Bmsy8_q0.4
+# Scenario 44 : Umsy0.4_Bmsy25_q0.4
 #
-scenario$scenario44$ctrl$scenarioName 'Umsy0.4_Bmsy8_q0.4'
+scenario$scenario44$ctrl$scenarioName 'Umsy0.4_Bmsy25_q0.4'
 scenario$scenario44$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario44$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario44$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario44$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario44$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario44$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario44$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario44$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 45 : Umsy0.5_Bmsy8_q0.4
+# Scenario 45 : Umsy0.1_Bmsy30_q0.4
 #
-scenario$scenario45$ctrl$scenarioName 'Umsy0.5_Bmsy8_q0.4'
-scenario$scenario45$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario45$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario45$ctrl$scenarioName 'Umsy0.1_Bmsy30_q0.4'
+scenario$scenario45$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario45$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario45$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario45$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario45$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario45$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario45$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 46 : Umsy0.1_Bmsy10_q0.4
+# Scenario 46 : Umsy0.2_Bmsy30_q0.4
 #
-scenario$scenario46$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.4'
-scenario$scenario46$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario46$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario46$ctrl$scenarioName 'Umsy0.2_Bmsy30_q0.4'
+scenario$scenario46$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario46$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario46$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario46$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario46$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario46$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario46$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 47 : Umsy0.2_Bmsy10_q0.4
+# Scenario 47 : Umsy0.3_Bmsy30_q0.4
 #
-scenario$scenario47$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.4'
-scenario$scenario47$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario47$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario47$ctrl$scenarioName 'Umsy0.3_Bmsy30_q0.4'
+scenario$scenario47$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario47$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario47$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario47$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario47$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario47$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario47$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 48 : Umsy0.3_Bmsy10_q0.4
+# Scenario 48 : Umsy0.4_Bmsy30_q0.4
 #
-scenario$scenario48$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.4'
-scenario$scenario48$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario48$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario48$ctrl$scenarioName 'Umsy0.4_Bmsy30_q0.4'
+scenario$scenario48$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario48$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario48$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario48$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario48$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario48$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario48$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 49 : Umsy0.4_Bmsy10_q0.4
+# Scenario 49 : Umsy0.1_Bmsy5_q0.5
 #
-scenario$scenario49$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.4'
-scenario$scenario49$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario49$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario49$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario49$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario49$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario49$ctrl$scenarioName 'Umsy0.1_Bmsy5_q0.5'
+scenario$scenario49$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario49$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario49$opMod$q c(0.5,.6,.6,.6,.6)
+scenario$scenario49$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario49$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 50 : Umsy0.5_Bmsy10_q0.4
+# Scenario 50 : Umsy0.2_Bmsy5_q0.5
 #
-scenario$scenario50$ctrl$scenarioName 'Umsy0.5_Bmsy10_q0.4'
-scenario$scenario50$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario50$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario50$opMod$q c(0.4,.6,.6,.6,.6)
-scenario$scenario50$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario50$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario50$ctrl$scenarioName 'Umsy0.2_Bmsy5_q0.5'
+scenario$scenario50$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario50$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario50$opMod$q c(0.5,.6,.6,.6,.6)
+scenario$scenario50$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario50$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 51 : Umsy0.1_Bmsy2_q0.5
+# Scenario 51 : Umsy0.3_Bmsy5_q0.5
 #
-scenario$scenario51$ctrl$scenarioName 'Umsy0.1_Bmsy2_q0.5'
-scenario$scenario51$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario51$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario51$ctrl$scenarioName 'Umsy0.3_Bmsy5_q0.5'
+scenario$scenario51$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario51$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario51$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario51$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario51$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario51$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario51$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 52 : Umsy0.2_Bmsy2_q0.5
+# Scenario 52 : Umsy0.4_Bmsy5_q0.5
 #
-scenario$scenario52$ctrl$scenarioName 'Umsy0.2_Bmsy2_q0.5'
-scenario$scenario52$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario52$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario52$ctrl$scenarioName 'Umsy0.4_Bmsy5_q0.5'
+scenario$scenario52$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario52$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario52$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario52$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario52$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario52$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario52$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 53 : Umsy0.3_Bmsy2_q0.5
+# Scenario 53 : Umsy0.1_Bmsy10_q0.5
 #
-scenario$scenario53$ctrl$scenarioName 'Umsy0.3_Bmsy2_q0.5'
-scenario$scenario53$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario53$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario53$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.5'
+scenario$scenario53$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario53$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario53$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario53$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario53$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario53$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario53$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 54 : Umsy0.4_Bmsy2_q0.5
+# Scenario 54 : Umsy0.2_Bmsy10_q0.5
 #
-scenario$scenario54$ctrl$scenarioName 'Umsy0.4_Bmsy2_q0.5'
-scenario$scenario54$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario54$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario54$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.5'
+scenario$scenario54$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario54$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario54$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario54$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario54$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario54$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario54$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 55 : Umsy0.5_Bmsy2_q0.5
+# Scenario 55 : Umsy0.3_Bmsy10_q0.5
 #
-scenario$scenario55$ctrl$scenarioName 'Umsy0.5_Bmsy2_q0.5'
-scenario$scenario55$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario55$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario55$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.5'
+scenario$scenario55$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario55$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario55$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario55$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario55$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario55$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario55$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 56 : Umsy0.1_Bmsy4_q0.5
+# Scenario 56 : Umsy0.4_Bmsy10_q0.5
 #
-scenario$scenario56$ctrl$scenarioName 'Umsy0.1_Bmsy4_q0.5'
-scenario$scenario56$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario56$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario56$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.5'
+scenario$scenario56$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario56$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario56$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario56$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario56$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario56$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario56$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 57 : Umsy0.2_Bmsy4_q0.5
+# Scenario 57 : Umsy0.1_Bmsy15_q0.5
 #
-scenario$scenario57$ctrl$scenarioName 'Umsy0.2_Bmsy4_q0.5'
-scenario$scenario57$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario57$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario57$ctrl$scenarioName 'Umsy0.1_Bmsy15_q0.5'
+scenario$scenario57$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario57$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario57$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario57$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario57$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario57$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario57$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 58 : Umsy0.3_Bmsy4_q0.5
+# Scenario 58 : Umsy0.2_Bmsy15_q0.5
 #
-scenario$scenario58$ctrl$scenarioName 'Umsy0.3_Bmsy4_q0.5'
-scenario$scenario58$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario58$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario58$ctrl$scenarioName 'Umsy0.2_Bmsy15_q0.5'
+scenario$scenario58$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario58$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario58$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario58$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario58$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario58$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario58$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 59 : Umsy0.4_Bmsy4_q0.5
+# Scenario 59 : Umsy0.3_Bmsy15_q0.5
 #
-scenario$scenario59$ctrl$scenarioName 'Umsy0.4_Bmsy4_q0.5'
-scenario$scenario59$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario59$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario59$ctrl$scenarioName 'Umsy0.3_Bmsy15_q0.5'
+scenario$scenario59$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario59$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario59$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario59$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario59$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario59$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario59$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 60 : Umsy0.5_Bmsy4_q0.5
+# Scenario 60 : Umsy0.4_Bmsy15_q0.5
 #
-scenario$scenario60$ctrl$scenarioName 'Umsy0.5_Bmsy4_q0.5'
-scenario$scenario60$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario60$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario60$ctrl$scenarioName 'Umsy0.4_Bmsy15_q0.5'
+scenario$scenario60$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario60$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario60$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario60$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario60$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario60$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario60$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 61 : Umsy0.1_Bmsy6_q0.5
+# Scenario 61 : Umsy0.1_Bmsy20_q0.5
 #
-scenario$scenario61$ctrl$scenarioName 'Umsy0.1_Bmsy6_q0.5'
+scenario$scenario61$ctrl$scenarioName 'Umsy0.1_Bmsy20_q0.5'
 scenario$scenario61$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario61$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario61$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario61$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario61$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario61$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario61$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario61$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 62 : Umsy0.2_Bmsy6_q0.5
+# Scenario 62 : Umsy0.2_Bmsy20_q0.5
 #
-scenario$scenario62$ctrl$scenarioName 'Umsy0.2_Bmsy6_q0.5'
+scenario$scenario62$ctrl$scenarioName 'Umsy0.2_Bmsy20_q0.5'
 scenario$scenario62$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario62$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario62$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario62$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario62$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario62$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario62$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario62$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 63 : Umsy0.3_Bmsy6_q0.5
+# Scenario 63 : Umsy0.3_Bmsy20_q0.5
 #
-scenario$scenario63$ctrl$scenarioName 'Umsy0.3_Bmsy6_q0.5'
+scenario$scenario63$ctrl$scenarioName 'Umsy0.3_Bmsy20_q0.5'
 scenario$scenario63$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario63$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario63$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario63$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario63$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario63$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario63$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario63$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 64 : Umsy0.4_Bmsy6_q0.5
+# Scenario 64 : Umsy0.4_Bmsy20_q0.5
 #
-scenario$scenario64$ctrl$scenarioName 'Umsy0.4_Bmsy6_q0.5'
+scenario$scenario64$ctrl$scenarioName 'Umsy0.4_Bmsy20_q0.5'
 scenario$scenario64$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario64$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario64$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario64$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario64$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario64$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario64$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario64$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 65 : Umsy0.5_Bmsy6_q0.5
+# Scenario 65 : Umsy0.1_Bmsy25_q0.5
 #
-scenario$scenario65$ctrl$scenarioName 'Umsy0.5_Bmsy6_q0.5'
-scenario$scenario65$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario65$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario65$ctrl$scenarioName 'Umsy0.1_Bmsy25_q0.5'
+scenario$scenario65$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario65$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario65$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario65$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario65$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario65$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario65$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 66 : Umsy0.1_Bmsy8_q0.5
+# Scenario 66 : Umsy0.2_Bmsy25_q0.5
 #
-scenario$scenario66$ctrl$scenarioName 'Umsy0.1_Bmsy8_q0.5'
-scenario$scenario66$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario66$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario66$ctrl$scenarioName 'Umsy0.2_Bmsy25_q0.5'
+scenario$scenario66$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario66$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario66$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario66$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario66$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario66$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario66$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 67 : Umsy0.2_Bmsy8_q0.5
+# Scenario 67 : Umsy0.3_Bmsy25_q0.5
 #
-scenario$scenario67$ctrl$scenarioName 'Umsy0.2_Bmsy8_q0.5'
-scenario$scenario67$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario67$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario67$ctrl$scenarioName 'Umsy0.3_Bmsy25_q0.5'
+scenario$scenario67$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario67$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario67$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario67$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario67$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario67$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario67$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 68 : Umsy0.3_Bmsy8_q0.5
+# Scenario 68 : Umsy0.4_Bmsy25_q0.5
 #
-scenario$scenario68$ctrl$scenarioName 'Umsy0.3_Bmsy8_q0.5'
-scenario$scenario68$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario68$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario68$ctrl$scenarioName 'Umsy0.4_Bmsy25_q0.5'
+scenario$scenario68$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario68$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario68$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario68$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario68$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario68$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario68$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 69 : Umsy0.4_Bmsy8_q0.5
+# Scenario 69 : Umsy0.1_Bmsy30_q0.5
 #
-scenario$scenario69$ctrl$scenarioName 'Umsy0.4_Bmsy8_q0.5'
-scenario$scenario69$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario69$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario69$ctrl$scenarioName 'Umsy0.1_Bmsy30_q0.5'
+scenario$scenario69$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario69$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario69$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario69$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario69$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario69$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario69$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 70 : Umsy0.5_Bmsy8_q0.5
+# Scenario 70 : Umsy0.2_Bmsy30_q0.5
 #
-scenario$scenario70$ctrl$scenarioName 'Umsy0.5_Bmsy8_q0.5'
-scenario$scenario70$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario70$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario70$ctrl$scenarioName 'Umsy0.2_Bmsy30_q0.5'
+scenario$scenario70$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario70$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario70$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario70$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario70$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario70$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario70$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 71 : Umsy0.1_Bmsy10_q0.5
+# Scenario 71 : Umsy0.3_Bmsy30_q0.5
 #
-scenario$scenario71$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.5'
-scenario$scenario71$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario71$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario71$ctrl$scenarioName 'Umsy0.3_Bmsy30_q0.5'
+scenario$scenario71$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario71$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario71$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario71$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario71$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario71$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario71$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 72 : Umsy0.2_Bmsy10_q0.5
+# Scenario 72 : Umsy0.4_Bmsy30_q0.5
 #
-scenario$scenario72$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.5'
-scenario$scenario72$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario72$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario72$ctrl$scenarioName 'Umsy0.4_Bmsy30_q0.5'
+scenario$scenario72$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario72$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario72$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario72$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario72$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario72$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario72$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 73 : Umsy0.3_Bmsy10_q0.5
+# Scenario 73 : Umsy0.1_Bmsy5_q0.6
 #
-scenario$scenario73$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.5'
-scenario$scenario73$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario73$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario73$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario73$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario73$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario73$ctrl$scenarioName 'Umsy0.1_Bmsy5_q0.6'
+scenario$scenario73$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario73$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario73$opMod$q c(0.6,.6,.6,.6,.6)
+scenario$scenario73$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario73$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 74 : Umsy0.4_Bmsy10_q0.5
+# Scenario 74 : Umsy0.2_Bmsy5_q0.6
 #
-scenario$scenario74$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.5'
-scenario$scenario74$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario74$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario74$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario74$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario74$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario74$ctrl$scenarioName 'Umsy0.2_Bmsy5_q0.6'
+scenario$scenario74$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario74$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario74$opMod$q c(0.6,.6,.6,.6,.6)
+scenario$scenario74$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario74$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 75 : Umsy0.5_Bmsy10_q0.5
+# Scenario 75 : Umsy0.3_Bmsy5_q0.6
 #
-scenario$scenario75$ctrl$scenarioName 'Umsy0.5_Bmsy10_q0.5'
-scenario$scenario75$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario75$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario75$opMod$q c(0.5,.6,.6,.6,.6)
-scenario$scenario75$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario75$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario75$ctrl$scenarioName 'Umsy0.3_Bmsy5_q0.6'
+scenario$scenario75$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario75$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario75$opMod$q c(0.6,.6,.6,.6,.6)
+scenario$scenario75$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario75$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 76 : Umsy0.1_Bmsy2_q0.6
+# Scenario 76 : Umsy0.4_Bmsy5_q0.6
 #
-scenario$scenario76$ctrl$scenarioName 'Umsy0.1_Bmsy2_q0.6'
-scenario$scenario76$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario76$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario76$ctrl$scenarioName 'Umsy0.4_Bmsy5_q0.6'
+scenario$scenario76$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario76$opMod$Bmsy c(5,10,10,10,10)
 scenario$scenario76$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario76$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario76$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario76$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario76$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 77 : Umsy0.2_Bmsy2_q0.6
+# Scenario 77 : Umsy0.1_Bmsy10_q0.6
 #
-scenario$scenario77$ctrl$scenarioName 'Umsy0.2_Bmsy2_q0.6'
-scenario$scenario77$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario77$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario77$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.6'
+scenario$scenario77$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario77$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario77$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario77$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario77$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario77$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario77$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 78 : Umsy0.3_Bmsy2_q0.6
+# Scenario 78 : Umsy0.2_Bmsy10_q0.6
 #
-scenario$scenario78$ctrl$scenarioName 'Umsy0.3_Bmsy2_q0.6'
-scenario$scenario78$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario78$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario78$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.6'
+scenario$scenario78$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario78$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario78$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario78$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario78$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario78$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario78$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 79 : Umsy0.4_Bmsy2_q0.6
+# Scenario 79 : Umsy0.3_Bmsy10_q0.6
 #
-scenario$scenario79$ctrl$scenarioName 'Umsy0.4_Bmsy2_q0.6'
-scenario$scenario79$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario79$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario79$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.6'
+scenario$scenario79$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario79$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario79$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario79$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario79$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario79$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario79$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 80 : Umsy0.5_Bmsy2_q0.6
+# Scenario 80 : Umsy0.4_Bmsy10_q0.6
 #
-scenario$scenario80$ctrl$scenarioName 'Umsy0.5_Bmsy2_q0.6'
-scenario$scenario80$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario80$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario80$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.6'
+scenario$scenario80$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario80$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario80$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario80$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario80$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario80$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario80$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 81 : Umsy0.1_Bmsy4_q0.6
+# Scenario 81 : Umsy0.1_Bmsy15_q0.6
 #
-scenario$scenario81$ctrl$scenarioName 'Umsy0.1_Bmsy4_q0.6'
+scenario$scenario81$ctrl$scenarioName 'Umsy0.1_Bmsy15_q0.6'
 scenario$scenario81$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario81$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario81$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario81$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario81$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario81$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario81$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario81$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 82 : Umsy0.2_Bmsy4_q0.6
+# Scenario 82 : Umsy0.2_Bmsy15_q0.6
 #
-scenario$scenario82$ctrl$scenarioName 'Umsy0.2_Bmsy4_q0.6'
+scenario$scenario82$ctrl$scenarioName 'Umsy0.2_Bmsy15_q0.6'
 scenario$scenario82$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario82$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario82$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario82$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario82$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario82$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario82$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario82$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 83 : Umsy0.3_Bmsy4_q0.6
+# Scenario 83 : Umsy0.3_Bmsy15_q0.6
 #
-scenario$scenario83$ctrl$scenarioName 'Umsy0.3_Bmsy4_q0.6'
+scenario$scenario83$ctrl$scenarioName 'Umsy0.3_Bmsy15_q0.6'
 scenario$scenario83$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario83$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario83$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario83$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario83$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario83$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario83$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario83$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 84 : Umsy0.4_Bmsy4_q0.6
+# Scenario 84 : Umsy0.4_Bmsy15_q0.6
 #
-scenario$scenario84$ctrl$scenarioName 'Umsy0.4_Bmsy4_q0.6'
+scenario$scenario84$ctrl$scenarioName 'Umsy0.4_Bmsy15_q0.6'
 scenario$scenario84$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario84$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario84$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario84$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario84$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario84$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario84$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario84$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 85 : Umsy0.5_Bmsy4_q0.6
+# Scenario 85 : Umsy0.1_Bmsy20_q0.6
 #
-scenario$scenario85$ctrl$scenarioName 'Umsy0.5_Bmsy4_q0.6'
-scenario$scenario85$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario85$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario85$ctrl$scenarioName 'Umsy0.1_Bmsy20_q0.6'
+scenario$scenario85$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario85$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario85$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario85$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario85$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario85$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario85$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 86 : Umsy0.1_Bmsy6_q0.6
+# Scenario 86 : Umsy0.2_Bmsy20_q0.6
 #
-scenario$scenario86$ctrl$scenarioName 'Umsy0.1_Bmsy6_q0.6'
-scenario$scenario86$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario86$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario86$ctrl$scenarioName 'Umsy0.2_Bmsy20_q0.6'
+scenario$scenario86$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario86$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario86$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario86$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario86$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario86$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario86$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 87 : Umsy0.2_Bmsy6_q0.6
+# Scenario 87 : Umsy0.3_Bmsy20_q0.6
 #
-scenario$scenario87$ctrl$scenarioName 'Umsy0.2_Bmsy6_q0.6'
-scenario$scenario87$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario87$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario87$ctrl$scenarioName 'Umsy0.3_Bmsy20_q0.6'
+scenario$scenario87$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario87$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario87$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario87$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario87$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario87$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario87$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 88 : Umsy0.3_Bmsy6_q0.6
+# Scenario 88 : Umsy0.4_Bmsy20_q0.6
 #
-scenario$scenario88$ctrl$scenarioName 'Umsy0.3_Bmsy6_q0.6'
-scenario$scenario88$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario88$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario88$ctrl$scenarioName 'Umsy0.4_Bmsy20_q0.6'
+scenario$scenario88$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario88$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario88$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario88$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario88$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario88$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario88$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 89 : Umsy0.4_Bmsy6_q0.6
+# Scenario 89 : Umsy0.1_Bmsy25_q0.6
 #
-scenario$scenario89$ctrl$scenarioName 'Umsy0.4_Bmsy6_q0.6'
-scenario$scenario89$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario89$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario89$ctrl$scenarioName 'Umsy0.1_Bmsy25_q0.6'
+scenario$scenario89$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario89$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario89$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario89$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario89$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario89$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario89$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 90 : Umsy0.5_Bmsy6_q0.6
+# Scenario 90 : Umsy0.2_Bmsy25_q0.6
 #
-scenario$scenario90$ctrl$scenarioName 'Umsy0.5_Bmsy6_q0.6'
-scenario$scenario90$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario90$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario90$ctrl$scenarioName 'Umsy0.2_Bmsy25_q0.6'
+scenario$scenario90$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario90$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario90$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario90$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario90$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario90$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario90$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 91 : Umsy0.1_Bmsy8_q0.6
+# Scenario 91 : Umsy0.3_Bmsy25_q0.6
 #
-scenario$scenario91$ctrl$scenarioName 'Umsy0.1_Bmsy8_q0.6'
-scenario$scenario91$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario91$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario91$ctrl$scenarioName 'Umsy0.3_Bmsy25_q0.6'
+scenario$scenario91$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario91$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario91$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario91$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario91$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario91$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario91$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 92 : Umsy0.2_Bmsy8_q0.6
+# Scenario 92 : Umsy0.4_Bmsy25_q0.6
 #
-scenario$scenario92$ctrl$scenarioName 'Umsy0.2_Bmsy8_q0.6'
-scenario$scenario92$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario92$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario92$ctrl$scenarioName 'Umsy0.4_Bmsy25_q0.6'
+scenario$scenario92$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario92$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario92$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario92$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario92$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario92$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario92$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 93 : Umsy0.3_Bmsy8_q0.6
+# Scenario 93 : Umsy0.1_Bmsy30_q0.6
 #
-scenario$scenario93$ctrl$scenarioName 'Umsy0.3_Bmsy8_q0.6'
-scenario$scenario93$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario93$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario93$ctrl$scenarioName 'Umsy0.1_Bmsy30_q0.6'
+scenario$scenario93$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario93$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario93$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario93$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario93$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario93$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario93$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 94 : Umsy0.4_Bmsy8_q0.6
+# Scenario 94 : Umsy0.2_Bmsy30_q0.6
 #
-scenario$scenario94$ctrl$scenarioName 'Umsy0.4_Bmsy8_q0.6'
-scenario$scenario94$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario94$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario94$ctrl$scenarioName 'Umsy0.2_Bmsy30_q0.6'
+scenario$scenario94$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario94$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario94$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario94$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario94$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario94$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario94$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 95 : Umsy0.5_Bmsy8_q0.6
+# Scenario 95 : Umsy0.3_Bmsy30_q0.6
 #
-scenario$scenario95$ctrl$scenarioName 'Umsy0.5_Bmsy8_q0.6'
-scenario$scenario95$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario95$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario95$ctrl$scenarioName 'Umsy0.3_Bmsy30_q0.6'
+scenario$scenario95$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario95$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario95$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario95$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario95$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario95$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario95$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 96 : Umsy0.1_Bmsy10_q0.6
+# Scenario 96 : Umsy0.4_Bmsy30_q0.6
 #
-scenario$scenario96$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.6'
-scenario$scenario96$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario96$opMod$Bmsy c(10,10,10,10,10)
+scenario$scenario96$ctrl$scenarioName 'Umsy0.4_Bmsy30_q0.6'
+scenario$scenario96$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario96$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario96$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario96$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario96$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario96$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario96$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 97 : Umsy0.2_Bmsy10_q0.6
+# Scenario 97 : Umsy0.1_Bmsy5_q0.7
 #
-scenario$scenario97$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.6'
-scenario$scenario97$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario97$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario97$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario97$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario97$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario97$ctrl$scenarioName 'Umsy0.1_Bmsy5_q0.7'
+scenario$scenario97$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario97$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario97$opMod$q c(0.7,.6,.6,.6,.6)
+scenario$scenario97$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario97$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 98 : Umsy0.3_Bmsy10_q0.6
+# Scenario 98 : Umsy0.2_Bmsy5_q0.7
 #
-scenario$scenario98$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.6'
-scenario$scenario98$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario98$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario98$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario98$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario98$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario98$ctrl$scenarioName 'Umsy0.2_Bmsy5_q0.7'
+scenario$scenario98$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario98$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario98$opMod$q c(0.7,.6,.6,.6,.6)
+scenario$scenario98$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario98$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 99 : Umsy0.4_Bmsy10_q0.6
+# Scenario 99 : Umsy0.3_Bmsy5_q0.7
 #
-scenario$scenario99$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.6'
-scenario$scenario99$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario99$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario99$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario99$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario99$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario99$ctrl$scenarioName 'Umsy0.3_Bmsy5_q0.7'
+scenario$scenario99$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario99$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario99$opMod$q c(0.7,.6,.6,.6,.6)
+scenario$scenario99$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario99$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 100 : Umsy0.5_Bmsy10_q0.6
+# Scenario 100 : Umsy0.4_Bmsy5_q0.7
 #
-scenario$scenario100$ctrl$scenarioName 'Umsy0.5_Bmsy10_q0.6'
-scenario$scenario100$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario100$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario100$opMod$q c(0.6,.6,.6,.6,.6)
-scenario$scenario100$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario100$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario100$ctrl$scenarioName 'Umsy0.4_Bmsy5_q0.7'
+scenario$scenario100$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario100$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario100$opMod$q c(0.7,.6,.6,.6,.6)
+scenario$scenario100$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario100$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 101 : Umsy0.1_Bmsy2_q0.7
+# Scenario 101 : Umsy0.1_Bmsy10_q0.7
 #
-scenario$scenario101$ctrl$scenarioName 'Umsy0.1_Bmsy2_q0.7'
+scenario$scenario101$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.7'
 scenario$scenario101$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario101$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario101$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario101$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario101$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario101$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario101$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario101$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 102 : Umsy0.2_Bmsy2_q0.7
+# Scenario 102 : Umsy0.2_Bmsy10_q0.7
 #
-scenario$scenario102$ctrl$scenarioName 'Umsy0.2_Bmsy2_q0.7'
+scenario$scenario102$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.7'
 scenario$scenario102$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario102$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario102$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario102$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario102$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario102$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario102$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario102$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 103 : Umsy0.3_Bmsy2_q0.7
+# Scenario 103 : Umsy0.3_Bmsy10_q0.7
 #
-scenario$scenario103$ctrl$scenarioName 'Umsy0.3_Bmsy2_q0.7'
+scenario$scenario103$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.7'
 scenario$scenario103$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario103$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario103$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario103$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario103$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario103$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario103$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario103$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 104 : Umsy0.4_Bmsy2_q0.7
+# Scenario 104 : Umsy0.4_Bmsy10_q0.7
 #
-scenario$scenario104$ctrl$scenarioName 'Umsy0.4_Bmsy2_q0.7'
+scenario$scenario104$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.7'
 scenario$scenario104$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario104$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario104$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario104$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario104$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario104$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario104$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario104$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 105 : Umsy0.5_Bmsy2_q0.7
+# Scenario 105 : Umsy0.1_Bmsy15_q0.7
 #
-scenario$scenario105$ctrl$scenarioName 'Umsy0.5_Bmsy2_q0.7'
-scenario$scenario105$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario105$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario105$ctrl$scenarioName 'Umsy0.1_Bmsy15_q0.7'
+scenario$scenario105$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario105$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario105$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario105$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario105$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario105$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario105$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 106 : Umsy0.1_Bmsy4_q0.7
+# Scenario 106 : Umsy0.2_Bmsy15_q0.7
 #
-scenario$scenario106$ctrl$scenarioName 'Umsy0.1_Bmsy4_q0.7'
-scenario$scenario106$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario106$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario106$ctrl$scenarioName 'Umsy0.2_Bmsy15_q0.7'
+scenario$scenario106$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario106$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario106$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario106$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario106$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario106$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario106$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 107 : Umsy0.2_Bmsy4_q0.7
+# Scenario 107 : Umsy0.3_Bmsy15_q0.7
 #
-scenario$scenario107$ctrl$scenarioName 'Umsy0.2_Bmsy4_q0.7'
-scenario$scenario107$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario107$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario107$ctrl$scenarioName 'Umsy0.3_Bmsy15_q0.7'
+scenario$scenario107$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario107$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario107$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario107$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario107$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario107$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario107$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 108 : Umsy0.3_Bmsy4_q0.7
+# Scenario 108 : Umsy0.4_Bmsy15_q0.7
 #
-scenario$scenario108$ctrl$scenarioName 'Umsy0.3_Bmsy4_q0.7'
-scenario$scenario108$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario108$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario108$ctrl$scenarioName 'Umsy0.4_Bmsy15_q0.7'
+scenario$scenario108$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario108$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario108$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario108$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario108$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario108$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario108$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 109 : Umsy0.4_Bmsy4_q0.7
+# Scenario 109 : Umsy0.1_Bmsy20_q0.7
 #
-scenario$scenario109$ctrl$scenarioName 'Umsy0.4_Bmsy4_q0.7'
-scenario$scenario109$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario109$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario109$ctrl$scenarioName 'Umsy0.1_Bmsy20_q0.7'
+scenario$scenario109$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario109$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario109$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario109$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario109$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario109$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario109$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 110 : Umsy0.5_Bmsy4_q0.7
+# Scenario 110 : Umsy0.2_Bmsy20_q0.7
 #
-scenario$scenario110$ctrl$scenarioName 'Umsy0.5_Bmsy4_q0.7'
-scenario$scenario110$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario110$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario110$ctrl$scenarioName 'Umsy0.2_Bmsy20_q0.7'
+scenario$scenario110$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario110$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario110$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario110$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario110$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario110$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario110$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 111 : Umsy0.1_Bmsy6_q0.7
+# Scenario 111 : Umsy0.3_Bmsy20_q0.7
 #
-scenario$scenario111$ctrl$scenarioName 'Umsy0.1_Bmsy6_q0.7'
-scenario$scenario111$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario111$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario111$ctrl$scenarioName 'Umsy0.3_Bmsy20_q0.7'
+scenario$scenario111$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario111$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario111$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario111$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario111$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario111$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario111$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 112 : Umsy0.2_Bmsy6_q0.7
+# Scenario 112 : Umsy0.4_Bmsy20_q0.7
 #
-scenario$scenario112$ctrl$scenarioName 'Umsy0.2_Bmsy6_q0.7'
-scenario$scenario112$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario112$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario112$ctrl$scenarioName 'Umsy0.4_Bmsy20_q0.7'
+scenario$scenario112$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario112$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario112$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario112$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario112$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario112$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario112$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 113 : Umsy0.3_Bmsy6_q0.7
+# Scenario 113 : Umsy0.1_Bmsy25_q0.7
 #
-scenario$scenario113$ctrl$scenarioName 'Umsy0.3_Bmsy6_q0.7'
-scenario$scenario113$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario113$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario113$ctrl$scenarioName 'Umsy0.1_Bmsy25_q0.7'
+scenario$scenario113$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario113$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario113$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario113$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario113$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario113$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario113$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 114 : Umsy0.4_Bmsy6_q0.7
+# Scenario 114 : Umsy0.2_Bmsy25_q0.7
 #
-scenario$scenario114$ctrl$scenarioName 'Umsy0.4_Bmsy6_q0.7'
-scenario$scenario114$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario114$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario114$ctrl$scenarioName 'Umsy0.2_Bmsy25_q0.7'
+scenario$scenario114$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario114$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario114$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario114$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario114$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario114$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario114$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 115 : Umsy0.5_Bmsy6_q0.7
+# Scenario 115 : Umsy0.3_Bmsy25_q0.7
 #
-scenario$scenario115$ctrl$scenarioName 'Umsy0.5_Bmsy6_q0.7'
-scenario$scenario115$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario115$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario115$ctrl$scenarioName 'Umsy0.3_Bmsy25_q0.7'
+scenario$scenario115$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario115$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario115$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario115$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario115$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario115$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario115$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 116 : Umsy0.1_Bmsy8_q0.7
+# Scenario 116 : Umsy0.4_Bmsy25_q0.7
 #
-scenario$scenario116$ctrl$scenarioName 'Umsy0.1_Bmsy8_q0.7'
-scenario$scenario116$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario116$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario116$ctrl$scenarioName 'Umsy0.4_Bmsy25_q0.7'
+scenario$scenario116$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario116$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario116$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario116$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario116$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario116$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario116$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 117 : Umsy0.2_Bmsy8_q0.7
+# Scenario 117 : Umsy0.1_Bmsy30_q0.7
 #
-scenario$scenario117$ctrl$scenarioName 'Umsy0.2_Bmsy8_q0.7'
-scenario$scenario117$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario117$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario117$ctrl$scenarioName 'Umsy0.1_Bmsy30_q0.7'
+scenario$scenario117$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario117$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario117$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario117$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario117$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario117$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario117$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 118 : Umsy0.3_Bmsy8_q0.7
+# Scenario 118 : Umsy0.2_Bmsy30_q0.7
 #
-scenario$scenario118$ctrl$scenarioName 'Umsy0.3_Bmsy8_q0.7'
-scenario$scenario118$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario118$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario118$ctrl$scenarioName 'Umsy0.2_Bmsy30_q0.7'
+scenario$scenario118$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario118$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario118$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario118$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario118$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario118$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario118$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 119 : Umsy0.4_Bmsy8_q0.7
+# Scenario 119 : Umsy0.3_Bmsy30_q0.7
 #
-scenario$scenario119$ctrl$scenarioName 'Umsy0.4_Bmsy8_q0.7'
-scenario$scenario119$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario119$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario119$ctrl$scenarioName 'Umsy0.3_Bmsy30_q0.7'
+scenario$scenario119$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario119$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario119$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario119$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario119$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario119$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario119$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 120 : Umsy0.5_Bmsy8_q0.7
+# Scenario 120 : Umsy0.4_Bmsy30_q0.7
 #
-scenario$scenario120$ctrl$scenarioName 'Umsy0.5_Bmsy8_q0.7'
-scenario$scenario120$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario120$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario120$ctrl$scenarioName 'Umsy0.4_Bmsy30_q0.7'
+scenario$scenario120$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario120$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario120$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario120$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario120$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario120$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario120$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 121 : Umsy0.1_Bmsy10_q0.7
+# Scenario 121 : Umsy0.1_Bmsy5_q0.8
 #
-scenario$scenario121$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.7'
+scenario$scenario121$ctrl$scenarioName 'Umsy0.1_Bmsy5_q0.8'
 scenario$scenario121$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario121$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario121$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario121$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario121$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario121$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario121$opMod$q c(0.8,.6,.6,.6,.6)
+scenario$scenario121$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario121$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 122 : Umsy0.2_Bmsy10_q0.7
+# Scenario 122 : Umsy0.2_Bmsy5_q0.8
 #
-scenario$scenario122$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.7'
+scenario$scenario122$ctrl$scenarioName 'Umsy0.2_Bmsy5_q0.8'
 scenario$scenario122$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario122$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario122$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario122$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario122$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario122$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario122$opMod$q c(0.8,.6,.6,.6,.6)
+scenario$scenario122$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario122$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 123 : Umsy0.3_Bmsy10_q0.7
+# Scenario 123 : Umsy0.3_Bmsy5_q0.8
 #
-scenario$scenario123$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.7'
+scenario$scenario123$ctrl$scenarioName 'Umsy0.3_Bmsy5_q0.8'
 scenario$scenario123$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario123$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario123$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario123$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario123$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario123$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario123$opMod$q c(0.8,.6,.6,.6,.6)
+scenario$scenario123$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario123$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 124 : Umsy0.4_Bmsy10_q0.7
+# Scenario 124 : Umsy0.4_Bmsy5_q0.8
 #
-scenario$scenario124$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.7'
+scenario$scenario124$ctrl$scenarioName 'Umsy0.4_Bmsy5_q0.8'
 scenario$scenario124$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario124$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario124$opMod$q c(0.7,.6,.6,.6,.6)
-scenario$scenario124$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario124$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario124$opMod$Bmsy c(5,10,10,10,10)
+scenario$scenario124$opMod$q c(0.8,.6,.6,.6,.6)
+scenario$scenario124$assess$mBmsy c(5,10,10,10,10)
+scenario$scenario124$assess$s2Bmsy c(25,100,100,100,100)
 #
-# Scenario 125 : Umsy0.5_Bmsy10_q0.7
+# Scenario 125 : Umsy0.1_Bmsy10_q0.8
 #
-scenario$scenario125$ctrl$scenarioName 'Umsy0.5_Bmsy10_q0.7'
-scenario$scenario125$opMod$Umsy c(0.5,.29,.29,.29,.29)
+scenario$scenario125$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.8'
+scenario$scenario125$opMod$Umsy c(0.1,.29,.29,.29,.29)
 scenario$scenario125$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario125$opMod$q c(0.7,.6,.6,.6,.6)
+scenario$scenario125$opMod$q c(0.8,.6,.6,.6,.6)
 scenario$scenario125$assess$mBmsy c(10,10,10,10,10)
 scenario$scenario125$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 126 : Umsy0.1_Bmsy2_q0.8
+# Scenario 126 : Umsy0.2_Bmsy10_q0.8
 #
-scenario$scenario126$ctrl$scenarioName 'Umsy0.1_Bmsy2_q0.8'
-scenario$scenario126$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario126$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario126$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.8'
+scenario$scenario126$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario126$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario126$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario126$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario126$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario126$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario126$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 127 : Umsy0.2_Bmsy2_q0.8
+# Scenario 127 : Umsy0.3_Bmsy10_q0.8
 #
-scenario$scenario127$ctrl$scenarioName 'Umsy0.2_Bmsy2_q0.8'
-scenario$scenario127$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario127$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario127$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.8'
+scenario$scenario127$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario127$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario127$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario127$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario127$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario127$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario127$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 128 : Umsy0.3_Bmsy2_q0.8
+# Scenario 128 : Umsy0.4_Bmsy10_q0.8
 #
-scenario$scenario128$ctrl$scenarioName 'Umsy0.3_Bmsy2_q0.8'
-scenario$scenario128$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario128$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario128$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.8'
+scenario$scenario128$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario128$opMod$Bmsy c(10,10,10,10,10)
 scenario$scenario128$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario128$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario128$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario128$assess$mBmsy c(10,10,10,10,10)
+scenario$scenario128$assess$s2Bmsy c(100,100,100,100,100)
 #
-# Scenario 129 : Umsy0.4_Bmsy2_q0.8
+# Scenario 129 : Umsy0.1_Bmsy15_q0.8
 #
-scenario$scenario129$ctrl$scenarioName 'Umsy0.4_Bmsy2_q0.8'
-scenario$scenario129$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario129$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario129$ctrl$scenarioName 'Umsy0.1_Bmsy15_q0.8'
+scenario$scenario129$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario129$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario129$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario129$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario129$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario129$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario129$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 130 : Umsy0.5_Bmsy2_q0.8
+# Scenario 130 : Umsy0.2_Bmsy15_q0.8
 #
-scenario$scenario130$ctrl$scenarioName 'Umsy0.5_Bmsy2_q0.8'
-scenario$scenario130$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario130$opMod$Bmsy c(2,10,10,10,10)
+scenario$scenario130$ctrl$scenarioName 'Umsy0.2_Bmsy15_q0.8'
+scenario$scenario130$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario130$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario130$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario130$assess$mBmsy c(2,10,10,10,10)
-scenario$scenario130$assess$s2Bmsy c(4,100,100,100,100)
+scenario$scenario130$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario130$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 131 : Umsy0.1_Bmsy4_q0.8
+# Scenario 131 : Umsy0.3_Bmsy15_q0.8
 #
-scenario$scenario131$ctrl$scenarioName 'Umsy0.1_Bmsy4_q0.8'
-scenario$scenario131$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario131$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario131$ctrl$scenarioName 'Umsy0.3_Bmsy15_q0.8'
+scenario$scenario131$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario131$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario131$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario131$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario131$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario131$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario131$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 132 : Umsy0.2_Bmsy4_q0.8
+# Scenario 132 : Umsy0.4_Bmsy15_q0.8
 #
-scenario$scenario132$ctrl$scenarioName 'Umsy0.2_Bmsy4_q0.8'
-scenario$scenario132$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario132$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario132$ctrl$scenarioName 'Umsy0.4_Bmsy15_q0.8'
+scenario$scenario132$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario132$opMod$Bmsy c(15,10,10,10,10)
 scenario$scenario132$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario132$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario132$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario132$assess$mBmsy c(15,10,10,10,10)
+scenario$scenario132$assess$s2Bmsy c(225,100,100,100,100)
 #
-# Scenario 133 : Umsy0.3_Bmsy4_q0.8
+# Scenario 133 : Umsy0.1_Bmsy20_q0.8
 #
-scenario$scenario133$ctrl$scenarioName 'Umsy0.3_Bmsy4_q0.8'
-scenario$scenario133$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario133$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario133$ctrl$scenarioName 'Umsy0.1_Bmsy20_q0.8'
+scenario$scenario133$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario133$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario133$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario133$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario133$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario133$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario133$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 134 : Umsy0.4_Bmsy4_q0.8
+# Scenario 134 : Umsy0.2_Bmsy20_q0.8
 #
-scenario$scenario134$ctrl$scenarioName 'Umsy0.4_Bmsy4_q0.8'
-scenario$scenario134$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario134$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario134$ctrl$scenarioName 'Umsy0.2_Bmsy20_q0.8'
+scenario$scenario134$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario134$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario134$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario134$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario134$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario134$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario134$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 135 : Umsy0.5_Bmsy4_q0.8
+# Scenario 135 : Umsy0.3_Bmsy20_q0.8
 #
-scenario$scenario135$ctrl$scenarioName 'Umsy0.5_Bmsy4_q0.8'
-scenario$scenario135$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario135$opMod$Bmsy c(4,10,10,10,10)
+scenario$scenario135$ctrl$scenarioName 'Umsy0.3_Bmsy20_q0.8'
+scenario$scenario135$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario135$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario135$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario135$assess$mBmsy c(4,10,10,10,10)
-scenario$scenario135$assess$s2Bmsy c(16,100,100,100,100)
+scenario$scenario135$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario135$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 136 : Umsy0.1_Bmsy6_q0.8
+# Scenario 136 : Umsy0.4_Bmsy20_q0.8
 #
-scenario$scenario136$ctrl$scenarioName 'Umsy0.1_Bmsy6_q0.8'
-scenario$scenario136$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario136$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario136$ctrl$scenarioName 'Umsy0.4_Bmsy20_q0.8'
+scenario$scenario136$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario136$opMod$Bmsy c(20,10,10,10,10)
 scenario$scenario136$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario136$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario136$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario136$assess$mBmsy c(20,10,10,10,10)
+scenario$scenario136$assess$s2Bmsy c(400,100,100,100,100)
 #
-# Scenario 137 : Umsy0.2_Bmsy6_q0.8
+# Scenario 137 : Umsy0.1_Bmsy25_q0.8
 #
-scenario$scenario137$ctrl$scenarioName 'Umsy0.2_Bmsy6_q0.8'
-scenario$scenario137$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario137$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario137$ctrl$scenarioName 'Umsy0.1_Bmsy25_q0.8'
+scenario$scenario137$opMod$Umsy c(0.1,.29,.29,.29,.29)
+scenario$scenario137$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario137$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario137$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario137$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario137$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario137$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 138 : Umsy0.3_Bmsy6_q0.8
+# Scenario 138 : Umsy0.2_Bmsy25_q0.8
 #
-scenario$scenario138$ctrl$scenarioName 'Umsy0.3_Bmsy6_q0.8'
-scenario$scenario138$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario138$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario138$ctrl$scenarioName 'Umsy0.2_Bmsy25_q0.8'
+scenario$scenario138$opMod$Umsy c(0.2,.29,.29,.29,.29)
+scenario$scenario138$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario138$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario138$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario138$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario138$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario138$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 139 : Umsy0.4_Bmsy6_q0.8
+# Scenario 139 : Umsy0.3_Bmsy25_q0.8
 #
-scenario$scenario139$ctrl$scenarioName 'Umsy0.4_Bmsy6_q0.8'
-scenario$scenario139$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario139$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario139$ctrl$scenarioName 'Umsy0.3_Bmsy25_q0.8'
+scenario$scenario139$opMod$Umsy c(0.3,.29,.29,.29,.29)
+scenario$scenario139$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario139$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario139$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario139$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario139$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario139$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 140 : Umsy0.5_Bmsy6_q0.8
+# Scenario 140 : Umsy0.4_Bmsy25_q0.8
 #
-scenario$scenario140$ctrl$scenarioName 'Umsy0.5_Bmsy6_q0.8'
-scenario$scenario140$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario140$opMod$Bmsy c(6,10,10,10,10)
+scenario$scenario140$ctrl$scenarioName 'Umsy0.4_Bmsy25_q0.8'
+scenario$scenario140$opMod$Umsy c(0.4,.29,.29,.29,.29)
+scenario$scenario140$opMod$Bmsy c(25,10,10,10,10)
 scenario$scenario140$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario140$assess$mBmsy c(6,10,10,10,10)
-scenario$scenario140$assess$s2Bmsy c(36,100,100,100,100)
+scenario$scenario140$assess$mBmsy c(25,10,10,10,10)
+scenario$scenario140$assess$s2Bmsy c(625,100,100,100,100)
 #
-# Scenario 141 : Umsy0.1_Bmsy8_q0.8
+# Scenario 141 : Umsy0.1_Bmsy30_q0.8
 #
-scenario$scenario141$ctrl$scenarioName 'Umsy0.1_Bmsy8_q0.8'
+scenario$scenario141$ctrl$scenarioName 'Umsy0.1_Bmsy30_q0.8'
 scenario$scenario141$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario141$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario141$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario141$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario141$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario141$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario141$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario141$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 142 : Umsy0.2_Bmsy8_q0.8
+# Scenario 142 : Umsy0.2_Bmsy30_q0.8
 #
-scenario$scenario142$ctrl$scenarioName 'Umsy0.2_Bmsy8_q0.8'
+scenario$scenario142$ctrl$scenarioName 'Umsy0.2_Bmsy30_q0.8'
 scenario$scenario142$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario142$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario142$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario142$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario142$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario142$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario142$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario142$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 143 : Umsy0.3_Bmsy8_q0.8
+# Scenario 143 : Umsy0.3_Bmsy30_q0.8
 #
-scenario$scenario143$ctrl$scenarioName 'Umsy0.3_Bmsy8_q0.8'
+scenario$scenario143$ctrl$scenarioName 'Umsy0.3_Bmsy30_q0.8'
 scenario$scenario143$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario143$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario143$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario143$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario143$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario143$assess$s2Bmsy c(64,100,100,100,100)
+scenario$scenario143$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario143$assess$s2Bmsy c(900,100,100,100,100)
 #
-# Scenario 144 : Umsy0.4_Bmsy8_q0.8
+# Scenario 144 : Umsy0.4_Bmsy30_q0.8
 #
-scenario$scenario144$ctrl$scenarioName 'Umsy0.4_Bmsy8_q0.8'
+scenario$scenario144$ctrl$scenarioName 'Umsy0.4_Bmsy30_q0.8'
 scenario$scenario144$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario144$opMod$Bmsy c(8,10,10,10,10)
+scenario$scenario144$opMod$Bmsy c(30,10,10,10,10)
 scenario$scenario144$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario144$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario144$assess$s2Bmsy c(64,100,100,100,100)
-#
-# Scenario 145 : Umsy0.5_Bmsy8_q0.8
-#
-scenario$scenario145$ctrl$scenarioName 'Umsy0.5_Bmsy8_q0.8'
-scenario$scenario145$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario145$opMod$Bmsy c(8,10,10,10,10)
-scenario$scenario145$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario145$assess$mBmsy c(8,10,10,10,10)
-scenario$scenario145$assess$s2Bmsy c(64,100,100,100,100)
-#
-# Scenario 146 : Umsy0.1_Bmsy10_q0.8
-#
-scenario$scenario146$ctrl$scenarioName 'Umsy0.1_Bmsy10_q0.8'
-scenario$scenario146$opMod$Umsy c(0.1,.29,.29,.29,.29)
-scenario$scenario146$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario146$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario146$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario146$assess$s2Bmsy c(100,100,100,100,100)
-#
-# Scenario 147 : Umsy0.2_Bmsy10_q0.8
-#
-scenario$scenario147$ctrl$scenarioName 'Umsy0.2_Bmsy10_q0.8'
-scenario$scenario147$opMod$Umsy c(0.2,.29,.29,.29,.29)
-scenario$scenario147$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario147$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario147$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario147$assess$s2Bmsy c(100,100,100,100,100)
-#
-# Scenario 148 : Umsy0.3_Bmsy10_q0.8
-#
-scenario$scenario148$ctrl$scenarioName 'Umsy0.3_Bmsy10_q0.8'
-scenario$scenario148$opMod$Umsy c(0.3,.29,.29,.29,.29)
-scenario$scenario148$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario148$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario148$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario148$assess$s2Bmsy c(100,100,100,100,100)
-#
-# Scenario 149 : Umsy0.4_Bmsy10_q0.8
-#
-scenario$scenario149$ctrl$scenarioName 'Umsy0.4_Bmsy10_q0.8'
-scenario$scenario149$opMod$Umsy c(0.4,.29,.29,.29,.29)
-scenario$scenario149$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario149$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario149$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario149$assess$s2Bmsy c(100,100,100,100,100)
-#
-# Scenario 150 : Umsy0.5_Bmsy10_q0.8
-#
-scenario$scenario150$ctrl$scenarioName 'Umsy0.5_Bmsy10_q0.8'
-scenario$scenario150$opMod$Umsy c(0.5,.29,.29,.29,.29)
-scenario$scenario150$opMod$Bmsy c(10,10,10,10,10)
-scenario$scenario150$opMod$q c(0.8,.6,.6,.6,.6)
-scenario$scenario150$assess$mBmsy c(10,10,10,10,10)
-scenario$scenario150$assess$s2Bmsy c(100,100,100,100,100)
+scenario$scenario144$assess$mBmsy c(30,10,10,10,10)
+scenario$scenario144$assess$s2Bmsy c(900,100,100,100,100)
 #
 #
-# Management Procedures 
+# Management Procedures
 #
-# MP 1 : baseAM 
+# MP 1: noJointPriors
 # 
-mp$mp1$ctrl$mpLabel 'baseAM' 
+mp$mp1$ctrl$mpLabel 'noJointPriors'
+mp$mp1$assess$estYearEff FALSE
+mp$mp1$assess$kappa2 0.00001
+mp$mp1$assess$lnUPriorCode 0
+mp$mp1$assess$fixsigU2 TRUE
+mp$mp1$assess$lnsigUmsy2 -2.4
+mp$mp1$assess$fixUbar TRUE
+mp$mp1$assess$lnqPriorCode 0
+mp$mp1$assess$fixtauq2 TRUE
+mp$mp1$assess$lntauq2 -2.4
+mp$mp1$assess$fixqbar TRUE
+mp$mp1$assess$estqms 'unique'
+mp$mp1$assess$fixqss FALSE
+mp$mp1$assess$msRE c('zeta_st')
+mp$mp1$assess$ssRE c('eps_t')
+#
+# MP 1: YearEffOnly
 # 
-# File Ends <not run>
+mp$mp2$ctrl$mpLabel 'YearEffOnly'
+mp$mp2$assess$estYearEff TRUE
+mp$mp2$assess$kappa2 0.1
+mp$mp2$assess$lnUPriorCode 0
+mp$mp2$assess$fixsigU2 TRUE
+mp$mp2$assess$lnsigUmsy2 -2.4
+mp$mp2$assess$fixUbar TRUE
+mp$mp2$assess$lnqPriorCode 0
+mp$mp2$assess$fixtauq2 TRUE
+mp$mp2$assess$lntauq2 -2.4
+mp$mp2$assess$fixqbar TRUE
+mp$mp2$assess$estqms 'unique'
+mp$mp2$assess$fixqss FALSE
+mp$mp2$assess$msRE c('zeta_st','eps_t')
+mp$mp2$assess$ssRE c('eps_t')
+#
+# MP 3: qPriorOnly
+# 
+mp$mp3$ctrl$mpLabel 'qPriorOnly'
+mp$mp3$assess$estYearEff FALSE
+mp$mp3$assess$kappa2 0.00001
+mp$mp3$assess$lnUPriorCode 0
+mp$mp3$assess$fixsigU2 TRUE
+mp$mp3$assess$lnsigUmsy2 -2.4
+mp$mp3$assess$fixUbar TRUE
+mp$mp3$assess$lnqPriorCode 1
+mp$mp3$assess$fixtauq2 FALSE
+mp$mp3$assess$lntauq2 -2.4
+mp$mp3$assess$fixqbar FALSE
+mp$mp3$assess$estqms 'unique'
+mp$mp3$assess$fixqss FALSE
+mp$mp3$assess$msRE c('zeta_st','lnq')
+mp$mp3$assess$ssRE c('eps_t')
+#
+# MP 4: UmsyPriorOnly
+# 
+mp$mp4$ctrl$mpLabel 'UmsyPriorOnly'
+mp$mp4$assess$estYearEff FALSE
+mp$mp4$assess$kappa2 0.00001
+mp$mp4$assess$lnUPriorCode 1
+mp$mp4$assess$fixsigU2 FALSE
+mp$mp4$assess$lnsigUmsy2 -2.4
+mp$mp4$assess$fixUbar FALSE
+mp$mp4$assess$lnqPriorCode 0
+mp$mp4$assess$fixtauq2 TRUE
+mp$mp4$assess$lntauq2 -2.4
+mp$mp4$assess$fixqbar TRUE
+mp$mp4$assess$estqms 'unique'
+mp$mp4$assess$fixqss FALSE
+mp$mp4$assess$msRE c('zeta_st','lnUmsy')
+mp$mp4$assess$ssRE c('eps_t')
+#
+# MP 5: qUpriors
+# 
+mp$mp5$ctrl$mpLabel 'qUpriors'
+mp$mp5$assess$estYearEff FALSE
+mp$mp5$assess$kappa2 0.00001
+mp$mp5$assess$lnUPriorCode 1
+mp$mp5$assess$fixsigU2 FALSE
+mp$mp5$assess$lnsigUmsy2 -2.4
+mp$mp5$assess$fixUbar FALSE
+mp$mp5$assess$lnqPriorCode 1
+mp$mp5$assess$fixtauq2 FALSE
+mp$mp5$assess$lntauq2 -2.4
+mp$mp5$assess$fixqbar FALSE
+mp$mp5$assess$estqms 'unique'
+mp$mp5$assess$fixqss FALSE
+mp$mp5$assess$msRE c('zeta_st','lnUmsy','lnq')
+mp$mp5$assess$ssRE c('eps_t')
+#
+# MP 6: qYEpriors
+# 
+mp$mp6$ctrl$mpLabel 'qYEpriors'
+mp$mp6$assess$estYearEff TRUE
+mp$mp6$assess$kappa2 0.1
+mp$mp6$assess$lnUPriorCode 0
+mp$mp6$assess$fixsigU2 TRUE
+mp$mp6$assess$lnsigUmsy2 -2.4
+mp$mp6$assess$fixUbar TRUE
+mp$mp6$assess$lnqPriorCode 1
+mp$mp6$assess$fixtauq2 FALSE
+mp$mp6$assess$lntauq2 -2.4
+mp$mp6$assess$fixqbar FALSE
+mp$mp6$assess$estqms 'unique'
+mp$mp6$assess$fixqss FALSE
+mp$mp6$assess$msRE c('zeta_st','eps_t','lnq')
+mp$mp6$assess$ssRE c('eps_t')
+#
+# MP 7: UmsyYEpriors
+# 
+mp$mp7$ctrl$mpLabel 'UmsyYEpriors'
+mp$mp7$assess$estYearEff TRUE
+mp$mp7$assess$kappa2 0.1
+mp$mp7$assess$lnUPriorCode 1
+mp$mp7$assess$fixsigU2 FALSE
+mp$mp7$assess$lnsigUmsy2 -2.4
+mp$mp7$assess$fixUbar FALSE
+mp$mp7$assess$lnqPriorCode 0
+mp$mp7$assess$fixtauq2 TRUE
+mp$mp7$assess$lntauq2 -2.4
+mp$mp7$assess$fixqbar TRUE
+mp$mp7$assess$estqms 'unique'
+mp$mp7$assess$fixqss FALSE
+mp$mp7$assess$msRE c('zeta_st','eps_t','lnUmsy')
+mp$mp7$assess$ssRE c('eps_t')
+#
+# MP 8: allJointPriors
+# 
+mp$mp8$ctrl$mpLabel 'allJointPriors'
+mp$mp8$assess$estYearEff TRUE
+mp$mp8$assess$kappa2 0.1
+mp$mp8$assess$lnUPriorCode 1
+mp$mp8$assess$fixsigU2 FALSE
+mp$mp8$assess$lnsigUmsy2 -2.4
+mp$mp8$assess$fixUbar FALSE
+mp$mp8$assess$lnqPriorCode 1
+mp$mp8$assess$fixtauq2 FALSE
+mp$mp8$assess$lntauq2 -2.4
+mp$mp8$assess$fixqbar FALSE
+mp$mp8$assess$estqms 'unique'
+mp$mp8$assess$fixqss FALSE
+mp$mp8$assess$msRE c('zeta_st','eps_t','lnUmsy','lnq')
+mp$mp8$assess$ssRE c('eps_t')
+#
