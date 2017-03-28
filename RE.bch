@@ -11,14 +11,14 @@ scenario$scenario1$opMod$kappaMult 0
 # Scenario 2 : nS6_c0_m0_
 #
 scenario$scenario2$ctrl$scenarioName 'nS6_c0_m0'
-scenario$scenario2$opMod$nS 4
+scenario$scenario2$opMod$nS 6
 scenario$scenario2$opMod$corrOffDiag 0
 scenario$scenario2$opMod$kappaMult 0
 #
 # Scenario 3 : nS10_c0_m0_
 #
 scenario$scenario3$ctrl$scenarioName 'nS10_c0_m0'
-scenario$scenario3$opMod$nS 5
+scenario$scenario3$opMod$nS 10
 scenario$scenario3$opMod$corrOffDiag 0
 scenario$scenario3$opMod$kappaMult 0
 #
@@ -32,14 +32,14 @@ scenario$scenario4$opMod$kappaMult 0
 # Scenario 5 : nS6_c0.2_m0_
 #
 scenario$scenario5$ctrl$scenarioName 'nS6_c0.2_m0'
-scenario$scenario5$opMod$nS 4
+scenario$scenario5$opMod$nS 6
 scenario$scenario5$opMod$corrOffDiag 0.2
 scenario$scenario5$opMod$kappaMult 0
 #
 # Scenario 6 : nS10_c0.2_m0_
 #
 scenario$scenario6$ctrl$scenarioName 'nS10_c0.2_m0'
-scenario$scenario6$opMod$nS 5
+scenario$scenario6$opMod$nS 10
 scenario$scenario6$opMod$corrOffDiag 0.2
 scenario$scenario6$opMod$kappaMult 0
 #
@@ -53,14 +53,14 @@ scenario$scenario7$opMod$kappaMult 0
 # Scenario 8 : nS6_c0.4_m0_
 #
 scenario$scenario8$ctrl$scenarioName 'nS6_c0.4_m0'
-scenario$scenario8$opMod$nS 4
+scenario$scenario8$opMod$nS 6
 scenario$scenario8$opMod$corrOffDiag 0.4
 scenario$scenario8$opMod$kappaMult 0
 #
 # Scenario 9 : nS10_c0.4_m0_
 #
 scenario$scenario9$ctrl$scenarioName 'nS10_c0.4_m0'
-scenario$scenario9$opMod$nS 5
+scenario$scenario9$opMod$nS 10
 scenario$scenario9$opMod$corrOffDiag 0.4
 scenario$scenario9$opMod$kappaMult 0
 #
@@ -74,14 +74,14 @@ scenario$scenario10$opMod$kappaMult 0
 # Scenario 11 : nS6_c0.6_m0_
 #
 scenario$scenario11$ctrl$scenarioName 'nS6_c0.6_m0'
-scenario$scenario11$opMod$nS 4
+scenario$scenario11$opMod$nS 6
 scenario$scenario11$opMod$corrOffDiag 0.6
 scenario$scenario11$opMod$kappaMult 0
 #
 # Scenario 12 : nS10_c0.6_m0_
 #
 scenario$scenario12$ctrl$scenarioName 'nS10_c0.6_m0'
-scenario$scenario12$opMod$nS 5
+scenario$scenario12$opMod$nS 10
 scenario$scenario12$opMod$corrOffDiag 0.6
 scenario$scenario12$opMod$kappaMult 0
 #
@@ -95,14 +95,14 @@ scenario$scenario13$opMod$kappaMult 0
 # Scenario 14 : nS6_c0.8_m0_
 #
 scenario$scenario14$ctrl$scenarioName 'nS6_c0.8_m0'
-scenario$scenario14$opMod$nS 4
+scenario$scenario14$opMod$nS 6
 scenario$scenario14$opMod$corrOffDiag 0.8
 scenario$scenario14$opMod$kappaMult 0
 #
 # Scenario 15 : nS10_c0.8_m0_
 #
 scenario$scenario15$ctrl$scenarioName 'nS10_c0.8_m0'
-scenario$scenario15$opMod$nS 5
+scenario$scenario15$opMod$nS 10
 scenario$scenario15$opMod$corrOffDiag 0.8
 scenario$scenario15$opMod$kappaMult 0
 #
@@ -116,14 +116,14 @@ scenario$scenario16$opMod$kappaMult 0.5
 # Scenario 17 : nS6_c0_m0.5_
 #
 scenario$scenario17$ctrl$scenarioName 'nS6_c0_m0.5'
-scenario$scenario17$opMod$nS 4
+scenario$scenario17$opMod$nS 6
 scenario$scenario17$opMod$corrOffDiag 0
 scenario$scenario17$opMod$kappaMult 0.5
 #
 # Scenario 18 : nS10_c0_m0.5_
 #
 scenario$scenario18$ctrl$scenarioName 'nS10_c0_m0.5'
-scenario$scenario18$opMod$nS 5
+scenario$scenario18$opMod$nS 10
 scenario$scenario18$opMod$corrOffDiag 0
 scenario$scenario18$opMod$kappaMult 0.5
 #
@@ -137,14 +137,14 @@ scenario$scenario19$opMod$kappaMult 0.5
 # Scenario 20 : nS6_c0.2_m0.5_
 #
 scenario$scenario20$ctrl$scenarioName 'nS6_c0.2_m0.5'
-scenario$scenario20$opMod$nS 4
+scenario$scenario20$opMod$nS 6
 scenario$scenario20$opMod$corrOffDiag 0.2
 scenario$scenario20$opMod$kappaMult 0.5
 #
 # Scenario 21 : nS10_c0.2_m0.5_
 #
 scenario$scenario21$ctrl$scenarioName 'nS10_c0.2_m0.5'
-scenario$scenario21$opMod$nS 5
+scenario$scenario21$opMod$nS 10
 scenario$scenario21$opMod$corrOffDiag 0.2
 scenario$scenario21$opMod$kappaMult 0.5
 #
@@ -158,14 +158,14 @@ scenario$scenario22$opMod$kappaMult 0.5
 # Scenario 23 : nS6_c0.4_m0.5_
 #
 scenario$scenario23$ctrl$scenarioName 'nS6_c0.4_m0.5'
-scenario$scenario23$opMod$nS 4
+scenario$scenario23$opMod$nS 6
 scenario$scenario23$opMod$corrOffDiag 0.4
 scenario$scenario23$opMod$kappaMult 0.5
 #
 # Scenario 24 : nS10_c0.4_m0.5_
 #
 scenario$scenario24$ctrl$scenarioName 'nS10_c0.4_m0.5'
-scenario$scenario24$opMod$nS 5
+scenario$scenario24$opMod$nS 10
 scenario$scenario24$opMod$corrOffDiag 0.4
 scenario$scenario24$opMod$kappaMult 0.5
 #
@@ -179,14 +179,14 @@ scenario$scenario25$opMod$kappaMult 0.5
 # Scenario 26 : nS6_c0.6_m0.5_
 #
 scenario$scenario26$ctrl$scenarioName 'nS6_c0.6_m0.5'
-scenario$scenario26$opMod$nS 4
+scenario$scenario26$opMod$nS 6
 scenario$scenario26$opMod$corrOffDiag 0.6
 scenario$scenario26$opMod$kappaMult 0.5
 #
 # Scenario 27 : nS10_c0.6_m0.5_
 #
 scenario$scenario27$ctrl$scenarioName 'nS10_c0.6_m0.5'
-scenario$scenario27$opMod$nS 5
+scenario$scenario27$opMod$nS 10
 scenario$scenario27$opMod$corrOffDiag 0.6
 scenario$scenario27$opMod$kappaMult 0.5
 #
@@ -200,14 +200,14 @@ scenario$scenario28$opMod$kappaMult 0.5
 # Scenario 29 : nS6_c0.8_m0.5_
 #
 scenario$scenario29$ctrl$scenarioName 'nS6_c0.8_m0.5'
-scenario$scenario29$opMod$nS 4
+scenario$scenario29$opMod$nS 6
 scenario$scenario29$opMod$corrOffDiag 0.8
 scenario$scenario29$opMod$kappaMult 0.5
 #
 # Scenario 30 : nS10_c0.8_m0.5_
 #
 scenario$scenario30$ctrl$scenarioName 'nS10_c0.8_m0.5'
-scenario$scenario30$opMod$nS 5
+scenario$scenario30$opMod$nS 10
 scenario$scenario30$opMod$corrOffDiag 0.8
 scenario$scenario30$opMod$kappaMult 0.5
 #
@@ -221,14 +221,14 @@ scenario$scenario31$opMod$kappaMult 1
 # Scenario 32 : nS6_c0_m1_
 #
 scenario$scenario32$ctrl$scenarioName 'nS6_c0_m1'
-scenario$scenario32$opMod$nS 4
+scenario$scenario32$opMod$nS 6
 scenario$scenario32$opMod$corrOffDiag 0
 scenario$scenario32$opMod$kappaMult 1
 #
 # Scenario 33 : nS10_c0_m1_
 #
 scenario$scenario33$ctrl$scenarioName 'nS10_c0_m1'
-scenario$scenario33$opMod$nS 5
+scenario$scenario33$opMod$nS 10
 scenario$scenario33$opMod$corrOffDiag 0
 scenario$scenario33$opMod$kappaMult 1
 #
@@ -242,14 +242,14 @@ scenario$scenario34$opMod$kappaMult 1
 # Scenario 35 : nS6_c0.2_m1_
 #
 scenario$scenario35$ctrl$scenarioName 'nS6_c0.2_m1'
-scenario$scenario35$opMod$nS 4
+scenario$scenario35$opMod$nS 6
 scenario$scenario35$opMod$corrOffDiag 0.2
 scenario$scenario35$opMod$kappaMult 1
 #
 # Scenario 36 : nS10_c0.2_m1_
 #
 scenario$scenario36$ctrl$scenarioName 'nS10_c0.2_m1'
-scenario$scenario36$opMod$nS 5
+scenario$scenario36$opMod$nS 10
 scenario$scenario36$opMod$corrOffDiag 0.2
 scenario$scenario36$opMod$kappaMult 1
 #
@@ -263,14 +263,14 @@ scenario$scenario37$opMod$kappaMult 1
 # Scenario 38 : nS6_c0.4_m1_
 #
 scenario$scenario38$ctrl$scenarioName 'nS6_c0.4_m1'
-scenario$scenario38$opMod$nS 4
+scenario$scenario38$opMod$nS 6
 scenario$scenario38$opMod$corrOffDiag 0.4
 scenario$scenario38$opMod$kappaMult 1
 #
 # Scenario 39 : nS10_c0.4_m1_
 #
 scenario$scenario39$ctrl$scenarioName 'nS10_c0.4_m1'
-scenario$scenario39$opMod$nS 5
+scenario$scenario39$opMod$nS 10
 scenario$scenario39$opMod$corrOffDiag 0.4
 scenario$scenario39$opMod$kappaMult 1
 #
@@ -284,14 +284,14 @@ scenario$scenario40$opMod$kappaMult 1
 # Scenario 41 : nS6_c0.6_m1_
 #
 scenario$scenario41$ctrl$scenarioName 'nS6_c0.6_m1'
-scenario$scenario41$opMod$nS 4
+scenario$scenario41$opMod$nS 6
 scenario$scenario41$opMod$corrOffDiag 0.6
 scenario$scenario41$opMod$kappaMult 1
 #
 # Scenario 42 : nS10_c0.6_m1_
 #
 scenario$scenario42$ctrl$scenarioName 'nS10_c0.6_m1'
-scenario$scenario42$opMod$nS 5
+scenario$scenario42$opMod$nS 10
 scenario$scenario42$opMod$corrOffDiag 0.6
 scenario$scenario42$opMod$kappaMult 1
 #
@@ -305,14 +305,14 @@ scenario$scenario43$opMod$kappaMult 1
 # Scenario 44 : nS6_c0.8_m1_
 #
 scenario$scenario44$ctrl$scenarioName 'nS6_c0.8_m1'
-scenario$scenario44$opMod$nS 4
+scenario$scenario44$opMod$nS 6
 scenario$scenario44$opMod$corrOffDiag 0.8
 scenario$scenario44$opMod$kappaMult 1
 #
 # Scenario 45 : nS10_c0.8_m1_
 #
 scenario$scenario45$ctrl$scenarioName 'nS10_c0.8_m1'
-scenario$scenario45$opMod$nS 5
+scenario$scenario45$opMod$nS 10
 scenario$scenario45$opMod$corrOffDiag 0.8
 scenario$scenario45$opMod$kappaMult 1
 #
@@ -326,14 +326,14 @@ scenario$scenario46$opMod$kappaMult 1.5
 # Scenario 47 : nS6_c0_m1.5_
 #
 scenario$scenario47$ctrl$scenarioName 'nS6_c0_m1.5'
-scenario$scenario47$opMod$nS 4
+scenario$scenario47$opMod$nS 6
 scenario$scenario47$opMod$corrOffDiag 0
 scenario$scenario47$opMod$kappaMult 1.5
 #
 # Scenario 48 : nS10_c0_m1.5_
 #
 scenario$scenario48$ctrl$scenarioName 'nS10_c0_m1.5'
-scenario$scenario48$opMod$nS 5
+scenario$scenario48$opMod$nS 10
 scenario$scenario48$opMod$corrOffDiag 0
 scenario$scenario48$opMod$kappaMult 1.5
 #
@@ -347,14 +347,14 @@ scenario$scenario49$opMod$kappaMult 1.5
 # Scenario 50 : nS6_c0.2_m1.5_
 #
 scenario$scenario50$ctrl$scenarioName 'nS6_c0.2_m1.5'
-scenario$scenario50$opMod$nS 4
+scenario$scenario50$opMod$nS 6
 scenario$scenario50$opMod$corrOffDiag 0.2
 scenario$scenario50$opMod$kappaMult 1.5
 #
 # Scenario 51 : nS10_c0.2_m1.5_
 #
 scenario$scenario51$ctrl$scenarioName 'nS10_c0.2_m1.5'
-scenario$scenario51$opMod$nS 5
+scenario$scenario51$opMod$nS 10
 scenario$scenario51$opMod$corrOffDiag 0.2
 scenario$scenario51$opMod$kappaMult 1.5
 #
@@ -368,14 +368,14 @@ scenario$scenario52$opMod$kappaMult 1.5
 # Scenario 53 : nS6_c0.4_m1.5_
 #
 scenario$scenario53$ctrl$scenarioName 'nS6_c0.4_m1.5'
-scenario$scenario53$opMod$nS 4
+scenario$scenario53$opMod$nS 6
 scenario$scenario53$opMod$corrOffDiag 0.4
 scenario$scenario53$opMod$kappaMult 1.5
 #
 # Scenario 54 : nS10_c0.4_m1.5_
 #
 scenario$scenario54$ctrl$scenarioName 'nS10_c0.4_m1.5'
-scenario$scenario54$opMod$nS 5
+scenario$scenario54$opMod$nS 10
 scenario$scenario54$opMod$corrOffDiag 0.4
 scenario$scenario54$opMod$kappaMult 1.5
 #
@@ -389,14 +389,14 @@ scenario$scenario55$opMod$kappaMult 1.5
 # Scenario 56 : nS6_c0.6_m1.5_
 #
 scenario$scenario56$ctrl$scenarioName 'nS6_c0.6_m1.5'
-scenario$scenario56$opMod$nS 4
+scenario$scenario56$opMod$nS 6
 scenario$scenario56$opMod$corrOffDiag 0.6
 scenario$scenario56$opMod$kappaMult 1.5
 #
 # Scenario 57 : nS10_c0.6_m1.5_
 #
 scenario$scenario57$ctrl$scenarioName 'nS10_c0.6_m1.5'
-scenario$scenario57$opMod$nS 5
+scenario$scenario57$opMod$nS 10
 scenario$scenario57$opMod$corrOffDiag 0.6
 scenario$scenario57$opMod$kappaMult 1.5
 #
@@ -410,14 +410,14 @@ scenario$scenario58$opMod$kappaMult 1.5
 # Scenario 59 : nS6_c0.8_m1.5_
 #
 scenario$scenario59$ctrl$scenarioName 'nS6_c0.8_m1.5'
-scenario$scenario59$opMod$nS 4
+scenario$scenario59$opMod$nS 6
 scenario$scenario59$opMod$corrOffDiag 0.8
 scenario$scenario59$opMod$kappaMult 1.5
 #
 # Scenario 60 : nS10_c0.8_m1.5_
 #
 scenario$scenario60$ctrl$scenarioName 'nS10_c0.8_m1.5'
-scenario$scenario60$opMod$nS 5
+scenario$scenario60$opMod$nS 10
 scenario$scenario60$opMod$corrOffDiag 0.8
 scenario$scenario60$opMod$kappaMult 1.5
 #
@@ -431,14 +431,14 @@ scenario$scenario61$opMod$kappaMult 2
 # Scenario 62 : nS6_c0_m2_
 #
 scenario$scenario62$ctrl$scenarioName 'nS6_c0_m2'
-scenario$scenario62$opMod$nS 4
+scenario$scenario62$opMod$nS 6
 scenario$scenario62$opMod$corrOffDiag 0
 scenario$scenario62$opMod$kappaMult 2
 #
 # Scenario 63 : nS10_c0_m2_
 #
 scenario$scenario63$ctrl$scenarioName 'nS10_c0_m2'
-scenario$scenario63$opMod$nS 5
+scenario$scenario63$opMod$nS 10
 scenario$scenario63$opMod$corrOffDiag 0
 scenario$scenario63$opMod$kappaMult 2
 #
@@ -452,14 +452,14 @@ scenario$scenario64$opMod$kappaMult 2
 # Scenario 65 : nS6_c0.2_m2_
 #
 scenario$scenario65$ctrl$scenarioName 'nS6_c0.2_m2'
-scenario$scenario65$opMod$nS 4
+scenario$scenario65$opMod$nS 6
 scenario$scenario65$opMod$corrOffDiag 0.2
 scenario$scenario65$opMod$kappaMult 2
 #
 # Scenario 66 : nS10_c0.2_m2_
 #
 scenario$scenario66$ctrl$scenarioName 'nS10_c0.2_m2'
-scenario$scenario66$opMod$nS 5
+scenario$scenario66$opMod$nS 10
 scenario$scenario66$opMod$corrOffDiag 0.2
 scenario$scenario66$opMod$kappaMult 2
 #
@@ -473,14 +473,14 @@ scenario$scenario67$opMod$kappaMult 2
 # Scenario 68 : nS6_c0.4_m2_
 #
 scenario$scenario68$ctrl$scenarioName 'nS6_c0.4_m2'
-scenario$scenario68$opMod$nS 4
+scenario$scenario68$opMod$nS 6
 scenario$scenario68$opMod$corrOffDiag 0.4
 scenario$scenario68$opMod$kappaMult 2
 #
 # Scenario 69 : nS10_c0.4_m2_
 #
 scenario$scenario69$ctrl$scenarioName 'nS10_c0.4_m2'
-scenario$scenario69$opMod$nS 5
+scenario$scenario69$opMod$nS 10
 scenario$scenario69$opMod$corrOffDiag 0.4
 scenario$scenario69$opMod$kappaMult 2
 #
@@ -494,14 +494,14 @@ scenario$scenario70$opMod$kappaMult 2
 # Scenario 71 : nS6_c0.6_m2_
 #
 scenario$scenario71$ctrl$scenarioName 'nS6_c0.6_m2'
-scenario$scenario71$opMod$nS 4
+scenario$scenario71$opMod$nS 6
 scenario$scenario71$opMod$corrOffDiag 0.6
 scenario$scenario71$opMod$kappaMult 2
 #
 # Scenario 72 : nS10_c0.6_m2_
 #
 scenario$scenario72$ctrl$scenarioName 'nS10_c0.6_m2'
-scenario$scenario72$opMod$nS 5
+scenario$scenario72$opMod$nS 10
 scenario$scenario72$opMod$corrOffDiag 0.6
 scenario$scenario72$opMod$kappaMult 2
 #
@@ -515,14 +515,14 @@ scenario$scenario73$opMod$kappaMult 2
 # Scenario 74 : nS6_c0.8_m2_
 #
 scenario$scenario74$ctrl$scenarioName 'nS6_c0.8_m2'
-scenario$scenario74$opMod$nS 4
+scenario$scenario74$opMod$nS 6
 scenario$scenario74$opMod$corrOffDiag 0.8
 scenario$scenario74$opMod$kappaMult 2
 #
 # Scenario 75 : nS10_c0.8_m2_
 #
 scenario$scenario75$ctrl$scenarioName 'nS10_c0.8_m2'
-scenario$scenario75$opMod$nS 5
+scenario$scenario75$opMod$nS 10
 scenario$scenario75$opMod$corrOffDiag 0.8
 scenario$scenario75$opMod$kappaMult 2
 #
