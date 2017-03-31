@@ -19,7 +19,7 @@ scenario$scenario2$opMod$sYear c(1995,rep(1988,9))
 #
 scenario$scenario3$ctrl$scenarioName 'nS10_identStocks_nonEq'
 scenario$scenario3$opMod$nS 10
-scenario$scenario2$opMod$sYear c(1995,rep(1988,9))
+scenario$scenario3$opMod$sYear c(1995,rep(1988,9))
 #
 # Management Procedures
 #

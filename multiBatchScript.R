@@ -12,15 +12,14 @@
 source("control.R")
 
 # Number of experiments:
-nExp <- 4
+nExp <- 1
 
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("RE.bch", "Fhist.bch", "obsErr.bch", "rKq.bch")
-baseCtlFiles  <- c( "simCtlFileAllSameBase.txt", "simCtlFileAllSameBase.txt",
-                    "simCtlFileAllSameBase.txt", "simCtlFileAllSameBase.txt" )
-expPrefix     <- c("RE_incMS", "Fhist_incMS", "obsErr_incMS", "rKq_incMS")
+batchFiles    <- c("msIncrementsDERPA.bch")
+baseCtlFiles  <- c("DERPAbase.txt")
+expPrefix     <- c("DERPA_msInc_1-2way")
 
 # Now loop over the experiments
 
@@ -48,6 +47,11 @@ for( i in 1:length(batchFiles))
   batchFldrContents <- list.files( file.path(getwd(), "project", "Batch") )
   batchContentsPath <- file.path( getwd(), "project", "Batch", batchFldrContents )
 
+  # Create stat tables
+  nSims <- length(sims)
+  .statTables(1:nSims,expPrefix[i])
+
+  # Copy out sims to dropbox, tidy up
   cat("Removing simulations from ./project/ \n", sep="")
   for(k in 1:length(simsPath))
     system(command=paste("rm -d -R ",simsPath[k],sep=""))
