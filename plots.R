@@ -1595,6 +1595,172 @@ plotComplexPubRasters <- function(  tableRoot = "RE_coarse_pub",
   if( save ) dev.off()
 }
 
+
+plotComplexPubRasters2 <- function(  tableRoot = "RE_coarse_pub",
+                                    axes = c("corr","kappaMult"),
+                                    pars = c("BnT","Bmsy","Umsy","Dep"),
+                                    wdh = 14, hgt = 18,
+                                    breakRange = c(-1,1),
+                                    tcex = 1.5,
+                                    legend = FALSE,
+                                    mpLabel   = "pubAM",
+                                    hess = FALSE,
+                                    nSp       = 5,
+                                    tUtr      = 15,
+                                    negCorr   = FALSE,
+                                    devLabels = FALSE,
+                                    save      = FALSE
+                                  )
+{
+  # Load in MARE and MRE tables
+  # browser()
+  MAREfile  <- paste( tableRoot, "_MARE.csv", sep = "" )
+  MREfile   <- paste( tableRoot, "_MRE.csv", sep = "" )
+
+  MAREpath  <- file.path ( getwd(), "project/Statistics", MAREfile )
+  MREpath   <- file.path ( getwd(), "project/Statistics", MREfile )
+
+  MREtable  <- read.csv( MREpath, header = TRUE, stringsAsFactors = FALSE )
+  MAREtable <- read.csv( MAREpath, header = TRUE, stringsAsFactors = FALSE )
+
+  # reduce to the correct subset of sims
+  MREtable <- MREtable  %>% 
+              filter( mp == mpLabel,
+                      nS == nSp,
+                      tUtrough == tUtr,
+                      lastNegCorr == negCorr ) %>%
+              group_by( scenario, mp ) %>%
+              summarise( ssBnT = mean( ssBnT ),
+                         msBnT = mean( msBnT ),
+                         ssBmsy = mean( ssBmsy ),
+                         msBmsy = mean( msBmsy ),
+                         ssUmsy = mean( ssUmsy ),
+                         msUmsy = mean( msUmsy ),
+                         ssq = mean( ssq ),
+                         msq = mean( msq ),
+                         ssDep = mean( ssDep ),
+                         msDep = mean( msDep ),
+                         corr = mean(corr),
+                         kappaMult = mean(kappaMult) )
+              
+  
+  MAREtable <-  MAREtable  %>% 
+                filter( mp == mpLabel,
+                        nS == nSp,
+                        tUtrough == tUtr,
+                        lastNegCorr == negCorr ) %>%
+                group_by( scenario, mp ) %>%
+                summarise(  ssBnT = mean( ssBnT ),
+                            msBnT = mean( msBnT ),
+                            ssBmsy = mean( ssBmsy ),
+                            msBmsy = mean( msBmsy ),
+                            ssUmsy = mean( ssUmsy ),
+                            msUmsy = mean( msUmsy ),
+                            ssq = mean( ssq ),
+                            msq = mean( msq ),
+                            ssDep = mean( ssDep ),
+                            msDep = mean( msDep ),
+                            corr = mean(corr),
+                            kappaMult = mean(kappaMult) )
+  # Compute Delta values              
+  MAREtable <-  MAREtable %>%
+                mutate( BnT     = log2(abs(ssBnT/msBnT)),
+                        Umsy    = log2(abs(ssUmsy/msUmsy)),
+                        Bmsy    = log2(abs(ssBmsy/msBmsy)),
+                        q       = log2(abs(ssq/msq)),
+                        Dep     = log2(abs(ssDep/msDep)) )
+
+  # Now start pulling rasters
+  msColNames      <- paste( "ms", pars, sep = "" )
+  ssColNames      <- paste( "ss", pars, sep = "" )
+  DeltaColNames   <- pars
+
+  # use makeRasterFromTable() to create raster bricks
+  ssMRE <- makeRasterFromTable( MREtable, axes, ssColNames )
+  msMRE <- makeRasterFromTable( MREtable, axes, msColNames )
+  ssMARE <- makeRasterFromTable( MAREtable, axes, ssColNames )
+  msMARE <- makeRasterFromTable( MAREtable, axes, msColNames )
+  Delta <- makeRasterFromTable( MAREtable, axes, DeltaColNames )
+
+  if( save )
+  {
+    outFile <- paste( tableRoot, "complexPubRasters.pdf", sep = "")
+    outFile <- file.path("./project/figs/",outFile)
+    pdf ( file = outFile, width = wdh, height = hgt )
+  }
+  
+  par(mfrow = c(1,length(pars)), mar = c(1,1,1,1), oma = c(5,5,3,2) ) 
+  colBreaks     <- c(-100,seq(breakRange[1],0,length=8),seq(0,breakRange[2],length=8)[-1],100)
+  colBreaksHess <- seq(0,200,length = 8)
+  redScale    <- brewer.pal(8, "Reds")
+  greenScale  <- brewer.pal(8, "Greens" )
+  rgScale     <- c(redScale[8:1],greenScale)
+  rrScale     <- c(redScale[8:1],redScale)
+
+  titles <- c("B2017","B0","Umsy","D2017")
+
+  # First plot Delta
+  for(k in 1:length(pars) )
+  {
+    plot( Delta[[1]][[k]], legend = FALSE, 
+        asp=NA, ylab="", xlab = "", col = rgScale, breaks = colBreaks,
+        axes = FALSE, cex.main = 1.5 )
+      mtext( text = titles[k], side = 3, line = 2, cex = 1.5)
+      # if( k == 1 ) mtext ( text = "(a)", side = 2, las = 1, line = 2 )
+      text( Delta[[1]][[k]], digits = 2, halo = T, cex = tcex, axes = FALSE )
+      axis( side = 2, at = 1:length(Delta$y) - 0.5, labels = ssMARE$y, las = 1 )
+      axis( side = 1, at = 1:length(Delta$x) - 0.5, labels = Delta$x ) 
+  }  
+  # # Then MARE plots
+  # for(k in 1:length(pars) )
+  # {
+  #   plot( ssMARE[[1]][[k]], legend = FALSE, 
+  #       asp=NA, ylab="", xlab = "", col = rrScale, breaks = colBreaks,
+  #       axes = FALSE )
+  #     if( k == 1 ) mtext ( text = "(b)", side = 2, las = 1, line = 2 )
+  #     text( ssMARE[[1]][[k]], digits = 2, halo = T, cex = tcex, axes = FALSE )
+  #     axis( side = 2, at = 1:length(ssMARE$y) - 0.5, labels = ssMARE$y, las = 1 )
+  #     axis( side = 1, at = 1:length(ssMARE$x) - 0.5, labels = ssMARE$x ) 
+  # }  
+  # for(k in 1:length(pars) )
+  # {
+  #   plot( msMARE[[1]][[k]], legend = FALSE, 
+  #       asp=NA, ylab="", xlab = "", col = rrScale, breaks = colBreaks,
+  #       axes = FALSE )
+  #     if( k == 1 ) mtext ( text = "(c)", side = 2, las = 1, line = 2 )
+  #     text( msMARE[[1]][[k]], digits = 2, halo = T, cex = tcex, axes = FALSE )
+  #     axis( side = 2, at = 1:length(msMARE$y) - 0.5, labels = msMARE$y, las = 1 )
+  #     axis( side = 1, at = 1:length(msMARE$x) - 0.5, labels = msMARE$x ) 
+  # }  
+  # # Then MRE plots
+  # for(k in 1:length(pars) )
+  # {
+  #   plot( ssMRE[[1]][[k]], legend = FALSE, 
+  #       asp=NA, ylab="", xlab = "", col = rrScale, breaks = colBreaks,
+  #       axes = FALSE )
+  #     if( k == 1 ) mtext ( text = "(d)", side = 2, las = 1, line = 2 )
+  #     text( ssMRE[[1]][[k]], digits = 2, halo = T, cex = tcex, axes = FALSE )
+  #     axis( side = 2, at = 1:length(ssMRE$y) - 0.5, labels = ssMRE$y, las = 1 )
+  #     axis( side = 1, at = 1:length(ssMRE$x) - 0.5, labels = ssMRE$x ) 
+  # }  
+  # for(k in 1:length(pars) )
+  # {
+  #   plot( msMRE[[1]][[k]], legend = FALSE, 
+  #       asp=NA, ylab="", xlab = "", col = rrScale, breaks = colBreaks,
+  #       axes = FALSE )
+  #     if( k == 1 ) mtext ( text = "(e)", side = 2, las = 1, line = 2 )
+  #     text( msMRE[[1]][[k]], digits = 2, halo = T, cex = tcex, axes = FALSE )
+  #     axis( side = 2, at = 1:length(msMRE$y) - 0.5, labels = msMRE$y, las = 1 )
+  #     axis( side = 1, at = 1:length(msMRE$x) - 0.5, labels = msMRE$x ) 
+  # }  
+  mtext(  side = 1, outer = TRUE, text = "Inter-species Correlation",
+          line = 2 )
+  mtext(  side = 2, outer = TRUE, text = "Shared Environmental Effects",
+          line = 3 )
+  if( save ) dev.off()
+}
+
+
 pull <- function(x,y) 
 {
   # pull()

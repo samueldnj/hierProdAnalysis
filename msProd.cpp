@@ -144,7 +144,7 @@ Type objective_function<Type>::operator() ()
   // Now loop over species, reconstruct history from initT
   for( int s = 0; s < nS; s++ )
   {
-    // initialise population, if iota_s=0 this will be eqbm
+    // initialise population, if initBioCode(s)==0 this will be eqbm
     if( initBioCode(s) == 0 ) Bt(s,initT(s)) = Type(2) * Bmsy(s);
     if( initBioCode(s) == 1 ) Bt(s,initT(s)) = Binit(s);
     for( int t = initT(s)+1; t < nT; t++ )

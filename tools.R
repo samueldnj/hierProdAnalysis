@@ -19,6 +19,148 @@
 # 
 # --------------------------------------------------------------------------
 
+makeExploreDesign <- function (  levels = list( Umax      = c(0.8,2),
+                                                nS        = seq(4,10,by=3),
+                                                nDiff     = 0:3,
+                                                Umsy      = c(.1,.4),
+                                                q         = c(.4,.8),
+                                                obsCV     = c(.1,.3),
+                                                sYear     = c(1994,2000)
+                                              ),
+                                bchName = "nonEqExplore" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+  # transform CVs to variances
+  levels$obsCV <- round(log(levels$obsCV^2 + 1),2)
+  
+  # expand.grid the factor levels
+  combos <- expand.grid(levels)
+  
+  totS <- max(levels$nS)
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(combos) )
+  {
+    scenLabel <- ""
+    repDiff <- combos[rIdx,"nDiff"]
+    repBase <- totS - repDiff
+    for( fIdx in 1:ncol(combos) )
+    {
+      scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
+      if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$nS ", combos[rIdx,"nS"], "\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Umult c(0.2,", combos[rIdx,"Umax"], ",0.8)\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(rep(", combos[rIdx,"Umsy"], 
+          ",", repDiff, "),rep(.25,",repBase, ")),\n", sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$q c(rep(", combos[rIdx,"q"], 
+          ",", repDiff, "),rep(.6,",repBase, ")),\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$tau2 c(rep(", combos[rIdx,"obsCV"], 
+          ",", repDiff, "),rep(.04,",repBase, ")),\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$sYear c(rep(", combos[rIdx,"sYear"], 
+          ",", repDiff, "),rep(1988,",repBase, ")),\n", sep = "", append = T, file = outFile )
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  # cat( "#\n", file = outFile, append = T )
+  # cat( "# Management Procedures \n", file = outFile, append = T )
+  # cat( "#\n", file = outFile, append = T )
+  # cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  # cat( "# \n", append = T, file = outFile )
+  # cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  # cat( "# \n", append = T, file = outFile )
+  # cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  combos
+}
+
+# makeObsErrDesign()
+# Creates a partial factorial design for the observation error
+# simulation experiments.
+# inputs:   levels = list of factor names and their levels
+#           bchName = character root of batch file name
+# ouputs:   table = design table data.frame
+# side-eff: creates <bchName>.bch in working directory
+makeObsErrDesign <- function (  levels = list(  Umax      = c(0.8,2),
+                                                nS        = 2:5,
+                                                CV1       = 0.5,
+                                                CV2       = seq(0.2,0.4,by=.1),
+                                                CV3       = seq(0.2,0.4,by=.1),
+                                                CV4       = seq(0.2,0.4,by=.1),
+                                                CV5       = seq(0.2,0.4,by=.1),
+                                                initYear1 = c(1988,1995),
+                                                initYear2 = c(1988,1995),
+                                                initYear3 = c(1988,1995), ),
+                                bchName = "obsErrDesign" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+
+  # expand.grid the factor levels
+  combos <- expand.grid(levels)
+  
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(combos) )
+  {
+    scenLabel <- ""
+    for( fIdx in 1:ncol(combos) )
+    {
+      scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
+      if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", combos[rIdx,"Umsy"], 
+          ",.29,.29,.29,.29)\n", sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", combos[rIdx,"Bmsy"], 
+          ",10,10,10,10)\n", sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$q c(", combos[rIdx,"q"], 
+          ",.6,.6,.6,.6)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$assess$mBmsy c(", combos[rIdx,"Bmsy"], 
+          ",10,10,10,10)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$assess$s2Bmsy c(", combos[rIdx,"Bmsy"]^2, 
+          ",100,100,100,100)\n", sep = "", append = T, file = outFile )
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Management Procedures \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  combos
+}
+
 # makeFacDesignDover()
 # Creates a fully factorial design for a simulation experiment,
 # following DASE methodology (Kleijnen, 2008). Currently
