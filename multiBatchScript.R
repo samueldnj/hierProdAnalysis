@@ -19,7 +19,7 @@ nExp <- 1
 # vectors must length k.
 batchFiles    <- c("obsErr.bch","nonEqExplore.bch")
 baseCtlFiles  <- c("simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt")
-expPrefix     <- c("allSame_obsErr_msIncr_","nonEqExplore_")
+expPrefix     <- c("allSame_obsErr_msIncr_","nonEqExplore_qPriorOnly")
 
 # Now loop over the experiments
 
