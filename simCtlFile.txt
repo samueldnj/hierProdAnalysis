@@ -1,6 +1,6 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "2way_eqInit95_.5corr_biennSurv"
+ctrl$scenarioName "1way_.5depInit88_.5corr_biennSurv"
 ctrl$mpLabel "baseAM"
 ctrl$nReps 10
 ctrl$rSeed 1
@@ -13,10 +13,10 @@ opMod$corrOffDiag 0.5
 opMod$lastNegCorr FALSE
 opMod$nS 5
 opMod$nT 30
-opMod$sYear c(1995,1995,1995,1995,1995)
+opMod$sYear c(1988,1988,1988,1988,1988)
 opMod$fYear 2017
-opMod$initDep rep(1,5)
-opMod$Umult c(0.2,2,0.8)
+opMod$initDep rep(.5,5)
+opMod$Umult c(0.2,.8,0.8)
 opMod$Umax NULL
 opMod$Udevs "corr"
 opMod$targDep rep(0.3,5)
@@ -26,7 +26,7 @@ opMod$tUtrough 25
 opMod$surveyFreq 2
 opMod$q c(0.518,0.628,0.488,0.648,0.718)
 opMod$gammaYr 0.0
-opMod$tau2 c(0.1,0.04,0.04,0.04,0.1)
+opMod$tau2 c(0.04,0.04,0.04,0.04,0.04)
 opMod$identObs FALSE
 opMod$corrMult 1
 opMod$kappaMult 1
@@ -43,7 +43,7 @@ assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
 assess$lnq c(-.51,-.51,-.51,-.51,-.51)
 assess$logit_gammaYr 0
 assess$tau2 c(0.01,0.01,0.01,0.01,0.01)
-assess$initBioCode rep(0,5)
+assess$initBioCode rep(1,5)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1,1,1,1)

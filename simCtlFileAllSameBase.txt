@@ -12,10 +12,14 @@ opMod$SigmaDiag rep(0.025,10)
 opMod$corrOffDiag 0.5
 opMod$lastNegCorr FALSE
 opMod$nS 10
+opMod$surveyFreq 2
 opMod$sYear rep(1988,10)
 opMod$fYear 2017
 opMod$Umult c(0.2,0.8,0.8)
 opMod$Umax NULL
+opMod$Udevs "off"
+opMod$targDep rep(0.3,10)
+opMod$targYr rep(2017,10)
 opMod$tUpeak 5
 opMod$tUtrough 15
 opMod$q rep(.6,10)

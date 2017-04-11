@@ -19,6 +19,70 @@
 # 
 # --------------------------------------------------------------------------
 
+makeInitCondDesign <- function (  levels = list(  nS        = seq(4,10,by=3),
+                                                  nDiff     = 0:3,
+                                                  sYear     = c(1995,2002),
+                                                  initDep   = c(0.4,0.7),
+                                                  survFreq  = c(1,2)
+                                                ),
+                                      bchName = "initConds" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+  
+  # expand.grid the factor levels
+  combos <- expand.grid(levels)
+  
+  totS <- max(levels$nS)
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(combos) )
+  {
+    scenLabel <- ""
+    repDiff <- combos[rIdx,"nDiff"]
+    repBase <- totS - repDiff
+    for( fIdx in 1:ncol(combos) )
+    {
+      scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
+      if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$nS ", combos[rIdx,"nS"], "\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$surveyFreq ", combos[rIdx,"survFreq"], "\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$sYear c(rep(", combos[rIdx,"sYear"], 
+          ",", repDiff, "),rep(1988,",repBase, ")),\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$initDep c(rep(", combos[rIdx,"initDep"], 
+          ",", repDiff, "),rep(1,",repBase, ")),\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$assess$initBioCode c(rep(1,",repDiff,"),rep(0,",repBase, ")),\n", sep = "", append = T, file = outFile )
+
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  # cat( "#\n", file = outFile, append = T )
+  # cat( "# Management Procedures \n", file = outFile, append = T )
+  # cat( "#\n", file = outFile, append = T )
+  # cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  # cat( "# \n", append = T, file = outFile )
+  # cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  # cat( "# \n", append = T, file = outFile )
+  # cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  combos
+}
+
 makeExploreDesign <- function (  levels = list( Umax      = c(0.8,2),
                                                 nS        = seq(4,10,by=3),
                                                 nDiff     = 0:3,
