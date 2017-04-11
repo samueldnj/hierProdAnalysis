@@ -17,9 +17,9 @@ nExp <- 1
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("obsErr.bch","nonEqExplore.bch","initConds.bch")
-baseCtlFiles  <- c("simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt")
-expPrefix     <- c("allSame_obsErr_msIncr_","nonEqExplore_qPriorOnly_","initConds_msIncr_")
+batchFiles    <- c("rKqExp.bch","REexp.bch","obsErr.bch","nonEqExplore.bch","initConds.bch")
+baseCtlFiles  <- c("simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt")
+expPrefix     <- c("rKq_msInc_","allSame_RE_msIncr_","allSame_obsErr_msIncr_","nonEqExplore_qPriorOnly_","initConds_msIncr_")
 
 # Now loop over the experiments
 

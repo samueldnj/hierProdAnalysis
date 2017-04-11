@@ -363,7 +363,6 @@ scenario$scenario60$ctrl$scenarioName 'nS10_CVhi0.22_CVlo0.04_nHi4'
 scenario$scenario60$opMod$nS 10
 scenario$scenario60$opMod$tau2 c(rep(0.22,4),rep(0.04,6)),
 #
-#
 # Management Procedures
 #
 # MP 1: noJointPriors

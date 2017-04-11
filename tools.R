@@ -19,13 +19,79 @@
 # 
 # --------------------------------------------------------------------------
 
+# makeInitCondDesign()
+# Creates the .bch file for the initial conditions experiment,
+# without the MP section underneath.
+makeREexpDesign <- function (  levels = list(   nS  = seq(2,10,by=4),
+                                                m   = seq(0.5,2,by = 0.5),
+                                                c   = seq(0,.8,by=0.2)      
+                                            ),
+                                bchName = "REexp" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+  
+  # expand.grid the factor levels
+  combos <- expand.grid(levels)
+  
+  totS <- max(levels$nS)
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(combos) )
+  {
+    scenLabel <- ""
+    repDiff <- combos[rIdx,"nDiff"]
+    repBase <- totS - repDiff
+    for( fIdx in 1:ncol(combos) )
+    {
+      scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
+      if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$nS ", combos[rIdx,"nS"], "\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Udevs 'corr'\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$kappaMult", combos[rIdx,"m"] ,"\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag", combos[rIdx,"c"] ,"\n",
+          sep = "", append = T, file = outFile  )
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Management Procedures \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  combos
+}
+
+# makeInitCondDesign()
+# Creates the .bch file for the initial conditions experiment,
+# without the MP section underneath.
 makeInitCondDesign <- function (  levels = list(  nS        = seq(4,10,by=3),
                                                   nDiff     = 0:3,
                                                   sYear     = c(1995,2002),
                                                   initDep   = c(0.4,0.7),
                                                   survFreq  = c(1,2)
                                                 ),
-                                      bchName = "initConds" )
+                                  bchName = "initConds" )
 {
   # First, recover the number of factors
   k <- length(levels)
@@ -83,6 +149,10 @@ makeInitCondDesign <- function (  levels = list(  nS        = seq(4,10,by=3),
   combos
 }
 
+# makeExploreDesign()
+# Creates the .bch batch design file for exploring the region where the 
+# ms model did better, (see q prior only runs in 
+# cwMSexperiments/.../1way_msInc_allSame experiment). 
 makeExploreDesign <- function (  levels = list( Umax      = c(0.8,2),
                                                 nS        = seq(4,10,by=3),
                                                 nDiff     = 0:3,
@@ -165,7 +235,7 @@ makeObsErrDesign <- function (  levels = list(  nS        = seq(4,10,by=3),
                                                 CVlo      = c(0.1,0.2),
                                                 nHi       = c(0:4) 
                                               ),
-                                bchName = "obsErrDesign" )
+                                bchName = "obsErr" )
 {
   # First, recover the number of factors
   k <- length(levels)
@@ -232,8 +302,8 @@ makeObsErrDesign <- function (  levels = list(  nS        = seq(4,10,by=3),
 # ouputs:   table = design table data.frame
 # side-eff: creates <bchName>.bch in working directory
 makeFacDesignDover <- function (  levels = list(  Umsy  = seq(0.1,0.4, by = .1),
-                                                  Bmsy  = c(seq(5,30,by = 5)),
-                                                  q     = seq(0.3,0.8,by=.1)
+                                                  Bmsy  = c(seq(5,35,by = 10)),
+                                                  q     = seq(0.2,0.8,by=.2)
                                                 ),
                                   bchName = "rKqExp" )
 {
@@ -266,15 +336,15 @@ makeFacDesignDover <- function (  levels = list(  Umsy  = seq(0.1,0.4, by = .1),
     cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
           sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", combos[rIdx,"Umsy"], 
-          ",.29,.29,.29,.29)\n", sep = "", append = T, file = outFile )  
+          ",rep(.25,9))\n", sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", combos[rIdx,"Bmsy"], 
-          ",10,10,10,10)\n", sep = "", append = T, file = outFile )  
+          ",rep(20,9))\n", sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$q c(", combos[rIdx,"q"], 
-          ",.6,.6,.6,.6)\n", sep = "", append = T, file = outFile )
+          ",rep(.6,9))\n", sep = "", append = T, file = outFile )
     cat(  "scenario$scenario", rIdx, "$assess$mBmsy c(", combos[rIdx,"Bmsy"], 
-          ",10,10,10,10)\n", sep = "", append = T, file = outFile )
+          ",rep(20,9))\n", sep = "", append = T, file = outFile )
     cat(  "scenario$scenario", rIdx, "$assess$s2Bmsy c(", combos[rIdx,"Bmsy"]^2, 
-          ",100,100,100,100)\n", sep = "", append = T, file = outFile )
+          ",rep(400,9))\n", sep = "", append = T, file = outFile )
     cat( "#\n", file = outFile, append = T )
   }
 
