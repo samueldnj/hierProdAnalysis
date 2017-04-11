@@ -2,7 +2,7 @@
 parameter value
 ctrl$scenarioName "DERPA"
 ctrl$mpLabel "baseAM"
-ctrl$nReps 10
+ctrl$nReps 3
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
 opMod$Bmsy c(40,6.25,26.8,26.12,495.4)
@@ -18,7 +18,7 @@ opMod$fYear 2017
 opMod$initDep rep(1,5)
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
-opMod$Udevs "corr"
+opMod$Udevs "off"
 opMod$targDep rep(0.3,5)
 opMod$targYr rep(2017,5)
 opMod$tUpeak 5

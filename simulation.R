@@ -254,7 +254,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       bioCorr <- bioCorr - diag(1,nS)
       targMtx <- matrix(obj$corrOffDiag, nrow = nS, ncol = nS)
       targMtx <- targMtx - diag(obj$corrOffDiag,nS)
-      nll <- 0.5 * sum( (bioCorr - targMtx)^2 ) / 0.001
+      nll <- 0.5 * sum( (bioCorr - targMtx)^2 ) / 0.0001
       # browser()
     }
 

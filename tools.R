@@ -19,12 +19,71 @@
 # 
 # --------------------------------------------------------------------------
 
-# makeInitCondDesign()
-# Creates the .bch file for the initial conditions experiment,
+# makeFhistDesign()
+# Creates the .bch file for a historical fishing intensity experiment,
 # without the MP section underneath.
-makeREexpDesign <- function (  levels = list(   nS  = seq(2,10,by=4),
-                                                m   = seq(0.5,2,by = 0.5),
-                                                c   = seq(0,.8,by=0.2)      
+makeFhistDesign <- function (  levels = list( nS  = seq(2,10,by=4),
+                                              Umax  = c(0.8,1.4,2.0),
+                                              tUpeak = c(2,6,10)
+                                            ),
+                                bchName = "Fhist" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+  
+  # expand.grid the factor levels
+  combos <- expand.grid(levels)
+  
+  totS <- max(levels$nS)
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(combos) )
+  {
+    scenLabel <- ""
+    repDiff <- combos[rIdx,"nDiff"]
+    repBase <- totS - repDiff
+    for( fIdx in 1:ncol(combos) )
+    {
+      scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
+      if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$nS ", combos[rIdx,"nS"], "\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$tUpeak", combos[rIdx,"tUpeak"] ,"\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$Umult c(0.2,", combos[rIdx,"Umax"], ",0.8)\n", 
+          sep = "", append = T, file = outFile )    
+    
+    cat( "#\n", file = outFile, append = T )
+  }
+  cat( "# Management Procedures \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  combos
+}
+
+# makeREexpDesign()
+# Creates the .bch file for the random effects and correlation experiment
+makeREexpDesign <- function (  levels = list(   nS    = seq(2,10,by=4),
+                                                m     = seq(0,2,by = 0.5),
+                                                c     = seq(0.2,.8,by=0.2)   
                                             ),
                                 bchName = "REexp" )
 {
@@ -60,7 +119,7 @@ makeREexpDesign <- function (  levels = list(   nS  = seq(2,10,by=4),
     cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
           sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$nS ", combos[rIdx,"nS"], "\n", 
-          sep = "", append = T, file = outFile )  
+          sep = "", append = T, file = outFile )
     cat(  "scenario$scenario", rIdx, "$opMod$Udevs 'corr'\n",
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$kappaMult", combos[rIdx,"m"] ,"\n",
@@ -69,8 +128,6 @@ makeREexpDesign <- function (  levels = list(   nS  = seq(2,10,by=4),
           sep = "", append = T, file = outFile  )
     cat( "#\n", file = outFile, append = T )
   }
-
-  cat( "#\n", file = outFile, append = T )
   cat( "# Management Procedures \n", file = outFile, append = T )
   cat( "#\n", file = outFile, append = T )
   cat( "# MP 1 : baseAM \n", append = T, file = outFile )

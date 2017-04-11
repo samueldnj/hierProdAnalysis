@@ -11,15 +11,12 @@
 # Source the simulation framework
 source("control.R")
 
-# Number of experiments:
-nExp <- 1
-
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("rKqExp.bch","REexp.bch","obsErr.bch","nonEqExplore.bch","initConds.bch")
-baseCtlFiles  <- c("simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt")
-expPrefix     <- c("rKq_msInc_","allSame_RE_msIncr_","allSame_obsErr_msIncr_","nonEqExplore_qPriorOnly_","initConds_msIncr_")
+batchFiles    <- c("rKqExp.bch","Fhist.bch","REexp.bch","obsErr.bch","nonEqExplore.bch","initConds.bch")
+baseCtlFiles  <- c("simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt")
+expPrefix     <- c("rKq_msInc_","allSame_Fhist_msIncr","allSame_RE_msIncr_","allSame_obsErr_msIncr_","nonEqExplore_qPriorOnly_","initConds_msIncr_")
 
 # Now loop over the experiments
 
@@ -32,6 +29,7 @@ for( i in 1:length(batchFiles))
   .runBatchJob( par = T, prefix = expPrefix[i] )
 
   # Create stat tables
+  sims <- grep(pattern = "sim", x = list.files("./project/"), value = T)
   nSims <- length(sims)
   .statTables(1:nSims,expPrefix[i])
 
@@ -46,7 +44,7 @@ for( i in 1:length(batchFiles))
 
   # Now remove the simulation folders and the contents of the batch sub-dir
   # from the project folder
-  sims <- grep(pattern = "sim", x = list.files("./project/"), value = T)
+  # sims <- grep(pattern = "sim", x = list.files("./project/"), value = T)
   simsPath <- file.path( getwd(),"project",sims)
   batchFldrContents <- list.files( file.path(getwd(), "project", "Batch") )
   batchContentsPath <- file.path( getwd(), "project", "Batch", batchFldrContents )
