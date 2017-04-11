@@ -95,6 +95,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   om <- .popInit( type = Udevs, obj = obj$opMod, Ust = Ust,
                   specNames = obj$ctrl$speciesNames  )
 
+  # Change indices based on survey freq
+  if( !is.null(obj$opMod$surveyFreq) )
+  {
+    survFreqIdx           <- seq(1,max(nT),by=obj$opMod$surveyFreq)
+    om$It[,-survFreqIdx]  <- -1.0
+  }
+
 
   return(om)
 }
@@ -193,7 +200,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                       obj = obj, specNames = specNames, baseMtx = Ust, om = om ) 
 
 
-  browser()
+  # browser()
 
   return(om)
 }
@@ -668,7 +675,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Run operating model to generate data
   obj$om <- .opModel ( obj, seed = seed )
 
-  # Create data objects for EMs
+  # Create data objects for AMs
   datPar <- .makeDataLists ( obj )
 
   # Call EMs

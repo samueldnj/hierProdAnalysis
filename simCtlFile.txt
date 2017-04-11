@@ -1,8 +1,8 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "1.5way_noneqStart_hiObsCV"
-ctrl$mpLabel "qPriorOnly"
-ctrl$nReps 200
+ctrl$scenarioName "2way_eqInit95_.5corr_biennSurv"
+ctrl$mpLabel "baseAM"
+ctrl$nReps 10
 ctrl$rSeed 1
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
 opMod$Bmsy c(40,6.25,26.8,26.12,495.4)
@@ -13,7 +13,7 @@ opMod$corrOffDiag 0.5
 opMod$lastNegCorr FALSE
 opMod$nS 5
 opMod$nT 30
-opMod$sYear c(1995,1975,1975,1975,1985)
+opMod$sYear c(1995,1995,1995,1995,1995)
 opMod$fYear 2017
 opMod$initDep rep(1,5)
 opMod$Umult c(0.2,2,0.8)
@@ -23,9 +23,10 @@ opMod$targDep rep(0.3,5)
 opMod$targYr rep(2017,5)
 opMod$tUpeak 5
 opMod$tUtrough 25
+opMod$surveyFreq 2
 opMod$q c(0.518,0.628,0.488,0.648,0.718)
 opMod$gammaYr 0.0
-opMod$tau2 c(0.25,0.04,0.04,0.04,0.04)
+opMod$tau2 c(0.1,0.04,0.04,0.04,0.1)
 opMod$identObs FALSE
 opMod$corrMult 1
 opMod$kappaMult 1
@@ -35,14 +36,14 @@ assess$msAR1 FALSE
 assess$msCorr "off"
 assess$ssAR1 FALSE
 assess$quiet TRUE
-assess$estYearEff FALSE
+assess$estYearEff TRUE
 assess$fitTrials 3
 assess$maxfn 1000
 assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
 assess$lnq c(-.51,-.51,-.51,-.51,-.51)
 assess$logit_gammaYr 0
 assess$tau2 c(0.01,0.01,0.01,0.01,0.01)
-assess$initBioCode c(1,0,0,0,1)
+assess$initBioCode rep(0,5)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1,1,1,1)
@@ -51,9 +52,9 @@ assess$mBmsy c(40,6.25,26.8,26.12,495.4)
 assess$s2Bmsy c(1600,39.0625,718.24,682.25,245000)
 assess$lnUPriorCode 1
 assess$lnUmsybar -1.23
-assess$lnsigUmsy2 0.09
-assess$fixsigU2 TRUE
-assess$fixUbar TRUE
+assess$lnsigUmsy2 -2.4
+assess$fixsigU2 FALSE
+assess$fixUbar FALSE
 assess$mlnUmsy -1.23
 assess$s2lnUmsy 0.09
 assess$lnqPriorCode 1
