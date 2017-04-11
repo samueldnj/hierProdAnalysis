@@ -9,13 +9,13 @@
 #
 # --------------------------------------------------------------------------
 
-plotProfiles <- function ( sim = 2 )
-{
-  # plotProfiles()
-  # This function plots likelihood profiles for the selected sims,
-  # as long as they were calculated during the simulations
-  # input:    sim = int 1-vector indicating the simulation in project folder
-}
+# plotProfiles <- function ( sim = 2 )
+# {
+#   # plotProfiles()
+#   # This function plots likelihood profiles for the selected sims,
+#   # as long as they were calculated during the simulations
+#   # input:    sim = int 1-vector indicating the simulation in project folder
+# }
 
 # lowK_qModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "q" )
 # lowK_BmsyModels <- .DASEmodelSelection( "lowK_rKq_MRE.csv", resp = "Bmsy" )
@@ -38,7 +38,7 @@ plotProfiles <- function ( sim = 2 )
 # plotOMSpecResponse(resp = "Bmsy", ssModel = BmsyModels$ss$sel[[1]], msModel = BmsyModels$ms$sel[[1]])
 
 # Plots response variable curves as a function of the axes,
-# restricted to the nominated speies.
+# restricted to the nominated species.
 plotOMSpecResponse <- function( tabName = "rKqExp_MRE",
                                 resp = "q",
                                 spec = "Dover",

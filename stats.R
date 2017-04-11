@@ -308,7 +308,7 @@ AICrank <- function ( summList )
 .statTables <- function (sims=1,tabNameRoot = "statTable")
 { 
   # MSE
-  .statTableMSE(sims,paste(tabNameRoot,"_MSE.csv",sep=""))
+  # .statTableMSE(sims,paste(tabNameRoot,"_MSE.csv",sep=""))
   # MRE
   .statTableMRE(sims,paste(tabNameRoot,"_MRE.csv",sep=""))
   # MARE
@@ -442,7 +442,7 @@ AICrank <- function ( summList )
   # First, info and true pars
   statTable$scenario        <- blob$ctrl$scenarioName
   statTable$mp              <- blob$ctrl$mpLabel
-  statTable$species         <- species
+  statTable$species         <- species[1:nS]
   statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
   statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult       <- kappaMult
@@ -454,12 +454,13 @@ AICrank <- function ( summList )
   statTable$tau2OM          <- opMod$tau2[1:nS]
   statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS              <- opMod$nS
+  statTable$UmsyOM          <- opMod$Umsy[1:nS]
+  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
+  statTable$qOM             <- opMod$q[1:nS]
   statTable$s2q             <- blob$assess$s2lnq
-  statTable$tauq2           <- median(blob$am$ms$tauq2,na.rm=TRUE)
-  statTable$qbar            <- median(blob$am$ms$qbar,na.rm=TRUE)
+  statTable$fixqbar         <- blob$assess$fixqbar
+  statTable$fixtauq2        <- blob$assess$fixqbar
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
-  statTable$Umsybar         <- median(blob$am$ms$Umsybar,na.rm=TRUE)
   if (is.null(blob$assess$tauq2Prior))
   {
     statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
@@ -548,7 +549,7 @@ AICrank <- function ( summList )
   # First, info and true pars
   statTable$scenario        <- blob$ctrl$scenarioName
   statTable$mp              <- blob$ctrl$mpLabel
-  statTable$species         <- species
+  statTable$species         <- species[1:nS]
   statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
   statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult       <- kappaMult
@@ -560,14 +561,12 @@ AICrank <- function ( summList )
   statTable$tau2OM          <- opMod$tau2[1:nS]
   statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS              <- opMod$nS
-  statTable$UmsyOM          <- opMod$Umsy
-  statTable$BmsyOM          <- opMod$Bmsy
-  statTable$qOM             <- opMod$q
+  statTable$UmsyOM          <- opMod$Umsy[1:nS]
+  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
+  statTable$qOM             <- opMod$q[1:nS]
   statTable$s2q             <- blob$assess$s2lnq
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
-  statTable$qOM             <- blob$opMod$q[1:nS]
-  statTable$UmsyOM          <- blob$opMod$Umsy[1:nS]
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
   if (is.null(blob$assess$tauq2Prior))
   {
@@ -676,26 +675,24 @@ AICrank <- function ( summList )
   # First, info and true pars
   statTable$scenario        <- blob$ctrl$scenarioName
   statTable$mp              <- blob$ctrl$mpLabel
-  statTable$species         <- species
+  statTable$species         <- species[1:nS]
   statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
   statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult       <- kappaMult
   statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps           <- nReps
+  statTable$nReps           <- length(success)
   statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough        <- opMod$tUtrough
   statTable$tUpeak          <- opMod$tUpeak
   statTable$tau2OM          <- opMod$tau2[1:nS]
   statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS              <- opMod$nS
-  statTable$UmsyOM          <- opMod$Umsy
-  statTable$BmsyOM          <- opMod$Bmsy
-  statTable$qOM             <- opMod$q
+  statTable$UmsyOM          <- opMod$Umsy[1:nS]
+  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
+  statTable$qOM             <- opMod$q[1:nS]
   statTable$s2q             <- blob$assess$s2lnq
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
-  statTable$qOM             <- blob$opMod$q[1:nS]
-  statTable$UmsyOM          <- blob$opMod$Umsy[1:nS]
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
   if (is.null(blob$assess$tauq2Prior))
   {
@@ -784,24 +781,25 @@ AICrank <- function ( summList )
   # First, info and true pars
   statTable$scenario        <- blob$ctrl$scenarioName
   statTable$mp              <- blob$ctrl$mpLabel
-  statTable$species         <- species
+  statTable$species         <- species[1:nS]
   statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
   statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult       <- kappaMult
   statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps           <- nReps
+  statTable$nReps           <- length(success)
   statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
   statTable$tUtrough        <- opMod$tUtrough
   statTable$tUpeak          <- opMod$tUpeak
   statTable$tau2OM          <- opMod$tau2[1:nS]
   statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS              <- opMod$nS
+  statTable$UmsyOM          <- opMod$Umsy[1:nS]
+  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
+  statTable$qOM             <- opMod$q[1:nS]
   statTable$s2q             <- blob$assess$s2lnq
-  statTable$tauq2           <- median(blob$am$ms$tauq2,na.rm=TRUE)
-  statTable$qbar            <- median(blob$am$ms$qbar,na.rm=TRUE)
+  statTable$fixqbar         <- blob$assess$fixqbar
+  statTable$fixtauq2        <- blob$assess$fixqbar
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  statTable$sigU2           <- median(blob$am$ms$sigU2,na.rm=TRUE)
-  statTable$Umsybar         <- median(blob$am$ms$Umsybar,na.rm=TRUE)
   if (is.null(blob$assess$tauq2Prior))
   {
     statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)

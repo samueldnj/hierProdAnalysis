@@ -31,6 +31,10 @@ for( i in 1:length(batchFiles))
   # Run batch job in parallel
   .runBatchJob( par = T, prefix = expPrefix[i] )
 
+  # Create stat tables
+  nSims <- length(sims)
+  .statTables(1:nSims,expPrefix[i])
+
   # Now copy the project folder to dropbox
   copyDest <- file.path("~/Dropbox/Work/cwMS_experiments/TMB",expPrefix[i])
   dir.create( copyDest )
@@ -46,10 +50,6 @@ for( i in 1:length(batchFiles))
   simsPath <- file.path( getwd(),"project",sims)
   batchFldrContents <- list.files( file.path(getwd(), "project", "Batch") )
   batchContentsPath <- file.path( getwd(), "project", "Batch", batchFldrContents )
-
-  # Create stat tables
-  nSims <- length(sims)
-  .statTables(1:nSims,expPrefix[i])
 
   # Copy out sims to dropbox, tidy up
   cat("Removing simulations from ./project/ \n", sep="")
