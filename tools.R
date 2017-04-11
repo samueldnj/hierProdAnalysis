@@ -160,24 +160,26 @@ makeExploreDesign <- function (  levels = list( Umax      = c(0.8,2),
 #           bchName = character root of batch file name
 # ouputs:   table = design table data.frame
 # side-eff: creates <bchName>.bch in working directory
-makeObsErrDesign <- function (  levels = list(  Umax      = c(0.8,2),
-                                                nS        = 2:5,
-                                                CV1       = 0.5,
-                                                CV2       = seq(0.2,0.4,by=.1),
-                                                CV3       = seq(0.2,0.4,by=.1),
-                                                CV4       = seq(0.2,0.4,by=.1),
-                                                CV5       = seq(0.2,0.4,by=.1),
-                                                initYear1 = c(1988,1995),
-                                                initYear2 = c(1988,1995),
-                                                initYear3 = c(1988,1995), ),
+makeObsErrDesign <- function (  levels = list(  nS        = seq(4,10,by=3),
+                                                CVhi      = c(0.4,0.5),
+                                                CVlo      = c(0.1,0.2),
+                                                nHi       = c(0:4) 
+                                              ),
                                 bchName = "obsErrDesign" )
 {
   # First, recover the number of factors
   k <- length(levels)
 
+  # transform CVs to variances
+  levels$CVhi <- round(log(levels$CVhi^2 + 1),2)
+  levels$CVlo <- round(log(levels$CVlo^2 + 1),2)
+  # Count total nS
+  totS <- max(levels$nS)
+  
   # expand.grid the factor levels
   combos <- expand.grid(levels)
   
+
   # Now start making the batch file for the simulation experiment
   outFile <- paste( bchName, ".bch", sep = "")
   cat(  "# Batch Control File, created ", date(), " by makeDesignDover() \n", 
@@ -196,20 +198,16 @@ makeObsErrDesign <- function (  levels = list(  Umax      = c(0.8,2),
       scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
       if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
     }
+    repHi <- combos[rIdx,"nHi"]
+    repLo <- totS - repHi
     cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
     cat( "#\n", file = outFile, append = T )
     cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
           sep = "", append = T, file = outFile )  
-    cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", combos[rIdx,"Umsy"], 
-          ",.29,.29,.29,.29)\n", sep = "", append = T, file = outFile )  
-    cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", combos[rIdx,"Bmsy"], 
-          ",10,10,10,10)\n", sep = "", append = T, file = outFile )  
-    cat(  "scenario$scenario", rIdx, "$opMod$q c(", combos[rIdx,"q"], 
-          ",.6,.6,.6,.6)\n", sep = "", append = T, file = outFile )
-    cat(  "scenario$scenario", rIdx, "$assess$mBmsy c(", combos[rIdx,"Bmsy"], 
-          ",10,10,10,10)\n", sep = "", append = T, file = outFile )
-    cat(  "scenario$scenario", rIdx, "$assess$s2Bmsy c(", combos[rIdx,"Bmsy"]^2, 
-          ",100,100,100,100)\n", sep = "", append = T, file = outFile )
+    cat(  "scenario$scenario", rIdx, "$opMod$nS ", combos[rIdx,"nS"], "\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$tau2 c(rep(", combos[rIdx,"CVhi"], 
+          ",", repHi, "),rep(",combos[rIdx,"CVlo"],",",repLo, ")),\n", sep = "", append = T, file = outFile )
     cat( "#\n", file = outFile, append = T )
   }
 
