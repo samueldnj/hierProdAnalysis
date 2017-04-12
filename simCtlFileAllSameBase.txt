@@ -10,6 +10,7 @@ opMod$Umsy rep(0.25,10)
 opMod$kappa2 0.025
 opMod$SigmaDiag rep(0.025,10)
 opMod$corrOffDiag 0.5
+opMod$initDep rep(1,5)
 opMod$lastNegCorr FALSE
 opMod$nS 10
 opMod$surveyFreq 2
