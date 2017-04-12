@@ -310,7 +310,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Recover om and control lists
   om    <- obj$om
   opMod <- obj$opMod
-
+  browser()
   # Needs to create nS SS dat and par lists, and 1 MS dat and par list.
   # First, SS:
   # Recover number of species

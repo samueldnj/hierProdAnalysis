@@ -83,7 +83,7 @@ makeFhistDesign <- function (  levels = list( nS  = seq(2,10,by=4),
 # Creates the .bch file for the random effects and correlation experiment
 makeREexpDesign <- function (  levels = list(   nS    = seq(2,10,by=4),
                                                 m     = seq(0,2,by = 0.5),
-                                                c     = seq(0.2,.8,by=0.2)   
+                                                c     = seq(.2,.8,by=0.2)   
                                             ),
                                 bchName = "REexp" )
 {

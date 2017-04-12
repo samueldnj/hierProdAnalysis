@@ -10,12 +10,11 @@ opMod$Umsy c(0.3,0.4,0.35,0.25,0.15)
 opMod$kappa2 0.025
 opMod$SigmaDiag c(0.025,0.025,0.025,0.025,0.025)
 opMod$corrOffDiag 0.
+opMod$initDep rep(1,5)
 opMod$lastNegCorr FALSE
 opMod$nS 5
-opMod$nT 30
 opMod$sYear c(1988,1988,1988,1988,1988)
 opMod$fYear 2017
-opMod$initDep rep(1,5)
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
 opMod$Udevs "off"
