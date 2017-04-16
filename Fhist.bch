@@ -7,189 +7,189 @@ parameter value
 #
 scenario$scenario1$ctrl$scenarioName 'nS2_Umax0.8_tUpeak2'
 scenario$scenario1$opMod$nS 2
-scenario$scenario1$opMod$tUpeak2
+scenario$scenario1$opMod$tUpeak 2
 scenario$scenario1$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 2 : nS6_Umax0.8_tUpeak2
 #
 scenario$scenario2$ctrl$scenarioName 'nS6_Umax0.8_tUpeak2'
 scenario$scenario2$opMod$nS 6
-scenario$scenario2$opMod$tUpeak2
+scenario$scenario2$opMod$tUpeak 2
 scenario$scenario2$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 3 : nS10_Umax0.8_tUpeak2
 #
 scenario$scenario3$ctrl$scenarioName 'nS10_Umax0.8_tUpeak2'
 scenario$scenario3$opMod$nS 10
-scenario$scenario3$opMod$tUpeak2
+scenario$scenario3$opMod$tUpeak 2
 scenario$scenario3$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 4 : nS2_Umax1.4_tUpeak2
 #
 scenario$scenario4$ctrl$scenarioName 'nS2_Umax1.4_tUpeak2'
 scenario$scenario4$opMod$nS 2
-scenario$scenario4$opMod$tUpeak2
+scenario$scenario4$opMod$tUpeak 2
 scenario$scenario4$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 5 : nS6_Umax1.4_tUpeak2
 #
 scenario$scenario5$ctrl$scenarioName 'nS6_Umax1.4_tUpeak2'
 scenario$scenario5$opMod$nS 6
-scenario$scenario5$opMod$tUpeak2
+scenario$scenario5$opMod$tUpeak 2
 scenario$scenario5$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 6 : nS10_Umax1.4_tUpeak2
 #
 scenario$scenario6$ctrl$scenarioName 'nS10_Umax1.4_tUpeak2'
 scenario$scenario6$opMod$nS 10
-scenario$scenario6$opMod$tUpeak2
+scenario$scenario6$opMod$tUpeak 2
 scenario$scenario6$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 7 : nS2_Umax2_tUpeak2
 #
 scenario$scenario7$ctrl$scenarioName 'nS2_Umax2_tUpeak2'
 scenario$scenario7$opMod$nS 2
-scenario$scenario7$opMod$tUpeak2
+scenario$scenario7$opMod$tUpeak 2
 scenario$scenario7$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 8 : nS6_Umax2_tUpeak2
 #
 scenario$scenario8$ctrl$scenarioName 'nS6_Umax2_tUpeak2'
 scenario$scenario8$opMod$nS 6
-scenario$scenario8$opMod$tUpeak2
+scenario$scenario8$opMod$tUpeak 2
 scenario$scenario8$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 9 : nS10_Umax2_tUpeak2
 #
 scenario$scenario9$ctrl$scenarioName 'nS10_Umax2_tUpeak2'
 scenario$scenario9$opMod$nS 10
-scenario$scenario9$opMod$tUpeak2
+scenario$scenario9$opMod$tUpeak 2
 scenario$scenario9$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 10 : nS2_Umax0.8_tUpeak6
 #
 scenario$scenario10$ctrl$scenarioName 'nS2_Umax0.8_tUpeak6'
 scenario$scenario10$opMod$nS 2
-scenario$scenario10$opMod$tUpeak6
+scenario$scenario10$opMod$tUpeak 6
 scenario$scenario10$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 11 : nS6_Umax0.8_tUpeak6
 #
 scenario$scenario11$ctrl$scenarioName 'nS6_Umax0.8_tUpeak6'
 scenario$scenario11$opMod$nS 6
-scenario$scenario11$opMod$tUpeak6
+scenario$scenario11$opMod$tUpeak 6
 scenario$scenario11$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 12 : nS10_Umax0.8_tUpeak6
 #
 scenario$scenario12$ctrl$scenarioName 'nS10_Umax0.8_tUpeak6'
 scenario$scenario12$opMod$nS 10
-scenario$scenario12$opMod$tUpeak6
+scenario$scenario12$opMod$tUpeak 6
 scenario$scenario12$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 13 : nS2_Umax1.4_tUpeak6
 #
 scenario$scenario13$ctrl$scenarioName 'nS2_Umax1.4_tUpeak6'
 scenario$scenario13$opMod$nS 2
-scenario$scenario13$opMod$tUpeak6
+scenario$scenario13$opMod$tUpeak 6
 scenario$scenario13$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 14 : nS6_Umax1.4_tUpeak6
 #
 scenario$scenario14$ctrl$scenarioName 'nS6_Umax1.4_tUpeak6'
 scenario$scenario14$opMod$nS 6
-scenario$scenario14$opMod$tUpeak6
+scenario$scenario14$opMod$tUpeak 6
 scenario$scenario14$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 15 : nS10_Umax1.4_tUpeak6
 #
 scenario$scenario15$ctrl$scenarioName 'nS10_Umax1.4_tUpeak6'
 scenario$scenario15$opMod$nS 10
-scenario$scenario15$opMod$tUpeak6
+scenario$scenario15$opMod$tUpeak 6
 scenario$scenario15$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 16 : nS2_Umax2_tUpeak6
 #
 scenario$scenario16$ctrl$scenarioName 'nS2_Umax2_tUpeak6'
 scenario$scenario16$opMod$nS 2
-scenario$scenario16$opMod$tUpeak6
+scenario$scenario16$opMod$tUpeak 6
 scenario$scenario16$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 17 : nS6_Umax2_tUpeak6
 #
 scenario$scenario17$ctrl$scenarioName 'nS6_Umax2_tUpeak6'
 scenario$scenario17$opMod$nS 6
-scenario$scenario17$opMod$tUpeak6
+scenario$scenario17$opMod$tUpeak 6
 scenario$scenario17$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 18 : nS10_Umax2_tUpeak6
 #
 scenario$scenario18$ctrl$scenarioName 'nS10_Umax2_tUpeak6'
 scenario$scenario18$opMod$nS 10
-scenario$scenario18$opMod$tUpeak6
+scenario$scenario18$opMod$tUpeak 6
 scenario$scenario18$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 19 : nS2_Umax0.8_tUpeak10
 #
 scenario$scenario19$ctrl$scenarioName 'nS2_Umax0.8_tUpeak10'
 scenario$scenario19$opMod$nS 2
-scenario$scenario19$opMod$tUpeak10
+scenario$scenario19$opMod$tUpeak 10
 scenario$scenario19$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 20 : nS6_Umax0.8_tUpeak10
 #
 scenario$scenario20$ctrl$scenarioName 'nS6_Umax0.8_tUpeak10'
 scenario$scenario20$opMod$nS 6
-scenario$scenario20$opMod$tUpeak10
+scenario$scenario20$opMod$tUpeak 10
 scenario$scenario20$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 21 : nS10_Umax0.8_tUpeak10
 #
 scenario$scenario21$ctrl$scenarioName 'nS10_Umax0.8_tUpeak10'
 scenario$scenario21$opMod$nS 10
-scenario$scenario21$opMod$tUpeak10
+scenario$scenario21$opMod$tUpeak 10
 scenario$scenario21$opMod$Umult c(0.2,0.8,0.8)
 #
 # Scenario 22 : nS2_Umax1.4_tUpeak10
 #
 scenario$scenario22$ctrl$scenarioName 'nS2_Umax1.4_tUpeak10'
 scenario$scenario22$opMod$nS 2
-scenario$scenario22$opMod$tUpeak10
+scenario$scenario22$opMod$tUpeak 10
 scenario$scenario22$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 23 : nS6_Umax1.4_tUpeak10
 #
 scenario$scenario23$ctrl$scenarioName 'nS6_Umax1.4_tUpeak10'
 scenario$scenario23$opMod$nS 6
-scenario$scenario23$opMod$tUpeak10
+scenario$scenario23$opMod$tUpeak 10
 scenario$scenario23$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 24 : nS10_Umax1.4_tUpeak10
 #
 scenario$scenario24$ctrl$scenarioName 'nS10_Umax1.4_tUpeak10'
 scenario$scenario24$opMod$nS 10
-scenario$scenario24$opMod$tUpeak10
+scenario$scenario24$opMod$tUpeak 10
 scenario$scenario24$opMod$Umult c(0.2,1.4,0.8)
 #
 # Scenario 25 : nS2_Umax2_tUpeak10
 #
 scenario$scenario25$ctrl$scenarioName 'nS2_Umax2_tUpeak10'
 scenario$scenario25$opMod$nS 2
-scenario$scenario25$opMod$tUpeak10
+scenario$scenario25$opMod$tUpeak 10
 scenario$scenario25$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 26 : nS6_Umax2_tUpeak10
 #
 scenario$scenario26$ctrl$scenarioName 'nS6_Umax2_tUpeak10'
 scenario$scenario26$opMod$nS 6
-scenario$scenario26$opMod$tUpeak10
+scenario$scenario26$opMod$tUpeak 10
 scenario$scenario26$opMod$Umult c(0.2,2,0.8)
 #
 # Scenario 27 : nS10_Umax2_tUpeak10
 #
 scenario$scenario27$ctrl$scenarioName 'nS10_Umax2_tUpeak10'
 scenario$scenario27$opMod$nS 10
-scenario$scenario27$opMod$tUpeak10
+scenario$scenario27$opMod$tUpeak 10
 scenario$scenario27$opMod$Umult c(0.2,2,0.8)
 #
 # Management Procedures

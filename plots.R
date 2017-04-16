@@ -379,6 +379,139 @@ specB <- c( Dover = 40,
             Petrale = 26.12,
             Arrowtooth = 495.4 )
 
+plotREdistsStock <- function( tableName = "RE_incMS_allSame_RE.csv",
+                              nSp = 2,
+                              axes = c("corr","kappaMult"),
+                              resp = "Umsy",
+                              stock = "Stock1"
+                            )
+{
+  # plotREdistsStock()
+  # Plots MARE/MRE (response variable) values as a function
+  # of given specVals (OM values of q, Umsy, etc). 
+  # Will group lines corresponding to the first axis and create panel rows 
+  # corresponding to the second. Panel columns are single and Joint
+  # AMs.
+  # inputs:   tableName = RE table in statistics folder
+  #           nSp = number of species to restrict to
+  #           axes = 2-char vector naming RE table columns
+  #           specVals = named numeric of OM quantities to use as plot x axis
+  #           par = estimated parameter of interest for MRE/MARE values
+  # outputs:  NULL
+  # side-eff: plots to quartz
+
+  # Load table
+  fileName <- paste( tableName, ".csv", sep = "" )
+  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
+  table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
+
+  # restrict to correct number of species
+  table  <-   table %>%
+              filter( nS == nSp )
+
+  # Get levels for axes
+  axesCols <- integer(length=2)
+  for ( i in 1:2)
+  {
+    axesCols[i] <- which(names(table) == axes[i])
+  }
+  # order levels
+  x   <- unique(table %>% pull(axesCols[1]))
+  x   <- x[order(x)]
+  y   <- unique(table %>% pull(axesCols[2]))
+  y   <- y[order(y)]
+
+  mps <- unique( table %>% pull(mp) )
+
+  # Create an array to hold info
+  z <- array( NA, dim = c( length(x), length(y), length(mps), 2 ),
+              dimnames = list( x, y, mps, c("ss","ms") ) )
+
+  # Fill the array, looping over species and axes
+  for(mIdx in 1:length(mps) )
+  {
+    mp <- mps[ mIdx ]
+    mpTab <- table %>% filter( mp == mp )
+    for( xIdx in 1:length(x) )
+    {
+      for( yIdx in 1:length(y) )
+      {
+        # Get x and y values
+        xVal <- x[ xIdx ]
+        yVal <- y[ yIdx ]
+        # Get rows
+        xRows <- which ( mpTab[,axesCols[1]] == xVal)
+        yRows <- which ( mpTab[,axesCols[2]] == yVal)
+        rows <- intersect(xRows,yRows)
+        if( length(rows) == 0 ) next
+        # Fill array
+        parColNames <- paste(c("ss","ms"),resp, sep = "")
+        z[xIdx,yIdx,mIdx,] <- as.numeric(mpTab[rows,parColNames])
+      }
+    }
+  }
+
+  cols <- brewer.pal( n = length(x), name = "Dark2" )
+  
+  # Plot contents. Use x values as line groupings, y values as
+  # panel groupings, and species productivities as x values
+  par( mfrow = c(length(y), 2), mar = c(2,2,2,1), oma = c(3,3,2,2) )
+  for( mIdx in 1:length(mps) )
+  {
+    # Plot SS model
+    plot( x = c(1,length(specVals)), 
+          y = c( min( z ), max( z ) ), type = "n",
+          axes = FALSE )
+      if( yIdx == 1 ) panLegend(  legTxt = paste( axes[1], " = ", x ),
+                                  lty = 1, pch = 16, cex = 1,
+                                  lwd = 0.8, col = cols,
+                                  x = 0.1, y = 0.7, bty = "n" )
+      if( yIdx == 1 ) mtext( side = 3, text = "Single Species Model", cex = 0.8)
+      axis( side = 1, at = 1:length(specVals),labels = specVals )
+      axis( side = 2, las = 1 )
+      axis( side = 3, at = 1:length(specVals), labels = names(specVals))
+      abline(h = 0, lty = 2, lwd = 0.8)
+      for( m in 1:length(mps) )
+      {
+        for( xIdx in 1:length(x) )
+              {
+                lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss", m ], col = cols[xIdx],
+                        lwd = 0.8, lty = m )
+                points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss", m ], col = cols[xIdx],
+                        pch = 16, cex = 0.5 )
+              }
+      }
+      panLab( x = 0.8, y = 0.8, 
+              txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
+    # plot MS model
+    plot( x = c(1,length(specVals)), 
+          y = c( min( z ), max( z ) ), type = "n",
+          axes = FALSE )
+      axis( side = 1, at = 1:length(specVals),labels = specVals )
+      axis( side = 2, las = 1 )
+      axis( side = 3, at = 1:length(specVals), labels = names(specVals))
+      abline(h = 0, lty = 2, lwd = 0.8)
+      if( yIdx == 1 ) mtext( side = 3, text = "Joint Model", cex = 0.8)
+      for( m in 1:length(mps) )
+      {
+        for( xIdx in 1:length(x) )
+        {
+          lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms", m ], col = cols[xIdx],
+                  lwd = 0.8, lty = m )
+          points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms", m ], col = cols[xIdx],
+                  pch = 16, cex = 0.5 )
+        }  
+      }
+      panLab( x = 0.8, y = 0.8, 
+              txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
+  }
+  mtext( side = 3, outer = T, text = tableName, cex = 1.2 )
+  mtext( side = 1, outer = T, text = par, cex = 1, col = "grey80",
+          adj = 0.9, line = 1.5 )
+}
+
+
+
 plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
                               nSp = 5,
                               axes = c("tUpeak","Umax"),
