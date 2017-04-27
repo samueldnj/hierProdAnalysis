@@ -126,7 +126,7 @@ checkCorr <- function(  tabName = "rKqExp.csv",
               fullMS = fullMS 
             )
 
-  ss <- list( sel = fullMS$ssGLM[modelNumSS],
+  ss <- list( sel = fullSS$ssGLM[modelNumSS],
               aicRank = aicRankSS,
               fullSS = fullSS 
             )
