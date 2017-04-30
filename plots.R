@@ -39,10 +39,11 @@
 
 # Plots response variable curves as a function of the axes,
 # restricted to the nominated species.
-plotOMSpecResponse <- function( tabName = "rKqExp_MRE",
+plotOMSpecResponse <- function( tabName = "rKq_msInc__MRE",
                                 resp = "q",
-                                spec = "Dover",
+                                spec = "Stock1",
                                 axes = c("qOM","UmsyOM","BmsyOM"),
+                                MP = "UmsyPriorOnly",
                                 ssModel = NULL,
                                 msModel = NULL  )
 {
@@ -51,10 +52,8 @@ plotOMSpecResponse <- function( tabName = "rKqExp_MRE",
   tablePath <- file.path ( getwd(), "project/Statistics", fileName )
   tab <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
 
-  # browser()
-
   tab  <-   tab %>%
-            filter( species == spec )
+            filter( species == spec, mp == MP )
 
 
   # response colnames
@@ -139,7 +138,7 @@ plotOMSpecResponse <- function( tabName = "rKqExp_MRE",
   for( yIdx in 1:length(y) )
   {
     # Plot one model
-    plot( x = range(w), y = range(z[,,,respCols[1]]), axes = F, type = "n",
+    plot( x = range(w), y = range(z[,,,respCols[1]], na.rm = T), axes = F, type = "n",
         xlab = "", ylab = "" )
     if( yIdx == 1) title( main = respCols[1])
     axis( side = 1, at = w )
@@ -157,7 +156,7 @@ plotOMSpecResponse <- function( tabName = "rKqExp_MRE",
             line = 3 )
 
     # And t'other
-    plot( x = range(w), y = range(z[,,,respCols[2]]), axes = F, type = "n",
+    plot( x = range(w), y = range(z[,,,respCols[2]], na.rm = T), axes = F, type = "n",
         xlab = "", ylab = "" )
     if( yIdx == 1) title( main = respCols[2])
     axis( side = 1, at = w )
@@ -181,9 +180,10 @@ plotOMSpecResponse <- function( tabName = "rKqExp_MRE",
   tab
 }
 
-plotGroupPars_rKq <- function(  tableName = "rKqExp_MRE",
+plotGroupPars_rKq <- function(  tableName = "rKq_msInc__MRE",
                                 axes = c("qOM","UmsyOM"),
-                                spec = "Dover" )
+                                spec = "Stock1",
+                                MP = "allJointPriors" )
 {
   # plotGroupPars()
   # Plots group prior parameter estimates 
@@ -203,7 +203,7 @@ plotGroupPars_rKq <- function(  tableName = "rKqExp_MRE",
   # restrict to correct number of species, summarise group pars since we're
   # only using 2 axes
   table  <-   table %>%
-              filter( species == spec ) %>%
+              filter( species == spec, mp == MP ) %>%
               group_by( qOM, UmsyOM ) %>%
               summarise(  qbar = mean(qbar),
                           Umsybar = mean(Umsybar),
@@ -254,7 +254,7 @@ plotGroupPars_rKq <- function(  tableName = "rKqExp_MRE",
   par(mfrow = c(2,2), mar = c(2,2,1,1), oma = c(3,3,2,2) )
   for( p in 1:length(groupPars) )
   {
-    plot( x = range(x), y = range(z[,,groupPars[p]]), axes = F, type = "n",
+    plot( x = range(x), y = range(z[,,groupPars[p]], na.rm=T), axes = F, type = "n",
         xlab = "", ylab = "", main = groupPars[p] )
     axis( side = 1, at = x )
     axis( side = 2, las = 1 )
@@ -272,9 +272,10 @@ plotGroupPars_rKq <- function(  tableName = "rKqExp_MRE",
   mtext( side = 1, outer = TRUE, text = axes[1], line = 1.5 )  
 }
 
-plotGroupPars <- function(  tableName = "RE_coarse_pub_MARE",
+plotGroupPars <- function(  tableName = "allSame_RE_msIncr__MRE",
                             axes = c("kappaMult","corr"),
-                            nSp   = 5 )
+                            nSp  = 10,
+                            MP = "allJointPriors" )
 {
   # plotGroupPars()
   # Plots group prior parameter estimates 
@@ -293,7 +294,7 @@ plotGroupPars <- function(  tableName = "RE_coarse_pub_MARE",
 
   # restrict to correct number of species
   table  <-   table %>%
-              filter( nS == nSp ) %>%
+              filter( nS == nSp, mp == MP ) %>%
               group_by( scenario, mp ) %>%
               summarise(  Umsybar = mean(Umsybar),
                           qbar = mean(qbar),
@@ -303,6 +304,7 @@ plotGroupPars <- function(  tableName = "RE_coarse_pub_MARE",
                           kappaMult = mean(kappaMult),
                           Umax = mean(Umax),
                           tUpeak = mean(tUpeak) )
+
 
 
 
@@ -379,135 +381,189 @@ specB <- c( Dover = 40,
             Petrale = 26.12,
             Arrowtooth = 495.4 )
 
-plotREdistsStock <- function( tableName = "RE_incMS_allSame_RE.csv",
-                              nSp = 2,
-                              axes = c("corr","kappaMult"),
+plotREdistsStock <- function( tableName = "allSame_RE_msIncr__RE",
+                              axes = c("corr","kappaMult","nS"),
                               resp = "Umsy",
-                              stock = "Stock1"
+                              stock = "Stock1",
+                              MP = "allJointPriors",
+                              table = NULL,
+                              ssModel = NULL,
+                              msModel = NULL
                             )
 {
   # plotREdistsStock()
   # Plots MARE/MRE (response variable) values as a function
   # of given specVals (OM values of q, Umsy, etc). 
-  # Will group lines corresponding to the first axis and create panel rows 
-  # corresponding to the second. Panel columns are single and Joint
-  # AMs.
+  # Will group points using lines corresponding to the first axis and 
+  # create panel rows corresponding to the second. Panel columns are 
+  # single and Joint AMs. If there are multiple MPs, these will be
+  # output in other devices/saved locations
   # inputs:   tableName = RE table in statistics folder
-  #           nSp = number of species to restrict to
-  #           axes = 2-char vector naming RE table columns
-  #           specVals = named numeric of OM quantities to use as plot x axis
-  #           par = estimated parameter of interest for MRE/MARE values
+  #           axes = 3-char vector naming RE table columns
+  #           resp = response variable of interest for RE values
+  #           table = optional df to replace loading file, useful for 
+  #                   automated plotting to directory
   # outputs:  NULL
-  # side-eff: plots to quartz
 
-  # Load table
-  fileName <- paste( tableName, ".csv", sep = "" )
-  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
-  table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
+  # Read in table if none supplied
+  if( is.null(table) )
+  {
+    # Load table
+    fileName <- paste( tableName, ".csv", sep = "" )
+    tablePath <- file.path ( getwd(), "project/Statistics", fileName )
+    table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
 
-  # restrict to correct number of species
-  table  <-   table %>%
-              filter( nS == nSp )
+    # restrict to correct number of species, stock and MP
+    tab  <-   table %>%
+              filter( species == stock, mp == MP )
+  }
+
+  # Run predictions if explanatory model supplied
+  predTab <- tab %>% mutate( ssPred = NA, msPred = NA )
+  if( !is.null(ssModel) )
+  {
+    predTab <-  predTab %>% 
+                mutate( ssPred = predict( ssModel, newdata = predTab ) )
+  }
+
+  if( !is.null(msModel) )
+  {
+    predTab <-  predTab %>% 
+                mutate( msPred = predict( msModel, newdata = predTab ) )
+  }
+
+  # response colnames
+  respCols <- paste(c("ss","ms"),resp,sep = "")
+
 
   # Get levels for axes
-  axesCols <- integer(length=2)
-  for ( i in 1:2)
+  axesCols <- integer(length=length(axes))
+  predAxesCols <- integer(length=length(axes))
+  for ( i in 1:3)
   {
-    axesCols[i] <- which(names(table) == axes[i])
+    axesCols[i]     <- which(names(tab) == axes[i])
+    predAxesCols[i] <- which(names(predTab) == axes[i])
   }
   # order levels
-  x   <- unique(table %>% pull(axesCols[1]))
+  w   <- unique(tab %>% pull(axesCols[1]))
+  w   <- w[order(w)]
+  x   <- unique(tab %>% pull(axesCols[2]))
   x   <- x[order(x)]
-  y   <- unique(table %>% pull(axesCols[2]))
+  y   <- unique(tab %>% pull(axesCols[3]))
   y   <- y[order(y)]
 
-  mps <- unique( table %>% pull(mp) )
+  # Create an array to hold info
+  z <- array( NA, dim = c( length(w), length(x), length(y), 2, 3 ),
+              dimnames = list(  paste(axes[1],w,sep = ""),
+                                paste(axes[2],x,sep = ""),
+                                paste(axes[3],y,sep = ""),
+                                respCols, c("0.025","0.5","0.975") ) )
 
   # Create an array to hold info
-  z <- array( NA, dim = c( length(x), length(y), length(mps), 2 ),
-              dimnames = list( x, y, mps, c("ss","ms") ) )
+  zPred <- array( NA, dim = c( length(w), length(x), length(y), 2 ),
+                  dimnames = list(  paste(axes[1],w,sep = ""),
+                                    paste(axes[2],x,sep = ""),
+                                    paste(axes[3],y,sep = ""),
+                                    respCols ) )
 
   # Fill the array, looping over species and axes
-  for(mIdx in 1:length(mps) )
+  for( wIdx in 1:length(w) )
   {
-    mp <- mps[ mIdx ]
-    mpTab <- table %>% filter( mp == mp )
     for( xIdx in 1:length(x) )
     {
       for( yIdx in 1:length(y) )
       {
         # Get x and y values
+        wVal <- w[ wIdx ]
         xVal <- x[ xIdx ]
         yVal <- y[ yIdx ]
         # Get rows
-        xRows <- which ( mpTab[,axesCols[1]] == xVal)
-        yRows <- which ( mpTab[,axesCols[2]] == yVal)
-        rows <- intersect(xRows,yRows)
+        wRows <- which ( tab[,axesCols[1]] == wVal)
+        xRows <- which ( tab[,axesCols[2]] == xVal)
+        yRows <- which ( tab[,axesCols[3]] == yVal)
+        wRowsPred <- which ( predTab[,predAxesCols[1]] == wVal)
+        xRowsPred <- which ( predTab[,predAxesCols[2]] == xVal)
+        yRowsPred <- which ( predTab[,predAxesCols[3]] == yVal)
+        rows      <- intersect(intersect(wRows,xRows),yRows)
+        predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
         if( length(rows) == 0 ) next
+        filtered <- tab[rows,respCols]
+        quantiles <- apply( X = filtered, FUN = quantile, 
+                            probs = c(0.025,0.5, 0.975), MARGIN = 2,
+                            na.rm = T)
+        medPred <- apply( X = predTab[predRows,c("ssPred","msPred")],
+                          FUN = median, na.rm = T, MARGIN = 2 )
         # Fill array
-        parColNames <- paste(c("ss","ms"),resp, sep = "")
-        z[xIdx,yIdx,mIdx,] <- as.numeric(mpTab[rows,parColNames])
+        # browser()
+        z[wIdx,xIdx,yIdx,,] <- t(quantiles)
+        zPred[wIdx,xIdx,yIdx,] <- as.numeric(medPred)
       }
     }
   }
 
-  cols <- brewer.pal( n = length(x), name = "Dark2" )
+  cols <- brewer.pal( n = length(w), name = "Dark2" )
   
-  # Plot contents. Use x values as line groupings, y values as
-  # panel groupings, and species productivities as x values
+  # Plot contents. Use w values as line groupings, x values as
+  # horizontal axis points, and y values as panel row groups
   par( mfrow = c(length(y), 2), mar = c(2,2,2,1), oma = c(3,3,2,2) )
-  for( mIdx in 1:length(mps) )
+  for( yIdx in 1:length(y) )
   {
     # Plot SS model
-    plot( x = c(1,length(specVals)), 
-          y = c( min( z ), max( z ) ), type = "n",
+    plot( x = c(1,length(x)+1), 
+          y = range(z, na.rm = T ), type = "n",
           axes = FALSE )
-      if( yIdx == 1 ) panLegend(  legTxt = paste( axes[1], " = ", x ),
+      if( yIdx == 1 ) panLegend(  legTxt = paste( axes[1], " = ", w ),
                                   lty = 1, pch = 16, cex = 1,
                                   lwd = 0.8, col = cols,
                                   x = 0.1, y = 0.7, bty = "n" )
       if( yIdx == 1 ) mtext( side = 3, text = "Single Species Model", cex = 0.8)
-      axis( side = 1, at = 1:length(specVals),labels = specVals )
+      axis( side = 1, at = 1:length(x),labels = x )
       axis( side = 2, las = 1 )
-      axis( side = 3, at = 1:length(specVals), labels = names(specVals))
+      # axis( side = 3, at = 1:length(x), labels = FALSE )
       abline(h = 0, lty = 2, lwd = 0.8)
-      for( m in 1:length(mps) )
+      for( wIdx in 1:length(w) )
       {
-        for( xIdx in 1:length(x) )
-              {
-                lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss", m ], col = cols[xIdx],
-                        lwd = 0.8, lty = m )
-                points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ss", m ], col = cols[xIdx],
-                        pch = 16, cex = 0.5 )
-              }
+        xShift <- 1/(length(w) + 3)
+        lines(  x = 1:length(x) + xShift*(wIdx-1), y = z[ wIdx, , yIdx, respCols[1], 2], col = cols[wIdx],
+                lwd = 0.6, lty = 3 )
+        points( x = 1:length(x) + xShift*(wIdx-1), y = z[ wIdx, , yIdx, respCols[1], 2 ], col = cols[wIdx],
+                pch = 16, cex = 0.5 )
+        segments( x0 = 1:length(x) + xShift*(wIdx-1), y0 = z[ wIdx, , yIdx, respCols[1], 1],
+                  x1 = 1:length(x) + xShift*(wIdx-1), y1 = z[ wIdx, , yIdx, respCols[1], 3],
+                  col = cols[wIdx] )
       }
       panLab( x = 0.8, y = 0.8, 
-              txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
+              txt = paste( axes[3], " = ", y[yIdx], sep = "" ) )
     # plot MS model
-    plot( x = c(1,length(specVals)), 
-          y = c( min( z ), max( z ) ), type = "n",
+    plot( x = c(1,length(x)+1), 
+          y = range(z,na.rm = T), type = "n",
           axes = FALSE )
-      axis( side = 1, at = 1:length(specVals),labels = specVals )
+      axis( side = 1, at = 1:length(x),labels = x )
       axis( side = 2, las = 1 )
-      axis( side = 3, at = 1:length(specVals), labels = names(specVals))
+      # axis( side = 3, at = 1:length(x), labels = FALSE)
       abline(h = 0, lty = 2, lwd = 0.8)
       if( yIdx == 1 ) mtext( side = 3, text = "Joint Model", cex = 0.8)
-      for( m in 1:length(mps) )
+      for( wIdx in 1:length(w) )
       {
-        for( xIdx in 1:length(x) )
-        {
-          lines(  x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms", m ], col = cols[xIdx],
-                  lwd = 0.8, lty = m )
-          points( x = 1:length(specVals), y = z[ xIdx, yIdx, , "ms", m ], col = cols[xIdx],
-                  pch = 16, cex = 0.5 )
-        }  
+        xShift <- 1/(length(w) + 3)
+        lines(  x = 1:length(x) + xShift*(wIdx - 1), y = z[ wIdx, , yIdx, respCols[2], 2], col = cols[wIdx],
+                lwd = 0.6, lty = 3 )
+        points( x = 1:length(x) + xShift*(wIdx - 1), y = z[ wIdx, , yIdx, respCols[2], 2 ], col = cols[wIdx],
+                pch = 16, cex = 0.5 )
+        segments( x0 = 1:length(x) + xShift*(wIdx - 1), y0 = z[ wIdx, , yIdx, respCols[2], 1],
+                  x1 = 1:length(x) + xShift*(wIdx - 1), y1 = z[ wIdx, , yIdx, respCols[2], 3],
+                  col = cols[wIdx] )
       }
       panLab( x = 0.8, y = 0.8, 
-              txt = paste( axes[2], " = ", y[yIdx], sep = "" ) )
+              txt = paste( axes[3], " = ", y[yIdx], sep = "" ) )
   }
   mtext( side = 3, outer = T, text = tableName, cex = 1.2 )
-  mtext( side = 1, outer = T, text = par, cex = 1, col = "grey80",
-          adj = 0.9, line = 1.5 )
+  mtext( side = 1, outer =T, text = axes[2], cex = 1.2 )
+  mtext( side = 2, outer = T, text = "Relative Error (%)", cex = 1.2, line = 1 )
+  mtext( side = 1, outer = T, text = resp, cex = 1, col = "grey50",
+          adj = 0.9, line = 1.3 )
+  mtext( side = 1, outer = T, text = MP, cex = 1, col = "grey50",
+          adj = 0.1, line = 1.3 )
 }
 
 
@@ -1569,14 +1625,14 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
 
 }
 
-plotComplexPubRasters <- function(  tableRoot = "RE_coarse_pub",
+plotComplexPubRasters <- function(  tableRoot = "allSame_RE_msIncr_",
                                     axes = c("corr","kappaMult"),
                                     pars = c("BnT","Umsy","q","Dep"),
                                     wdh = 14, hgt = 18,
                                     breakRange = c(-1,1),
                                     tcex = 1.5,
                                     legend = FALSE,
-                                    mpLabel   = "pubAM",
+                                    mpLabel   = "allJointPriors",
                                     hess = FALSE,
                                     nSp       = 5,
                                     tUtr      = 15,
@@ -1963,7 +2019,7 @@ makeRasterFromTable <- function ( table,
 # and produces plots of performance contours.
 # inputs:     tableName=charactre vector of file name root
 #             axes=
-plotRasters <- function ( tableName = "RE_coarse_pub_MARE",
+plotRasters <- function ( tableName = "allSame_Fhist_msIncr_MARE",
                           axes = c("corr","kappaMult"),
                           pars = c("BnT","Umsy","q","Dep"),
                           wdh = 14, hgt = 18,

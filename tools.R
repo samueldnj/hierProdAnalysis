@@ -334,7 +334,7 @@ makeObsErrDesign <- function (  levels = list(  nS        = seq(4,10,by=3),
     cat(  "scenario$scenario", rIdx, "$opMod$nS ", combos[rIdx,"nS"], "\n", 
           sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$tau2 c(rep(", combos[rIdx,"CVhi"], 
-          ",", repHi, "),rep(",combos[rIdx,"CVlo"],",",repLo, ")),\n", sep = "", append = T, file = outFile )
+          ",", repHi, "),rep(",combos[rIdx,"CVlo"],",",repLo, "))\n", sep = "", append = T, file = outFile )
     cat( "#\n", file = outFile, append = T )
   }
 
@@ -554,8 +554,8 @@ fixBlob <- function ( sim = 1)
 # makeBatch()
 # Takes a batch control file and produces all the necessary structure
 # to run the batch of sim-est experiments.
-# inputs:     batchCtl=character naming the batch control file
-# ouputs:     batchDesign=data.frame containing the batch design
+# inputs:     batchCtl = character naming the batch control file
+# ouputs:     batchDesign = data.frame containing the batch design
 # usage:      to run batch jobs for multiple scenario/mp combinations
 # author:     S.D.N. Johnson
 makeBatch <- function ( batchCtlFile = "batchControlFile.bch", prjFld = "project",
