@@ -41,9 +41,9 @@ Type objective_function<Type>::operator() ()
   // Data Structures
   DATA_ARRAY(It);               // CPUE data
   DATA_ARRAY(Ct);               // Catch data
-  // Indexing variables
-  DATA_INTEGER(nS);             // No of species
-  DATA_INTEGER(nT);             // No of time steps
+  // Model dimensions
+  int nS = It.dim(0);           // No of species
+  int nT = It.dim(1);           // No of time steps
   // Model switches
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
   DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
