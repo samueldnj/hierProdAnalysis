@@ -847,9 +847,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     blob$am$ss$CIs[[i]]         <- vector( mode = "list", length = nS )
     if( obj$assess$profiles ) 
       blob$am$ss$profiles[[i]] <- vector( mode = "list", length = nS )
-    for ( s in 1:nS )
+    for( s in 1:nS )
     {
-      if (  !is.na(simEst$ssFit[[s]]$sdrep) )
+      if(  !is.na(simEst$ssFit[[s]]$sdrep) )
       {
         # Recover report from optimisation
         sdrep     <- simEst$ssFit[[s]]$sdrep

@@ -27,13 +27,16 @@ checkCorr <- function(  tabName = "rKqExp.csv",
   corrMtx
 }
 
-metaModels <- function( tabName = "rKq_msInc__MRE",
-                        multiResp = c("q","BnT","Dep","Umsy","HessPD","Bmsy"),
-                        singleResp = c("nReps","qbar","tauq2","Umsybar","sigU2"),
+
+groupPars <- c("qbar","tauq2","Umsybar","sigU2")
+
+metaModels <- function( tabName = "allSame_RE_msIncr__MRE",
+                        multiResp = c("BnT","Umsy","q","Dep","Bmsy"),
+                        singleResp = groupPars,
                         spec = c("Stock1"),
-                        expVars = c("qOM","UmsyOM","BmsyOM","mp"),
-                        sig = .5, intercept = FALSE,
-                        scaled = TRUE, saveOut = TRUE )
+                        expVars = c("kappaMult","corr","mp","nS"),
+                        sig = .05, intercept = FALSE,
+                        scaled = TRUE, saveOut = TRUE, interactions = TRUE )
 {
   # Create an rDataFile output name
   rDataName <- tabName
@@ -65,7 +68,8 @@ metaModels <- function( tabName = "rKq_msInc__MRE",
                                                 intercept = intercept,
                                                 scaled = scaled,
                                                 abs = FALSE,
-                                                spec = spec )
+                                                spec = spec,
+                                                interactions = interactions )
     fitList$ms[[rIdx]] <- .DASEmodelSelection(  tabName = tabName,
                                                 resp = msResp,
                                                 expVars = expVars,
@@ -73,19 +77,24 @@ metaModels <- function( tabName = "rKq_msInc__MRE",
                                                 intercept = intercept,
                                                 scaled = scaled,
                                                 abs = FALSE,
-                                                spec = spec )
+                                                spec = spec,
+                                                interactions = interactions )
   }
-  for( rIdx in 1:length(singleResp) )
+  if(!is.null(singleResp))
   {
-    resp <- singleResp[rIdx]
-    fitList$group[[rIdx]] <- .DASEmodelSelection( tabName = tabName,
-                                                  resp = resp,
-                                                  expVars = expVars,
-                                                  sig = sig,
-                                                  intercept = intercept,
-                                                  scaled = scaled,
-                                                  abs = FALSE )
-  }
+    for( rIdx in 1:length(singleResp) )
+    {
+      resp <- singleResp[rIdx]
+      fitList$group[[rIdx]] <- .DASEmodelSelection( tabName = tabName,
+                                                    resp = resp,
+                                                    expVars = expVars,
+                                                    sig = sig,
+                                                    intercept = intercept,
+                                                    scaled = scaled,
+                                                    abs = FALSE,
+                                                    interactions = interactions )
+    }  
+  } 
   savePath <- file.path( getwd(), "project", "Statistics", rDataName ) 
   dir.create( savePath )
   if(saveOut) save( fitList, 
@@ -137,7 +146,8 @@ metaModels <- function( tabName = "rKq_msInc__MRE",
                                   sig = 0.1,
                                   intercept = FALSE,
                                   abs = FALSE,
-                                  scaled = TRUE )
+                                  scaled = TRUE,
+                                  interactions = FALSE )
 {
   # First, fit main effects
   mainEff <- .DASEexperiment( tabName = tabName,
