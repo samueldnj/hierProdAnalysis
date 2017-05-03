@@ -98,8 +98,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Change indices based on survey freq
   if( !is.null(obj$opMod$surveyFreq) )
   {
-    survFreqIdx           <- seq(1,max(nT),by=obj$opMod$surveyFreq)
-    om$It[,-survFreqIdx]  <- -1.0
+    survOn           <- seq(1,max(nT),by=obj$opMod$surveyFreq)
+    om$It[,-survOn]  <- -1.0
   }
 
 
