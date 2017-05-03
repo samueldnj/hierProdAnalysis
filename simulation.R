@@ -195,7 +195,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                      method = "BFGS", om = om ) 
     devs <- optObj$par
   }
-  # Populate OM biomass optimised deviations
+  # Populate OM biomass using (optimised) deviations
   om <- .devOptimNLL( devs = devs, devT = UdevT, fit = FALSE, type = type,
                       obj = obj, specNames = specNames, baseMtx = Ust, om = om ) 
 
