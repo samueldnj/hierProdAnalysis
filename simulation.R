@@ -89,11 +89,26 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   Ust <- matrix ( UtProp, nrow = nS, ncol = max(nT), byrow = TRUE )
   for ( s in 1:nS ) Ust[s,] <- obj$opMod$Umsy[s] * Ust[s,]
 
-  # U deviations control
-  Udevs <- obj$opMod$Udevs
+  # Check to see if this is an observation error only simulation.
+  if( obj$ctrl$fixProc )
+  {
+    # If so, check what simulation this is
+    if( seed == obj$ctrl$rSeed + 1 )
+    { # If this is the first one, then initialise the OM using .popInit, 
+      # and save the om to a global object for future simulations
+      om <- .popInit( obj = obj, Ust = Ust,
+                      specNames = obj$ctrl$speciesNames  )
+      globalOM <<- om
+    } # If this is rep >= 2 then load the saved OM, and skip the .popInit
+    else om <- globalOM 
+  } else # If proc errors are changing, then just run the OM every time
+      om <- .popInit( obj = obj, Ust = Ust,
+                      specNames = obj$ctrl$speciesNames  )
 
-  om <- .popInit( type = Udevs, obj = obj$opMod, Ust = Ust,
-                  specNames = obj$ctrl$speciesNames  )
+
+
+  # Now apply the observation model
+  om <- .obsModelreFac( obj = om )
 
   # Change indices based on survey freq
   if( !is.null(obj$opMod$surveyFreq) )
@@ -113,37 +128,31 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 #           obj=opMod list object
 # ouputs:   om=populated om list object
 # usage:    in opModel()
-.popInit <- function( type = "off", obj = obj$opMod,
+.popInit <- function( obj = blob,
                       Ust = Ust, specNames )
 {
-  nS    <- obj$nS           # number of species
-  sYear <- obj$sYear[1:nS]  # starting year of catch history
-  fYear <- obj$fYear        # Final year (now) of catch history 
+  nS    <- obj$opMod$nS           # number of species
+  sYear <- obj$opMod$sYear[1:nS]  # starting year of catch history
+  fYear <- obj$opMod$fYear        # Final year (now) of catch history 
   nT    <- fYear - sYear + 1      # Total length of sim for each species
   sT    <- sYear - min(sYear) + 1 # initial time step of observations  
 
 
   # Process error component vars
-  kappa <- sqrt(obj$kappa2)    # longitudinal shared proc error sd
-  Sigma <- sqrt(obj$SigmaDiag[1:nS])    # ms proc error cov mtx
+  kappa <- sqrt(obj$opMod$kappa2)    # longitudinal shared proc error sd
+  Sigma <- sqrt(obj$opMod$SigmaDiag[1:nS])    # ms proc error cov mtx
   
   # Rescale shared effects sd if desired
-  if (!is.null(obj$kappaMult)) kappa <- kappa*obj$kappaMult
+  if (!is.null(obj$opMod$kappaMult)) kappa <- kappa*obj$opMod$kappaMult
 
   # Correlation parameters
-  gammaYr <- obj$gammaYr        # longitudinal auto-correlation
-  # Create correlation matrix - lastNegCorr makes species nS have negative correlation
-  msCorr <- matrix (obj$corrOffDiag, nrow = nS, ncol = nS)
-  if( obj$lastNegCorr )
-  {
-    # browser()
-    msCorr[nS,] <- -1. * obj$corrOffDiag
-    msCorr[,nS] <- -1. * obj$corrOffDiag
-  } 
+  gammaYr <- obj$opMod$gammaYr        # longitudinal auto-correlation
+  # Create correlation matrix
+  msCorr <- matrix( obj$opMod$corrOffDiag, nrow = nS, ncol = nS)
   diag(msCorr) <- 1
 
   # Obs error var
-  tau <- sqrt(obj$tau2[1:nS])
+  tau <- sqrt(obj$opMod$tau2[1:nS])
 
   # Now create epst and zetat vectors using the proc error components
   epst      <- .fillRanWalk(  z=rnorm(n = max(nT)), s=kappa,
@@ -153,15 +162,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                               Mcorr=msCorr,
                               Sigma=Sigma )
 
-  # standard normal deviations for obs error (uncorrelated)
-  deltat    <- matrix(rnorm ( n = nS*max(nT) ), nrow = nS, ncol = max(nT))
-
-   # Create initial devations for each case
-  if( type == "dep" ) targYr  <- obj$targYr[1:nS] else targYr <- rep(fYear,nS)
+  # Create initial devations for each case
+  if( obj$opMod$depOpt ) targYr  <- obj$opMod$targYr[1:nS] else targYr <- rep(fYear,nS)
   UdevT   <- targYr - min(sYear) + 1
   nDevs   <- sum(UdevT) 
-  devs <- rep(0,nDevs)
-
+  devs    <- rep(0,nDevs)
 
 
   # Initialise list to hold the data
@@ -179,36 +184,38 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 msCorr    = msCorr,
                 gamma     = gamma,
                 tau2      = tau*tau,
-                q         = obj$q[1:nS],
+                q         = obj$opMod$q[1:nS],
                 nT        = nT,
                 sT        = sT,
                 nS        = nS,
-                Bmsy      = obj$Bmsy[1:nS],
-                Umsy      = obj$Umsy[1:nS],
+                Bmsy      = obj$opMod$Bmsy[1:nS],
+                Umsy      = obj$opMod$Umsy[1:nS],
                 specNames = specNames )
 
-  if( type != "off" )
+
+  # Transform Us to Fs for optimisation (easier for bounding)
+  Fst <- log(1 / (1 - Ust) )
+
+  if( (obj$opMod$corrOpt) | (obj$opMod$depOpt) )
   {
     # Optimise deviations
-    optObj <- optim( par = devs, fn = .devOptimNLL, devT = UdevT, type = type,
-                     obj = obj, specNames = specNames, baseMtx = Ust,
+    optObj <- optim( par = devs, fn = .devOptimNLL, devT = UdevT, corr = obj$opMod$corrOpt,
+                     obj = obj$opMod, specNames = specNames, baseMtx = Fst, dep = obj$opMod$depOpt,
                      method = "BFGS", om = om ) 
     devs <- optObj$par
   }
-  # Populate OM biomass using (optimised) deviations
-  om <- .devOptimNLL( devs = devs, devT = UdevT, fit = FALSE, type = type,
-                      obj = obj, specNames = specNames, baseMtx = Ust, om = om ) 
-
-
-  # browser()
+  # Populate OM biomass optimised deviations
+  om <- .devOptimNLL( devs = devs, devT = UdevT, fit = FALSE, corrOpt = FALSE,
+                      dep = FALSE, baseMtx = Fst, om = om,
+                      obj = obj$opMod, specNames = specNames  ) 
 
   return(om)
 }
 
 # .UdevOptimNLL()
-# Optimises deviations from a provided exploitation rate
-# matrix (Ust)
-# inputs:   UdevVec=vectorized U deviations
+# Optimises deviations from a provided fishing mortality rate
+# matrix (Fst)
+# inputs:   devs=vectorized U deviations
 #           targYr=year to achieve target, if "corr" targYr=fYear
 #           
 .devOptimNLL <- function( devs = rep(0,nS*max(nT)),
@@ -217,7 +224,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           obj = obj$opMod,
                           om = om,
                           specNames,
-                          type = "corr",
+                          corrOpt = TRUE,
+                          depOpt = TRUE,
                           fit = TRUE )
 {
   nS    <- obj$nS           # number of species
@@ -225,48 +233,62 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   fYear <- obj$fYear        # Final year (now) of catch history 
   nT    <- fYear - sYear + 1      # Total length of sim for each species
   sT    <- sYear - min(sYear) + 1 # initial time step of observations 
-  
+
   # Now
-  Ust <- baseMtx
+  Fst <- baseMtx
   for(s in 1:nS)
   {
     if( s == 1 ) devIdx <- 1:devT[s] 
     else devIdx <- (sum(devT[1:(s-1)])+1):sum(devT[1:s])
-    Ust[s,1:devT[s]] <- baseMtx[s,1:devT[s]] * exp(devs[devIdx])
+    Fst[s,1:devT[s]] <- baseMtx[s,1:devT[s]] * exp(devs[devIdx])
   }
+
+  Ust <- 1 - exp( - Fst )
   
   # Compute likelihood if optimising
   if( fit )
   {
-    Bst <- matrix(NA,nrow = nS, ncol = max(nT))
+    estMtx  <- matrix(NA,nrow = nS, ncol = max(nT))
+    Bst     <- estMtx
     for( s in 1:nS )
     {
-      Bst[s,] <- .logProdModel (  Bmsy = obj$Bmsy[s], 
-                                  Umsy = obj$Umsy[s],
-                                  nT = max(nT), Ut = Ust[s,], 
-                                  epst = om$epst,
-                                  zetat = om$zetat[s,],
-                                  initDep = obj$initDep[s] )$Bt 
+      prodModel <- .logProdModel (  Bmsy = obj$Bmsy[s], 
+                                    Umsy = obj$Umsy[s],
+                                    nT = max(nT), Ut = Ust[s,], 
+                                    epst = om$epst,
+                                    zetat = om$zetat[s,],
+                                    initDep = obj$initDep[s] )
+
+      estMtx[s,] <- prodModel[[ obj$corrTargVar ]]
+      Bst[s,]    <- prodModel$Bt
     }
-    if( type == "corr" )
+    nll <- 0
+    if( corrOpt )
     { 
-      bioCorr <- cor(t(Bst))
-      bioCorr <- bioCorr - diag(1,nS)
-      targMtx <- matrix(obj$corrOffDiag, nrow = nS, ncol = nS)
-      targMtx <- targMtx - diag(obj$corrOffDiag,nS)
-      nll <- 0.5 * sum( (bioCorr - targMtx)^2 ) / 0.0001
-      # browser()
+      estCorr       <- cor(t(estMtx))
+      targMtx       <- matrix(obj$corrOffDiag, nrow = nS, ncol = nS)
+      diag(targMtx) <- rep(1,nS)
+      nll <- nll + 0.5 * sum( (estCorr - targMtx)^2 ) / 0.001
     }
 
-    if( type == "dep" )
+    if( depOpt )
     {
       dep <- numeric(length = nS)
       for(s in 1:nS) dep[s] <- Bst[s,devT[s]] / obj$Bmsy[s] / 2
-      nll <- 0.5 * sum( (dep - obj$targDep)^2 ) / 0.001
+      nll <- nll + 0.5 * sum( (dep - obj$targDep)^2 ) / 0.001
     }
-    # Penalise deviation size to be standard normal
-    nll <- nll + 0.5 * sum(devs^2)
-    if(any(Ust > 0.9)) nll <- nll + 1e6
+
+    # Penalise deviation size
+    nll <- nll + 0.5 * sum(devs^2)/0.05
+    # Penalise deviations from Umsy
+    ssU <- numeric(length = nS)
+    for( s in 1:nS ) ssU[s] <- sum((Ust[s,] - obj$Umsy[s])^2)
+    nll <- nll + sum(ssU)
+
+    # Penalise crashing the stock - THIS ISN'T FINISHED
+    Dst <- Bst
+    for( s in 1:nS ) Dst[s,] <- Dst[s,] / obj$Bmsy[s] / 2
+    if( any(Dst < 0.05) ) nll <- nll + 1e6
 
     return(nll)
   }
@@ -281,21 +303,18 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             epst = om$epst,
                             zetat = om$zetat[s,],
                             initDep = obj$initDep[s] )
-    if( obj$identObs & (s > 1) ) om$deltat[s,] <- om$deltat[1,]
-    obs <- .obsModel (  Bt = bio $ Bt, q = obj$q[s], sT = sT[s],
-                        nT = max(nT), deltat = om$deltat[s,], tau = sqrt(om$tau2[s]) )
 
     om$Bt[s,]       <- bio$Bt
     om$Ct[s,]       <- bio$Ct
     om$Ut[s,]       <- bio$Ut
-    om$ItTrue[s,]   <- obj$q[s]*bio$Bt
-    om$It[s,]       <- obs$It
     om$dep[s,]      <- bio$dep
   }
   
   return(om)
 
 }
+
+
 
 # makeDataLists()
 # Takes an om list object produced by opModel() and creates 
@@ -826,7 +845,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   {
     # Run sim-est procedure
     simEst <- .seedFit ( seed = seeds[i], obj=obj, quiet = quiet)
-    # browser()
 
     # Save OM values
     blob$om$Bt[i,,]         <- simEst$om$Bt
@@ -847,9 +865,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     blob$am$ss$CIs[[i]]         <- vector( mode = "list", length = nS )
     if( obj$assess$profiles ) 
       blob$am$ss$profiles[[i]] <- vector( mode = "list", length = nS )
-    for ( s in 1:nS )
+    for( s in 1:nS )
     {
-      if (  !is.na(simEst$ssFit[[s]]$sdrep) )
+      if(  !is.na(simEst$ssFit[[s]]$sdrep) )
       {
         # Recover report from optimisation
         sdrep     <- simEst$ssFit[[s]]$sdrep
@@ -994,6 +1012,48 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   outList $ dep <- dep
   return ( outList )
 }
+
+# obsModelMultiSurv()
+# Creates observations (indices of biomass) for the survey(s)
+# given true series of biomass and observation model parameters.
+# inputs:     Bt=true series of biomass; q=survey catchability parameter
+#             nT=length of time series; deltat=nT-vector of standard errors
+#             sT=time step of initial observations
+#             tau=obs error standard deviation (uncorrelated)
+# outputs:    It=nT-vector of survey observations
+# usage:      creates survey observations which are supplied to the estimator
+.obsModelreFac <- function (  obj = om )
+{
+  # Recover model dimensions
+  nT      <- obj$nT
+  nS      <- obj$nS
+  sT      <- obj$sT
+
+  # Recover biomass, q values, obs error variance
+  Bst     <- obj$Bt
+  q       <- obj$q
+  deltat  <- obj$deltat
+  tau     <- sqrt( obj$tau2 )
+  tau2    <- obj$tau2
+
+  # standard normal deviations for obs error (uncorrelated)
+  deltat    <- matrix(rnorm ( n = nS*max(nT) ), nrow = nS, ncol = max(nT))
+
+  # Now start applying the observation model
+  for( s in 1:nS )
+  {
+    # browser()
+    It <- rep( -1, length(Bst[s,]) )
+    deltat[s,] <- deltat[s,]*tau[s]
+    It[sT[s]:nT[s]] <- (q[s] * Bst[s,] * exp ( deltat[s,] - .5*tau2[s] ) )[sT[s]:nT[s]]
+    deltat[s,-(sT[s]:nT[s])] <- NA    
+    obj$It[s,]     <- It
+  }
+  obj$deltat <- deltat
+  
+  obj
+}
+
 
 # obsModel()
 # A function which creates observations (indices of biomass) from
