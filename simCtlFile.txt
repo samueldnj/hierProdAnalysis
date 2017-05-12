@@ -4,7 +4,7 @@ ctrl$scenarioName "DERPA"
 ctrl$mpLabel "baseAM"
 ctrl$nReps 10
 ctrl$rSeed 1
-ctrl$fixProc TRUE
+ctrl$fixProc FALSE
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
 opMod$Bmsy c(40,6.25,26.8,26.12,495.4)
 opMod$Umsy c(0.3,0.4,0.35,0.25,0.15)
@@ -18,7 +18,7 @@ opMod$sYear c(1984,1984,1984,1984,1984)
 opMod$fYear 2017
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
-opMod$corrOpt TRUE
+opMod$corrOpt FALSE
 opMod$corrTargVar "Ct"
 opMod$depOpt FALSE
 opMod$targDep rep(0.3,5)

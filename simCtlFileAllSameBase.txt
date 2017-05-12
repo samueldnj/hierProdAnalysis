@@ -4,6 +4,7 @@ ctrl$scenarioName "allSame"
 ctrl$mpLabel "allSame"
 ctrl$nReps 200
 ctrl$rSeed 1
+ctrl$fixProc FALSE
 ctrl$speciesNames paste('Stock',1:10,sep='')
 opMod$Bmsy rep(20,10)
 opMod$Umsy rep(0.25,10)
@@ -15,9 +16,11 @@ opMod$lastNegCorr FALSE
 opMod$nS 10
 opMod$sYear rep(1988,10)
 opMod$fYear 2017
-opMod$Umult c(0.2,0.8,0.8)
+opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
-opMod$Udevs "off"
+opMod$corrOpt FALSE
+opMod$corrTargVar "Ct"
+opMod$depOpt FALSE
 opMod$targDep rep(0.3,10)
 opMod$targYr rep(2017,10)
 opMod$tUpeak 5
