@@ -42,9 +42,9 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(It);               // CPUE data
   DATA_ARRAY(Ct);               // Catch data
   // Model dimensions
-  // int nO = It.dim(0);           // No. of surveys (O = observations)
-  int nS = It.dim(0);           // No. of species
-  int nT = It.dim(1);           // No of time steps
+  int nO = It.dim(0);           // No. of surveys (O = observations)
+  int nS = It.dim(1);           // No. of species
+  int nT = It.dim(2);           // No of time steps
 
   // Model switches
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
@@ -60,20 +60,20 @@ Type objective_function<Type>::operator() ()
   // Leading Parameters
   PARAMETER_VECTOR(lnBmsy);             // Biomass at MSY
   PARAMETER_VECTOR(lnUmsy);             // Optimal exploitation rate            
-  PARAMETER_VECTOR(lntau2);             // species obs error var
-  PARAMETER_VECTOR(lnq);                // Species specific catchability
+  PARAMETER_VECTOR(lntau2_o);           // survey obs error var
+  PARAMETER_ARRAY(lnq_os);              // Survey-Species spec catchability
   PARAMETER_VECTOR(lnBinit);            // Non-equilibrium initial biomass
   // Priors
-  PARAMETER(lnqbar);                    // prior mean catchability
-  PARAMETER(lntauq2);                   // prior catchability variance 
-  PARAMETER(mlnq);                      // hyperprior mean catchability
-  PARAMETER(s2lnq);                     // hyperprior catchability variance
+  PARAMETER_VECTOR(lnqbar_o);           // survey mean catchability
+  PARAMETER_VECTOR(lntauq_o);           // survey catchability sd 
+  PARAMETER(mq);                        // hyperprior mean catchability
+  PARAMETER(sq);                        // hyperprior catchability sd
   PARAMETER(lnUmsybar);                 // shared prior mean Umsy
-  PARAMETER(lnsigUmsy2);                // shared prior Umsy variance
-  PARAMETER(mlnUmsy);                   // hyperprior mean Umsy
-  PARAMETER(s2lnUmsy);                  // hyperprior Umsy variance
+  PARAMETER(lnsigUmsy);                 // shared prior Umsy sd
+  PARAMETER(mUmsy);                     // hyperprior mean Umsy
+  PARAMETER(sUmsy);                     // hyperprior Umsy sd
   PARAMETER_VECTOR(mBmsy);              // prior mean eqbm biomass
-  PARAMETER_VECTOR(s2Bmsy);             // prior eqbm biomass var
+  PARAMETER_VECTOR(sBmsy);              // prior eqbm biomass var
   PARAMETER_VECTOR(tau2IGa);            // IG parameters for tau2 prior
   PARAMETER_VECTOR(tau2IGb);            // IG parameters for tau2 prior
   PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (IGa,IGb) or (mean,var)
@@ -96,14 +96,24 @@ Type objective_function<Type>::operator() ()
   // Leading parameters
   vector<Type>      Bmsy    = exp(lnBmsy);
   vector<Type>      Umsy    = exp(lnUmsy);
-  vector<Type>      tau2    = exp(lntau2);
-  vector<Type>      q       = exp(lnq);
+  vector<Type>      tau2_o  = exp(lntau2_o);
   vector<Type>      Binit   = exp(lnBinit);
+  array<Type>       q_os(nO,nS);
+  for( int o = 0; o < nO; o++ )
+  {
+    for( int s = 0; s < nS; s++ )
+    {
+      q_os(o,s) = exp(lnq_os(o,s));
+    }
+  }
+  
   // Prior hyperpars
-  Type              qbar    = exp(lnqbar);
-  Type              tauq2   = exp(lntauq2);
+  vector<Type>      qbar_o  = exp(lnqbar_o);
+  vector<Type>      tauq_o  = exp(lntauq_o);
+  vector<Type>      tauq2_o = exp(Type(2) * lntauq_o);
   Type              Umsybar = exp(lnUmsybar);
-  Type              sigUmsy2= exp(lnsigUmsy2);
+  Type              sigUmsy = exp(lnsigUmsy);
+  Type              sigUmsy2= exp(Type(2) * lnsigUmsy);
   // Random Effects
   Type              kappa2  = exp(lnkappa2);
   Type              gammaYr = Type(1.96) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(0.98);
@@ -170,34 +180,44 @@ Type objective_function<Type>::operator() ()
 
   // Concentrate species specific obs error likelihood?
   // Sum of squares vector
-  vector<Type> ss(nS);
-  vector<Type> tau2hat(nS);
-  vector<Type> validObs(nS);
-  vector<Type> qhat(nS);
-  vector<Type> zSum(nS);
+  matrix<Type>  ss_os(nO,nS);
+  // vector<Type>  tau2hat_o(nO);
+  array<Type>   validObs(nO);
+  // array<Type>   qhat(nO,nS);
+  array<Type>   zSum(nO,nS);
+  // Fill with 0s
   validObs.fill(0.0);
   zSum.fill(0.0);
   Type nllObs = 0.0;
-  qhat.fill(0.0);
-  tau2hat.fill(0.0);
+  // qhat.fill(0.0);
+  // tau2hat_o.fill(0.0);
   // Compute observation likelihood
-  for( int s=0; s < nS; s++ )
+  // Loop over surveys
+  for( int o=0; o < nO; o++ )
   {
-    for( int t = initT(s); t < nT; t++ )
+    // species
+    for( int s = 0; s < nS; s++ )
     {
-      // only add a contribution if the data exists (Ist < 0 is missing)
-      if (It(s,t) > 0) 
+      // times
+      for( int t = initT(s); t < nT; t++ )
       {
-        validObs(s) += int(1);
-        Type res = log( It( s, t ) ) - log( Bt( s, t ) );
-        zSum += res;
-        ss(s) += pow( res - lnq(s), 2 );
-        nllObs += Type(0.5) * ( lntau2(s) + pow( res - lnq(s), 2 ) / tau2(s) );
+        // only add a contribution if the data exists (Ist < 0 is missing)
+        if (It(o,s,t) > 0) 
+        {
+          validObs(o,s) += int(1);
+          Type res = log( It( o, s, t ) ) - log( Bt( s, t ) );
+          zSum(o,s) += res;
+          ss_os(o,s) += pow( res - lnq_os(o,s), 2 );
+          nllObs += Type(0.5) * ( lntau2_o(o) + pow( res - lnq_os(o,s), 2 ) / tau2_o(o) );
+        }       
       }
     }
-    tau2hat( s ) = ss(s) / ( validObs(s) - 1 );
-    if( nS == 1) qhat(s) = exp( zSum(s) / validObs(s) );
-    if( nS > 1 ) qhat(s) = exp( ( zSum(s) / tau2(s) + lnqbar ) / ( validObs(s) / tau2(s) + 1 / tauq2 ) );
+    // tau2hat_o( o ) = ss_os.row(o).sum() / ( validObs.row(o).sum() - 1 );
+    // for( int s = 1; s < nS; s++ )
+    // {
+    //   if( nS == 1) qhat(o,s) = exp( zSum(o,s) / validObs(o,s) );
+    //   if( nS > 1 ) qhat(o,s) = exp( ( zSum(o,s) / tau2hat_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2hat_o(o) + 1 / tauq2_o(o) ) );  
+    // }   
   }
   nll += nllObs;
 
@@ -209,8 +229,8 @@ Type objective_function<Type>::operator() ()
   // eqbm biomass
   for (int s=0; s<nS; s++ )
   {
-    nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / s2Bmsy(s); 
-    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / s2Bmsy(s); 
+    nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / sBmsy(s) / sBmsy(s); 
+    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / sBmsy(s) / sBmsy(s); 
   }
 
   // multispecies shared priors
@@ -219,55 +239,60 @@ Type objective_function<Type>::operator() ()
     // 1st level priors
     for( int s = 0; s < nS; s++ )
     {
-      // catchability
-      if( lnqPriorCode == 1 )
+      // In here, loop over surveys
+      for( int o = 0; o < nO; o++ )
       {
-        nllqPrior += Type(0.5) * ( lntauq2 + pow( q(s) - qbar, 2 ) / tauq2 );  
+        // catchability
+        if( lnqPriorCode == 1 )
+        {
+          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( exp(lnq_os(o,s)) - qbar_o(o), 2 ) / tauq2_o(o) ;  
+        }  
       }
+      
       // productivity
       if( lnUPriorCode == 1 )
       {
-        nllUprior += Type(0.5) * ( lnsigUmsy2 + pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 );
+        nllUprior += lnsigUmsy + Type(0.5) * pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 ;
       }
     }  
     // Hyperpriors
     // catchability
     if( lnqPriorCode == 1 )
     {
-      nllqPrior += Type(0.5) * pow( qbar - exp(mlnq), 2 ) / s2lnq;  
+      for( int o = 0; o < nO; o++ ) nllqPrior += Type(0.5) * pow( qbar_o(o) - mq, 2 ) / sq / sq;  
     }
     // productivity
     if( lnUPriorCode == 1 )
     {
-      nllUprior += Type(0.5) * pow( Umsybar - exp(mlnUmsy), 2 ) / s2lnUmsy;
+      nllUprior += Type(0.5) * pow( Umsybar - mUmsy, 2 ) / sUmsy / sUmsy;
     }
     // End multispecies shared priors
   } 
   if( nS == 1 ) 
   {
     // Now for single species model
-    for (int s=0; s<nS; s++)
+    for (int o=0; o<nO; o++)
     {
       // catchability
       if( lnqPriorCode == 1 )
       {
-        nllqPrior += Type(0.5) * pow( q(s) - exp(mlnq), 2 ) / s2lnq;  
+        nllqPrior += Type(0.5) * pow( exp(lnq_os(o,0)) - mq, 2 ) / sq / sq;  
       }
-      // productivity
-      if( lnUPriorCode == 1 )
-      {
-        nllUprior += Type(0.5) * pow( Umsy(s) - exp(mlnUmsy), 2 ) / s2lnUmsy;
-      }
-    }   
+    }
+    // productivity
+    if( lnUPriorCode == 1 )
+    {
+      nllUprior += Type(0.5) * pow( Umsy(0) - exp(mUmsy), 2 ) / sUmsy / sUmsy;
+    } 
   }
   nll += nllBprior +  nllqPrior + nllUprior;
   
   // Variance IG priors
   // Obs error var
   Type nllVarPrior = 0.0;
-  for( int s = 0; s < nS; s++ )
+  for( int o = 0; o < nO; o++ )
   {
-    nllVarPrior += (tau2IGa(s)+Type(1))*lntau2(s)+tau2IGb(s)/tau2(s);  
+    nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
   }
   // year effect deviations var
   nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
@@ -277,16 +302,22 @@ Type objective_function<Type>::operator() ()
     // shared q prior variance
     if( tauqPriorCode == 0 )
     {
-      nllVarPrior += (tauq2Prior(0)+Type(1))*lntauq2+tauq2Prior(1)/exp(lntauq2);  
+      for( int o = 0; o < nO; o++)
+      {
+        nllVarPrior += (tauq2Prior(0)+Type(1))*Type(2)*lntauq_o(o)+tauq2Prior(1)/tauq2_o(o);    
+      }
     }
     if( tauqPriorCode == 1 )
     {
-      nllVarPrior += Type(0.5) * pow( tauq2 - tauq2Prior(0), 2) / tauq2Prior(1);
+      for( int o = 0; o < nO; o++)
+      {
+        nllVarPrior += Type(0.5) * pow( tauq2_o(o) - tauq2Prior(0), 2) / tauq2Prior(1);
+      }
     }
     // shared U prior variance
     if( sigUPriorCode == 0 )
     {
-      nllVarPrior += (sigU2Prior(0)+Type(1))*lnsigUmsy2+sigU2Prior(1)/exp(lnsigUmsy2);  
+      nllVarPrior += (sigU2Prior(0)+Type(1))*Type(2.)*lnsigUmsy+sigU2Prior(1)/sigUmsy2;  
     }
     if( sigUPriorCode == 1 )
     {
@@ -315,20 +346,20 @@ Type objective_function<Type>::operator() ()
   // Reporting Section //
   // Variables we want SEs for
   ADREPORT(Bt);
-  ADREPORT(q);
+  ADREPORT(lnq_os);
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
   ADREPORT(msy);
   ADREPORT(Binit);
-  ADREPORT(tau2);
+  ADREPORT(tau2_o);
   ADREPORT(kappa2);
   if (nS > 1 )
   {
     ADREPORT(SigmaDiag);
     ADREPORT(Umsybar);
     ADREPORT(sigUmsy2);
-    ADREPORT(qbar);
-    ADREPORT(tauq2)
+    ADREPORT(qbar_o);
+    ADREPORT(tauq2_o)
   }
   ADREPORT(gammaYr);
   
@@ -337,15 +368,15 @@ Type objective_function<Type>::operator() ()
   REPORT(Ut);
   REPORT(Binit);
   REPORT(DnT);
-  REPORT(q);
+  REPORT(q_os);
   REPORT(msy);
   REPORT(Bmsy);
   REPORT(Umsy);
   REPORT(msy);
-  REPORT(tau2);
+  REPORT(tau2_o);
   REPORT(kappa2);
-  REPORT(tau2hat);
-  REPORT(qhat);
+  // REPORT(tau2hat_o);
+  // REPORT(qhat);
   if (nS > 1)
   {
     REPORT(Sigma);
@@ -353,8 +384,8 @@ Type objective_function<Type>::operator() ()
     REPORT(SigmaDiag);
     REPORT(Umsybar);
     REPORT(sigUmsy2);
-    REPORT(qbar);
-    REPORT(tauq2);
+    REPORT(qbar_o);
+    REPORT(tauq2_o);
   }
   REPORT(gammaYr);
   REPORT(nll);

@@ -60,11 +60,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # First, set the seed
   if ( !is.null(seed) ) set.seed(seed)
 
-  # Now recover multi-species parameters
-  sYear <- obj$opMod$sYear        # starting year of catch history
-  fYear <- obj$opMod$fYear        # Final year (now) of catch history 
-  nT    <- fYear - sYear + 1      # Total length of sim for each species
-  sT    <- sYear - min(sYear) + 1 # initial time step of observations
+  # Now recover multi-species model dimensions
+  fYear <- obj$opMod$fYear        # starting year of catch history
+  lYear <- obj$opMod$lYear        # Final year (now) of catch history 
+  nT    <- lYear - fYear + 1      # Total length of sim for each species
+  sT    <- lYear - min(fYear) + 1 # initial time step of observations
   nS    <- obj$opMod$nS           # number of species
 
   # Create Ut time series
@@ -96,29 +96,23 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if( seed == obj$ctrl$rSeed + 1 )
     { # If this is the first one, then initialise the OM using .popInit, 
       # and save the om to a global object for future simulations
-      om <- .popInit( obj = obj, Ust = Ust,
+      obj$om <- .popInit( obj = obj, Ust = Ust,
                       specNames = obj$ctrl$speciesNames  )
-      globalOM <<- om
+      globalOM <<- obj$om
     } # If this is rep >= 2 then load the saved OM, and skip the .popInit
-    else om <- globalOM 
+    else obj$om <- globalOM 
   } else # If proc errors are changing, then just run the OM every time
-      om <- .popInit( obj = obj, Ust = Ust,
+      obj$om <- .popInit( obj = obj, Ust = Ust,
                       specNames = obj$ctrl$speciesNames  )
 
 
 
-  # Now apply the observation model
-  om <- .obsModelreFac( obj = om )
+  # Now apply the observation model, this includes the random
+  # draws of species specific catchability within each survey,
+  # survey specific sampling design and observation error
+  obj$om <- .obsModel( obj = obj )
 
-  # Change indices based on survey freq
-  if( !is.null(obj$opMod$surveyFreq) )
-  {
-    survOn           <- seq(1,max(nT),by=obj$opMod$surveyFreq)
-    om$It[,-survOn]  <- -1.0
-  }
-
-
-  return(om)
+  return(obj)
 }
 
 # .popInit()
@@ -132,11 +126,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                       Ust = Ust, specNames )
 {
   nS    <- obj$opMod$nS           # number of species
-  sYear <- obj$opMod$sYear[1:nS]  # starting year of catch history
-  fYear <- obj$opMod$fYear        # Final year (now) of catch history 
-  nT    <- fYear - sYear + 1      # Total length of sim for each species
-  sT    <- sYear - min(sYear) + 1 # initial time step of observations  
-
+  fYear <- obj$opMod$fYear[1:nS]  # starting year of catch history
+  lYear <- obj$opMod$lYear        # Final year (now) of catch history 
+  nT    <- lYear - fYear + 1      # Total length of sim for each species
+  sT    <- fYear - min(fYear) + 1 # initial time step of observations  
 
   # Process error component vars
   kappa <- sqrt(obj$opMod$kappa2)    # longitudinal shared proc error sd
@@ -151,9 +144,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   msCorr <- matrix( obj$opMod$corrOffDiag, nrow = nS, ncol = nS)
   diag(msCorr) <- 1
 
-  # Obs error var
-  tau <- sqrt(obj$opMod$tau2[1:nS])
-
   # Now create epst and zetat vectors using the proc error components
   epst      <- .fillRanWalk(  z=rnorm(n = max(nT)), s=kappa,
                               gamma=gammaYr )
@@ -164,7 +154,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # Create initial devations for each case
   if( obj$opMod$depOpt ) targYr  <- obj$opMod$targYr[1:nS] else targYr <- rep(fYear,nS)
-  UdevT   <- targYr - min(sYear) + 1
+  UdevT   <- targYr - min(fYear) + 1
   nDevs   <- sum(UdevT) 
   devs    <- rep(0,nDevs)
 
@@ -173,18 +163,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   om <- list (  Bt        = matrix (NA,nrow=nS, ncol=max(nT) ),
                 Ct        = matrix (NA,nrow=nS, ncol=max(nT) ),
                 Ut        = matrix (NA,nrow=nS, ncol=max(nT) ),
-                ItTrue    = matrix (NA,nrow=nS, ncol=max(nT) ),
                 epst      = epst,
                 zetat     = zetat,
-                deltat    = deltat,
-                It        = matrix (NA,nrow=nS, ncol=max(nT) ),
                 dep       = matrix (NA,nrow=nS, ncol=max(nT) ),
                 kappa2    = kappa*kappa,
                 Sigma2    = Sigma*Sigma,
                 msCorr    = msCorr,
                 gamma     = gamma,
-                tau2      = tau*tau,
-                q         = obj$opMod$q[1:nS],
                 nT        = nT,
                 sT        = sT,
                 nS        = nS,
@@ -228,11 +213,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           depOpt = TRUE,
                           fit = TRUE )
 {
-  nS    <- obj$nS           # number of species
-  sYear <- obj$sYear[1:nS]  # starting year of catch history
-  fYear <- obj$fYear        # Final year (now) of catch history 
-  nT    <- fYear - sYear + 1      # Total length of sim for each species
-  sT    <- sYear - min(sYear) + 1 # initial time step of observations 
+  nS    <- om$nS            # number of species
+  nT    <- om$nT            # Total length of sim for each species
+  sT    <- om$sT            # initial time step of reconstruction 
 
   # Now
   Fst <- baseMtx
@@ -266,8 +249,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if( corrOpt )
     { 
       estCorr       <- cor(t(estMtx))
-      targMtx       <- matrix(obj$corrOffDiag, nrow = nS, ncol = nS)
-      diag(targMtx) <- rep(1,nS)
+      targMtx       <- om$msCorr
       nll <- nll + 0.5 * sum( (estCorr - targMtx)^2 ) / 0.001
     }
 
@@ -332,9 +314,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Needs to create nS SS dat and par lists, and 1 MS dat and par list.
   # First, SS:
   # Recover number of species
-  nS <- opMod$nS
-  nT <- om$nT
-  sT <- om$sT
+  nS    <- opMod$nS
+  nSurv <- om$nSurv
+  nT    <- om$nT
+  sT    <- om$sT
   # Make dat and par lists
   ssDat <- vector ( mode = "list", length = nS )
   ssPar <- vector ( mode = "list", length = nS )
@@ -347,19 +330,19 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     sumCat[s] <- sum( obj$om$Ct[sT[s]:max(nT)] )
   }
   sumCat <- as.numeric(sumCat)
-  
+
   # change IG parameters for tau, kappa and Sigma if autoIG is on
   if (obj$assess$autoIG)
   {
     # recover true variances (use om, may be modified by kappaMult)
-    tau2    <- obj$om$tau2
-    kappa2  <- obj$om$kappa2
-    Sigma2  <- mean(obj$om$Sigma2)
+    tau2Surv    <- obj$om$tau2Surv
+    kappa2      <- obj$om$kappa2
+    Sigma2      <- mean(obj$om$Sigma2)
 
     # Now change IG parameters so that the prior mode is at the true (mean) value
-    obj$assess$tau2IGb[1:nS]  <- (obj$assess$tau2IGa[1:nS]+1)*tau2[1:nS]
-    obj$assess$kappa2IG[2]    <- (obj$assess$kappa2IG[1]+1)*kappa2
-    obj$assess$Sigma2IG[2]    <- (obj$assess$Sigma2IG[1]+1)*Sigma2
+    obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
+    obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*kappa2
+    obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*Sigma2
   }
 
   if( !is.null(obj$assess$tauq2P1) ) obj$assess$tauq2Prior[1] <- obj$assess$tauq2P1
@@ -386,7 +369,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   for (s in 1:nS )
   {
     # Make dat list 
-    ssDat[[s]] <- list (  It              = matrix(obj$om$It[s,sT[s]:max(nT)], nrow=1),
+    ssDat[[s]] <- list (  It              = array(obj$om$I_ost[,s,sT[s]:max(nT)], dim = c(nSurv,1,nT[s])),
                           Ct              = matrix(obj$om$Ct[s,sT[s]:max(nT)], nrow=1),
                           nS              = 1,
                           nT              = nT[s],
@@ -400,21 +383,21 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
-                          lntau2            = log(obj$assess$tau2[s]),
-                          lnq               = obj$assess$lnq[s],
+                          lntau2            = log(obj$assess$tau2),
+                          lnq_os            = matrix(obj$assess$lnq, nrow = nSurv, ncol = 1),
                           lnBinit           = log(sumCat[s]/2),
-                          lnqbar            = obj$assess$lnqbar,
-                          lntauq2           = obj$assess$lntauq2,
-                          mlnq              = obj$assess$mlnq,
-                          s2lnq             = obj$assess$s2lnq,
+                          lnqbar_o          = obj$assess$lnqbar_o,
+                          lntauq_o          = obj$assess$lntauq_o,
+                          mq                = obj$assess$mq,
+                          sq                = obj$assess$sq,
                           lnUmsybar         = obj$assess$lnUmsybar,
-                          lnsigUmsy2        = obj$assess$lnsigUmsy2,
+                          lnsigUmsy         = obj$assess$lnsigUmsy,
                           mlnUmsy           = obj$assess$mlnUmsy,
-                          s2lnUmsy          = obj$assess$s2lnUmsy,
+                          slnUmsy           = obj$assess$slnUmsy,
                           mBmsy             = obj$assess$mBmsy[s],
-                          s2Bmsy            = obj$assess$s2Bmsy[s],
-                          tau2IGa           = obj$assess$tau2IGa[s],
-                          tau2IGb           = obj$assess$tau2IGb[s],
+                          sBmsy             = obj$assess$s2Bmsy[s],
+                          tau2IGa           = obj$assess$tau2IGa,
+                          tau2IGb           = obj$assess$tau2IGb,
                           tauq2Prior        = obj$assess$tauq2Prior,
                           sigU2Prior        = obj$assess$sigU2Prior,
                           kappa2IG          = obj$assess$kappa2IG,
@@ -464,7 +447,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   
   
   # now make dat, par and map (par masking) lists for the MS model
-  msDat <- list ( It              = obj$om$It,
+  msDat <- list ( It              = obj$om$I_ost,
                   Ct              = obj$om$Ct,
                   nS              = nS,
                   nT              = max(nT),
@@ -690,7 +673,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 {
 
   # Run operating model to generate data
-  obj$om <- .opModel ( obj, seed = seed )
+  obj <- .opModel ( obj, seed = seed )
 
   # Create data objects for AMs
   datPar <- .makeDataLists ( obj )
@@ -751,10 +734,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   nReps   <- obj$ctrl$nReps
   rSeed   <- obj$ctrl$rSeed
   nS      <- obj$opMod$nS
-  sYear   <- obj$opMod$sYear
   fYear   <- obj$opMod$fYear
-  nT      <- max(fYear - sYear + 1)
-  sT      <- sYear - min(sYear) + 1
+  lYear   <- obj$opMod$lYear
+  nT      <- max(lYear - fYear + 1)
+  sT      <- fYear - min(fYear) + 1
 
   # Create dimension names for arrays
   rNames <- paste("Rep",1:nReps, sep ="")
@@ -1013,7 +996,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   return ( outList )
 }
 
-# obsModelMultiSurv()
+# obsModel()
 # Creates observations (indices of biomass) for the survey(s)
 # given true series of biomass and observation model parameters.
 # inputs:     Bt=true series of biomass; q=survey catchability parameter
@@ -1022,58 +1005,77 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 #             tau=obs error standard deviation (uncorrelated)
 # outputs:    It=nT-vector of survey observations
 # usage:      creates survey observations which are supplied to the estimator
-.obsModelreFac <- function (  obj = om )
+.obsModel <- function (  obj = obj )
 {
-  # Recover model dimensions
-  nT      <- obj$nT
-  nS      <- obj$nS
-  sT      <- obj$sT
+  om        <- obj$om
+  opMod     <- obj$opMod
 
-  # Recover biomass, q values, obs error variance
-  Bst     <- obj$Bt
-  q       <- obj$q
-  deltat  <- obj$deltat
-  tau     <- sqrt( obj$tau2 )
-  tau2    <- obj$tau2
+  # Recover model dimensions
+  nT        <- om$nT            # Number of time steps (for each species)
+  nS        <- om$nS            # No. of species
+  sT        <- om$sT            # time step of start of reconstruction (nS-numeric)
+  nSurv     <- opMod$nSurv      # No. of surveys
+  fYearSurv <- opMod$fYearSurv  # first year of each survey
+  lYearSurv <- opMod$lYearSurv  # last year of each survey
+  fYear     <- opMod$fYear      # first year of reconstruction (5-numeric)
+  lYear     <- opMod$lYear      # last year of reconstruction (1-numeric)
+  survFreq  <- opMod$surveyFreq # Frequency of surveys
+
+  # Derive other dimensions from above
+  sTSurv    <- fYearSurv - min(fYear) + 1
+  fTSurv    <- lYearSurv - min(fYear) + 1 
+
+  # Recover biomass, obs error variance
+  Bst       <- om$Bt
+  tauSurv   <- opMod$tauSurv
+  tau2Surv  <- tauSurv^2
+
+  # Now create a matrix of q values for each species and survey
+  q_os      <- matrix( 0, nrow = nSurv, ncol = nS )
+  qSurvM    <- opMod$qSurvM
+  qSurvSD   <- opMod$qSurvSD
+  for(survIdx in 1:nSurv)
+  {
+    q_os[ survIdx, ] <- exp( rnorm( n = nS, 
+                                    mean = log( qSurvM[ survIdx ] ), 
+                                    sd = qSurvSD[ survIdx ] ) )
+  }
 
   # standard normal deviations for obs error (uncorrelated)
-  deltat    <- matrix(rnorm ( n = nS*max(nT) ), nrow = nS, ncol = max(nT))
+  delta_ost    <- array( rnorm (  n = nS*max(nT)*nSurv ), 
+                                  dim = c( nSurv, nS, max(nT) ),
+                                  dimnames = list(  paste("surv",1:nSurv,sep = "" ),
+                                                    obj$ctrl$specNames[1:nS],
+                                                    paste("t",1:max(nT), sep = "" ) ) )
+  # array to hold observations
+  I_ost <- array( -1, dim = c( nSurv, nS, max(nT) ),
+                      dimnames = list(  paste("surv",1:nSurv,sep = "" ),
+                                        obj$ctrl$specNames[1:nS],
+                                        paste("t",1:max(nT), sep = "" ) ) )
 
-  # Now start applying the observation model
-  for( s in 1:nS )
+  for( survIdx in 1:nSurv )
   {
-    # browser()
-    It <- rep( -1, length(Bst[s,]) )
-    deltat[s,] <- deltat[s,]*tau[s]
-    It[sT[s]:nT[s]] <- (q[s] * Bst[s,] * exp ( deltat[s,] - .5*tau2[s] ) )[sT[s]:nT[s]]
-    deltat[s,-(sT[s]:nT[s])] <- NA    
-    obj$It[s,]     <- It
+    tIdxSurv <- seq( from = sTSurv[survIdx], to = fTSurv[survIdx], by = survFreq[survIdx] )
+    # Scale standard normal deviations by their SD
+    delta_ost[ survIdx, , ] <- delta_ost[ survIdx, , ] * tauSurv[ survIdx ]
+    # Now start applying the observation model
+    for( s in 1:nS )
+    {
+      tIdx <- sT[s]:nT[s]
+      I_ost[ survIdx, s, tIdxSurv ] <-  q_os[ survIdx, s ] * 
+                                        Bst[ s, tIdxSurv ] * 
+                                        exp ( delta_ost[ survIdx, s, tIdxSurv ] - 
+                                              .5*tau2Surv[ survIdx ] )
+      delta_ost[ survIdx, s, - tIdxSurv ] <- NA
+    }  
   }
-  obj$deltat <- deltat
-  
-  obj
-}
+  om$I_ost      <- I_ost
+  om$delta_ost  <- delta_ost
+  om$q_os       <- q_os
+  om$nSurv      <- nSurv
+  om$tau2Surv   <- tau2Surv
 
-
-# obsModel()
-# A function which creates observations (indices of biomass) from
-# given true series of biomass and observation model parameters.
-# inputs:			Bt=true series of biomass; q=survey catchability parameter
-#							nT=length of time series; deltat=nT-vector of standard errors
-#             sT=time step of initial observations
-# 						tau=obs error standard deviation (uncorrelated)
-# outputs:		It=nT-vector of survey observations
-# usage:			creates survey observations which are supplied to the estimator
-.obsModel <- function ( Bt, q = 0.05, nT = length (Bt), sT = 1, 
-												deltat = rnorm(nT), tau = 0.4 )
-{
-  # browser()
-  It <- rep( -1, length(Bt) )
-  deltat <- deltat*tau
-  tau2 <- tau*tau
-	It[sT:nT] <- (q * Bt * exp ( deltat - tau2/2.0 ) )[sT:nT]
-  deltat[-(sT:nT)] <- NA
-	outList <- list ( It = It, deltat = deltat )
+  om
 }
 
 

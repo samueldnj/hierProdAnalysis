@@ -573,7 +573,7 @@ makeBatch <- function ( batchCtlFile = "batchControlFile.bch", prjFld = "project
   .DEFBATFLD <<- batchFld
 
   # Create Batch Design 
-  batchDesign <- .createBatchDesign (  ctlPar = batchCtl, basePars = baseCtl )
+  batchDesign <- .createBatchDesign(  ctlPar = batchCtl, basePars = baseCtl )
   .FBATDES  <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")
   .CTLDES   <- file.path(getwd(),.PRJFLD,.DEFBATFLD,baseCtlFile)
   .BCTLDES  <- file.path(getwd(),.PRJFLD,.DEFBATFLD,batchCtlFile)
