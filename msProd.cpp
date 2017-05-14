@@ -10,6 +10,10 @@
 // Purpose: The assessment model in a simulation study of multi-stock
 // robin hood methods.
 // 
+// Updates:
+//    May 13, 2017: Added multiple surveys, ready for application
+//                  to real DERPA data
+// 
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 
 #include <TMB.hpp>                                // Links in the TMB libraries

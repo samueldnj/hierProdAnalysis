@@ -984,9 +984,10 @@ AICrank <- function ( modelList, sig )
   # Get control constants
   nReps <- ctrl$nReps
   nS    <- opMod$nS
-  sYear <- opMod$sYear
+  nSurv <- opMod$nSurv
   fYear <- opMod$fYear
-  nT    <- fYear - min(sYear) + 1
+  lYear <- opMod$lYear
+  nT    <- lYear - min(fYear) + 1
 
   # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
   ssHess <- ss$hesspd
@@ -999,26 +1000,28 @@ AICrank <- function ( modelList, sig )
 
   # Create a list to hold error values
   ssErr <- list ( 
-                Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                kappa2= matrix ( NA, nrow = nReps, ncol = nS ),
-                tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
-                q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                BnT   = matrix ( NA, nrow = nReps, ncol = nS ),
-                totRE = matrix ( NA, nrow = nReps, ncol = nS )
+                Bmsy  = matrix( NA, nrow = nReps, ncol = nS ),
+                Umsy  = matrix( NA, nrow = nReps, ncol = nS ),
+                kappa2= matrix( NA, nrow = nReps, ncol = nS ),
+                tau2_o= array(  NA, dim = c(nReps,nSurv,nS) ),
+                q_os  = array(  NA, dim = c(nReps,nSurv,nS) ),
+                dep   = matrix( NA, nrow = nReps, ncol = nS ),
+                BnT   = matrix( NA, nrow = nReps, ncol = nS ),
+                totRE = matrix( NA, nrow = nReps, ncol = nS )
               )
   # Slightly difference structure for MS model
   msErr <- list ( 
-                Bmsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                Umsy  = matrix ( NA, nrow = nReps, ncol = nS ),
-                kappa2= matrix ( NA, nrow = nReps, ncol = 1 ),
-                Sigma2= matrix ( NA, nrow = nReps, ncol = nS ),
-                tau2  = matrix ( NA, nrow = nReps, ncol = nS ),
-                q     = matrix ( NA, nrow = nReps, ncol = nS ),
-                dep   = matrix ( NA, nrow = nReps, ncol = nS ),
-                BnT   = matrix ( NA, nrow = nReps, ncol = nS ),
-                totRE = matrix ( NA, nrow = nReps, ncol = nS )
+                Bmsy    = matrix( NA, nrow = nReps, ncol = nS ),
+                Umsy    = matrix( NA, nrow = nReps, ncol = nS ),
+                kappa2  = matrix( NA, nrow = nReps, ncol = 1 ),
+                Sigma2  = matrix( NA, nrow = nReps, ncol = nS ),
+                tau2_o  = array(  NA, dim = c( nReps, nSurv ) ),
+                tauq2_o = array(  NA, dim = c( nReps, nSurv ) ),
+                q_os    = array(  NA, dim = c( nReps, nSurv, nS ) ),
+                qbar_o  = array(  NA, dim = c( nReps, nSurv ) ),
+                dep     = matrix( NA, nrow = nReps, ncol = nS ),
+                BnT     = matrix( NA, nrow = nReps, ncol = nS ),
+                totRE   = matrix( NA, nrow = nReps, ncol = nS )
               )
 
   # append error lists to blob
@@ -1028,31 +1031,39 @@ AICrank <- function ( modelList, sig )
   # now append Sigma2 to the err list
   ms$err.mle <- msErr
 
+  # Create matrices of the shared parameters
+  # to avoid matrix-vector indexing errors
+  tauSurv   <- matrix(opMod$tauSurv, nrow = length(success), ncol = nSurv, byrow = T )
+  qSurvM    <- matrix(opMod$qSurvM, nrow = length(success), ncol = nSurv, byrow = T )
+  qSurvSD   <- matrix(opMod$qSurvSD, nrow = length(success), ncol = nSurv, byrow = T )
+
   # Fill in ss MLE relative errors
   for ( s in 1:nS )
   {
     # browser()
-    ss$err.mle$Bmsy[success,s]   <- (ss$Bmsy[success,s] - opMod$Bmsy[s])/opMod$Bmsy[s]
-    ss$err.mle$Umsy[success,s]   <- (ss$Umsy[success,s] - opMod$Umsy[s])/opMod$Umsy[s]
-    ss$err.mle$kappa2[success,s] <- (ss$kappa2[success,s] - (opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s]))/(opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s])
-    ss$err.mle$tau2[success,s]   <- (ss$tau2[success,s] - opMod$tau2[s])/opMod$tau2[s]
-    ss$err.mle$q[success,s]      <- (ss$q[success,s] - opMod$q[s])/opMod$q[s]
-    ss$err.mle$dep[success,s]    <- (ss$dep[success,s,nT] - om$dep[success,s,nT])/om$dep[success,s,nT]
-    ss$err.mle$BnT[success,s]    <- (ss$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
-    ss$err.mle$totRE[success,s]  <- ss$err.mle$kappa2[success,s]
+    ss$err.mle$Bmsy[success,s]    <- (ss$Bmsy[success,s] - opMod$Bmsy[s])/opMod$Bmsy[s]
+    ss$err.mle$Umsy[success,s]    <- (ss$Umsy[success,s] - opMod$Umsy[s])/opMod$Umsy[s]
+    ss$err.mle$kappa2[success,s]  <- (ss$kappa2[success,s] - (opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s]))/(opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s])
+    ss$err.mle$tau2_o[success,,s] <- (ss$tau2_o[success,,s] - tauSurv^2)/(tauSurv^2)
+    ss$err.mle$q_os[success,,s]   <- (ss$q_os[success,,s] - om$q_os[success,,s])/om$q_os[success,,s]
+    ss$err.mle$dep[success,s]     <- (ss$dep[success,s,nT] - om$dep[success,s,nT])/om$dep[success,s,nT]
+    ss$err.mle$BnT[success,s]     <- (ss$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
+    ss$err.mle$totRE[success,s]   <- ss$err.mle$kappa2[success,s]
 
     # Now fill in ms MLE relative errors
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.mle$kappa2[success,]    <- (ms$kappa2[success,] - opMod$kappa2*(opMod$kappaMult^2))/opMod$kappa2/(opMod$kappaMult^2)
+      ms$err.mle$kappa2[success,]     <- (ms$kappa2[success,] - opMod$kappa2*(opMod$kappaMult^2))/opMod$kappa2/(opMod$kappaMult^2)
+      ms$err.mle$tau2_o[success,]     <- (ms$tau2_o[success,] - tauSurv^2)/(tauSurv^2)
+      ms$err.mle$tauq2_o[success,]    <- (ms$tauq2_o[success,] - qSurvSD^2)/(qSurvSD^2)
+      ms$err.mle$qbar_o[success,]     <- (ms$qbar_o[success,] - qSurvM)/qSurvM
     }
     # Now the rest of the pars
-    ms$err.mle$Sigma2[success,s] <- (ms$Sigma2[success,s] - opMod$SigmaDiag[s])/opMod$SigmaDiag[s]
-    ms$err.mle$tau2[success,s]   <- (ms$tau2[success,s] - opMod$tau2[s])/opMod$tau2[s]
+    ms$err.mle$Sigma2[success,s] <- (ms$Sigma2[success,s] - opMod$SigmaDiag[s])/opMod$SigmaDiag[s]    
     ms$err.mle$Bmsy[success,s]   <- (ms$Bmsy[success,s] - opMod$Bmsy[s])/opMod$Bmsy[s]
     ms$err.mle$Umsy[success,s]   <- (ms$Umsy[success,s] - opMod$Umsy[s])/opMod$Umsy[s]    
-    ms$err.mle$q[success,s]      <- (ms$q[success,s] - opMod$q[s])/opMod$q[s]
+    ms$err.mle$q_os[success,,s]  <- (ms$q_os[success,,s] - om$q_os[success,,s])/om$q_os[success,,s]
     ms$err.mle$dep[success,s]    <- (ms$dep[success,s,nT] - om$dep[success,s,nT])/om$dep[success,s,nT]
     ms$err.mle$BnT[success,s]    <- (ms$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
 

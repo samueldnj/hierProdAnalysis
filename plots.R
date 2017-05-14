@@ -2964,7 +2964,7 @@ plotCIbio <- function ( rep = 1, sim=1)
 }
 
 plotBenvelopes <- function( sim = 1,
-                              sYear = 1988,
+                              fYear = 1988,
                               est = FALSE,
                               labSize = 2, 
                               tickSize = 1.2,
@@ -2997,7 +2997,7 @@ plotBenvelopes <- function( sim = 1,
   msBt  <- blob$am$ms$Bt
   msBt[ msBt < 0 ] <- NA
 
-  years <- sYear:(sYear + nT - 1)
+  years <- fYear:(fYear + nT - 1)
 
   for( s in 1:nS )
   {
@@ -3034,7 +3034,7 @@ plotBenvelopes <- function( sim = 1,
   # loop over species and plot biomass
   for( s in 1:nS )
   {
-    plot    ( x = c(sYear,max(years)), y = c(0,1.1), type = "n",
+    plot    ( x = c(fYear,max(years)), y = c(0,1.1), type = "n",
               ylim = c(0,1.1), ylab = "", axes=FALSE, las = 1, xlab = ""  )
       axis( side = 1, las = 0 )
       axis( side = 2, las = 1 )
@@ -3073,7 +3073,7 @@ plotBenvelopes <- function( sim = 1,
 
 
 plotBCUenvelopes <- function( sim = 1,
-                              sYear = 1988,
+                              fYear = 1988,
                               est = FALSE,
                               labSize = 2, 
                               tickSize = 1.2,
@@ -3091,14 +3091,13 @@ plotBCUenvelopes <- function( sim = 1,
   nS <- blob$opMod$nS
 
   # Year indexing
-  if(!is.null(blob$opMod$sYear)) 
+  if(!is.null(blob$opMod$fYear)) 
   {
-    nT <- blob$opMod$fYear - min(blob$opMod$sYear) + 1
-    sYear <- min(blob$opMod$sYear)
+    nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
+    fYear <- min(blob$opMod$fYear)
   } else nT <- blob$opMod$nT
 
-
-  years <- sYear:(sYear + nT - 1)
+  years <- fYear:(fYear + nT - 1)
 
 
   # Species names
@@ -3116,7 +3115,7 @@ plotBCUenvelopes <- function( sim = 1,
   msBt  <- blob$am$ms$Bt
   msBt[msBt < 0] <- NA
 
-  years <- sYear:(sYear + nT - 1)
+  years <- fYear:(fYear + nT - 1)
 
   # Estimated Ut
   ssUt <- Ct / ssBt
@@ -3176,7 +3175,7 @@ plotBCUenvelopes <- function( sim = 1,
   # loop over species and plot biomass
   for( s in 1:nS )
   {
-    plot    ( x = c(sYear,max(years)), y = c(0,1.1), type = "n",
+    plot    ( x = c(fYear,max(years)), y = c(0,1.1), type = "n",
               ylim = c(0,1.1), ylab = "", axes=FALSE, las = 1, xlab = "" ,
               main = specNames[s] )
       axis( side = 1, las = 0 )
@@ -3207,7 +3206,7 @@ plotBCUenvelopes <- function( sim = 1,
   # Now catch
   for( s in 1:nS )
   {
-    plot    ( x = c(sYear,max(years)), y = c(0,2.1), type = "n",
+    plot    ( x = c(fYear,max(years)), y = c(0,2.1), type = "n",
               ylim = c(0,2.1), ylab = "", axes=FALSE, las = 1, xlab = "" )
       axis( side = 1, las = 0 )
       axis( side = 2, las = 1 )
@@ -3222,7 +3221,7 @@ plotBCUenvelopes <- function( sim = 1,
   # Lastly, exploitation rate
   for( s in 1:nS )
   {
-    plot    ( x = c(sYear,max(years)), y = c(0,2.2), type = "n",
+    plot    ( x = c(fYear,max(years)), y = c(0,2.2), type = "n",
               ylim = c(0,2.2), ylab = "", axes=FALSE, las = 1, xlab = "" )
       axis( side = 1, las = 0 )
       axis( side = 2, las = 1 )
@@ -3262,7 +3261,7 @@ plotBCUenvelopes <- function( sim = 1,
 # usage:    post-simulation run, plotting performance
 plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
                       data = FALSE, labSize = 2, tickSize = 1.2,
-                      sYear = 1988, devLabels = TRUE, CIs = FALSE,
+                      fYear = 1988, devLabels = TRUE, CIs = FALSE,
                       scale = FALSE )
 {
   # Blob should be loaded in global environment automatically,
@@ -3290,20 +3289,21 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
   
   # Single species model
   ssBt  <- blob$am$ss$Bt[rep,,]
-  ssq   <- blob$am$ss$q[rep,]
+  # ssq   <- blob$am$ss$q[rep,]
 
   # Multispecies model
   msBt  <- blob$am$ms$Bt[rep,,]
   msBt[msBt < 0] <- NA
-  msq   <- blob$am$ms$q[rep,]  
+  # msq   <- blob$am$ms$q[rep,]  
 
   # Year indexing
-  if(!is.null(blob$opMod$sYear)) 
+  if(!is.null(blob$opMod$fYear)) 
   {
-    nT <- blob$opMod$fYear - min(blob$opMod$sYear) + 1
-    sYear <- min(blob$opMod$sYear)
+    nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
+    fYear <- min(blob$opMod$fYear)
   } else nT <- blob$opMod$nT
-  years <- sYear:(sYear + nT - 1)
+  # browser()
+  years <- fYear:(fYear + nT - 1)
 
   # Estimated Ut
   ssUt <- Ct / ssBt
@@ -3433,7 +3433,7 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
   {
     if( !scale ) maxBt <- 1.1*max ( omBt[s,] ,na.rm=TRUE)
     if( (!scale) & CIs ) maxBt <- max ( maxBt, msBio[s,,], ssBio[s,,], na.rm = T )
-    plot    ( x = c(sYear,max(years)), y = c(0,maxBt), type = "n",
+    plot    ( x = c(fYear,max(years)), y = c(0,maxBt), type = "n",
               ylim = c(0,maxBt), ylab = "", axes=FALSE, las = 1, xlab = "" ,
               main = specNames[s] )
       axis( side = 1, las = 0 )
