@@ -23,12 +23,11 @@ Type posfun(Type x, Type eps, Type &pen){
   return CppAD::CondExpGe(x, eps, x, eps/(Type(2)-x/eps));
 }
 
-
 // invLogit
-// template<class Type>
-// Type invLogit(Type x, Type scale, Type trans){
-//   return scale/(Type(1.0) + exp(-Type(1.0)*x)) - trans;
-// }
+template<class Type>
+Type invLogit(Type x, Type scale, Type trans){
+  return scale/(Type(1.0) + exp(-Type(1.0)*x)) - trans;
+}
 
 // objective function
 template<class Type>
@@ -42,7 +41,7 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(It);               // CPUE data
   DATA_ARRAY(Ct);               // Catch data
   // Model dimensions
-  int nO = It.dim(0);           // No. of surveys (O = observations)
+  int nO = It.dim(0);           // Check dimensions of object
   int nS = It.dim(1);           // No. of species
   int nT = It.dim(2);           // No of time steps
 
@@ -91,6 +90,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(logitSigmaOffDiag);  // Species effect corr chol factor off diag  
   PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect (eps)
   
+
   // State variables
   array<Type>       Bt(nS,nT);
   // Leading parameters
@@ -180,14 +180,15 @@ Type objective_function<Type>::operator() ()
 
   // Concentrate species specific obs error likelihood?
   // Sum of squares vector
-  matrix<Type>  ss_os(nO,nS);
+  array<Type>  ss_os(nO,nS);
   // vector<Type>  tau2hat_o(nO);
-  array<Type>   validObs(nO);
+  array<Type>   validObs(nO,nS);
   // array<Type>   qhat(nO,nS);
   array<Type>   zSum(nO,nS);
   // Fill with 0s
   validObs.fill(0.0);
   zSum.fill(0.0);
+  ss_os.fill(0.0);
   Type nllObs = 0.0;
   // qhat.fill(0.0);
   // tau2hat_o.fill(0.0);
@@ -216,7 +217,7 @@ Type objective_function<Type>::operator() ()
     // for( int s = 1; s < nS; s++ )
     // {
     //   if( nS == 1) qhat(o,s) = exp( zSum(o,s) / validObs(o,s) );
-    //   if( nS > 1 ) qhat(o,s) = exp( ( zSum(o,s) / tau2hat_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2hat_o(o) + 1 / tauq2_o(o) ) );  
+    //   if( nS > 1 ) qhat(o,s) = exp( ( zSum(o,s) / tau2_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2hat_o(o) + 1 / tauq2_o(o) ) );  
     // }   
   }
   nll += nllObs;
@@ -375,6 +376,9 @@ Type objective_function<Type>::operator() ()
   REPORT(msy);
   REPORT(tau2_o);
   REPORT(kappa2);
+  REPORT(nT);
+  REPORT(nO);
+  REPORT(nS);
   // REPORT(tau2hat_o);
   // REPORT(qhat);
   if (nS > 1)

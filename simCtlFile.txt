@@ -48,7 +48,7 @@ assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
 assess$lnq c(-.51,-.51)
 assess$logit_gammaYr 0
 assess$tau2 c(0.01,0.01)
-assess$initBioCode c(0,rep(1,4))
+assess$initBioCode rep(0,5)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1,1,1,1)
@@ -63,11 +63,11 @@ assess$fixUbar FALSE
 assess$mUmsy 0.3
 assess$sUmsy 0.3
 assess$lnqPriorCode 1
-assess$lnqbar_o c(-.51,-.51)
-assess$lntauq_o c(-1,-1)
+assess$lnqbar_o -.51
+assess$lntauq_o -1
 assess$fixtauq2 FALSE
 assess$fixqbar FALSE
-assess$estqms 'unique
+assess$estqms 'unique'
 assess$fixqss FALSE
 assess$mq 0.6
 assess$sq 0.36
