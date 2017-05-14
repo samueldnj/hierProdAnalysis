@@ -198,9 +198,9 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
       xVal <- x[ xIdx ]
       yVal <- y[ yIdx ]
       # Get rows
-      xRows <- which ( table[,axesCols[1]] == xVal)
-      yRows <- which ( table[,axesCols[2]] == yVal)
-      rows <- intersect(xRows,yRows)
+      xRows <- which ( table[ ,axesCols[ 1 ] ] == xVal )
+      yRows <- which ( table[ ,axesCols[ 2 ] ] == yVal )
+      rows <- intersect( xRows, yRows )
       # browser()
       if( length(rows) == 0 ) next
       filtered <- table[rows,]
@@ -539,12 +539,12 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
         xVal <- x[ xIdx ]
         yVal <- y[ yIdx ]
         # Get rows
-        wRows <- which ( tab[,axesCols[1]] == wVal)
-        xRows <- which ( tab[,axesCols[2]] == xVal)
-        yRows <- which ( tab[,axesCols[3]] == yVal)
-        wRowsPred <- which ( predTab[,predAxesCols[1]] == wVal)
-        xRowsPred <- which ( predTab[,predAxesCols[2]] == xVal)
-        yRowsPred <- which ( predTab[,predAxesCols[3]] == yVal)
+        wRows <- which ( tab[,axesCols[1] ] == wVal)
+        xRows <- which ( tab[,axesCols[2] ] == xVal)
+        yRows <- which ( tab[,axesCols[3] ] == yVal)
+        wRowsPred <- which ( predTab[ , predAxesCols[ 1 ] ] == wVal)
+        xRowsPred <- which ( predTab[ , predAxesCols[ 2 ] ] == xVal)
+        yRowsPred <- which ( predTab[ , predAxesCols[ 3 ] ] == yVal)
         rows      <- intersect(intersect(wRows,xRows),yRows)
         predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
         if( length(rows) == 0 ) next
@@ -2248,8 +2248,8 @@ plotModContour <- function (  tableName = "RE_coarse_Bmsy_MARE.csv",
         xVal <- x[xIdx]
         yVal <- y[yIdx]
         # Get rows
-        xRows <- which ( specTab[,axesCols[1]] == xVal)
-        yRows <- which ( specTab[,axesCols[2]] == yVal)
+        xRows <- which ( specTab[,axesCols[1] ] == xVal)
+        yRows <- which ( specTab[,axesCols[2] ] == yVal)
         rows <- intersect(xRows,yRows)
         if( length(rows) == 0 ) next
         colNames <- paste(model,pars,sep="")
@@ -2473,9 +2473,9 @@ plotCompContour <- function ( tableName   = "RE_coarse_pub_MARE.csv",
     axesCols[i] <- which(names(table) == axes[i])
   }
 
-  x   <- unique(table[,axesCols[1]])
+  x   <- unique(table[,axesCols[1] ])
   x   <- x[order(x)]
-  y   <- unique(table[,axesCols[2]])
+  y   <- unique(table[,axesCols[2] ])
   y   <- y[order(y)]
   for (s in 1:nS)
   {
@@ -2494,8 +2494,8 @@ plotCompContour <- function ( tableName   = "RE_coarse_pub_MARE.csv",
         xVal <- x[xIdx]
         yVal <- y[yIdx]
         # Get rows
-        xRows <- which ( specTab[,axesCols[1]] == xVal)
-        yRows <- which ( specTab[,axesCols[2]] == yVal)
+        xRows <- which ( specTab[ ,axesCols[1] ] == xVal)
+        yRows <- which ( specTab[ ,axesCols[2] ] == yVal)
         rows <- intersect(xRows,yRows)
         # Recover MSE comparison
         # browser()
@@ -2604,8 +2604,8 @@ plotCompContour <- function ( tableName   = "RE_coarse_pub_MARE.csv",
       xVal <- x[xIdx]
       yVal <- y[yIdx]
       # Get rows
-      xRows <- which ( compTable[,axesCols[1]] == xVal)
-      yRows <- which ( compTable[,axesCols[2]] == yVal)
+      xRows <- which ( compTable[,axesCols[1] ] == xVal)
+      yRows <- which ( compTable[,axesCols[2] ] == yVal)
       rows <- intersect(xRows,yRows)
       # Recover MSE comparison
       z[length(y) - yIdx + 1,xIdx,] <- as.numeric(compTable[rows,pars])
@@ -3525,7 +3525,7 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE"), sim=1, 
+plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","totRE"), sim=1, 
                           est="MLE", devLabels = TRUE,
                           title = TRUE, plotMARE = FALSE )
 {
@@ -3598,11 +3598,11 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q","dep","BnT","tau2","totRE")
   {
     for (p in 1:length(pars))
     {
-      quantiles[s,,p,1] <- ssQuant[pars[p]][[1]][s,]
-      quantiles[s,,p,2] <- msQuant[pars[p]][[1]][s,]
+      quantiles[s,,p,1] <- ssQuant[ pars[p] ][[1]][s,]
+      quantiles[s,,p,2] <- msQuant[ pars[p] ][[1]][s,]
       # browser()
-      MARE[s,p,1] <- ssAQuant[[pars[p]]][s]
-      MARE[s,p,2] <- msAQuant[[pars[p]]][s]
+      MARE[s,p,1] <- ssAQuant[[ pars[p] ]][s]
+      MARE[s,p,2] <- msAQuant[[ pars[p] ]][s]
     }
   }
   # Set plotting window

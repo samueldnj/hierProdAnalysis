@@ -250,7 +250,7 @@ Type objective_function<Type>::operator() ()
         // catchability
         if( lnqPriorCode == 1 )
         {
-          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( exp(lnq_os(o,s)) - qbar_o(o), 2 ) / tauq2_o(o) ;  
+          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( lnq_os(o,s) - lnqbar_o(o), 2 ) / tauq2_o(o) ;  
         }  
       }
       
