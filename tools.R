@@ -22,6 +22,71 @@
 # makeFhistDesign()
 # Creates the .bch file for a historical fishing intensity experiment,
 # without the MP section underneath.
+makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,2),
+                                                    c = c(0.1,0.5,0.9),
+                                                    Uhist = c("c(0.2,2,1)","c(1,1,1)"),
+                                                    targVar = c("Ct","Bt")
+                                                  ),
+                                    bchName = "FixedProcRE" )
+{
+  # First, recover the number of factors
+  k <- length(levels)
+  
+  # expand.grid the factor levels
+  combos <- expand.grid(levels)
+
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeFixedprocREDesign() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(combos) )
+  {
+    scenLabel <- ""
+    for( fIdx in 1:ncol(combos) )
+    {
+      scenLabel <- paste( scenLabel, colnames(combos)[fIdx], combos[rIdx,fIdx],sep = "" )
+      if( fIdx < ncol(combos) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$corrOpt TRUE\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$ctrl$fixProc TRUE\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$corrTargVar '", combos[rIdx, "targVar"], "'\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$Umult ", combos[rIdx, "Uhist"], "\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$kappaMult", combos[rIdx,"m"] ,"\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag", combos[rIdx,"c"] ,"\n",
+          sep = "", append = T, file = outFile  )
+    cat( "#\n", file = outFile, append = T )
+    
+    cat( "#\n", file = outFile, append = T )
+  }
+  cat( "# Management Procedures \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  cat( "# MP 1 : baseAM \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "mp$mp1$ctrl$mpLabel 'baseAM' \n", append = T, file = outFile )
+  cat( "# \n", append = T, file = outFile )
+  cat( "# File Ends <not run>\n", append = T, file = outFile)
+
+  combos
+}
+
+# makeFhistDesign()
+# Creates the .bch file for a historical fishing intensity experiment,
+# without the MP section underneath.
 makeFhistDesign <- function (  levels = list( nS  = seq(2,10,by=4),
                                               Umax  = c(0.8,1.4,2.0),
                                               tUpeak = c(2,6,10)

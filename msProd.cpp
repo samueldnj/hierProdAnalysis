@@ -16,9 +16,8 @@
 // 
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 
-#include <TMB.hpp>                                // Links in the TMB libraries
+#include <TMB.hpp>       // Links in the TMB libraries
 #include <iostream>
-// #include <convenience.hpp>
 
 // posfun
 template<class Type>
@@ -166,9 +165,9 @@ Type objective_function<Type>::operator() ()
     for( int t = initT(s)+1; t < nT; t++ )
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
-      Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
       Bt(s,t) = posfun(Bt(s,t), Type(1.e-5), pospen);
-      nllRE += Type(1000.0)*pospen;      
+      Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
+      nllRE += Type(100.0)*pospen;      
     }
   }
   // Loop again to add species and year effects
@@ -185,9 +184,9 @@ Type objective_function<Type>::operator() ()
   // Concentrate species specific obs error likelihood?
   // Sum of squares vector
   array<Type>  ss_os(nO,nS);
-  // vector<Type>  tau2hat_o(nO);
+  vector<Type>  tau2hat_o(nO);
   array<Type>   validObs(nO,nS);
-  // array<Type>   qhat(nO,nS);
+  array<Type>   qhat(nO,nS);
   array<Type>   zSum(nO,nS);
   // Fill with 0s
   validObs.fill(0.0);
@@ -217,12 +216,12 @@ Type objective_function<Type>::operator() ()
         }       
       }
     }
-    // tau2hat_o( o ) = ss_os.row(o).sum() / ( validObs.row(o).sum() - 1 );
-    // for( int s = 1; s < nS; s++ )
-    // {
-    //   if( nS == 1) qhat(o,s) = exp( zSum(o,s) / validObs(o,s) );
-    //   if( nS > 1 ) qhat(o,s) = exp( ( zSum(o,s) / tau2_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2hat_o(o) + 1 / tauq2_o(o) ) );  
-    // }   
+    tau2hat_o( o ) = ss_os.matrix().row(o).sum() / ( validObs.matrix().row(o).sum() - 1 );
+    for( int s = 1; s < nS; s++ )
+    {
+      if( nS == 1) qhat(o,s) = exp( zSum(o,s) / validObs(o,s) );
+      if( nS > 1 ) qhat(o,s) = exp( ( zSum(o,s) / tau2_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2hat_o(o) + 1 / tauq2_o(o) ) );  
+    }   
   }
   nll += nllObs;
 
@@ -248,16 +247,27 @@ Type objective_function<Type>::operator() ()
       for( int o = 0; o < nO; o++ )
       {
         // catchability
+        // Shared Prior
         if( lnqPriorCode == 1 )
         {
           nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( lnq_os(o,s) - lnqbar_o(o), 2 ) / tauq2_o(o) ;  
-        }  
+        }
+        // No shared prior (uses the same prior as the SS model)
+        if( lnqPriorCode == 0 )
+        {
+          nllqPrior += Type(0.5) * pow( q_os(o,s) - mq, 2 ) / sq / sq;  
+        }
       }
-      
       // productivity
+      // Shared Prior
       if( lnUPriorCode == 1 )
       {
         nllUprior += lnsigUmsy + Type(0.5) * pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 ;
+      }
+      // No shared prior (uses SS model prior)
+      if( lnUPriorCode == 0 )
+      {
+        nllUprior += Type(0.5) * pow( Umsy(s) - mUmsy, 2 ) / sUmsy / sUmsy;
       }
     }  
     // Hyperpriors
@@ -279,16 +289,10 @@ Type objective_function<Type>::operator() ()
     for (int o=0; o<nO; o++)
     {
       // catchability
-      if( lnqPriorCode == 1 )
-      {
-        nllqPrior += Type(0.5) * pow( exp(lnq_os(o,0)) - mq, 2 ) / sq / sq;  
-      }
+      nllqPrior += Type(0.5) * pow( exp(lnq_os(o,0)) - mq, 2 ) / sq / sq;
     }
     // productivity
-    if( lnUPriorCode == 1 )
-    {
-      nllUprior += Type(0.5) * pow( Umsy(0) - exp(mUmsy), 2 ) / sUmsy / sUmsy;
-    } 
+    nllUprior += Type(0.5) * pow( Umsy(0) - exp(mUmsy), 2 ) / sUmsy / sUmsy;
   }
   nll += nllBprior +  nllqPrior + nllUprior;
   
@@ -351,7 +355,7 @@ Type objective_function<Type>::operator() ()
   // Reporting Section //
   // Variables we want SEs for
   ADREPORT(Bt);
-  ADREPORT(lnq_os);
+  ADREPORT(q_os);
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
   ADREPORT(msy);
@@ -383,8 +387,8 @@ Type objective_function<Type>::operator() ()
   REPORT(nT);
   REPORT(nO);
   REPORT(nS);
-  // REPORT(tau2hat_o);
-  // REPORT(qhat);
+  REPORT(tau2hat_o);
+  REPORT(qhat);
   if (nS > 1)
   {
     REPORT(Sigma);

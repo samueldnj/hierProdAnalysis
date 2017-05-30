@@ -153,7 +153,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                               Sigma=Sigma )
 
   # Create initial devations for each case
-  if( obj$opMod$depOpt ) targYr  <- obj$opMod$targYr[1:nS] else targYr <- rep(fYear,nS)
+  if( obj$opMod$depOpt ) targYr  <- obj$opMod$targYr[1:nS] else targYr <- rep(lYear,nS)
   UdevT   <- targYr - min(fYear) + 1
   nDevs   <- sum(UdevT) 
   devs    <- rep(0,nDevs)
@@ -271,6 +271,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     Dst <- Bst
     for( s in 1:nS ) Dst[s,] <- Dst[s,] / obj$Bmsy[s] / 2
     if( any(Dst < 0.05) ) nll <- nll + 1e6
+
+    # Penalise first differences in Fst changes
+    for( s in 1:nS ) 
+      nll <- nll + 0.5*sum( (Ust[s,1:(nT-1)] - Ust[s,2:nT])^2 ) / 0.01
 
     return(nll)
   }
@@ -450,9 +454,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It              = obj$om$I_ost,
                   Ct              = obj$om$Ct,
-                  nO              = nSurv,
-                  nS              = nS,
-                  nT              = max(nT),
                   SigmaPriorCode  = obj$assess$SigmaPriorCode,
                   sigUPriorCode   = obj$assess$sigUPriorCode,
                   tauqPriorCode   = obj$assess$tauqPriorCode,
@@ -468,7 +469,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnBinit           = log(sumCat[1:nS]/2),
                   lnqbar_o          = rep(obj$assess$lnqbar_o,nSurv),
                   lntauq_o          = rep(obj$assess$lntauq_o,nSurv),
-                  mq              = obj$assess$mq,
+                  mq                = obj$assess$mq,
                   sq                = obj$assess$sq,
                   lnUmsybar         = obj$assess$lnUmsybar,
                   lnsigUmsy         = obj$assess$lnsigUmsy,
