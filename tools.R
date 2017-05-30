@@ -61,9 +61,9 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,2),
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$ctrl$fixProc TRUE\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$corrTargVar '", combos[rIdx, "targVar"], "'\n",
+    cat(  "scenario$scenario", rIdx, "$opMod$corrTargVar '", levels$targVar[combos[rIdx, "targVar"]], "'\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$Umult ", combos[rIdx, "Uhist"], "\n",
+    cat(  "scenario$scenario", rIdx, "$opMod$Umult ", levels$Uhist[combos[rIdx, "Uhist"]], "\n",
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$kappaMult ", combos[rIdx,"m"] ,"\n",
           sep = "", append = T, file = outFile  )
