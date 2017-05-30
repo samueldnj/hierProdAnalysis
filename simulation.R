@@ -273,7 +273,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
     # Penalise first differences in Fst changes
     for( s in 1:nS ) 
-      nll <- nll + 0.5*sum( (Ust[s,1:(nT-1)] - Ust[s,2:nT])^2 ) / 0.05
+      nll <- nll + 0.5*sum( (Ust[s,1:(max(nT)-1)] - Ust[s,2:max(nT)])^2 ) / 0.05
 
     return(nll)
   }
