@@ -80,8 +80,8 @@ assess$tauq2P1 NULL
 assess$tauq2P2 NULL
 assess$kappa2IG c(.1,0.5)
 assess$Sigma2IG c(.1,0.5)
-assess$tau2IGa rep(0.1,10)
-assess$tau2IGb rep(0.5,10)
+assess$tau2IGa rep(0.1,2)
+assess$tau2IGb rep(0.5,2)
 assess$msRE c("lnq","lnUmsy","zeta_st","eps_t")
 assess$ssRE c("eps_t")
 assess$TMBlib "msProd"
