@@ -241,7 +241,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                                     epst = om$epst,
                                     zetat = om$zetat[s,],
                                     initDep = obj$initDep[s] )
-      browser()
       estMtx[s,] <- prodModel[[ obj$corrTargVar ]]
       Bst[s,]    <- prodModel$Bt
     }
