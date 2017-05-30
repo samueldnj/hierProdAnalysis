@@ -10,8 +10,8 @@ scenario$scenario1$opMod$corrOpt TRUE
 scenario$scenario1$ctrl$fixProc TRUE
 scenario$scenario1$opMod$corrTargVar '1'
 scenario$scenario1$opMod$Umult 1
-scenario$scenario1$opMod$kappaMult0.5
-scenario$scenario1$opMod$corrOffDiag0.1
+scenario$scenario1$opMod$kappaMult 0.5
+scenario$scenario1$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 2 : m1_c0.1_Ucont_corrCt
@@ -21,8 +21,8 @@ scenario$scenario2$opMod$corrOpt TRUE
 scenario$scenario2$ctrl$fixProc TRUE
 scenario$scenario2$opMod$corrTargVar '1'
 scenario$scenario2$opMod$Umult 1
-scenario$scenario2$opMod$kappaMult1
-scenario$scenario2$opMod$corrOffDiag0.1
+scenario$scenario2$opMod$kappaMult 1
+scenario$scenario2$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 3 : m2_c0.1_Ucont_corrCt
@@ -32,8 +32,8 @@ scenario$scenario3$opMod$corrOpt TRUE
 scenario$scenario3$ctrl$fixProc TRUE
 scenario$scenario3$opMod$corrTargVar '1'
 scenario$scenario3$opMod$Umult 1
-scenario$scenario3$opMod$kappaMult2
-scenario$scenario3$opMod$corrOffDiag0.1
+scenario$scenario3$opMod$kappaMult 2
+scenario$scenario3$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 4 : m0.5_c0.5_Ucont_corrCt
@@ -43,8 +43,8 @@ scenario$scenario4$opMod$corrOpt TRUE
 scenario$scenario4$ctrl$fixProc TRUE
 scenario$scenario4$opMod$corrTargVar '1'
 scenario$scenario4$opMod$Umult 1
-scenario$scenario4$opMod$kappaMult0.5
-scenario$scenario4$opMod$corrOffDiag0.5
+scenario$scenario4$opMod$kappaMult 0.5
+scenario$scenario4$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 5 : m1_c0.5_Ucont_corrCt
@@ -54,8 +54,8 @@ scenario$scenario5$opMod$corrOpt TRUE
 scenario$scenario5$ctrl$fixProc TRUE
 scenario$scenario5$opMod$corrTargVar '1'
 scenario$scenario5$opMod$Umult 1
-scenario$scenario5$opMod$kappaMult1
-scenario$scenario5$opMod$corrOffDiag0.5
+scenario$scenario5$opMod$kappaMult 1
+scenario$scenario5$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 6 : m2_c0.5_Ucont_corrCt
@@ -65,8 +65,8 @@ scenario$scenario6$opMod$corrOpt TRUE
 scenario$scenario6$ctrl$fixProc TRUE
 scenario$scenario6$opMod$corrTargVar '1'
 scenario$scenario6$opMod$Umult 1
-scenario$scenario6$opMod$kappaMult2
-scenario$scenario6$opMod$corrOffDiag0.5
+scenario$scenario6$opMod$kappaMult 2
+scenario$scenario6$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 7 : m0.5_c0.9_Ucont_corrCt
@@ -76,8 +76,8 @@ scenario$scenario7$opMod$corrOpt TRUE
 scenario$scenario7$ctrl$fixProc TRUE
 scenario$scenario7$opMod$corrTargVar '1'
 scenario$scenario7$opMod$Umult 1
-scenario$scenario7$opMod$kappaMult0.5
-scenario$scenario7$opMod$corrOffDiag0.9
+scenario$scenario7$opMod$kappaMult 0.5
+scenario$scenario7$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 8 : m1_c0.9_Ucont_corrCt
@@ -87,8 +87,8 @@ scenario$scenario8$opMod$corrOpt TRUE
 scenario$scenario8$ctrl$fixProc TRUE
 scenario$scenario8$opMod$corrTargVar '1'
 scenario$scenario8$opMod$Umult 1
-scenario$scenario8$opMod$kappaMult1
-scenario$scenario8$opMod$corrOffDiag0.9
+scenario$scenario8$opMod$kappaMult 1
+scenario$scenario8$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 9 : m2_c0.9_Ucont_corrCt
@@ -98,8 +98,8 @@ scenario$scenario9$opMod$corrOpt TRUE
 scenario$scenario9$ctrl$fixProc TRUE
 scenario$scenario9$opMod$corrTargVar '1'
 scenario$scenario9$opMod$Umult 1
-scenario$scenario9$opMod$kappaMult2
-scenario$scenario9$opMod$corrOffDiag0.9
+scenario$scenario9$opMod$kappaMult 2
+scenario$scenario9$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 10 : m0.5_c0.1_Uflat_corrCt
@@ -109,8 +109,8 @@ scenario$scenario10$opMod$corrOpt TRUE
 scenario$scenario10$ctrl$fixProc TRUE
 scenario$scenario10$opMod$corrTargVar '1'
 scenario$scenario10$opMod$Umult 2
-scenario$scenario10$opMod$kappaMult0.5
-scenario$scenario10$opMod$corrOffDiag0.1
+scenario$scenario10$opMod$kappaMult 0.5
+scenario$scenario10$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 11 : m1_c0.1_Uflat_corrCt
@@ -120,8 +120,8 @@ scenario$scenario11$opMod$corrOpt TRUE
 scenario$scenario11$ctrl$fixProc TRUE
 scenario$scenario11$opMod$corrTargVar '1'
 scenario$scenario11$opMod$Umult 2
-scenario$scenario11$opMod$kappaMult1
-scenario$scenario11$opMod$corrOffDiag0.1
+scenario$scenario11$opMod$kappaMult 1
+scenario$scenario11$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 12 : m2_c0.1_Uflat_corrCt
@@ -131,8 +131,8 @@ scenario$scenario12$opMod$corrOpt TRUE
 scenario$scenario12$ctrl$fixProc TRUE
 scenario$scenario12$opMod$corrTargVar '1'
 scenario$scenario12$opMod$Umult 2
-scenario$scenario12$opMod$kappaMult2
-scenario$scenario12$opMod$corrOffDiag0.1
+scenario$scenario12$opMod$kappaMult 2
+scenario$scenario12$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 13 : m0.5_c0.5_Uflat_corrCt
@@ -142,8 +142,8 @@ scenario$scenario13$opMod$corrOpt TRUE
 scenario$scenario13$ctrl$fixProc TRUE
 scenario$scenario13$opMod$corrTargVar '1'
 scenario$scenario13$opMod$Umult 2
-scenario$scenario13$opMod$kappaMult0.5
-scenario$scenario13$opMod$corrOffDiag0.5
+scenario$scenario13$opMod$kappaMult 0.5
+scenario$scenario13$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 14 : m1_c0.5_Uflat_corrCt
@@ -153,8 +153,8 @@ scenario$scenario14$opMod$corrOpt TRUE
 scenario$scenario14$ctrl$fixProc TRUE
 scenario$scenario14$opMod$corrTargVar '1'
 scenario$scenario14$opMod$Umult 2
-scenario$scenario14$opMod$kappaMult1
-scenario$scenario14$opMod$corrOffDiag0.5
+scenario$scenario14$opMod$kappaMult 1
+scenario$scenario14$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 15 : m2_c0.5_Uflat_corrCt
@@ -164,8 +164,8 @@ scenario$scenario15$opMod$corrOpt TRUE
 scenario$scenario15$ctrl$fixProc TRUE
 scenario$scenario15$opMod$corrTargVar '1'
 scenario$scenario15$opMod$Umult 2
-scenario$scenario15$opMod$kappaMult2
-scenario$scenario15$opMod$corrOffDiag0.5
+scenario$scenario15$opMod$kappaMult 2
+scenario$scenario15$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 16 : m0.5_c0.9_Uflat_corrCt
@@ -175,8 +175,8 @@ scenario$scenario16$opMod$corrOpt TRUE
 scenario$scenario16$ctrl$fixProc TRUE
 scenario$scenario16$opMod$corrTargVar '1'
 scenario$scenario16$opMod$Umult 2
-scenario$scenario16$opMod$kappaMult0.5
-scenario$scenario16$opMod$corrOffDiag0.9
+scenario$scenario16$opMod$kappaMult 0.5
+scenario$scenario16$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 17 : m1_c0.9_Uflat_corrCt
@@ -186,8 +186,8 @@ scenario$scenario17$opMod$corrOpt TRUE
 scenario$scenario17$ctrl$fixProc TRUE
 scenario$scenario17$opMod$corrTargVar '1'
 scenario$scenario17$opMod$Umult 2
-scenario$scenario17$opMod$kappaMult1
-scenario$scenario17$opMod$corrOffDiag0.9
+scenario$scenario17$opMod$kappaMult 1
+scenario$scenario17$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 18 : m2_c0.9_Uflat_corrCt
@@ -197,8 +197,8 @@ scenario$scenario18$opMod$corrOpt TRUE
 scenario$scenario18$ctrl$fixProc TRUE
 scenario$scenario18$opMod$corrTargVar '1'
 scenario$scenario18$opMod$Umult 2
-scenario$scenario18$opMod$kappaMult2
-scenario$scenario18$opMod$corrOffDiag0.9
+scenario$scenario18$opMod$kappaMult 2
+scenario$scenario18$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 19 : m0.5_c0.1_Ucont_corrBt
@@ -208,8 +208,8 @@ scenario$scenario19$opMod$corrOpt TRUE
 scenario$scenario19$ctrl$fixProc TRUE
 scenario$scenario19$opMod$corrTargVar '2'
 scenario$scenario19$opMod$Umult 1
-scenario$scenario19$opMod$kappaMult0.5
-scenario$scenario19$opMod$corrOffDiag0.1
+scenario$scenario19$opMod$kappaMult 0.5
+scenario$scenario19$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 20 : m1_c0.1_Ucont_corrBt
@@ -219,8 +219,8 @@ scenario$scenario20$opMod$corrOpt TRUE
 scenario$scenario20$ctrl$fixProc TRUE
 scenario$scenario20$opMod$corrTargVar '2'
 scenario$scenario20$opMod$Umult 1
-scenario$scenario20$opMod$kappaMult1
-scenario$scenario20$opMod$corrOffDiag0.1
+scenario$scenario20$opMod$kappaMult 1
+scenario$scenario20$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 21 : m2_c0.1_Ucont_corrBt
@@ -230,8 +230,8 @@ scenario$scenario21$opMod$corrOpt TRUE
 scenario$scenario21$ctrl$fixProc TRUE
 scenario$scenario21$opMod$corrTargVar '2'
 scenario$scenario21$opMod$Umult 1
-scenario$scenario21$opMod$kappaMult2
-scenario$scenario21$opMod$corrOffDiag0.1
+scenario$scenario21$opMod$kappaMult 2
+scenario$scenario21$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 22 : m0.5_c0.5_Ucont_corrBt
@@ -241,8 +241,8 @@ scenario$scenario22$opMod$corrOpt TRUE
 scenario$scenario22$ctrl$fixProc TRUE
 scenario$scenario22$opMod$corrTargVar '2'
 scenario$scenario22$opMod$Umult 1
-scenario$scenario22$opMod$kappaMult0.5
-scenario$scenario22$opMod$corrOffDiag0.5
+scenario$scenario22$opMod$kappaMult 0.5
+scenario$scenario22$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 23 : m1_c0.5_Ucont_corrBt
@@ -252,8 +252,8 @@ scenario$scenario23$opMod$corrOpt TRUE
 scenario$scenario23$ctrl$fixProc TRUE
 scenario$scenario23$opMod$corrTargVar '2'
 scenario$scenario23$opMod$Umult 1
-scenario$scenario23$opMod$kappaMult1
-scenario$scenario23$opMod$corrOffDiag0.5
+scenario$scenario23$opMod$kappaMult 1
+scenario$scenario23$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 24 : m2_c0.5_Ucont_corrBt
@@ -263,8 +263,8 @@ scenario$scenario24$opMod$corrOpt TRUE
 scenario$scenario24$ctrl$fixProc TRUE
 scenario$scenario24$opMod$corrTargVar '2'
 scenario$scenario24$opMod$Umult 1
-scenario$scenario24$opMod$kappaMult2
-scenario$scenario24$opMod$corrOffDiag0.5
+scenario$scenario24$opMod$kappaMult 2
+scenario$scenario24$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 25 : m0.5_c0.9_Ucont_corrBt
@@ -274,8 +274,8 @@ scenario$scenario25$opMod$corrOpt TRUE
 scenario$scenario25$ctrl$fixProc TRUE
 scenario$scenario25$opMod$corrTargVar '2'
 scenario$scenario25$opMod$Umult 1
-scenario$scenario25$opMod$kappaMult0.5
-scenario$scenario25$opMod$corrOffDiag0.9
+scenario$scenario25$opMod$kappaMult 0.5
+scenario$scenario25$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 26 : m1_c0.9_Ucont_corrBt
@@ -285,8 +285,8 @@ scenario$scenario26$opMod$corrOpt TRUE
 scenario$scenario26$ctrl$fixProc TRUE
 scenario$scenario26$opMod$corrTargVar '2'
 scenario$scenario26$opMod$Umult 1
-scenario$scenario26$opMod$kappaMult1
-scenario$scenario26$opMod$corrOffDiag0.9
+scenario$scenario26$opMod$kappaMult 1
+scenario$scenario26$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 27 : m2_c0.9_Ucont_corrBt
@@ -296,8 +296,8 @@ scenario$scenario27$opMod$corrOpt TRUE
 scenario$scenario27$ctrl$fixProc TRUE
 scenario$scenario27$opMod$corrTargVar '2'
 scenario$scenario27$opMod$Umult 1
-scenario$scenario27$opMod$kappaMult2
-scenario$scenario27$opMod$corrOffDiag0.9
+scenario$scenario27$opMod$kappaMult 2
+scenario$scenario27$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 28 : m0.5_c0.1_Uflat_corrBt
@@ -307,8 +307,8 @@ scenario$scenario28$opMod$corrOpt TRUE
 scenario$scenario28$ctrl$fixProc TRUE
 scenario$scenario28$opMod$corrTargVar '2'
 scenario$scenario28$opMod$Umult 2
-scenario$scenario28$opMod$kappaMult0.5
-scenario$scenario28$opMod$corrOffDiag0.1
+scenario$scenario28$opMod$kappaMult 0.5
+scenario$scenario28$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 29 : m1_c0.1_Uflat_corrBt
@@ -318,8 +318,8 @@ scenario$scenario29$opMod$corrOpt TRUE
 scenario$scenario29$ctrl$fixProc TRUE
 scenario$scenario29$opMod$corrTargVar '2'
 scenario$scenario29$opMod$Umult 2
-scenario$scenario29$opMod$kappaMult1
-scenario$scenario29$opMod$corrOffDiag0.1
+scenario$scenario29$opMod$kappaMult 1
+scenario$scenario29$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 30 : m2_c0.1_Uflat_corrBt
@@ -329,8 +329,8 @@ scenario$scenario30$opMod$corrOpt TRUE
 scenario$scenario30$ctrl$fixProc TRUE
 scenario$scenario30$opMod$corrTargVar '2'
 scenario$scenario30$opMod$Umult 2
-scenario$scenario30$opMod$kappaMult2
-scenario$scenario30$opMod$corrOffDiag0.1
+scenario$scenario30$opMod$kappaMult 2
+scenario$scenario30$opMod$corrOffDiag 0.1
 #
 #
 # Scenario 31 : m0.5_c0.5_Uflat_corrBt
@@ -340,8 +340,8 @@ scenario$scenario31$opMod$corrOpt TRUE
 scenario$scenario31$ctrl$fixProc TRUE
 scenario$scenario31$opMod$corrTargVar '2'
 scenario$scenario31$opMod$Umult 2
-scenario$scenario31$opMod$kappaMult0.5
-scenario$scenario31$opMod$corrOffDiag0.5
+scenario$scenario31$opMod$kappaMult 0.5
+scenario$scenario31$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 32 : m1_c0.5_Uflat_corrBt
@@ -351,8 +351,8 @@ scenario$scenario32$opMod$corrOpt TRUE
 scenario$scenario32$ctrl$fixProc TRUE
 scenario$scenario32$opMod$corrTargVar '2'
 scenario$scenario32$opMod$Umult 2
-scenario$scenario32$opMod$kappaMult1
-scenario$scenario32$opMod$corrOffDiag0.5
+scenario$scenario32$opMod$kappaMult 1
+scenario$scenario32$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 33 : m2_c0.5_Uflat_corrBt
@@ -362,8 +362,8 @@ scenario$scenario33$opMod$corrOpt TRUE
 scenario$scenario33$ctrl$fixProc TRUE
 scenario$scenario33$opMod$corrTargVar '2'
 scenario$scenario33$opMod$Umult 2
-scenario$scenario33$opMod$kappaMult2
-scenario$scenario33$opMod$corrOffDiag0.5
+scenario$scenario33$opMod$kappaMult 2
+scenario$scenario33$opMod$corrOffDiag 0.5
 #
 #
 # Scenario 34 : m0.5_c0.9_Uflat_corrBt
@@ -373,8 +373,8 @@ scenario$scenario34$opMod$corrOpt TRUE
 scenario$scenario34$ctrl$fixProc TRUE
 scenario$scenario34$opMod$corrTargVar '2'
 scenario$scenario34$opMod$Umult 2
-scenario$scenario34$opMod$kappaMult0.5
-scenario$scenario34$opMod$corrOffDiag0.9
+scenario$scenario34$opMod$kappaMult 0.5
+scenario$scenario34$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 35 : m1_c0.9_Uflat_corrBt
@@ -384,8 +384,8 @@ scenario$scenario35$opMod$corrOpt TRUE
 scenario$scenario35$ctrl$fixProc TRUE
 scenario$scenario35$opMod$corrTargVar '2'
 scenario$scenario35$opMod$Umult 2
-scenario$scenario35$opMod$kappaMult1
-scenario$scenario35$opMod$corrOffDiag0.9
+scenario$scenario35$opMod$kappaMult 1
+scenario$scenario35$opMod$corrOffDiag 0.9
 #
 #
 # Scenario 36 : m2_c0.9_Uflat_corrBt
@@ -395,8 +395,8 @@ scenario$scenario36$opMod$corrOpt TRUE
 scenario$scenario36$ctrl$fixProc TRUE
 scenario$scenario36$opMod$corrTargVar '2'
 scenario$scenario36$opMod$Umult 2
-scenario$scenario36$opMod$kappaMult2
-scenario$scenario36$opMod$corrOffDiag0.9
+scenario$scenario36$opMod$kappaMult 2
+scenario$scenario36$opMod$corrOffDiag 0.9
 #
 #
 # Management Procedures 

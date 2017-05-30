@@ -65,9 +65,9 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,2),
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$Umult ", combos[rIdx, "Uhist"], "\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$kappaMult", combos[rIdx,"m"] ,"\n",
+    cat(  "scenario$scenario", rIdx, "$opMod$kappaMult ", combos[rIdx,"m"] ,"\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag", combos[rIdx,"c"] ,"\n",
+    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag ", combos[rIdx,"c"] ,"\n",
           sep = "", append = T, file = outFile  )
     cat( "#\n", file = outFile, append = T )
     
@@ -187,9 +187,9 @@ makeREexpDesign <- function (  levels = list(   nS    = seq(2,10,by=4),
           sep = "", append = T, file = outFile )
     cat(  "scenario$scenario", rIdx, "$opMod$Udevs 'corr'\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$kappaMult", combos[rIdx,"m"] ,"\n",
+    cat(  "scenario$scenario", rIdx, "$opMod$kappaMult ", combos[rIdx,"m"] ,"\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag", combos[rIdx,"c"] ,"\n",
+    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag ", combos[rIdx,"c"] ,"\n",
           sep = "", append = T, file = outFile  )
     cat( "#\n", file = outFile, append = T )
   }
