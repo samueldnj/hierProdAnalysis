@@ -14,8 +14,8 @@ opMod$corrOffDiag 0.5
 opMod$initDep rep(1,10)
 opMod$lastNegCorr FALSE
 opMod$nS 10
-opMod$sYear rep(1984,10)
-opMod$fYear 2017
+opMod$fYear rep(1984,10)
+opMod$lYear 2017
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
 opMod$corrOpt FALSE
