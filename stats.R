@@ -266,10 +266,10 @@ AICrank <- function ( modelList, sig )
 
 
   rank.df[,"deltaAICc"] <- rank.df[,"AICc"] - min(rank.df[,"AICc"])
-  rank.df <- rank.df[order(rank.df[,"deltaAICc"]),]
+  rank.df <- rank.df[ order(rank.df[,"deltaAICc"]), ]
   
   return( list( AICrank = rank.df,
-                models = modelList[rank.df[,"Number"]] )
+                models = modelList[ rank.df[ , "Number" ] ] )
         )
 }
 
@@ -581,6 +581,8 @@ AICrank <- function ( modelList, sig )
   statTable$UmsyOM          <- opMod$Umsy[1:nS]
   statTable$BmsyOM          <- opMod$Bmsy[1:nS]
   statTable$qOM             <- opMod$q[1:nS]
+  statTable$sYear           <- opMod$sYear[1:nS]
+  statTable$initDep         <- opMod$initDep[1:nS]
   statTable$s2q             <- blob$assess$s2lnq
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
@@ -600,6 +602,7 @@ AICrank <- function ( modelList, sig )
   statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
   statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
   statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
+  statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
 
 
   # Now errors
