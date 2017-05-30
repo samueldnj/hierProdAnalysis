@@ -429,16 +429,23 @@ AICrank <- function ( modelList, sig )
 # usage:    to produce output for a project and create .csv tables of 
 #           performance statistics
 # side-eff: creates tables of statistics in ./project/stats/
-.statTables <- function (sims=1,tabNameRoot = "statTable")
+.statTables <- function(  sims=1,tabNameRoot = "statTable", par = F,
+                          nCores = detectCores()-1 )
 { 
+  if( par ) cluster <- makeCluster(nCores)
   # MSE
   # .statTableMSE(sims,paste(tabNameRoot,"_MSE.csv",sep=""))
   # MRE
-  .statTableMRE(sims,paste(tabNameRoot,"_MRE.csv",sep=""))
+  .statTableMRE(  sims,paste(tabNameRoot,"_MRE.csv",sep=""), 
+                  par = par, clust = cluster )
   # MARE
-  .statTableMARE(sims,paste(tabNameRoot,"_MARE.csv",sep=""))
+  .statTableMARE( sims,paste(tabNameRoot,"_MARE.csv",sep=""),
+                  par = par, clust = cluster )
   # raw RE distributions
-  .statTableRE(sims,paste(tabNameRoot,"_RE.csv", sep = ""))
+  .statTableRE( sims,paste(tabNameRoot,"_RE.csv", sep = ""),
+                par = par, clust = cluster )
+
+  stopCluster( cluster )
 }
 
 #.statTableRE()
@@ -449,30 +456,11 @@ AICrank <- function ( modelList, sig )
 # usage:    to produce output for a project and create .csv tables of 
 #           performance statistics
 # side-eff: creates tables of statistics in ./project/stats/
-.statTableRE <- function (sims=1,tabName = "statTable.csv")
+.statTableRE <- function (sims=1,tabName = "statTable.csv", par = FALSE, clust )
 { 
   # call function
-  tableList <- lapply ( X = sims, FUN = .simStatRE )
-
-  # now make the table and return
-  statTable <-  do.call("rbind",tableList)
-  savePath <- file.path(getwd(),"project","Statistics",tabName)
-  write.csv ( statTable, file = savePath )
-  statTable
-}
-
-#.statTableMSE()
-# Wrapper for .simStats, produces stacked tables of stats for a group
-# of simulations.
-# inputs:   sims=integer vector indicating simulations in ./project/
-# outputs:  statTable=table of statistics for a project/group
-# usage:    to produce output for a project and create .csv tables of 
-#           performance statistics
-# side-eff: creates tables of statistics in ./project/stats/
-.statTableMSE <- function (sims=1,tabName = "statTable.csv")
-{ 
-  # call function
-  tableList <- lapply ( X = sims, FUN = .simStatMSE )
+  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatRE )
+  else tableList <- lapply ( X = sims, FUN = .simStatRE )
 
   # now make the table and return
   statTable <-  do.call("rbind",tableList)
@@ -489,10 +477,11 @@ AICrank <- function ( modelList, sig )
 # usage:    to produce output for a project and create .csv tables of 
 #           performance statistics
 # side-eff: creates tables of statistics in ./project/stats/
-.statTableMRE <- function (sims=1,tabName = "statTable.csv")
+.statTableMRE <- function (sims=1,tabName = "statTable.csv", par = FALSE, clust )
 { 
   # call function
-  tableList <- lapply ( X = sims, FUN = .simStatMRE )
+  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatMRE )
+  else tableList <- lapply ( X = sims, FUN = .simStatMRE )
 
   # now make the table and return
   statTable <-  do.call("rbind",tableList)
@@ -509,10 +498,11 @@ AICrank <- function ( modelList, sig )
 # usage:    to produce output for a project and create .csv tables of 
 #           performance statistics
 # side-eff: creates tables of statistics in ./project/stats/
-.statTableMARE <- function (sims=1,tabName = "statTable.csv")
+.statTableMARE <- function (sims=1,tabName = "statTable.csv", par = FALSE, clust )
 { 
   # call function
-  tableList <- lapply ( X = sims, FUN = .simStatMARE )
+  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatMARE )
+  else tableList <- lapply ( X = sims, FUN = .simStatMARE )
 
   # now make the table and return
   statTable <-  do.call("rbind",tableList)
@@ -530,7 +520,9 @@ AICrank <- function ( modelList, sig )
 .simStatMARE <- function ( sim=1 )
 {
   # First, load blob
+  source("tools.R")
   .loadSim(sim)
+
   om    <- blob$om
   opMod <- blob$opMod
   pars  <- blob$opMod$pars
@@ -635,7 +627,9 @@ AICrank <- function ( modelList, sig )
 .simStatMRE <- function ( sim=1 )
 {
   # First, load blob
+  source("tools.R")
   .loadSim(sim)
+  
   om    <- blob$om
   opMod <- blob$opMod
   pars  <- blob$opMod$pars
@@ -765,7 +759,9 @@ AICrank <- function ( modelList, sig )
 .simStatRE <- function ( sim=1 )
 {
   # First, load blob
+  source("tools.R")
   .loadSim(sim)
+
   om    <- blob$om
   opMod <- blob$opMod
   pars  <- blob$opMod$pars
