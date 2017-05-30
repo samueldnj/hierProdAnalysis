@@ -273,7 +273,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
     # Penalise first differences in Fst changes
     for( s in 1:nS ) 
-      nll <- nll + 0.5*sum( (Ust[s,1:(nT-1)] - Ust[s,2:nT])^2 ) / 0.01
+      nll <- nll + 0.5*sum( (Ust[s,1:(nT-1)] - Ust[s,2:nT])^2 ) / 0.05
 
     return(nll)
   }
@@ -574,6 +574,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 { 
   # if(length(RE)>1) browser()
   # Make the AD function
+  browser()
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
   # Set max no of evaluations
