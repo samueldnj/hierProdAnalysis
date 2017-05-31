@@ -273,7 +273,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
     # Penalise first differences in Fst changes
     for( s in 1:nS ) 
-      nll <- nll + 0.5*sum( (Ust[s,1:(max(nT)-1)] - Ust[s,2:max(nT)])^2 ) / 0.05
+      nll <- nll + 0.5*sum( (Ust[s,1:(max(nT)-1)] - Ust[s,2:max(nT)])^2 ) / 0.1
 
     return(nll)
   }
@@ -579,7 +579,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
 
-  # browser()
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
                         objective = obj$fn,
@@ -656,7 +655,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   } else profileList <- NA
 
   # Return
-  out <- list(sdrep=sdrep, rep=rep, CIs = CIs)
+  out <- list( sdrep = sdrep, rep=rep, CIs = CIs)
   if( profiles ) out$profiles <- profileList
 
   out
@@ -685,18 +684,18 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   ssFit <- list()
   for (s in 1:obj$opMod$nS ) 
   {
-    cat ( "Fitting species ", s, " of ", obj$opMod$nS, "\n", sep = "")
-    ssFit[[s]] <- .callProcTMB (  dat = datPar$ssDat[[s]], 
-                                  par = datPar$ssPar[[s]],
-                                  map = datPar$ssMap[[s]],
-                                  fitTrials = obj$assess$fitTrials, 
-                                  TMBlib = obj$assess$TMBlib,
-                                  maxfn = obj$assess$maxfn,
-                                  quiet = obj$assess$quiet,
-                                  RE = obj$assess$ssRE,
-                                  LB = datPar$ssLB[[s]],
-                                  UB = datPar$ssUB[[s]],
-                                  profiles = obj$assess$profiles )
+    cat ( "Fitting species ", s, " of ", obj$opMod$nS, "\n", sep = "" )
+    ssFit[[ s ]] <- .callProcTMB (  dat = datPar$ssDat[[ s ]], 
+                                    par = datPar$ssPar[[ s ]],
+                                    map = datPar$ssMap[[ s ]],
+                                    fitTrials = obj$assess$fitTrials, 
+                                    TMBlib = obj$assess$TMBlib,
+                                    maxfn = obj$assess$maxfn,
+                                    quiet = obj$assess$quiet,
+                                    RE = obj$assess$ssRE,
+                                    LB = datPar$ssLB[[ s ]],
+                                    UB = datPar$ssUB[[ s ]],
+                                    profiles = obj$assess$profiles )
   }
   cat ( "Fitting ", obj$opMod$nS," species hierarchically.\n", 
                     sep = "")
