@@ -1,6 +1,6 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "DERPA-CorrTest"
+ctrl$scenarioName "DERPA"
 ctrl$mpLabel "baseAM"
 ctrl$nReps 1
 ctrl$rSeed 1
