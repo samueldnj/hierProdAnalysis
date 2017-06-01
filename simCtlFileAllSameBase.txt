@@ -13,7 +13,7 @@ opMod$SigmaDiag rep(0.025,10)
 opMod$corrOffDiag 0.5
 opMod$initDep rep(1,10)
 opMod$lastNegCorr FALSE
-opMod$nS 10
+opMod$nS 5
 opMod$fYear rep(1954,10)
 opMod$lYear 2017
 opMod$Umult c(0.2,2,0.8)
@@ -60,7 +60,7 @@ assess$lnsigUmsy2 -2.5
 assess$fixsigU2 FALSE
 assess$fixUbar FALSE
 assess$mUmsy .3
-assess$sUmsy 0.6
+assess$sUmsy 0.3
 assess$lnqPriorCode 1
 assess$lnqbar_o -.51
 assess$lntauq_o -1
@@ -69,7 +69,7 @@ assess$fixqbar FALSE
 assess$estqms 'unique'
 assess$fixqss FALSE
 assess$mq .6
-assess$sq 0.9
+assess$sq .6
 assess$sigUPriorCode 0
 assess$sigU2Prior c(0.001,0.2)
 assess$sigU2P1 NULL
