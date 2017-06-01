@@ -14,7 +14,7 @@ opMod$corrOffDiag 0.5
 opMod$initDep rep(1,10)
 opMod$lastNegCorr FALSE
 opMod$nS 5
-opMod$fYear rep(1954,10)
+opMod$fYear rep(1984,10)
 opMod$lYear 2017
 opMod$Umult c(0.2,2,0.8)
 opMod$Umax NULL
@@ -27,7 +27,7 @@ opMod$tUpeak 5
 opMod$tUtrough 15
 opMod$nSurv 1
 opMod$surveyFreq c(1,1)
-opMod$fYearSurv c(1954,2003)
+opMod$fYearSurv c(1984,2003)
 opMod$lYearSurv c(2017,2017)
 opMod$qSurvM c(0.518,0.628)
 opMod$qSurvSD c(0.6,0.1)
