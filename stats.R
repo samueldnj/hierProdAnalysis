@@ -429,23 +429,35 @@ AICrank <- function ( modelList, sig )
 # usage:    to produce output for a project and create .csv tables of 
 #           performance statistics
 # side-eff: creates tables of statistics in ./project/stats/
+# returns:  NULL
 .statTables <- function(  sims=1,tabNameRoot = "statTable", par = F,
                           nCores = detectCores()-1 )
 { 
   if( par ) cluster <- makeCluster(nCores)
-  # MSE
-  # .statTableMSE(sims,paste(tabNameRoot,"_MSE.csv",sep=""))
-  # MRE
-  .statTableMRE(  sims,paste(tabNameRoot,"_MRE.csv",sep=""), 
-                  par = par, clust = cluster )
-  # MARE
-  .statTableMARE( sims,paste(tabNameRoot,"_MARE.csv",sep=""),
-                  par = par, clust = cluster )
   # raw RE distributions
-  .statTableRE( sims,paste(tabNameRoot,"_RE.csv", sep = ""),
-                par = par, clust = cluster )
+  REtable <- .statTableRE(  sims,paste(tabNameRoot,"_RE.csv", sep = ""),
+                            par = par, clust = cluster )
+  if( par ) stopCluster( cluster )
+  
+  # MRE - summarised from RE
+  MREtable <- REtable %>%
+              group_by(scenario, mp, species ) %>%
+              summarise_all( .funs = .statTableSummarise )
 
-  stopCluster( cluster )
+  MREname   <- paste(tabNameRoot,"_MRE.csv")
+  MREpath   <- file.path(getwd(),"project","Statistics",MREname)
+  write.csv( MREtable, file = MREpath )
+  
+  # MARE - summarised from RE
+  MAREtable <-  REtable %>%
+                group_by( scenario, mp, species ) %>%
+                summarise_all( .funs = .statTableSummariseAbs )
+
+  MAREname   <- paste(tabNameRoot,"_MARE.csv")
+  MAREpath   <- file.path(getwd(),"project","Statistics",MAREname)
+  write.csv( MAREtable, file = MAREpath )
+  
+  return(NULL)
 }
 
 #.statTableRE()
@@ -469,285 +481,54 @@ AICrank <- function ( modelList, sig )
   statTable
 }
 
-#.statTableMRE()
-# Wrapper for .simStats, produces stacked tables of stats for a group
-# of simulations.
-# inputs:   sims=integer vector indicating simulations in ./project/
-# outputs:  statTable=table of statistics for a project/group
-# usage:    to produce output for a project and create .csv tables of 
-#           performance statistics
-# side-eff: creates tables of statistics in ./project/stats/
-.statTableMRE <- function (sims=1,tabName = "statTable.csv", par = FALSE, clust )
-{ 
-  # call function
-  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatMRE )
-  else tableList <- lapply ( X = sims, FUN = .simStatMRE )
 
-  # now make the table and return
-  statTable <-  do.call("rbind",tableList)
-  savePath <- file.path(getwd(),"project","Statistics",tabName)
-  write.csv ( statTable, file = savePath )
-  statTable
-}
-
-#.statTableMARE()
-# Wrapper for .simStats, produces stacked tables of stats for a group
-# of simulations.
-# inputs:   sims=integer vector indicating simulations in ./project/
-# outputs:  statTable=table of statistics for a project/group
-# usage:    to produce output for a project and create .csv tables of 
-#           performance statistics
-# side-eff: creates tables of statistics in ./project/stats/
-.statTableMARE <- function (sims=1,tabName = "statTable.csv", par = FALSE, clust )
-{ 
-  # call function
-  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatMARE )
-  else tableList <- lapply ( X = sims, FUN = .simStatMARE )
-
-  # now make the table and return
-  statTable <-  do.call("rbind",tableList)
-  savePath <- file.path(getwd(),"project","Statistics",tabName)
-  write.csv ( statTable, file = savePath )
-  statTable
-}
-
-# .simStatMRE()
-# Produces a statistics table for leading pars in a simulation from
-# the output produced by a runSimEst() call
-# inputs:   sim=int indicating which simulation to compute stats for
-# outputs:  statTable=data.frame of mean squared error BnT and Umsy
-# usage:    in lapply to produce stats for a group of simulations
-.simStatMARE <- function ( sim=1 )
+# .statTableSummarise() & .statTableSummariseAbs()
+# A custom function that will take the columns of the RE stat table
+# and return a summarised version, using summarise_all(). Numeric
+# columns have the median returned, single valued columns have the top
+# value returned, and logical columns with multiple values have 
+# their sum taken (this is for hessPD). 
+# .statTableSummariseAbs() takes the absolute value of numeric columns
+.statTableSummarise <- function(x)
 {
-  # First, load blob
-  source("tools.R")
-  .loadSim(sim)
-
-  om    <- blob$om
-  opMod <- blob$opMod
-  pars  <- blob$opMod$pars
-  ss    <- blob$am$ss
-  ms    <- blob$am$ms
-  
-  # Control info
-  nS      <- blob$opMod$nS
-  nT      <- blob$opMod$nT
-  species <- blob$ctrl$speciesName[1:nS]
-  nReps   <- blob$ctrl$nReps
-
-  # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
-  success <- blob$goodReps
-
-  # First, create a data.frame of NAs with a row for each of MRE,MARE
-  colLabels <- c( "scenario","mp","species","kappaTrue",
-                  "SigmaTrue", "kappaMult", "ssBnT","msBnT","ssUmsy","msUmsy",
-                  "ssBmsy","msBmsy","ssDep","msDep",
-                  "ssq","msq", "msHessPD", "ssHessPD","nReps",
-                  "Umax", "tUpeak", "tUtrough", "tau2OM" )
-  
-  statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
-  
-  colnames(statTable)   <- colLabels
-  statTable             <- as.data.frame(statTable)
-
-  # get multiplier for shared effects
-  kappaMult <- opMod$kappaMult
-  if (is.null(opMod$kappaMult)) kappaMult <- 1
-
-  # Start filling stat table
-  # First, info and true pars
-  statTable$scenario        <- blob$ctrl$scenarioName
-  statTable$mp              <- blob$ctrl$mpLabel
-  statTable$species         <- species[1:nS]
-  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
-  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
-  statTable$kappaMult       <- kappaMult
-  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps           <- length(success)
-  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
-  statTable$tUtrough        <- opMod$tUtrough
-  statTable$tUpeak          <- opMod$tUpeak
-  statTable$tau2OM          <- opMod$tau2[1:nS]
-  statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
-  statTable$nS              <- opMod$nS
-  statTable$UmsyOM          <- opMod$Umsy[1:nS]
-  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
-  statTable$qOM             <- opMod$q[1:nS]
-  statTable$sYear           <- opMod$sYear[1:nS]
-  statTable$initDep         <- opMod$initDep[1:nS]
-  statTable$s2q             <- blob$assess$s2lnq
-  statTable$fixqbar         <- blob$assess$fixqbar
-  statTable$fixtauq2        <- blob$assess$fixqbar
-  statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  if (is.null(blob$assess$tauq2Prior))
+  if(is.numeric(x)) 
   {
-    statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
-    statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
-    statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
-    statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
-  } else {
-    statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
-    statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
-    statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
-    statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
+    out <- median(as.numeric(x), na.rm = T)
+    return(out)
   }
-  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
-  statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
-  statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
-  statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
-
-
-  # Now errors
-  for (s in 1:nS)
+  if(length(unique(x)) == 1) 
   {
-    statTable[s,"ssBnT"]    <- median (abs(ss$err.mle$BnT[success,s]), na.rm=TRUE)
-    statTable[s,"msBnT"]    <- median (abs(ms$err.mle$BnT[success,s]), na.rm=TRUE)
-    statTable[s,"ssUmsy"]   <- median (abs(ss$err.mle$Umsy[success,s]), na.rm=TRUE)
-    statTable[s,"msUmsy"]   <- median (abs(ms$err.mle$Umsy[success,s]), na.rm=TRUE)
-    statTable[s,"ssBmsy"]   <- median (abs(ss$err.mle$Bmsy[success,s]), na.rm=TRUE)
-    statTable[s,"msBmsy"]   <- median (abs(ms$err.mle$Bmsy[success,s]), na.rm=TRUE)
-    statTable[s,"ssDep"]    <- median (abs(ss$err.mle$dep[success,s]), na.rm=TRUE)
-    statTable[s,"msDep"]    <- median (abs(ms$err.mle$dep[success,s]), na.rm=TRUE)
-    statTable[s,"ssq"]      <- median (abs(ss$err.mle$q[success,s]), na.rm=TRUE)
-    statTable[s,"msq"]      <- median (abs(ms$err.mle$q[success,s]), na.rm=TRUE)
-    statTable[s,"ssHessPD"] <- sum ( ss$hesspd[,s] , na.rm=TRUE)
-    statTable[s,"msHessPD"] <- sum ( ms$hesspd , na.rm=TRUE)
+
+    out <- x[1]
+    return(out)
   }
-  
-  # return
-  statTable
+  if(is.logical(x))
+  {
+    out <- sum(x,na.rm = T)
+    return(out)
+  }
+  browser()
 }
 
-# .simStatMRE()
-# Produces a statistics table for leading pars in a simulation from
-# the output produced by a runSimEst() call
-# inputs:   sim=int indicating which simulation to compute stats for
-# outputs:  statTable=data.frame of mean squared error BnT and Umsy
-# usage:    in lapply to produce stats for a group of simulations
-.simStatMRE <- function ( sim=1 )
+.statTableSummariseAbs <- function(x)
 {
-  # First, load blob
-  source("tools.R")
-  .loadSim(sim)
-  
-  om    <- blob$om
-  opMod <- blob$opMod
-  pars  <- blob$opMod$pars
-  ss    <- blob$am$ss
-  ms    <- blob$am$ms
-  
-  # Control info
-  nS      <- blob$opMod$nS
-  nT      <- blob$opMod$nT
-  species <- blob$ctrl$speciesName[1:nS]
-  nReps   <- blob$ctrl$nReps
-
-  # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
-  success <- blob$goodReps
-
-  # First, create a data.frame of NAs with a row for each of MRE,MARE
-  colLabels <- c( "scenario","mp","species","kappaTrue",
-                  "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
-                  "ssBmsy","msBmsy","ssDep","msDep",
-                  "ssq", "msq", "msq025", "msq975", "ssq025", "ssq975",
-                  "msHessPD", "ssHessPD","nReps",
-                  "Umax", "tUpeak", "tUtrough", 
-                  "tau2OM","nS","lastNegCorr",
-                  "UmsyOM", "BmsyOM", "qOM",
-                  "qbar025", "qbar975", "tauq2025", "tauq2975" )
-  
-  statTable <- matrix(NA,nrow=nS,ncol=length(colLabels))
-  
-
-  colnames(statTable)   <- colLabels
-  statTable             <- as.data.frame(statTable)
-
-  # get multiplier for shared effects
-  kappaMult <- opMod$kappaMult
-  if (is.null(opMod$kappaMult)) kappaMult <- 1
-
-  # Start filling stat table
-  # First, OM pars and labels
-  statTable$scenario        <- blob$ctrl$scenarioName
-  statTable$mp              <- blob$ctrl$mpLabel
-  statTable$species         <- species[1:nS]
-  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
-  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
-  statTable$kappaMult       <- kappaMult
-  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps           <- length(success)
-  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
-  statTable$tUtrough        <- opMod$tUtrough
-  statTable$tUpeak          <- opMod$tUpeak
-  statTable$tau2OM          <- opMod$tau2[1:nS]
-  statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
-  statTable$nS              <- opMod$nS
-  statTable$UmsyOM          <- opMod$Umsy[1:nS]
-  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
-  statTable$qOM             <- opMod$q[1:nS]
-  statTable$sYear           <- opMod$sYear[1:nS]
-  statTable$initDep         <- opMod$initDep[1:nS]
-  statTable$s2q             <- blob$assess$s2lnq
-  statTable$fixqbar         <- blob$assess$fixqbar
-  statTable$fixtauq2        <- blob$assess$fixqbar
-  statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  if (is.null(blob$assess$tauq2Prior))
+  if(is.numeric(x)) 
   {
-    statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
-    statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
-    statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
-    statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
-  } else {
-    statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
-    statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
-    statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
-    statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
+    out <- median(abs(as.numeric(x)), na.rm = T)
+    return(out)
   }
-  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
-  statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
-  statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
-  statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
-
-
-
-  # Now errors
-  for (s in 1:nS)
+  if(length(unique(x)) == 1) 
   {
-    statTable[s,"ssBnT"]    <- median (ss$err.mle$BnT[success,s], na.rm = TRUE )
-    statTable[s,"msBnT"]    <- median (ms$err.mle$BnT[success,s], na.rm = TRUE )
-    statTable[s,"ssUmsy"]   <- median (ss$err.mle$Umsy[success,s], na.rm = TRUE )
-    statTable[s,"ssUmsy025"]<- quantile (ss$err.mle$Umsy[success,s], probs = 0.025, na.rm = TRUE )
-    statTable[s,"ssUmsy975"]<- quantile (ss$err.mle$Umsy[success,s], probs = 0.975, na.rm = TRUE )
-    statTable[s,"msUmsy"]   <- median (ms$err.mle$Umsy[success,s], na.rm = TRUE )
-    statTable[s,"msUmsy025"]<- quantile (ms$err.mle$Umsy[success,s], probs = 0.025, na.rm = TRUE )
-    statTable[s,"msUmsy975"]<- quantile (ms$err.mle$Umsy[success,s], probs = 0.975, na.rm = TRUE )
-    statTable[s,"ssBmsy"]   <- median (ss$err.mle$Bmsy[success,s], na.rm = TRUE )
-    statTable[s,"msBmsy"]   <- median (ms$err.mle$Bmsy[success,s], na.rm = TRUE )
-    statTable[s,"ssDep"]    <- median (ss$err.mle$dep[success,s], na.rm = TRUE )
-    statTable[s,"msDep"]    <- median (ms$err.mle$dep[success,s], na.rm = TRUE )
-    statTable[s,"ssq"]      <- median (ss$err.mle$q[success,s], na.rm = TRUE )
-    statTable[s,"ssq025"]   <- quantile (ss$err.mle$q[success,s], probs = 0.025, na.rm = TRUE )
-    statTable[s,"ssq975"]   <- quantile (ss$err.mle$q[success,s], probs = 0.975, na.rm = TRUE )
-    statTable[s,"msq"]      <- median (ms$err.mle$q[success,s], na.rm = TRUE )
-    statTable[s,"msq025"]   <- quantile (ms$err.mle$q[success,s], probs = 0.025, na.rm = TRUE )
-    statTable[s,"msq975"]   <- quantile (ms$err.mle$q[success,s], probs = 0.975, na.rm = TRUE )
-    statTable[s,"ssHessPD"] <- sum ( ss$hesspd[,s] , na.rm = TRUE )
-    statTable[s,"msHessPD"] <- sum ( ms$hesspd , na.rm = TRUE )
+
+    out <- x[1]
+    return(out)
   }
-  statTable$qbar     <- median( blob$am$ms$qbar[success], na.rm=TRUE)
-  statTable$qbar025  <- quantile( blob$am$ms$qbar[success], probs = 0.025, na.rm = TRUE )
-  statTable$qbar975  <- quantile( blob$am$ms$qbar[success], probs = 0.975, na.rm = TRUE )
-  statTable$tauq2    <- median( blob$am$ms$tauq2[success], na.rm=TRUE)
-  statTable$tauq2025 <- quantile( blob$am$ms$tauq2[success], probs = 0.025, na.rm = TRUE )
-  statTable$tauq2975 <- quantile( blob$am$ms$tauq2[success], probs = 0.975, na.rm = TRUE )
-  statTable$sigU2    <- median( blob$am$ms$sigU2[success], na.rm=TRUE)
-  statTable$Umsybar  <- median( blob$am$ms$Umsybar[success],na.rm=TRUE)
-  statTable$sigU2025 <- quantile( blob$am$ms$sigU2[success], probs = 0.025, na.rm = TRUE )
-  statTable$sigU2975 <- quantile( blob$am$ms$sigU2[success], probs = 0.975, na.rm = TRUE )
-  statTable$Ubar025  <- quantile( blob$am$ms$Umsybar[success], probs = 0.025, na.rm = TRUE )
-  statTable$Ubar975  <- quantile( blob$am$ms$Umsybar[success], probs = 0.975, na.rm = TRUE )
-  # return
-  statTable
+  if(is.logical(x))
+  {
+    out <- sum(x,na.rm = T)
+    return(out)
+  }
+  out
 }
 
 # .simStatRE()
@@ -771,6 +552,7 @@ AICrank <- function ( modelList, sig )
   # Control info
   nS      <- blob$opMod$nS
   nT      <- blob$opMod$nT
+  nSurv   <- blob$opMod$nSurv
   species <- blob$ctrl$speciesName[1:nS]
   nReps   <- blob$ctrl$nReps
 
@@ -781,13 +563,32 @@ AICrank <- function ( modelList, sig )
   colLabels <- c( "scenario","mp","species","kappaTrue",
                   "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
                   "ssBmsy","msBmsy","ssDep","msDep",
-                  "ssq", "msq",
                   "msHessPD", "ssHessPD","nReps",
-                  "Umax", "tUpeak", "tUtrough", 
-                  "tau2OM","nS","lastNegCorr",
-                  "UmsyOM", "BmsyOM", "qOM", "rep")
+                  "Umax", "tUpeak", 
+                  "nS", "nSurv",
+                  "UmsyOM", "BmsyOM", "rep")
+
+  q_surv        <- paste( "q_", 1:nSurv, sep = "" )
+  q_survOM      <- paste( q_surv, "OM", sep = "" )
+  q_survSS      <- paste( c("ss"), q_surv, sep = "" )
+  q_survMS      <- paste( c("ms"), q_surv, sep = "" )
+  tau2_surv     <- paste( "tau2_", 1:nSurv, sep = "" )
+  tau2_survOM   <- paste( tau2_surv, "OM", sep = "" )
+  tau2_survSS   <- paste( c("ss"), tau2_surv, sep = "" )
+  tau2_survMS   <- paste( c("ms"), tau2_surv, sep = "" )
+  qbar_surv     <- paste( "qbar_", 1:nSurv, sep = "" )
+  qbar_survOM   <- paste( qbar_surv, "OM", sep = "" )
+  tauq2_surv    <- paste( "tauq2_", 1:nSurv, sep = "" )
+  tauq2_survOM  <- paste( tauq2_surv, "OM", sep = "" )
+
+
+  colLabels <- c( colLabels, 
+                  q_survSS, q_survMS, q_survOM, 
+                  tau2_survSS, tau2_survMS, tau2_survOM, 
+                  qbar_surv, qbar_survOM,
+                  tauq2_surv, tauq2_survOM )
   
-  statTable <- matrix(NA,nrow=nS*nReps,ncol=length(colLabels))
+  statTable <- matrix( NA, nrow = nS*nReps, ncol = length( colLabels ) )
   
 
   colnames(statTable)   <- colLabels
@@ -806,59 +607,64 @@ AICrank <- function ( modelList, sig )
   statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
   statTable$kappaMult       <- kappaMult
   statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
-  statTable$nReps           <- length(success)
+  statTable$nReps           <- apply(X = success, FUN = sum, MARGIN = 2)
   statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
-  statTable$tUtrough        <- opMod$tUtrough
+  # statTable$tUtrough        <- opMod$tUtrough
   statTable$tUpeak          <- opMod$tUpeak
-  statTable$tau2OM          <- opMod$tau2[1:nS]
-  statTable$lastNegCorr     <- ifelse(is.null(opMod$lastNegCorr),ifelse(nS==5,TRUE,FALSE),opMod$lastNegCorr)
   statTable$nS              <- opMod$nS
   statTable$UmsyOM          <- opMod$Umsy[1:nS]
   statTable$BmsyOM          <- opMod$Bmsy[1:nS]
-  statTable$qOM             <- opMod$q[1:nS]
-  statTable$sYear           <- opMod$sYear[1:nS]
+  statTable$fYear           <- opMod$fYear[1:nS]
   statTable$initDep         <- opMod$initDep[1:nS]
-  statTable$s2q             <- blob$assess$s2lnq
-  statTable$fixqbar         <- blob$assess$fixqbar
-  statTable$fixtauq2        <- blob$assess$fixqbar
-  statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  if (is.null(blob$assess$tauq2Prior))
-  {
-    statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
-    statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
-    statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
-    statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
-  } else {
-    statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
-    statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
-    statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
-    statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
-  }
+  statTable$nSurv           <- nSurv
+  # if (is.null(blob$assess$tauq2Prior))
+  # {
+  #   statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
+  #   statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
+  #   statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
+  #   statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
+  # } else {
+  #   statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
+  #   statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
+  #   statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
+  #   statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
+  # }
   statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
-  statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
-  statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
+  # statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
+  # statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
   statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
 
-  # Now errors
+  # Now values that change with the replicate
   for (r in 1:nReps)
   {
-    statTable[(r-1)*nS+(1:nS),"rep"]      <- r
-    statTable[(r-1)*nS+(1:nS),"ssBnT"]    <- (ss$err.mle$BnT[r,] )
-    statTable[(r-1)*nS+(1:nS),"msBnT"]    <- (ms$err.mle$BnT[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssUmsy"]   <- (ss$err.mle$Umsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"msUmsy"]   <- (ms$err.mle$Umsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssBmsy"]   <- (ss$err.mle$Bmsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"msBmsy"]   <- (ms$err.mle$Bmsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssDep"]    <- (ss$err.mle$dep[r,] )
-    statTable[(r-1)*nS+(1:nS),"msDep"]    <- (ms$err.mle$dep[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssq"]      <- (ss$err.mle$q[r,] )
-    statTable[(r-1)*nS+(1:nS),"msq"]      <- (ms$err.mle$q[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssHessPD"] <- (ss$hesspd[r,] )
-    statTable[(r-1)*nS+(1:nS),"msHessPD"] <-  ms$hesspd[r]
-    statTable[(r-1)*nS+(1:nS),"qbar"]     <- ( blob$am$ms$qbar[r])
-    statTable[(r-1)*nS+(1:nS),"tauq2"]    <- ( blob$am$ms$tauq2[r])
-    statTable[(r-1)*nS+(1:nS),"sigU2"]    <- ( blob$am$ms$sigU2[r])
-    statTable[(r-1)*nS+(1:nS),"Umsybar"]  <- ( blob$am$ms$Umsybar[r])
+    for( survIdx in 1:nSurv )
+    {
+      statTable[ (r-1)*nS+(1:nS), q_survOM[survIdx] ]      <- blob$om$q_os[r,survIdx,1:nS] 
+      statTable[ (r-1)*nS+(1:nS), qbar_survOM[survIdx] ]   <- blob$opMod$qSurvM[survIdx]
+      statTable[ (r-1)*nS+(1:nS), tauq2_survOM[survIdx] ]  <- blob$opMod$qSurvSD[survIdx]^2
+      statTable[ (r-1)*nS+(1:nS), tau2_survOM[survIdx] ]   <- blob$opMod$tauSurv[survIdx]^2
+    }
+    
+    statTable[(r-1)*nS+(1:nS),"rep"]          <- r
+    statTable[(r-1)*nS+(1:nS),"ssBnT"]        <- (ss$err.mle$BnT[r,] )
+    statTable[(r-1)*nS+(1:nS),"msBnT"]        <- (ms$err.mle$BnT[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssUmsy"]       <- (ss$err.mle$Umsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"msUmsy"]       <- (ms$err.mle$Umsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssBmsy"]       <- (ss$err.mle$Bmsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"msBmsy"]       <- (ms$err.mle$Bmsy[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssDep"]        <- (ss$err.mle$dep[r,] )
+    statTable[(r-1)*nS+(1:nS),"msDep"]        <- (ms$err.mle$dep[r,] )
+    statTable[(r-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
+    statTable[(r-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
+    statTable[(r-1)*nS+(1:nS),"sigU2"]        <- ( blob$am$ms$sigU2[r])
+    statTable[(r-1)*nS+(1:nS),"Umsybar"]      <- ( blob$am$ms$Umsybar[r])
+    statTable[(r-1)*nS+(1:nS), q_survSS]      <- ss$err.mle$q_os[r,,]
+    statTable[(r-1)*nS+(1:nS), q_survMS]      <- ms$err.mle$q_os[r,,]
+    statTable[(r-1)*nS+(1:nS), tau2_survSS]   <- ( ss$err.mle$tau2_o[r,,])
+    statTable[(r-1)*nS+(1:nS), tau2_survMS]   <- ( ms$err.mle$tau2_o[r,,])
+    statTable[(r-1)*nS+(1:nS), qbar_surv]     <- ( ms$err.mle$qbar_o[r,])
+    statTable[(r-1)*nS+(1:nS), tauq2_surv]    <- ( ms$err.mle$tauq2_o[r,])
+
   }
   
   # return
@@ -890,12 +696,10 @@ AICrank <- function ( modelList, sig )
 
   # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
   ssHess <- ss$hesspd
-  ssHess <- as.logical(apply ( X = ssHess, FUN = prod, MARGIN = 1 ) )
   msHess <- ms$hesspd
-  ssSuccessful <- which ( ssHess )
-  msSuccessful <- which ( msHess )
-  success <- intersect ( ssSuccessful, msSuccessful )
-  failure <- (1:nReps)[-success]
+  hessPD <- ssHess
+  for( s in 1:ncol(hessPD) )
+    hessPD[,s] <- as.logical(ssHess[,s] * msHess)
 
   # Create a list to hold error values
   ssErr <- list ( 
@@ -908,13 +712,13 @@ AICrank <- function ( modelList, sig )
                 BnT   = matrix( NA, nrow = nReps, ncol = nS ),
                 totRE = matrix( NA, nrow = nReps, ncol = nS )
               )
-  # Slightly difference structure for MS model
+  # Slightly different structure for MS model
   msErr <- list ( 
                 Bmsy    = matrix( NA, nrow = nReps, ncol = nS ),
                 Umsy    = matrix( NA, nrow = nReps, ncol = nS ),
                 kappa2  = matrix( NA, nrow = nReps, ncol = 1 ),
                 Sigma2  = matrix( NA, nrow = nReps, ncol = nS ),
-                tau2_o  = array(  NA, dim = c( nReps, nSurv ) ),
+                tau2_o  = array(  NA, dim = c( nReps, nSurv, nS ) ),
                 tauq2_o = array(  NA, dim = c( nReps, nSurv ) ),
                 q_os    = array(  NA, dim = c( nReps, nSurv, nS ) ),
                 qbar_o  = array(  NA, dim = c( nReps, nSurv ) ),
@@ -932,44 +736,44 @@ AICrank <- function ( modelList, sig )
 
   # Create matrices of the shared parameters
   # to avoid matrix-vector indexing errors
-  tauSurv   <- matrix(opMod$tauSurv, nrow = length(success), ncol = nSurv, byrow = T )
-  qSurvM    <- matrix(opMod$qSurvM, nrow = length(success), ncol = nSurv, byrow = T )
-  qSurvSD   <- matrix(opMod$qSurvSD, nrow = length(success), ncol = nSurv, byrow = T )
+  tauSurv   <- matrix(opMod$tauSurv[1:nSurv], nrow = nReps, ncol = nSurv, byrow = T )
+  qSurvM    <- matrix(opMod$qSurvM[1:nSurv], nrow = nReps, ncol = nSurv, byrow = T )
+  qSurvSD   <- matrix(opMod$qSurvSD[1:nSurv], nrow = nReps, ncol = nSurv, byrow = T )
 
   # Fill in ss MLE relative errors
   for ( s in 1:nS )
   {
     # browser()
-    ss$err.mle$Bmsy[success,s]    <- (ss$Bmsy[success,s] - opMod$Bmsy[s])/opMod$Bmsy[s]
-    ss$err.mle$Umsy[success,s]    <- (ss$Umsy[success,s] - opMod$Umsy[s])/opMod$Umsy[s]
-    ss$err.mle$kappa2[success,s]  <- (ss$kappa2[success,s] - (opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s]))/(opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s])
-    ss$err.mle$tau2_o[success,,s] <- (ss$tau2_o[success,,s] - tauSurv^2)/(tauSurv^2)
-    ss$err.mle$q_os[success,,s]   <- (ss$q_os[success,,s] - om$q_os[success,,s])/om$q_os[success,,s]
-    ss$err.mle$dep[success,s]     <- (ss$dep[success,s,nT] - om$dep[success,s,nT])/om$dep[success,s,nT]
-    ss$err.mle$BnT[success,s]     <- (ss$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
-    ss$err.mle$totRE[success,s]   <- ss$err.mle$kappa2[success,s]
+    ss$err.mle$Bmsy[hessPD[,s],s]    <- (ss$Bmsy[hessPD[,s],s] - opMod$Bmsy[s])/opMod$Bmsy[s]
+    ss$err.mle$Umsy[hessPD[,s],s]    <- (ss$Umsy[hessPD[,s],s] - opMod$Umsy[s])/opMod$Umsy[s]
+    ss$err.mle$kappa2[hessPD[,s],s]  <- (ss$kappa2[hessPD[,s],s] - (opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s]))/(opMod$kappa2*(opMod$kappaMult^2)+opMod$SigmaDiag[s])
+    ss$err.mle$tau2_o[hessPD[,s],,s] <- (ss$tau2_o[hessPD[,s],,s] - tauSurv[hessPD[,s],]^2)/(tauSurv[hessPD[,s],]^2)
+    ss$err.mle$q_os[hessPD[,s],,s]   <- (ss$q_os[hessPD[,s],,s] - om$q_os[hessPD[,s],,s])/om$q_os[hessPD[,s],,s]
+    ss$err.mle$dep[hessPD[,s],s]     <- (ss$dep[hessPD[,s],s,nT] - om$dep[hessPD[,s],s,nT])/om$dep[hessPD[,s],s,nT]
+    ss$err.mle$BnT[hessPD[,s],s]     <- (ss$Bt[hessPD[,s],s,nT] - om$Bt[hessPD[,s],s,nT])/om$Bt[hessPD[,s],s,nT]
+    ss$err.mle$totRE[hessPD[,s],s]   <- ss$err.mle$kappa2[hessPD[,s],s]
 
     # Now fill in ms MLE relative errors
     # some are only estimated once (instead of nS times)
     if (s == 1)
     {
-      ms$err.mle$kappa2[success,]     <- (ms$kappa2[success,] - opMod$kappa2*(opMod$kappaMult^2))/opMod$kappa2/(opMod$kappaMult^2)
-      ms$err.mle$tau2_o[success,]     <- (ms$tau2_o[success,] - tauSurv^2)/(tauSurv^2)
-      ms$err.mle$tauq2_o[success,]    <- (ms$tauq2_o[success,] - qSurvSD^2)/(qSurvSD^2)
-      ms$err.mle$qbar_o[success,]     <- (ms$qbar_o[success,] - qSurvM)/qSurvM
+      ms$err.mle$kappa2[hessPD[,s],]     <- (ms$kappa2[hessPD[,s],] - opMod$kappa2*(opMod$kappaMult^2))/opMod$kappa2/(opMod$kappaMult^2)
+      ms$err.mle$tauq2_o[hessPD[,s],]    <- (ms$tauq2_o[hessPD[,s],] - qSurvSD[hessPD[,s],]^2)/(qSurvSD[hessPD[,s]]^2)
+      ms$err.mle$qbar_o[hessPD[,s],]     <- (ms$qbar_o[hessPD[,s],] - qSurvM[hessPD[,s],])/qSurvM[hessPD[,s],]
     }
     # Now the rest of the pars
-    ms$err.mle$Sigma2[success,s] <- (ms$Sigma2[success,s] - opMod$SigmaDiag[s])/opMod$SigmaDiag[s]    
-    ms$err.mle$Bmsy[success,s]   <- (ms$Bmsy[success,s] - opMod$Bmsy[s])/opMod$Bmsy[s]
-    ms$err.mle$Umsy[success,s]   <- (ms$Umsy[success,s] - opMod$Umsy[s])/opMod$Umsy[s]    
-    ms$err.mle$q_os[success,,s]  <- (ms$q_os[success,,s] - om$q_os[success,,s])/om$q_os[success,,s]
-    ms$err.mle$dep[success,s]    <- (ms$dep[success,s,nT] - om$dep[success,s,nT])/om$dep[success,s,nT]
-    ms$err.mle$BnT[success,s]    <- (ms$Bt[success,s,nT] - om$Bt[success,s,nT])/om$Bt[success,s,nT]
+    ms$err.mle$tau2_o[hessPD[,s],,s] <- (ms$tau2_o[hessPD[,s],] - tauSurv[hessPD[,s],]^2)/(tauSurv[hessPD[,s],]^2)
+    ms$err.mle$Sigma2[hessPD[,s],s]  <- (ms$Sigma2[hessPD[,s],s] - opMod$SigmaDiag[s])/opMod$SigmaDiag[s]    
+    ms$err.mle$Bmsy[hessPD[,s],s]    <- (ms$Bmsy[hessPD[,s],s] - opMod$Bmsy[s])/opMod$Bmsy[s]
+    ms$err.mle$Umsy[hessPD[,s],s]    <- (ms$Umsy[hessPD[,s],s] - opMod$Umsy[s])/opMod$Umsy[s]    
+    ms$err.mle$q_os[hessPD[,s],,s]   <- (ms$q_os[hessPD[,s],,s] - om$q_os[hessPD[,s],,s])/om$q_os[hessPD[,s],,s]
+    ms$err.mle$dep[hessPD[,s],s]     <- (ms$dep[hessPD[,s],s,nT] - om$dep[hessPD[,s],s,nT])/om$dep[hessPD[,s],s,nT]
+    ms$err.mle$BnT[hessPD[,s],s]     <- (ms$Bt[hessPD[,s],s,nT] - om$Bt[hessPD[,s],s,nT])/om$Bt[hessPD[,s],s,nT]
 
     # calculate total RE variance
     totVarFit <- ms$kappa2 + ms$Sigma2[,s]
     totVarOM  <- opMod$kappa2*(opMod$kappaMult^2) + opMod$SigmaDiag[s]
-    ms$err.mle$totRE[success,s]  <- (totVarFit[success] - totVarOM) / totVarOM
+    ms$err.mle$totRE[hessPD[,s],s]  <- (totVarFit[hessPD[,s]] - totVarOM) / totVarOM
   }
 
   # Append these to blob
@@ -977,7 +781,7 @@ AICrank <- function ( modelList, sig )
   blob$am$ms <- ms
 
   # Now save the good replicates
-  blob$goodReps <- success
+  blob$goodReps <- hessPD
 
   blob
 }

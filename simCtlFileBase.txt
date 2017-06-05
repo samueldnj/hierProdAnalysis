@@ -2,9 +2,9 @@
 parameter value
 ctrl$scenarioName "DERPA"
 ctrl$mpLabel "baseAM"
-ctrl$nReps 1
+ctrl$nReps 20
 ctrl$rSeed 1
-ctrl$fixProc TRUE
+ctrl$fixProc FALSE
 ctrl$speciesNames c("Dover","English","Rock","Petrale","Arrowtooth")
 opMod$Bmsy c(40,6.25,26.8,26.12,495.4)
 opMod$Umsy c(0.3,0.4,0.35,0.25,0.15)

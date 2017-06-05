@@ -346,12 +346,12 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
         xVal <- x[ xIdx ]
         yVal <- y[ yIdx ]
         # Get rows
-        wRows <- which ( tab[,axesCols[1]] == wVal)
-        xRows <- which ( tab[,axesCols[2]] == xVal)
-        yRows <- which ( tab[,axesCols[3]] == yVal)
-        wRowsPred <- which ( predTab[,predAxesCols[1]] == wVal)
-        xRowsPred <- which ( predTab[,predAxesCols[2]] == xVal)
-        yRowsPred <- which ( predTab[,predAxesCols[3]] == yVal)
+        wRows <- which ( tab[,axesCols[1] ] == wVal)
+        xRows <- which ( tab[,axesCols[2] ] == xVal)
+        yRows <- which ( tab[,axesCols[3] ] == yVal)
+        wRowsPred <- which ( predTab[,predAxesCols[1] ] == wVal)
+        xRowsPred <- which ( predTab[,predAxesCols[2] ] == xVal)
+        yRowsPred <- which ( predTab[,predAxesCols[3] ] == yVal)
         rows      <- intersect(intersect(wRows,xRows),yRows)
         predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
         if( length(rows) == 0 ) next
@@ -696,8 +696,8 @@ plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
         xVal <- x[ xIdx ]
         yVal <- y[ yIdx ]
         # Get rows
-        xRows <- which ( specTab[,axesCols[1]] == xVal)
-        yRows <- which ( specTab[,axesCols[2]] == yVal)
+        xRows <- which ( specTab[,axesCols[1] ] == xVal)
+        yRows <- which ( specTab[,axesCols[2] ] == yVal)
         rows <- intersect(xRows,yRows)
         if( length(rows) == 0 ) next
         # Fill array
@@ -2055,8 +2055,8 @@ makeRasterFromTable <- function ( table,
       xVal <- x[xIdx]
       yVal <- y[yIdx]
       # Get rows
-      xRows <- which ( table[,axesCols[1]] == xVal)
-      yRows <- which ( table[,axesCols[2]] == yVal)
+      xRows <- which ( table[,axesCols[1] ] == xVal)
+      yRows <- which ( table[,axesCols[2] ] == yVal)
       rows <- intersect(xRows,yRows)
       if( length(rows) == 0 ) next
       z[length(y)-yIdx+1,xIdx,] <- as.numeric(table[rows,colnames])
@@ -2228,9 +2228,9 @@ plotModContour <- function (  tableName = "RE_coarse_Bmsy_MARE.csv",
   # Add hessianPD column if requested
   if ( hess ) pars <- c( pars, "HessPD" )
 
-  x   <- unique(table[,axesCols[1]])
+  x   <- unique(table[,axesCols[1] ])
   x   <- x[order(x)]
-  y   <- unique(table[,axesCols[2]])
+  y   <- unique(table[,axesCols[2] ])
   y   <- y[order(y)]
 
   for (s in 1:nS)
@@ -3541,6 +3541,7 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","to
   # Recover blob elements for plotting
   nS        <- blob$opMod$nS
   specNames <- blob$ctrl$speciesNames[1:nS]
+  nO        <- ifelse(!is.null(blob$opMod$nSurv), blob$opMod$nSurv, 1)
 
   # Recover relative error distributions
   if (est == "MLE")
@@ -3548,13 +3549,18 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","to
     ssRE <- blob$am$ss$err.mle[pars]
     msRE <- blob$am$ms$err.mle[pars]
   }
+
   
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )
   {
     if (is.null(dim(x[[entry]]))) x[[entry]] <- matrix(x[[entry]],ncol=1)
-    quants <- apply ( X = x[[entry]], FUN = quantile, ... )
-    return(t(quants))
+    xDim <- dim(x[[entry]])
+    margins <- 2:length(xDim)
+    quants <- apply ( X = x[[entry]], FUN = quantile, MARGIN = margins, ... )
+    if(class(quants) == "array")
+      return( aperm(quants) )
+    else return( t(quants) )
   }
 
   # browser()
@@ -3563,14 +3569,14 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","to
 
   # generate quantiles
   ssQuant <- lapply ( X = seq_along(ssRE), FUN = quantWrap, x=ssRE, 
-                      MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+                      probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
   msQuant <- lapply ( X = seq_along(msRE), FUN = quantWrap, x=msRE, 
-                      MARGIN = 2, probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+                      probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
 
-  ssAQuant <- lapply ( X = seq_along(ssARE), FUN = quantWrap, x=ssARE, 
-                      MARGIN = 2, probs = c(0.5), na.rm = TRUE)
-  msAQuant <- lapply ( X = seq_along(msARE), FUN = quantWrap, x=msARE, 
-                      MARGIN = 2, probs = c(0.5), na.rm = TRUE)
+  ssAQuant <- lapply (  X = seq_along(ssARE), FUN = quantWrap, x=ssARE, 
+                        probs = c(0.5), na.rm = TRUE)
+  msAQuant <- lapply (  X = seq_along(msARE), FUN = quantWrap, x=msARE, 
+                        probs = c(0.5), na.rm = TRUE)
 
   # get names of parameters
   ssPars <- names ( ssRE )
@@ -3580,16 +3586,30 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","to
 
   names ( ssAQuant) <- ssPars
   names ( msAQuant) <- msPars
+
+  # Multisurvey parameters
+  if( "q_os" %in% pars )
+  {
+    q_os <- paste( "q_", 1:nO, sep = "" )
+    pars <- c( pars[pars != "q_os"], q_os ) 
+  }
+
+  if( "tau2_o" %in% pars )
+  {
+    tau2_o <- paste( "tau2_", 1:nO, sep = "" )
+    pars <- c( pars[pars != "tau2_o"], tau2_o ) 
+  }
+
   # Create an array of quantile values 
   # (dims = species,percentiles,parameters,models)
   quantiles <- array ( NA, dim = c(nS,3,length(pars),2))
-  dimnames (quantiles) <- list (  1:nS,
+  dimnames (quantiles) <- list (  specNames,
                                   c("2.5%","50%","97.5%"), 
                                   pars,
                                   c("ss","ms") )
 
   MARE <- array ( NA, dim = c(nS,length(pars),2),
-                  dimnames = list ( 1:nS, pars,
+                  dimnames = list ( specNames, pars,
                                     c("ss","ms") ) )
 
 
@@ -3598,11 +3618,28 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","to
   {
     for (p in 1:length(pars))
     {
-      quantiles[s,,p,1] <- ssQuant[ pars[p] ][[1]][s,]
-      quantiles[s,,p,2] <- msQuant[ pars[p] ][[1]][s,]
-      # browser()
-      MARE[s,p,1] <- ssAQuant[[ pars[p] ]][s]
-      MARE[s,p,2] <- msAQuant[[ pars[p] ]][s]
+      parName <- pars[p]
+      # Change behaviour if survey specific stuff is involved
+      # SDNJ: Check backwards compatibility for master branch
+      if( grepl( "q_", parName ) | grepl("tau2_", parName ) )
+      {
+        if( grepl( "q_", parName ) ) parName <- "q_os"
+        if( grepl("tau2_", parName ) ) parName <- "tau2_o"  
+        surveyNo <- as.numeric(str_split(pars[p],"_")[[1]][2])
+        # Now fill in the survey specific deets
+        # REs
+        quantiles[s,,pars[p],1] <- ssQuant[ parName ][[1]][s,surveyNo,]
+        quantiles[s,,pars[p],2] <- msQuant[ parName ][[1]][s,surveyNo,]
+        # MARE
+        MARE[s,pars[p],1] <- ssAQuant[[ parName ]][s,surveyNo]
+        MARE[s,pars[p],2] <- msAQuant[[ parName ]][s,surveyNo]
+      } else {
+        quantiles[s,,pars[p],1] <- ssQuant[ parName ][[1]][s,]
+        quantiles[s,,pars[p],2] <- msQuant[ parName ][[1]][s,]
+        # MARE
+        MARE[s,pars[p],1] <- ssAQuant[[ parName ]][s]
+        MARE[s,pars[p],2] <- msAQuant[[ parName ]][s]
+      }
     }
   }
   # Set plotting window
@@ -3616,12 +3653,14 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","to
     q025 <- quantiles[s,"2.5%",,]
 
     # Plot main dotchart
-    plotTitle <- specNames[s]
+    plotTitle <- paste(specNames[s])
+    FitCounter <- paste( "nReps = ", sum(blob$goodReps[,s]), sep = "" )
     if ( s == 1) dotchart ( x = t(med), xlim = c(-1.5,1.5), main = "",
                             pch = 16, cex = 1.2 )
     else dotchart ( x = t(med), xlim = c(-1.5,1.5), main = "",
                     pch = 16, cex = 1.2)
-      mtext( side = 3, text = plotTitle, cex = 1.5, las = 0 )
+      mtext( side = 3, text = plotTitle, cex = 1.5, las = 0, line = 2 )
+      mtext( side = 3, text = FitCounter, cex = 1, las = 0, line = 1 )
       # axis ( side = 1, at = seq(-1.5,1.5,by=0.5) )
     
     # Now add segments
@@ -3643,8 +3682,6 @@ plotSimPerf <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","to
   } 
   if( title )
   {
-    title <- paste("Relative error distributions, nReps = ", length(blob$goodReps))
-    mtext ( text = title, outer = TRUE, side = 3 )  
     mtext ( text = "Relative Error", side = 1, outer = TRUE, line = 2, cex = 1.5)
     mtext ( text = "Parameter", side = 2, outer = TRUE, line = 1, cex = 1.5)
   }

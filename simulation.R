@@ -125,6 +125,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 .popInit <- function( obj = blob,
                       Ust = Ust, specNames )
 {
+
+  cat("MSG (popInit) Initialising population dynamics\n" )
   nS    <- obj$opMod$nS           # number of species
   fYear <- obj$opMod$fYear[1:nS]  # starting year of catch history
   lYear <- obj$opMod$lYear        # Final year (now) of catch history 
@@ -183,11 +185,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   if( (obj$opMod$corrOpt) | (obj$opMod$depOpt) )
   {
+    cat("MSG (popInit) Optimising fishing history for desired dynamics\n" )
     # Optimise deviations
     optObj <- optim( par = devs, fn = .devOptimNLL, devT = UdevT, corr = obj$opMod$corrOpt,
                      obj = obj$opMod, specNames = specNames, baseMtx = Fst, dep = obj$opMod$depOpt,
                      method = "BFGS", om = om ) 
     devs <- optObj$par
+    cat("MSG (popInit) Optimisation complete\n" )
   }
   # Populate OM biomass optimised deviations
   om <- .devOptimNLL( devs = devs, devT = UdevT, fit = FALSE, corrOpt = FALSE,
@@ -954,7 +958,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   if ( is.null ( Ut ) & is.null ( Ct ) ) 
   {
-    cat ( "You're missing harvest, stupid.\n" )
+    cat ( "ERR (logProdModel) You're missing harvest, stupid.\n" )
     return ()
   }
 
@@ -1009,6 +1013,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 # usage:      creates survey observations which are supplied to the estimator
 .obsModel <- function (  obj = obj )
 {
+  cat("MSG (obsModel) Generating random observations\n" )
   om        <- obj$om
   opMod     <- obj$opMod
 

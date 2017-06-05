@@ -165,9 +165,9 @@ Type objective_function<Type>::operator() ()
     for( int t = initT(s)+1; t < nT; t++ )
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
+      Bt(s,t) = posfun(Bt(s,t),Type(2e-3),pospen);
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
-      Bt(s,t) = posfun(Bt(s,t), Ct(s,t), pospen);
-      nllRE += Type(100.0)*pospen;      
+      nllRE += Type(1000.0)*pospen;      
     }
   }
   // Loop again to add species and year effects
