@@ -444,7 +444,7 @@ AICrank <- function ( modelList, sig )
               group_by(scenario, mp, species ) %>%
               summarise_all( .funs = .statTableSummarise )
 
-  MREname   <- paste(tabNameRoot,"_MRE.csv")
+  MREname   <- paste(tabNameRoot,"_MRE.csv", sep = "" )
   MREpath   <- file.path(getwd(),"project","Statistics",MREname)
   write.csv( MREtable, file = MREpath )
   
@@ -453,7 +453,7 @@ AICrank <- function ( modelList, sig )
                 group_by( scenario, mp, species ) %>%
                 summarise_all( .funs = .statTableSummariseAbs )
 
-  MAREname   <- paste(tabNameRoot,"_MARE.csv")
+  MAREname   <- paste(tabNameRoot,"_MARE.csv", sep = "" )
   MAREpath   <- file.path(getwd(),"project","Statistics",MAREname)
   write.csv( MAREtable, file = MAREpath )
   
@@ -617,18 +617,8 @@ AICrank <- function ( modelList, sig )
   statTable$fYear           <- opMod$fYear[1:nS]
   statTable$initDep         <- opMod$initDep[1:nS]
   statTable$nSurv           <- nSurv
-  # if (is.null(blob$assess$tauq2Prior))
-  # {
-  #   statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
-  #   statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
-  #   statTable$sigU2P1        <- ifelse(is.null(blob$assess$sigU2IGa),blob$assess$sigU2IG[1],blob$assess$sigU2IGa)
-  #   statTable$sigU2P2        <- ifelse(is.null(blob$assess$sigU2IGb),blob$assess$sigU2IG[2],blob$assess$sigU2IGb)  
-  # } else {
-  #   statTable$tauq2P1         <- ifelse(is.null(blob$assess$tauq2P1),blob$assess$tauq2Prior[1],blob$assess$tauq2P1)
-  #   statTable$tauq2P2         <- ifelse(is.null(blob$assess$tauq2P2),blob$assess$tauq2Prior[2],blob$assess$tauq2P2)
-  #   statTable$sigU2P1         <- ifelse(is.null(blob$assess$sigU2P1),blob$assess$sigU2Prior[1],blob$assess$sigU2P1)
-  #   statTable$sigU2P2         <- ifelse(is.null(blob$assess$sigU2P2),blob$assess$sigU2Prior[2],blob$assess$sigU2P2) 
-  # }
+  statTable$fixProc         <- blob$ctrl$fixProc
+  statTable$corrTargVar     <- blob$opMod$corrTargVar
   statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
   # statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
   # statTable$tauqPriorCode   <- blob$assess$tauqPriorCode

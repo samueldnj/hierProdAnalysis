@@ -9,9 +9,9 @@
 #
 # --------------------------------------------------------------------------
 
-plotStatTableGraphs <- function(  tableRoot = "allSame_Fhist_msIncr_",
-                                  resp = c("BnT","q","Umsy","Bmsy","Dep","HessPD"),
-                                  axes = c("Umax","tUpeak"),
+plotStatTableGraphs <- function(  tableRoot = "fixedProcRE_allJoint",
+                                  resp = c("BnT","Umsy","Bmsy","Dep","HessPD","q_1","tau2_1"),
+                                  axes = c("Umax","corrTargVar"),
                                   MARE = TRUE,
                                   RE = TRUE,
                                   groupPars = TRUE )
@@ -34,8 +34,8 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_Fhist_msIncr_",
   MAREdir <- file.path(saveDir,"MARE")
   dir.create(MAREdir)
   # Now load the RE table
-  MAREtabRoot  <- paste(tableRoot,"MARE", sep = "")
-  MAREtabFile  <- paste(tableRoot,"MARE.csv", sep = "")
+  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
+  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
   MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
   MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
   nSpp        <- unique(MAREtab$nS)
@@ -72,8 +72,8 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_Fhist_msIncr_",
   REdir <- file.path(saveDir,"RE")
   dir.create(REdir)
   # Now load the RE table
-  REtabRoot   <- paste(tableRoot,"RE", sep = "")
-  REtabFile   <- paste(tableRoot,"RE.csv", sep = "")
+  REtabRoot   <- paste(tableRoot,"_RE", sep = "")
+  REtabFile   <- paste(tableRoot,"_RE.csv", sep = "")
   REtabPath   <- file.path(getwd(),"project","Statistics",REtabFile)
   if( RE )
   {
