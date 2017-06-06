@@ -10,7 +10,7 @@
 # --------------------------------------------------------------------------
 
 
-makeObsErrCVCols <- function( tableRoot = "allSame_obsErr_msIncr_" )
+makeObsErrCVCols <- function( tableRoot = "allSame_obsErr_msIncr" )
 {
   MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
   MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
@@ -20,12 +20,12 @@ makeObsErrCVCols <- function( tableRoot = "allSame_obsErr_msIncr_" )
   MREtabRoot  <- paste(tableRoot,"_MRE", sep = "")
   MREtabFile  <- paste(tableRoot,"_MRE.csv", sep = "")
   MREtabPath <- file.path(getwd(),"project","Statistics",MREtabFile)
-  MREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+  MREtab     <- read.csv( MREtabPath, header=TRUE, stringsAsFactors=FALSE )
 
   REtabRoot  <- paste(tableRoot,"_RE", sep = "")
   REtabFile  <- paste(tableRoot,"_RE.csv", sep = "")
   REtabPath <- file.path(getwd(),"project","Statistics",REtabFile)
-  REtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+  REtab     <- read.csv( REtabPath, header=TRUE, stringsAsFactors=FALSE )
 
 
   splitScenLabel <- function ( scenLabel, match = "CVhi" )
@@ -44,7 +44,7 @@ makeObsErrCVCols <- function( tableRoot = "allSame_obsErr_msIncr_" )
                       nHi  = splitScenLabel(scenario,match = "nHi") )
 
   REtab <-  REtab %>%
-            group_by( scenario, mp, species ) %>%
+            group_by( scenario, mp, species, rep ) %>%
             mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
                     CVlo = splitScenLabel(scenario,match = "CVlo"),
                     nHi  = splitScenLabel(scenario,match = "nHi") )
@@ -62,12 +62,12 @@ makeObsErrCVCols <- function( tableRoot = "allSame_obsErr_msIncr_" )
   write.csv( MAREtab, MAREtabPath )
 }
 
-plotStatTableGraphs <- function(  tableRoot = "allSame_obsErr_msIncr_",
+plotStatTableGraphs <- function(  tableRoot = "allSame_obsErr_msIncr",
                                   resp = c("BnT","q","Umsy","Bmsy","Dep","HessPD"),
                                   axes = c("CVhi","nHi"),
                                   MARE = TRUE,
                                   RE = TRUE,
-                                  groupPars = FALSE )
+                                  groupPars = TRUE )
 {
   # plotStatTableGraphs()
   # Plots the statistics table information and saves into
