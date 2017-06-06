@@ -9,12 +9,65 @@
 #
 # --------------------------------------------------------------------------
 
-plotStatTableGraphs <- function(  tableRoot = "allSame_Fhist_msIncr_",
+
+makeObsErrCVCols <- function( tableRoot = "allSame_obsErr_msIncr_" )
+{
+  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
+  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
+  MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
+  MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  MREtabRoot  <- paste(tableRoot,"_MRE", sep = "")
+  MREtabFile  <- paste(tableRoot,"_MRE.csv", sep = "")
+  MREtabPath <- file.path(getwd(),"project","Statistics",MREtabFile)
+  MREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  REtabRoot  <- paste(tableRoot,"_RE", sep = "")
+  REtabFile  <- paste(tableRoot,"_RE.csv", sep = "")
+  REtabPath <- file.path(getwd(),"project","Statistics",REtabFile)
+  REtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+
+  splitScenLabel <- function ( scenLabel, match = "CVhi" )
+  {
+    splitLabel <- unlist(str_split(scenLabel,"_"))
+    element <- splitLabel[grep( match, splitLabel, value = F)]
+    splitElement <- unlist(str_split(element,match))
+    num <- as.numeric(splitElement[2])
+    num
+  }
+
+  MAREtab <-  MAREtab %>%
+              group_by( scenario, mp, species ) %>%
+              mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
+                      CVlo = splitScenLabel(scenario,match = "CVlo"),
+                      nHi  = splitScenLabel(scenario,match = "nHi") )
+
+  REtab <-  REtab %>%
+            group_by( scenario, mp, species ) %>%
+            mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
+                    CVlo = splitScenLabel(scenario,match = "CVlo"),
+                    nHi  = splitScenLabel(scenario,match = "nHi") )
+
+
+  MREtab <- MREtab %>%
+            group_by( scenario, mp, species ) %>%
+            mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
+                    CVlo = splitScenLabel(scenario,match = "CVlo"),
+                    nHi  = splitScenLabel(scenario,match = "nHi") )
+
+
+  write.csv( REtab, REtabPath )
+  write.csv( MREtab, MREtabPath )
+  write.csv( MAREtab, MAREtabPath )
+}
+
+plotStatTableGraphs <- function(  tableRoot = "allSame_obsErr_msIncr_",
                                   resp = c("BnT","q","Umsy","Bmsy","Dep","HessPD"),
-                                  axes = c("Umax","tUpeak"),
+                                  axes = c("CVhi","nHi"),
                                   MARE = TRUE,
                                   RE = TRUE,
-                                  groupPars = TRUE )
+                                  groupPars = FALSE )
 {
   # plotStatTableGraphs()
   # Plots the statistics table information and saves into
@@ -34,12 +87,14 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_Fhist_msIncr_",
   MAREdir <- file.path(saveDir,"MARE")
   dir.create(MAREdir)
   # Now load the RE table
-  MAREtabRoot  <- paste(tableRoot,"MARE", sep = "")
-  MAREtabFile  <- paste(tableRoot,"MARE.csv", sep = "")
+  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
+  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
   MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
   MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
   nSpp        <- unique(MAREtab$nS)
   MPs         <- unique(MAREtab$mp)
+
+
 
   # Loop over complex sizes
   if( MARE )
@@ -66,14 +121,16 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_Fhist_msIncr_",
       }
     }
   }
+
+
   
 
   # Now plot relative error distributions
   REdir <- file.path(saveDir,"RE")
   dir.create(REdir)
   # Now load the RE table
-  REtabRoot   <- paste(tableRoot,"RE", sep = "")
-  REtabFile   <- paste(tableRoot,"RE.csv", sep = "")
+  REtabRoot   <- paste(tableRoot,"_RE", sep = "")
+  REtabFile   <- paste(tableRoot,"_RE.csv", sep = "")
   REtabPath   <- file.path(getwd(),"project","Statistics",REtabFile)
   if( RE )
   {
@@ -111,7 +168,7 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_Fhist_msIncr_",
   if( groupPars )
   {
     # Now plot group parameters
-    MREtabRoot <- paste(tableRoot,"MRE", sep = "" )
+    MREtabRoot <- paste(tableRoot,"_MRE", sep = "" )
     for( nSp in nSpp )
     {
       for( mIdx in 1:length(MPs))
