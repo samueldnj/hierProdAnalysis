@@ -18,6 +18,7 @@ library( "grid" )
 library( "RColorBrewer" )
 library( "HapEstXXR" )
 library( "parallel" )
+library( "stringr" )
 
 # compile and load msProd objective function.
 compile ("msProd.cpp")

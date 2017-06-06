@@ -489,19 +489,19 @@ makeDesignDover <- function ( l = 2,
   {
     cat( "# Scenario ", rIdx, " : ", rownames(desMtx)[rIdx], "\n", file = outFile, append = T, sep = "" )
     cat( "#\n", file = outFile, append = T )
-    cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", levels$Umsy[entryMtx[rIdx,"Umsy"]], 
+    cat(  "scenario$scenario", rIdx, "$opMod$Umsy c(", levels$Umsy[entryMtx[rIdx,"Umsy"] ], 
           ",.29,.29,.29,.29)\n", sep = "", append = T, file = outFile )  
-    cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", levels$Bmsy[entryMtx[rIdx,"Bmsy"]], 
+    cat(  "scenario$scenario", rIdx, "$opMod$Bmsy c(", levels$Bmsy[entryMtx[rIdx,"Bmsy"] ], 
           ",10,10,10,10)\n", sep = "", append = T, file = outFile )  
-    cat(  "scenario$scenario", rIdx, "$opMod$q c(", levels$q[entryMtx[rIdx,"q"]], 
+    cat(  "scenario$scenario", rIdx, "$opMod$q c(", levels$q[entryMtx[rIdx,"q"] ], 
           ",.6,.6,.6,.6)\n", sep = "", append = T, file = outFile )
-    cat(  "scenario$scenario", rIdx, "$opMod$tau2 c(", levels$tau2[entryMtx[rIdx,"tau2"]], 
+    cat(  "scenario$scenario", rIdx, "$opMod$tau2 c(", levels$tau2[entryMtx[rIdx,"tau2"] ], 
           ",.04,.04,.04,.04)\n", sep = "", append = T, file = outFile )
-    cat(  "scenario$scenario", rIdx, "$opMod$kappa2 c(", levels$kappa2[entryMtx[rIdx,"kappa2"]], 
+    cat(  "scenario$scenario", rIdx, "$opMod$kappa2 c(", levels$kappa2[entryMtx[rIdx,"kappa2"] ], 
           ")\n", sep = "", append = T, file = outFile )
-    cat(  "scenario$scenario", rIdx, "$opMod$SigmaDiag c(", levels$Sigma2[entryMtx[rIdx,"Sigma2"]], 
+    cat(  "scenario$scenario", rIdx, "$opMod$SigmaDiag c(", levels$Sigma2[entryMtx[rIdx,"Sigma2"] ], 
           ",.025,.025,.025,.025)\n", sep = "", append = T, file = outFile )
-    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag c(", levels$corrOD[entryMtx[rIdx,"corrOD"]], 
+    cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag c(", levels$corrOD[entryMtx[rIdx,"corrOD"] ], 
           ")\n", sep = "", append = T, file = outFile )
     cat( "#\n", file = outFile, append = T )
   }

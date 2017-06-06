@@ -10,7 +10,7 @@
 # --------------------------------------------------------------------------
 
 
-makeObsErrCVCols <- function( tableRoot = "allSame_obsErr_msIncr" )
+makeObsErrCVCols <- function( tableRoot = "nonEqExplore_qPriorOnly" )
 {
   MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
   MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")

@@ -555,7 +555,7 @@ AICrank <- function ( modelList, sig )
   if (is.null(opMod$kappaMult)) kappaMult <- 1
 
   # Start filling stat table
-  # First, info and true pars
+  # First, OM pars and labels
   statTable$scenario        <- blob$ctrl$scenarioName
   statTable$mp              <- blob$ctrl$mpLabel
   statTable$species         <- species[1:nS]
@@ -579,7 +579,10 @@ AICrank <- function ( modelList, sig )
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  if (is.null(blob$assess$tauq2Prior))
+  statTable$estYearEff      <- as.integer(blob$assess$estYearEff)
+  statTable$qSharedPrior    <- blob$assess$lnqPriorCode
+  statTable$UmsySharedPrior <- blob$assess$lnUPriorCode
+  if( is.null( blob$assess$tauq2Prior ) )
   {
     statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
     statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
@@ -691,7 +694,10 @@ AICrank <- function ( modelList, sig )
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  if (is.null(blob$assess$tauq2Prior))
+  statTable$estYearEff      <- as.integer(blob$assess$estYearEff)
+  statTable$qSharedPrior    <- blob$assess$lnqPriorCode
+  statTable$UmsySharedPrior <- blob$assess$lnUPriorCode
+  if( is.null( blob$assess$tauq2Prior ) )
   {
     statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
     statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
@@ -822,7 +828,10 @@ AICrank <- function ( modelList, sig )
   statTable$fixqbar         <- blob$assess$fixqbar
   statTable$fixtauq2        <- blob$assess$fixqbar
   statTable$s2Umsy          <- blob$assess$s2lnUmsy
-  if (is.null(blob$assess$tauq2Prior))
+  statTable$estYearEff      <- as.integer(blob$assess$estYearEff)
+  statTable$qSharedPrior    <- blob$assess$lnqPriorCode
+  statTable$UmsySharedPrior <- blob$assess$lnUPriorCode
+  if( is.null( blob$assess$tauq2Prior ) )
   {
     statTable$tauq2P1        <- ifelse(is.null(blob$assess$tauq2IGa),blob$assess$tauq2IG[1],blob$assess$tauq2IGa)
     statTable$tauq2P2        <- ifelse(is.null(blob$assess$tauq2IGb),blob$assess$tauq2IG[2],blob$assess$tauq2IGb)
