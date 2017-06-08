@@ -611,7 +611,7 @@ doBatchRun <- function( arg )
 # Side Effects: A simulation folder containing *.info and *.Rdata file (blob) and
 #               for each row of the design dataframe, i.e., for each simulation.
 # Source:       A.R. Kronlund
-.runBatchJob <- function( batchDesign=NULL, par=FALSE,prefix=NULL )
+.runBatchJob <- function( batchDesign=NULL, par=FALSE,prefix=NULL, initPar = 1 )
 {
   # Runs simulations from the design data.frame specified in batchDesign object.
   # 1. Does the mseR input parameter file exist? If YES then read the file.
@@ -653,10 +653,11 @@ doBatchRun <- function( arg )
     batchFolderNames <- paste("parBat",prefix,1:nBatchFiles,sep="")
     
     # combine folder and control file names
-    parBatchArgList <- vector(mode = "list", length = length(batchParFile))
-    for(i in 1:length(batchParFile))
+    parBatchArgList <- vector(mode = "list", length = length(batchParFile) - initPar + 1 )
+    for(i in initPar:nBatchFiles)
     {
-      parBatchArgList[[i]] <- c( batchParFile[i],batchFolderNames[i])
+      listIdx <- i - initPar + 1
+      parBatchArgList[[listIdx]] <- c( batchParFile[i],batchFolderNames[i])
     }
 
     # Now set # of cores and make a cluster
@@ -676,7 +677,7 @@ doBatchRun <- function( arg )
     cat( "\nMSG (.runBatchJob): Elapsed time for parallel batch = ",
       round(elapsed/60.0,digits=2)," minutes.\n" )
 
-  } else for ( i in 1:nSims ) {
+  } else for ( i in initPar:nSims ) {
     
     if ( file.exists( batchParFile[i] ) )
     {

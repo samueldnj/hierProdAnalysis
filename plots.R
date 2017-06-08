@@ -39,22 +39,19 @@ makeObsErrCVCols <- function( tableRoot = "nonEqExplore_qPriorOnly" )
 
   MAREtab <-  MAREtab %>%
               group_by( scenario, mp, species ) %>%
-              mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
-                      CVlo = splitScenLabel(scenario,match = "CVlo"),
-                      nHi  = splitScenLabel(scenario,match = "nHi") )
+              mutate( nDiff = splitScenLabel(scenario,match = "nDiff"),
+                      sYear = splitScenLabel(scenario,match = "sYear") )
 
   REtab <-  REtab %>%
             group_by( scenario, mp, species, rep ) %>%
-            mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
-                    CVlo = splitScenLabel(scenario,match = "CVlo"),
-                    nHi  = splitScenLabel(scenario,match = "nHi") )
+            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff"),
+                      sYear = splitScenLabel(scenario,match = "sYear") )
 
 
   MREtab <- MREtab %>%
             group_by( scenario, mp, species ) %>%
-            mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
-                    CVlo = splitScenLabel(scenario,match = "CVlo"),
-                    nHi  = splitScenLabel(scenario,match = "nHi") )
+            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff"),
+                      sYear = splitScenLabel(scenario,match = "sYear") )
 
 
   write.csv( REtab, REtabPath )
@@ -62,9 +59,9 @@ makeObsErrCVCols <- function( tableRoot = "nonEqExplore_qPriorOnly" )
   write.csv( MAREtab, MAREtabPath )
 }
 
-plotStatTableGraphs <- function(  tableRoot = "allSame_obsErr_msIncr",
+plotStatTableGraphs <- function(  tableRoot = "nonEqExplore_qPriorOnly",
                                   resp = c("BnT","q","Umsy","Bmsy","Dep","HessPD"),
-                                  axes = c("CVhi","nHi"),
+                                  axes = c("sYear","nDiff"),
                                   MARE = TRUE,
                                   RE = TRUE,
                                   groupPars = TRUE )
@@ -255,8 +252,8 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
       xVal <- x[ xIdx ]
       yVal <- y[ yIdx ]
       # Get rows
-      xRows <- which ( table[,axesCols[1]] == xVal)
-      yRows <- which ( table[,axesCols[2]] == yVal)
+      xRows <- which ( table[,axesCols[1] ] == xVal)
+      yRows <- which ( table[,axesCols[2] ] == yVal)
       rows <- intersect(xRows,yRows)
       # browser()
       if( length(rows) == 0 ) next
@@ -403,12 +400,12 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
         xVal <- x[ xIdx ]
         yVal <- y[ yIdx ]
         # Get rows
-        wRows <- which ( tab[,axesCols[1]] == wVal)
-        xRows <- which ( tab[,axesCols[2]] == xVal)
-        yRows <- which ( tab[,axesCols[3]] == yVal)
-        wRowsPred <- which ( predTab[,predAxesCols[1]] == wVal)
-        xRowsPred <- which ( predTab[,predAxesCols[2]] == xVal)
-        yRowsPred <- which ( predTab[,predAxesCols[3]] == yVal)
+        wRows <- which ( tab[,axesCols[1] ] == wVal)
+        xRows <- which ( tab[,axesCols[2] ] == xVal)
+        yRows <- which ( tab[,axesCols[3] ] == yVal)
+        wRowsPred <- which ( predTab[,predAxesCols[1] ] == wVal)
+        xRowsPred <- which ( predTab[,predAxesCols[2] ] == xVal)
+        yRowsPred <- which ( predTab[,predAxesCols[3] ] == yVal)
         rows      <- intersect(intersect(wRows,xRows),yRows)
         predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
         if( length(rows) == 0 ) next
@@ -479,6 +476,7 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
       if( yIdx == 1 ) mtext( side = 3, text = "Delta Values", cex = 0.8)
       for( wIdx in 1:length(w) )
       {
+        browser()
         xShift <- 1/(length(w) + 2)
         rect( xleft = 1:length(x) + xShift*(wIdx-1) - leftShift, ybottom = 0, 
               xright = 1:length(x) + xShift*(wIdx) - leftShift , ytop = zDelta[ wIdx, , yIdx ],
