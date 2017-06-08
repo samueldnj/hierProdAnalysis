@@ -648,12 +648,13 @@ doBatchRun <- function( arg )
     options(warn=-1)
     # Get number of batch runs
     nBatchFiles   <- length(batchParFile)
+    nSims         <- nBatchFiles - initPar + 1
 
     # Create folder names for batch running
     batchFolderNames <- paste("parBat",prefix,1:nBatchFiles,sep="")
     
     # combine folder and control file names
-    parBatchArgList <- vector(mode = "list", length = length(batchParFile) - initPar + 1 )
+    parBatchArgList <- vector(mode = "list", length = length(batchParFile) - initPar + 1)
     for(i in initPar:nBatchFiles)
     {
       listIdx <- i - initPar + 1
@@ -664,7 +665,7 @@ doBatchRun <- function( arg )
     nCores  <- min(nBatchFiles,detectCores()-1)
     cl      <- makePSOCKcluster(nCores)
     # Run parallel batch
-    cat ("Running ", nBatchFiles, " simulations in parallel on ",
+    cat ("Running ", nSims, " simulations in parallel on ",
           nCores, " cores.\n", sep = "" )
     tBegin    <- proc.time()
     startDate <- date()
