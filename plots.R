@@ -10,7 +10,7 @@
 # --------------------------------------------------------------------------
 
 
-makeObsErrCVCols <- function( tableRoot = "nonEqExplore_qPriorOnly" )
+makeObsErrCVCols <- function( tableRoot = "obsErrNew" )
 {
   MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
   MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
@@ -39,19 +39,22 @@ makeObsErrCVCols <- function( tableRoot = "nonEqExplore_qPriorOnly" )
 
   MAREtab <-  MAREtab %>%
               group_by( scenario, mp, species ) %>%
-              mutate( nDiff = splitScenLabel(scenario,match = "nDiff"),
-                      sYear = splitScenLabel(scenario,match = "sYear") )
+              mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
+                      CVlo = splitScenLabel(scenario,match = "CVlo"),
+                      nHi = splitScenLabel(scenario,match = "nHi"))
 
   REtab <-  REtab %>%
             group_by( scenario, mp, species, rep ) %>%
-            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff"),
-                      sYear = splitScenLabel(scenario,match = "sYear") )
+            mutate( CVhi  = splitScenLabel(scenario,match = "CVhi"),
+                    CVlo = splitScenLabel(scenario,match = "CVlo"),
+                      nHi = splitScenLabel(scenario,match = "nHi") )
 
 
   MREtab <- MREtab %>%
             group_by( scenario, mp, species ) %>%
-            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff"),
-                      sYear = splitScenLabel(scenario,match = "sYear") )
+            mutate( CVhi  = splitScenLabel(scenario,match = "CVhi"),
+                    CVlo = splitScenLabel(scenario,match = "CVlo"),
+                      nHi = splitScenLabel(scenario,match = "nHi") )
 
 
   write.csv( REtab, REtabPath )
@@ -59,9 +62,9 @@ makeObsErrCVCols <- function( tableRoot = "nonEqExplore_qPriorOnly" )
   write.csv( MAREtab, MAREtabPath )
 }
 
-plotStatTableGraphs <- function(  tableRoot = "nonEqExplore_qPriorOnly",
+plotStatTableGraphs <- function(  tableRoot = "obsErrNew",
                                   resp = c("BnT","q","Umsy","Bmsy","Dep","HessPD"),
-                                  axes = c("sYear","nDiff"),
+                                  axes = c("CVhi","nHi"),
                                   MARE = TRUE,
                                   RE = TRUE,
                                   groupPars = TRUE )
@@ -476,7 +479,6 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
       if( yIdx == 1 ) mtext( side = 3, text = "Delta Values", cex = 0.8)
       for( wIdx in 1:length(w) )
       {
-        browser()
         xShift <- 1/(length(w) + 2)
         rect( xleft = 1:length(x) + xShift*(wIdx-1) - leftShift, ybottom = 0, 
               xright = 1:length(x) + xShift*(wIdx) - leftShift , ytop = zDelta[ wIdx, , yIdx ],
@@ -594,12 +596,12 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
         xVal <- x[ xIdx ]
         yVal <- y[ yIdx ]
         # Get rows
-        wRows <- which ( tab[,axesCols[1]] == wVal)
-        xRows <- which ( tab[,axesCols[2]] == xVal)
-        yRows <- which ( tab[,axesCols[3]] == yVal)
-        wRowsPred <- which ( predTab[,predAxesCols[1]] == wVal)
-        xRowsPred <- which ( predTab[,predAxesCols[2]] == xVal)
-        yRowsPred <- which ( predTab[,predAxesCols[3]] == yVal)
+        wRows <- which ( tab[,axesCols[1] ] == wVal)
+        xRows <- which ( tab[,axesCols[2] ] == xVal)
+        yRows <- which ( tab[,axesCols[3] ] == yVal)
+        wRowsPred <- which ( predTab[,predAxesCols[1] ] == wVal)
+        xRowsPred <- which ( predTab[,predAxesCols[2] ] == xVal)
+        yRowsPred <- which ( predTab[,predAxesCols[3] ] == yVal)
         rows      <- intersect(intersect(wRows,xRows),yRows)
         predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
         if( length(rows) == 0 ) next
@@ -751,8 +753,8 @@ plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
         xVal <- x[ xIdx ]
         yVal <- y[ yIdx ]
         # Get rows
-        xRows <- which ( specTab[,axesCols[1]] == xVal)
-        yRows <- which ( specTab[,axesCols[2]] == yVal)
+        xRows <- which ( specTab[ ,axesCols[1] ] == xVal)
+        yRows <- which ( specTab[ ,axesCols[2] ] == yVal)
         rows <- intersect(xRows,yRows)
         if( length(rows) == 0 ) next
         # Fill array
