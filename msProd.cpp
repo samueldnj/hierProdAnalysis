@@ -246,6 +246,7 @@ Type objective_function<Type>::operator() ()
       // In here, loop over surveys
       for( int o = 0; o < nO; o++ )
       {
+<<<<<<< HEAD
         // catchability
         // Shared Prior
         if( lnqPriorCode == 1 )
@@ -258,10 +259,16 @@ Type objective_function<Type>::operator() ()
           nllqPrior += Type(0.5) * pow( q_os(o,s) - mq, 2 ) / sq / sq;  
         }
       }
+=======
+        nllqPrior += Type(0.5) * ( lntauq2 + pow( q(s) - qbar, 2 ) / tauq2 );  
+      } else
+        nllqPrior += Type(0.5) * pow( q(s) - exp(mlnq), 2 ) / s2lnq;  
+>>>>>>> master
       // productivity
       // Shared Prior
       if( lnUPriorCode == 1 )
       {
+<<<<<<< HEAD
         nllUprior += lnsigUmsy + Type(0.5) * pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 ;
       }
       // No shared prior (uses SS model prior)
@@ -269,6 +276,11 @@ Type objective_function<Type>::operator() ()
       {
         nllUprior += Type(0.5) * pow( Umsy(s) - mUmsy, 2 ) / sUmsy / sUmsy;
       }
+=======
+        nllUprior += Type(0.5) * ( lnsigUmsy2 + pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 );
+      } else
+        nllUprior += Type(0.5) * pow( Umsy(s) - exp(mlnUmsy), 2 ) / s2lnUmsy;
+>>>>>>> master
     }  
     // Hyperpriors
     // catchability
@@ -282,6 +294,9 @@ Type objective_function<Type>::operator() ()
       nllUprior += Type(0.5) * pow( Umsybar - mUmsy, 2 ) / sUmsy / sUmsy;
     }
     // End multispecies shared priors
+
+    // If not using shared priors, use the hyperpriors for all
+    // species specific
   } 
   if( nS == 1 ) 
   {
@@ -289,10 +304,18 @@ Type objective_function<Type>::operator() ()
     for (int o=0; o<nO; o++)
     {
       // catchability
+<<<<<<< HEAD
       nllqPrior += Type(0.5) * pow( exp(lnq_os(o,0)) - mq, 2 ) / sq / sq;
     }
     // productivity
     nllUprior += Type(0.5) * pow( Umsy(0) - exp(mUmsy), 2 ) / sUmsy / sUmsy;
+=======
+      nllqPrior += Type(0.5) * pow( q(s) - exp(mlnq), 2 ) / s2lnq;  
+      
+      // productivity
+      nllUprior += Type(0.5) * pow( Umsy(s) - exp(mlnUmsy), 2 ) / s2lnUmsy;
+    }   
+>>>>>>> master
   }
   nll += nllBprior +  nllqPrior + nllUprior;
   

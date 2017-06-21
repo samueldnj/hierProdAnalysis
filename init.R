@@ -20,7 +20,6 @@ library( "HapEstXXR" )
 library( "parallel" )
 library( "stringr" )
 
-
 # compile and load msProd objective function.
 compile ("msProd.cpp")
 dyn.load(dynlib("msProd"))

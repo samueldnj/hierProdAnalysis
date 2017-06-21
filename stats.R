@@ -28,15 +28,15 @@ checkCorr <- function(  tabName = "rKqExp.csv",
 }
 
 
-groupPars <- c("qbar","tauq2","Umsybar","sigU2")
+# groupPars <- c("qbar","tauq2","Umsybar","sigU2")
 
-metaModels <- function( tabName = "allSame_RE_msIncr__MRE",
+metaModels <- function( tabName = "obsErrNew_MARE",
                         multiResp = c("BnT","Umsy","q","Dep","Bmsy"),
-                        singleResp = groupPars,
+                        singleResp = NULL,
                         spec = c("Stock1"),
-                        expVars = c("kappaMult","corr","mp","nS"),
+                        expVars = c("nHi","CVlo","CVhi","nS","mp"),
                         sig = .05, intercept = FALSE,
-                        scaled = TRUE, saveOut = TRUE, interactions = TRUE )
+                        scaled = TRUE, saveOut = TRUE, interactions = FALSE )
 {
   # Create an rDataFile output name
   rDataName <- tabName
@@ -139,10 +139,10 @@ metaModels <- function( tabName = "allSame_RE_msIncr__MRE",
 #       fo+so+interactions models using AICc
 # Models from out$ms$sel and out$ss$sel can be used in plotOMSpecResponse 
 # to plot the glm fits next to the observed values.
-.DASEmodelSelection <- function(  tabName = "rKq_msInc__MRE",
+.DASEmodelSelection <- function(  tabName = "obsErrNew_MRE",
                                   resp = "ssq",
                                   spec = "Stock1",
-                                  expVars = c("qOM","UmsyOM","BmsyOM","mp"),
+                                  expVars = c("nHi","CVlo","CVhi","nS","mp"),
                                   sig = 0.1,
                                   intercept = FALSE,
                                   abs = FALSE,
@@ -609,7 +609,6 @@ AICrank <- function ( modelList, sig )
   statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
   statTable$nReps           <- apply(X = success, FUN = sum, MARGIN = 2)
   statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
-  # statTable$tUtrough        <- opMod$tUtrough
   statTable$tUpeak          <- opMod$tUpeak
   statTable$nS              <- opMod$nS
   statTable$UmsyOM          <- opMod$Umsy[1:nS]
@@ -620,8 +619,6 @@ AICrank <- function ( modelList, sig )
   statTable$fixProc         <- blob$ctrl$fixProc
   statTable$corrTargVar     <- blob$opMod$corrTargVar
   statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
-  # statTable$sigUPriorCode   <- blob$assess$sigUPriorCode
-  # statTable$tauqPriorCode   <- blob$assess$tauqPriorCode
   statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
 
   # Now values that change with the replicate

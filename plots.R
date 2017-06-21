@@ -9,6 +9,58 @@
 #
 # --------------------------------------------------------------------------
 
+makeObsErrCVCols <- function( tableRoot = "obsErrNew" )
+{
+  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
+  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
+  MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
+  MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  MREtabRoot  <- paste(tableRoot,"_MRE", sep = "")
+  MREtabFile  <- paste(tableRoot,"_MRE.csv", sep = "")
+  MREtabPath <- file.path(getwd(),"project","Statistics",MREtabFile)
+  MREtab     <- read.csv( MREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  REtabRoot  <- paste(tableRoot,"_RE", sep = "")
+  REtabFile  <- paste(tableRoot,"_RE.csv", sep = "")
+  REtabPath <- file.path(getwd(),"project","Statistics",REtabFile)
+  REtab     <- read.csv( REtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+
+  splitScenLabel <- function ( scenLabel, match = "CVhi" )
+  {
+    splitLabel <- unlist(str_split(scenLabel,"_"))
+    element <- splitLabel[grep( match, splitLabel, value = F)]
+    splitElement <- unlist(str_split(element,match))
+    num <- as.numeric(splitElement[2])
+    num
+  }
+
+  MAREtab <-  MAREtab %>%
+              group_by( scenario, mp, species ) %>%
+              mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
+                      CVlo = splitScenLabel(scenario,match = "CVlo"),
+                      nHi = splitScenLabel(scenario,match = "nHi"))
+
+  REtab <-  REtab %>%
+            group_by( scenario, mp, species, rep ) %>%
+            mutate( CVhi  = splitScenLabel(scenario,match = "CVhi"),
+                    CVlo = splitScenLabel(scenario,match = "CVlo"),
+                      nHi = splitScenLabel(scenario,match = "nHi") )
+
+
+  MREtab <- MREtab %>%
+            group_by( scenario, mp, species ) %>%
+            mutate( CVhi  = splitScenLabel(scenario,match = "CVhi"),
+                    CVlo = splitScenLabel(scenario,match = "CVlo"),
+                      nHi = splitScenLabel(scenario,match = "nHi") )
+
+
+  write.csv( REtab, REtabPath )
+  write.csv( MREtab, MREtabPath )
+  write.csv( MAREtab, MAREtabPath )
+}
+
 plotStatTableGraphs <- function(  tableRoot = "fixedProcRE_allJoint",
                                   resp = c("BnT","Umsy","Bmsy","Dep","HessPD","q_1","tau2_1"),
                                   axes = c("Umax","corrTargVar"),
@@ -41,6 +93,8 @@ plotStatTableGraphs <- function(  tableRoot = "fixedProcRE_allJoint",
   nSpp        <- unique(MAREtab$nS)
   MPs         <- unique(MAREtab$mp)
 
+
+
   # Loop over complex sizes
   if( MARE )
   {
@@ -66,6 +120,8 @@ plotStatTableGraphs <- function(  tableRoot = "fixedProcRE_allJoint",
       }
     }
   }
+
+
   
 
   # Now plot relative error distributions
@@ -111,7 +167,7 @@ plotStatTableGraphs <- function(  tableRoot = "fixedProcRE_allJoint",
   if( groupPars )
   {
     # Now plot group parameters
-    MREtabRoot <- paste(tableRoot,"MRE", sep = "" )
+    MREtabRoot <- paste(tableRoot,"_MRE", sep = "" )
     for( nSp in nSpp )
     {
       for( mIdx in 1:length(MPs))
