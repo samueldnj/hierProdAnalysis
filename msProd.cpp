@@ -373,7 +373,7 @@ Type objective_function<Type>::operator() ()
     ADREPORT(qbar_o);
     ADREPORT(tauq2_o)
   }
-  ADREPORT(gammaYr);
+  // ADREPORT(gammaYr);
   
   // Everything else //
   REPORT(Bt);

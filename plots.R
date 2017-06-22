@@ -9,7 +9,7 @@
 #
 # --------------------------------------------------------------------------
 
-makeObsErrCVCols <- function( tableRoot = "obsErrNew" )
+makeNewTabCols <- function( tableRoot = "obsErrNew" )
 {
   MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
   MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")

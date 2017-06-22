@@ -582,6 +582,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
 
+  # if(length(RE) > 1) browser()
+
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
                         objective = obj$fn,
@@ -601,7 +603,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   } 
   if( class( sdrep ) == "try-error" )
   {
-    browser()
     sdrep <- NA
     CIs <- NA
   }
@@ -621,14 +622,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       if( dat$nS == 1 )
       {
         # Calculate SS profiles
-        lnqProfile      <- tmbprofile( obj, "lnq_os", trace = FALSE,
-                                        parm.range = c(-10,5) )
-        lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE,
-                                        parm.range = c(-10,5) )
-        lntau2Profile   <- tmbprofile( obj, "lntau2", trace = FALSE,
-                                        parm.range = c(-10,5) )
-        lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE,
-                                        parm.range = c(-10,5) )
+        lnqProfile      <- tmbprofile( obj, "lnq_os", trace = FALSE )
+        lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE )
+        lntau2Profile   <- tmbprofile( obj, "lntau2", trace = FALSE )
+        lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE )
         # Save to an output list
         profileList <- list ( lnq       = lnqProfile,
                               lnUmsy    = lnUmsyProfile,
@@ -638,16 +635,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       if( dat$nS > 1  )
       {
         # Calculate profiles for shared prior hyperpars
-        lnqbarProfile       <- tmbprofile( obj, "lnqbar_o", trace = FALSE,
-                                            parm.range = c(-15,5) )
-        lntauq2Profile      <- tmbprofile( obj, "lntauq_o", trace = FALSE,
-                                            parm.range = c(-15,5) )
-        lnUmsybarProfile    <- tmbprofile( obj, "lnUmsybar", trace = FALSE,
-                                            parm.range = c(-15,5) )
-        lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy2", trace = FALSE,
-                                            parm.range = c(-15,5) ) 
-        lnkappa2Profile     <- tmbprofile( obj, "lnkappa2", trace = FALSE,
-                                            parm.range = c(-10,5) )
+        lnqbarProfile       <- tmbprofile( obj, "lnqbar_o", trace = FALSE )
+        lntauq2Profile      <- tmbprofile( obj, "lntauq_o", trace = FALSE )
+        lnUmsybarProfile    <- tmbprofile( obj, "lnUmsybar", trace = FALSE )
+        lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy", trace = FALSE ) 
+        lnkappa2Profile     <- tmbprofile( obj, "lnkappa2", trace = FALSE )
         # Save to output list
         profileList <- list ( lnqbar      = lnqbarProfile,
                               lntauq2     = lntauq2Profile,
