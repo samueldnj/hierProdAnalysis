@@ -350,8 +350,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
     obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*kappa2
     obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*Sigma2
-
-    browser()
   }
 
   if( !is.null(obj$assess$tauq2P1) ) obj$assess$tauq2Prior[1] <- obj$assess$tauq2P1
@@ -583,8 +581,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                       random = RE, silent = quiet )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
-
-  browser()
 
   # optimise the model
   fit <- try( nlminb (  start = obj$par,

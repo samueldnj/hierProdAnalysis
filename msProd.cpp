@@ -44,16 +44,16 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(It);               // CPUE data
   DATA_ARRAY(Ct);               // Catch data
   // Model dimensions
-  int nO = It.dim(0);           // Check dimensions of object
+  int nO = It.dim(0);           // No. of surveys
   int nS = It.dim(1);           // No. of species
   int nT = It.dim(2);           // No of time steps
 
   // Model switches
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
   DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
-  DATA_INTEGER(sigUPriorCode);  // 0 => IG on tauq2, 1 => normal
-  DATA_INTEGER(lnqPriorCode);   // 0 => OFF, 1 => ON (turns on/off all q priors)
-  DATA_INTEGER(lnUPriorCode);   // 0 => OFF, 1 => ON (turns on/off all U priors)
+  DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
+  DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
+  DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
   DATA_IVECTOR(initT);          // first year of reconstructed catch hist
   DATA_IVECTOR(initBioCode);    // initial biomass at 0 => unfished, 1=> fished
 
@@ -233,8 +233,8 @@ Type objective_function<Type>::operator() ()
   // eqbm biomass
   for (int s=0; s<nS; s++ )
   {
-    nllBprior += pow( Bmsy(s) - mBmsy(s), 2 ) / sBmsy(s) / sBmsy(s); 
-    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / sBmsy(s) / sBmsy(s); 
+    nllBprior += Type(0.5) * pow( Bmsy(s) - mBmsy(s), Type(2) ) / sBmsy(s) / sBmsy(s); 
+    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ; 
   }
 
   // multispecies shared priors
@@ -295,7 +295,7 @@ Type objective_function<Type>::operator() ()
       nllqPrior += Type(0.5) * pow( exp(lnq_os(o,0)) - mq, 2 ) / sq / sq;
     }
     // productivity
-    nllUprior += Type(0.5) * pow( Umsy(0) - exp(mUmsy), 2 ) / sUmsy / sUmsy;
+    nllUprior += Type(0.5) * pow( Umsy(0) - mUmsy, 2 ) / sUmsy / sUmsy;
   }
   nll += nllBprior +  nllqPrior + nllUprior;
   
