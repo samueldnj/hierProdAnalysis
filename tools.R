@@ -115,6 +115,8 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     }
     nDiff <- levels$nDiff[ treatments[rIdx,"nDiff" ] ]
     nSame <- base$nS - nDiff
+    initDep <- levels$initDep[ treatments[ ridx, "initDep" ] ]
+    if( initDep != 1 ) initBioCode <- 1
     cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
     cat( "#\n", file = outFile, append = T )
     cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
@@ -129,6 +131,76 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     cat(  "scenario$scenario", rIdx, "$opMod$initDep c(rep(", levels$initDep[treatments[rIdx,"initDep"] ],
           ",", nDiff, "),rep(", base$initDep, ",", nSame, "))\n",
           sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$initBioCode c(rep(", initBioCode,
+          ",", nDiff, "),rep(0,", nSame, "))\n",
+          sep = "", append = T, file = outFile  )
+
+    cat( "#\n", file = outFile, append = T )
+    
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  treatments
+}
+
+# makeInfoScenarioDesign()
+# Creates the .bch file for a historical fishing intensity experiment,
+# without the MP section underneath.
+makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
+                                                    c = c(0.1,.3,0.5,.7,0.9),
+                                                    Uhist = c("c(0.2,2,1)","c(1,1,1)"),
+                                                    targVar = c("Ct","Bt")
+                                                  ),
+                                    base = list( nS = 5 ),
+                                    bchName = "FixedProcRE" ,
+                                    nPoints = 1 )
+{
+  # First, make the LHR design
+  lhrDesign <- makeLHRfromList( levels = levels, nPoints = nPoints )
+
+  treatments <- lhrDesign$treatments
+
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeFixedprocREDesign() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(treatments) )
+  {
+    scenLabel <- ""
+    for( cIdx in 1:ncol(treatments) )
+    {
+      scenLabel <- paste( scenLabel, colnames(treatments)[cIdx], 
+                          levels[[ cIdx ]][ treatments[ rIdx, cIdx ] ], sep = "" )
+      if( cIdx < ncol(treatments) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    nDiff <- levels$nDiff[ treatments[rIdx,"nDiff" ] ]
+    nSame <- base$nS - nDiff
+    initDep <- levels$initDep[ treatments[ ridx, "initDep" ] ]
+    if( initDep != 1 ) initBioCode <- 1
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Umult ", levels$Uhist[treatments[rIdx, "Uhist"] ], "\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$initYear c(rep(", levels$initYear[treatments[rIdx,"initYear"] ],
+          ",", nDiff, "),rep(", base$initYear, ",", nSame, "))\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$nS ", levels$nS[treatments[rIdx,"nS"] ] ,"\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$initDep c(rep(", levels$initDep[treatments[rIdx,"initDep"] ],
+          ",", nDiff, "),rep(", base$initDep, ",", nSame, "))\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$initBioCode c(rep(", initBioCode,
+          ",", nDiff, "),rep(0,", nSame, "))\n",
+          sep = "", append = T, file = outFile  )
+
     cat( "#\n", file = outFile, append = T )
     
     cat( "#\n", file = outFile, append = T )

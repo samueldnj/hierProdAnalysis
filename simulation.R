@@ -578,12 +578,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             RE = c("eps_t"),
                             profiles = FALSE )
 { 
-  # if(length(RE)>1) browser()
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
+
+  browser()
 
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
@@ -938,11 +939,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     for( s in 1:ncol(hessPD) )
       hessPD[,s] <- as.logical(ssHess[,s] * msHess)
 
-    browser()
     completed <- apply(X = hessPD, FUN = sum, MARGIN = 2, na.rm = T )
     if( all( completed > obj$ctrl$signifReps ) )
     {
       cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )
+      break
     } 
   }
   if(any( completed < obj$ctrl$signifReps ) )

@@ -1,8 +1,8 @@
 # Base sim control file
 parameter value
-ctrl$scenarioName "DERPA-1rebuild-contrast"
+ctrl$scenarioName "DERPA"
 ctrl$mpLabel "baseAM"
-ctrl$nReps 10
+ctrl$nReps 2
 ctrl$signifReps 1
 ctrl$rSeed 1
 ctrl$fixProc FALSE
@@ -25,13 +25,13 @@ opMod$targDep rep(0.5,5)
 opMod$targYr rep(2017,5)
 opMod$tUpeak 10
 opMod$tUtrough 25
-opMod$nSurv 3
+opMod$nSurv 2
 opMod$surveyFreq c(1,1,1)
 opMod$fYearSurv c(1976,1984,2003)
 opMod$lYearSurv c(2017,2003,2017)
-opMod$qSurvM c(0.5,0.628,0.52)
-opMod$qSurvSD c(0.01,0.01,0.01)
-opMod$tauSurv c(0.1,0.1,0.1)
+opMod$qSurvM c(.5,0.628,0.52)
+opMod$qSurvSD c(0.05,0.01,0.01)
+opMod$tauSurv c(0.1,0.2,0.3)
 opMod$gammaYr 0.0
 opMod$kappaMult 1
 assess$profiles FALSE
@@ -78,11 +78,11 @@ assess$tauqPriorCode 0
 assess$tauq2Prior c(0.1,.5)
 assess$tauq2P1 NULL
 assess$tauq2P2 NULL
-assess$kappa2IG c(0.1,0.5)
-assess$Sigma2IG c(0.1,0.5)
-assess$tau2IGa c(0.1,0.1,0.1,0.1)
+assess$kappa2IG c(1,0.5)
+assess$Sigma2IG c(1,0.5)
+assess$tau2IGa c(1,1,1,1)
 assess$tau2IGb c(0.5,0.5,0.5,0.5)
-assess$msRE c("lnq_os","lnUmsy","zeta_st","eps_t")
+assess$msRE c("zeta_st","eps_t","lnq_os","lnUmsy")
 assess$ssRE c("eps_t")
 assess$TMBlib "msProd"
 assess$wishType "diag"
