@@ -115,8 +115,9 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     }
     nDiff <- levels$nDiff[ treatments[rIdx,"nDiff" ] ]
     nSame <- base$nS - nDiff
-    initDep <- levels$initDep[ treatments[ ridx, "initDep" ] ]
-    if( initDep != 1 ) initBioCode <- 1
+    initDep <- levels$initDep[ treatments[ rIdx, "initDep" ] ]
+    initYear <- levels$initYear[ treatments[ rIdx, "initYear" ] ]
+    if( initDep != 1 | initYear != base$initYear  ) initBioCode <- 1
     cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
     cat( "#\n", file = outFile, append = T )
     cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 

@@ -1,4 +1,4 @@
-# Batch Control File, created Thu Jun 22 10:37:08 2017 by makeFixedprocREDesign() 
+# Batch Control File, created Thu Jun 22 16:19:39 2017 by makeFixedprocREDesign() 
 parameter value
 #
 # Scenarios 
@@ -10,6 +10,7 @@ scenario$scenario1$opMod$Umult c(1,1,1)
 scenario$scenario1$opMod$initYear c(rep(1984,0),rep(1954,10))
 scenario$scenario1$opMod$nS 4
 scenario$scenario1$opMod$initDep c(rep(0.4,0),rep(1,10))
+scenario$scenario1$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 2 : Uhistc(0.2,2,1)_initYear2003_nS4_initDep0.4_nDiff0
@@ -19,6 +20,7 @@ scenario$scenario2$opMod$Umult c(0.2,2,1)
 scenario$scenario2$opMod$initYear c(rep(2003,0),rep(1954,10))
 scenario$scenario2$opMod$nS 4
 scenario$scenario2$opMod$initDep c(rep(0.4,0),rep(1,10))
+scenario$scenario2$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 3 : Uhistc(1,1,1)_initYear1976_nS7_initDep0.4_nDiff0
@@ -28,6 +30,7 @@ scenario$scenario3$opMod$Umult c(1,1,1)
 scenario$scenario3$opMod$initYear c(rep(1976,0),rep(1954,10))
 scenario$scenario3$opMod$nS 7
 scenario$scenario3$opMod$initDep c(rep(0.4,0),rep(1,10))
+scenario$scenario3$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 4 : Uhistc(0.2,2,1)_initYear1984_nS7_initDep0.4_nDiff0
@@ -37,6 +40,7 @@ scenario$scenario4$opMod$Umult c(0.2,2,1)
 scenario$scenario4$opMod$initYear c(rep(1984,0),rep(1954,10))
 scenario$scenario4$opMod$nS 7
 scenario$scenario4$opMod$initDep c(rep(0.4,0),rep(1,10))
+scenario$scenario4$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 5 : Uhistc(0.2,2,1)_initYear1976_nS10_initDep0.4_nDiff0
@@ -46,6 +50,7 @@ scenario$scenario5$opMod$Umult c(0.2,2,1)
 scenario$scenario5$opMod$initYear c(rep(1976,0),rep(1954,10))
 scenario$scenario5$opMod$nS 10
 scenario$scenario5$opMod$initDep c(rep(0.4,0),rep(1,10))
+scenario$scenario5$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 6 : Uhistc(1,1,1)_initYear2003_nS10_initDep0.4_nDiff0
@@ -55,6 +60,7 @@ scenario$scenario6$opMod$Umult c(1,1,1)
 scenario$scenario6$opMod$initYear c(rep(2003,0),rep(1954,10))
 scenario$scenario6$opMod$nS 10
 scenario$scenario6$opMod$initDep c(rep(0.4,0),rep(1,10))
+scenario$scenario6$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 7 : Uhistc(1,1,1)_initYear1976_nS4_initDep0.7_nDiff0
@@ -64,6 +70,7 @@ scenario$scenario7$opMod$Umult c(1,1,1)
 scenario$scenario7$opMod$initYear c(rep(1976,0),rep(1954,10))
 scenario$scenario7$opMod$nS 4
 scenario$scenario7$opMod$initDep c(rep(0.7,0),rep(1,10))
+scenario$scenario7$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 8 : Uhistc(0.2,2,1)_initYear1984_nS4_initDep0.7_nDiff0
@@ -73,6 +80,7 @@ scenario$scenario8$opMod$Umult c(0.2,2,1)
 scenario$scenario8$opMod$initYear c(rep(1984,0),rep(1954,10))
 scenario$scenario8$opMod$nS 4
 scenario$scenario8$opMod$initDep c(rep(0.7,0),rep(1,10))
+scenario$scenario8$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 9 : Uhistc(0.2,2,1)_initYear1976_nS7_initDep0.7_nDiff0
@@ -82,6 +90,7 @@ scenario$scenario9$opMod$Umult c(0.2,2,1)
 scenario$scenario9$opMod$initYear c(rep(1976,0),rep(1954,10))
 scenario$scenario9$opMod$nS 7
 scenario$scenario9$opMod$initDep c(rep(0.7,0),rep(1,10))
+scenario$scenario9$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 10 : Uhistc(1,1,1)_initYear2003_nS7_initDep0.7_nDiff0
@@ -91,6 +100,7 @@ scenario$scenario10$opMod$Umult c(1,1,1)
 scenario$scenario10$opMod$initYear c(rep(2003,0),rep(1954,10))
 scenario$scenario10$opMod$nS 7
 scenario$scenario10$opMod$initDep c(rep(0.7,0),rep(1,10))
+scenario$scenario10$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 11 : Uhistc(1,1,1)_initYear1984_nS10_initDep0.7_nDiff0
@@ -100,6 +110,7 @@ scenario$scenario11$opMod$Umult c(1,1,1)
 scenario$scenario11$opMod$initYear c(rep(1984,0),rep(1954,10))
 scenario$scenario11$opMod$nS 10
 scenario$scenario11$opMod$initDep c(rep(0.7,0),rep(1,10))
+scenario$scenario11$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 12 : Uhistc(0.2,2,1)_initYear2003_nS10_initDep0.7_nDiff0
@@ -109,6 +120,7 @@ scenario$scenario12$opMod$Umult c(0.2,2,1)
 scenario$scenario12$opMod$initYear c(rep(2003,0),rep(1954,10))
 scenario$scenario12$opMod$nS 10
 scenario$scenario12$opMod$initDep c(rep(0.7,0),rep(1,10))
+scenario$scenario12$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 13 : Uhistc(0.2,2,1)_initYear1976_nS4_initDep1_nDiff0
@@ -118,6 +130,7 @@ scenario$scenario13$opMod$Umult c(0.2,2,1)
 scenario$scenario13$opMod$initYear c(rep(1976,0),rep(1954,10))
 scenario$scenario13$opMod$nS 4
 scenario$scenario13$opMod$initDep c(rep(1,0),rep(1,10))
+scenario$scenario13$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 14 : Uhistc(1,1,1)_initYear2003_nS4_initDep1_nDiff0
@@ -127,6 +140,7 @@ scenario$scenario14$opMod$Umult c(1,1,1)
 scenario$scenario14$opMod$initYear c(rep(2003,0),rep(1954,10))
 scenario$scenario14$opMod$nS 4
 scenario$scenario14$opMod$initDep c(rep(1,0),rep(1,10))
+scenario$scenario14$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 15 : Uhistc(1,1,1)_initYear1984_nS7_initDep1_nDiff0
@@ -136,6 +150,7 @@ scenario$scenario15$opMod$Umult c(1,1,1)
 scenario$scenario15$opMod$initYear c(rep(1984,0),rep(1954,10))
 scenario$scenario15$opMod$nS 7
 scenario$scenario15$opMod$initDep c(rep(1,0),rep(1,10))
+scenario$scenario15$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 16 : Uhistc(0.2,2,1)_initYear2003_nS7_initDep1_nDiff0
@@ -145,6 +160,7 @@ scenario$scenario16$opMod$Umult c(0.2,2,1)
 scenario$scenario16$opMod$initYear c(rep(2003,0),rep(1954,10))
 scenario$scenario16$opMod$nS 7
 scenario$scenario16$opMod$initDep c(rep(1,0),rep(1,10))
+scenario$scenario16$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 17 : Uhistc(1,1,1)_initYear1976_nS10_initDep1_nDiff0
@@ -154,6 +170,7 @@ scenario$scenario17$opMod$Umult c(1,1,1)
 scenario$scenario17$opMod$initYear c(rep(1976,0),rep(1954,10))
 scenario$scenario17$opMod$nS 10
 scenario$scenario17$opMod$initDep c(rep(1,0),rep(1,10))
+scenario$scenario17$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 18 : Uhistc(0.2,2,1)_initYear1984_nS10_initDep1_nDiff0
@@ -163,6 +180,7 @@ scenario$scenario18$opMod$Umult c(0.2,2,1)
 scenario$scenario18$opMod$initYear c(rep(1984,0),rep(1954,10))
 scenario$scenario18$opMod$nS 10
 scenario$scenario18$opMod$initDep c(rep(1,0),rep(1,10))
+scenario$scenario18$opMod$initBioCode c(rep(1,0),rep(0,10))
 #
 #
 # Scenario 19 : Uhistc(1,1,1)_initYear1976_nS4_initDep0.4_nDiff2
@@ -172,6 +190,7 @@ scenario$scenario19$opMod$Umult c(1,1,1)
 scenario$scenario19$opMod$initYear c(rep(1976,2),rep(1954,8))
 scenario$scenario19$opMod$nS 4
 scenario$scenario19$opMod$initDep c(rep(0.4,2),rep(1,8))
+scenario$scenario19$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 20 : Uhistc(0.2,2,1)_initYear1984_nS4_initDep0.4_nDiff2
@@ -181,6 +200,7 @@ scenario$scenario20$opMod$Umult c(0.2,2,1)
 scenario$scenario20$opMod$initYear c(rep(1984,2),rep(1954,8))
 scenario$scenario20$opMod$nS 4
 scenario$scenario20$opMod$initDep c(rep(0.4,2),rep(1,8))
+scenario$scenario20$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 21 : Uhistc(0.2,2,1)_initYear1976_nS7_initDep0.4_nDiff2
@@ -190,6 +210,7 @@ scenario$scenario21$opMod$Umult c(0.2,2,1)
 scenario$scenario21$opMod$initYear c(rep(1976,2),rep(1954,8))
 scenario$scenario21$opMod$nS 7
 scenario$scenario21$opMod$initDep c(rep(0.4,2),rep(1,8))
+scenario$scenario21$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 22 : Uhistc(1,1,1)_initYear2003_nS7_initDep0.4_nDiff2
@@ -199,6 +220,7 @@ scenario$scenario22$opMod$Umult c(1,1,1)
 scenario$scenario22$opMod$initYear c(rep(2003,2),rep(1954,8))
 scenario$scenario22$opMod$nS 7
 scenario$scenario22$opMod$initDep c(rep(0.4,2),rep(1,8))
+scenario$scenario22$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 23 : Uhistc(1,1,1)_initYear1984_nS10_initDep0.4_nDiff2
@@ -208,6 +230,7 @@ scenario$scenario23$opMod$Umult c(1,1,1)
 scenario$scenario23$opMod$initYear c(rep(1984,2),rep(1954,8))
 scenario$scenario23$opMod$nS 10
 scenario$scenario23$opMod$initDep c(rep(0.4,2),rep(1,8))
+scenario$scenario23$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 24 : Uhistc(0.2,2,1)_initYear2003_nS10_initDep0.4_nDiff2
@@ -217,6 +240,7 @@ scenario$scenario24$opMod$Umult c(0.2,2,1)
 scenario$scenario24$opMod$initYear c(rep(2003,2),rep(1954,8))
 scenario$scenario24$opMod$nS 10
 scenario$scenario24$opMod$initDep c(rep(0.4,2),rep(1,8))
+scenario$scenario24$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 25 : Uhistc(0.2,2,1)_initYear1976_nS4_initDep0.7_nDiff2
@@ -226,6 +250,7 @@ scenario$scenario25$opMod$Umult c(0.2,2,1)
 scenario$scenario25$opMod$initYear c(rep(1976,2),rep(1954,8))
 scenario$scenario25$opMod$nS 4
 scenario$scenario25$opMod$initDep c(rep(0.7,2),rep(1,8))
+scenario$scenario25$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 26 : Uhistc(1,1,1)_initYear2003_nS4_initDep0.7_nDiff2
@@ -235,6 +260,7 @@ scenario$scenario26$opMod$Umult c(1,1,1)
 scenario$scenario26$opMod$initYear c(rep(2003,2),rep(1954,8))
 scenario$scenario26$opMod$nS 4
 scenario$scenario26$opMod$initDep c(rep(0.7,2),rep(1,8))
+scenario$scenario26$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 27 : Uhistc(1,1,1)_initYear1984_nS7_initDep0.7_nDiff2
@@ -244,6 +270,7 @@ scenario$scenario27$opMod$Umult c(1,1,1)
 scenario$scenario27$opMod$initYear c(rep(1984,2),rep(1954,8))
 scenario$scenario27$opMod$nS 7
 scenario$scenario27$opMod$initDep c(rep(0.7,2),rep(1,8))
+scenario$scenario27$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 28 : Uhistc(0.2,2,1)_initYear2003_nS7_initDep0.7_nDiff2
@@ -253,6 +280,7 @@ scenario$scenario28$opMod$Umult c(0.2,2,1)
 scenario$scenario28$opMod$initYear c(rep(2003,2),rep(1954,8))
 scenario$scenario28$opMod$nS 7
 scenario$scenario28$opMod$initDep c(rep(0.7,2),rep(1,8))
+scenario$scenario28$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 29 : Uhistc(1,1,1)_initYear1976_nS10_initDep0.7_nDiff2
@@ -262,6 +290,7 @@ scenario$scenario29$opMod$Umult c(1,1,1)
 scenario$scenario29$opMod$initYear c(rep(1976,2),rep(1954,8))
 scenario$scenario29$opMod$nS 10
 scenario$scenario29$opMod$initDep c(rep(0.7,2),rep(1,8))
+scenario$scenario29$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 30 : Uhistc(0.2,2,1)_initYear1984_nS10_initDep0.7_nDiff2
@@ -271,6 +300,7 @@ scenario$scenario30$opMod$Umult c(0.2,2,1)
 scenario$scenario30$opMod$initYear c(rep(1984,2),rep(1954,8))
 scenario$scenario30$opMod$nS 10
 scenario$scenario30$opMod$initDep c(rep(0.7,2),rep(1,8))
+scenario$scenario30$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 31 : Uhistc(1,1,1)_initYear1984_nS4_initDep1_nDiff2
@@ -280,6 +310,7 @@ scenario$scenario31$opMod$Umult c(1,1,1)
 scenario$scenario31$opMod$initYear c(rep(1984,2),rep(1954,8))
 scenario$scenario31$opMod$nS 4
 scenario$scenario31$opMod$initDep c(rep(1,2),rep(1,8))
+scenario$scenario31$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 32 : Uhistc(0.2,2,1)_initYear2003_nS4_initDep1_nDiff2
@@ -289,6 +320,7 @@ scenario$scenario32$opMod$Umult c(0.2,2,1)
 scenario$scenario32$opMod$initYear c(rep(2003,2),rep(1954,8))
 scenario$scenario32$opMod$nS 4
 scenario$scenario32$opMod$initDep c(rep(1,2),rep(1,8))
+scenario$scenario32$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 33 : Uhistc(1,1,1)_initYear1976_nS7_initDep1_nDiff2
@@ -298,6 +330,7 @@ scenario$scenario33$opMod$Umult c(1,1,1)
 scenario$scenario33$opMod$initYear c(rep(1976,2),rep(1954,8))
 scenario$scenario33$opMod$nS 7
 scenario$scenario33$opMod$initDep c(rep(1,2),rep(1,8))
+scenario$scenario33$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 34 : Uhistc(0.2,2,1)_initYear1984_nS7_initDep1_nDiff2
@@ -307,6 +340,7 @@ scenario$scenario34$opMod$Umult c(0.2,2,1)
 scenario$scenario34$opMod$initYear c(rep(1984,2),rep(1954,8))
 scenario$scenario34$opMod$nS 7
 scenario$scenario34$opMod$initDep c(rep(1,2),rep(1,8))
+scenario$scenario34$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 35 : Uhistc(0.2,2,1)_initYear1976_nS10_initDep1_nDiff2
@@ -316,6 +350,7 @@ scenario$scenario35$opMod$Umult c(0.2,2,1)
 scenario$scenario35$opMod$initYear c(rep(1976,2),rep(1954,8))
 scenario$scenario35$opMod$nS 10
 scenario$scenario35$opMod$initDep c(rep(1,2),rep(1,8))
+scenario$scenario35$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 36 : Uhistc(1,1,1)_initYear2003_nS10_initDep1_nDiff2
@@ -325,6 +360,7 @@ scenario$scenario36$opMod$Umult c(1,1,1)
 scenario$scenario36$opMod$initYear c(rep(2003,2),rep(1954,8))
 scenario$scenario36$opMod$nS 10
 scenario$scenario36$opMod$initDep c(rep(1,2),rep(1,8))
+scenario$scenario36$opMod$initBioCode c(rep(1,2),rep(0,8))
 #
 #
 # Scenario 37 : Uhistc(0.2,2,1)_initYear1976_nS4_initDep0.4_nDiff4
@@ -334,6 +370,7 @@ scenario$scenario37$opMod$Umult c(0.2,2,1)
 scenario$scenario37$opMod$initYear c(rep(1976,4),rep(1954,6))
 scenario$scenario37$opMod$nS 4
 scenario$scenario37$opMod$initDep c(rep(0.4,4),rep(1,6))
+scenario$scenario37$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 38 : Uhistc(1,1,1)_initYear2003_nS4_initDep0.4_nDiff4
@@ -343,6 +380,7 @@ scenario$scenario38$opMod$Umult c(1,1,1)
 scenario$scenario38$opMod$initYear c(rep(2003,4),rep(1954,6))
 scenario$scenario38$opMod$nS 4
 scenario$scenario38$opMod$initDep c(rep(0.4,4),rep(1,6))
+scenario$scenario38$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 39 : Uhistc(1,1,1)_initYear1984_nS7_initDep0.4_nDiff4
@@ -352,6 +390,7 @@ scenario$scenario39$opMod$Umult c(1,1,1)
 scenario$scenario39$opMod$initYear c(rep(1984,4),rep(1954,6))
 scenario$scenario39$opMod$nS 7
 scenario$scenario39$opMod$initDep c(rep(0.4,4),rep(1,6))
+scenario$scenario39$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 40 : Uhistc(0.2,2,1)_initYear2003_nS7_initDep0.4_nDiff4
@@ -361,6 +400,7 @@ scenario$scenario40$opMod$Umult c(0.2,2,1)
 scenario$scenario40$opMod$initYear c(rep(2003,4),rep(1954,6))
 scenario$scenario40$opMod$nS 7
 scenario$scenario40$opMod$initDep c(rep(0.4,4),rep(1,6))
+scenario$scenario40$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 41 : Uhistc(1,1,1)_initYear1976_nS10_initDep0.4_nDiff4
@@ -370,6 +410,7 @@ scenario$scenario41$opMod$Umult c(1,1,1)
 scenario$scenario41$opMod$initYear c(rep(1976,4),rep(1954,6))
 scenario$scenario41$opMod$nS 10
 scenario$scenario41$opMod$initDep c(rep(0.4,4),rep(1,6))
+scenario$scenario41$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 42 : Uhistc(0.2,2,1)_initYear1984_nS10_initDep0.4_nDiff4
@@ -379,6 +420,7 @@ scenario$scenario42$opMod$Umult c(0.2,2,1)
 scenario$scenario42$opMod$initYear c(rep(1984,4),rep(1954,6))
 scenario$scenario42$opMod$nS 10
 scenario$scenario42$opMod$initDep c(rep(0.4,4),rep(1,6))
+scenario$scenario42$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 43 : Uhistc(1,1,1)_initYear1984_nS4_initDep0.7_nDiff4
@@ -388,6 +430,7 @@ scenario$scenario43$opMod$Umult c(1,1,1)
 scenario$scenario43$opMod$initYear c(rep(1984,4),rep(1954,6))
 scenario$scenario43$opMod$nS 4
 scenario$scenario43$opMod$initDep c(rep(0.7,4),rep(1,6))
+scenario$scenario43$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 44 : Uhistc(0.2,2,1)_initYear2003_nS4_initDep0.7_nDiff4
@@ -397,6 +440,7 @@ scenario$scenario44$opMod$Umult c(0.2,2,1)
 scenario$scenario44$opMod$initYear c(rep(2003,4),rep(1954,6))
 scenario$scenario44$opMod$nS 4
 scenario$scenario44$opMod$initDep c(rep(0.7,4),rep(1,6))
+scenario$scenario44$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 45 : Uhistc(1,1,1)_initYear1976_nS7_initDep0.7_nDiff4
@@ -406,6 +450,7 @@ scenario$scenario45$opMod$Umult c(1,1,1)
 scenario$scenario45$opMod$initYear c(rep(1976,4),rep(1954,6))
 scenario$scenario45$opMod$nS 7
 scenario$scenario45$opMod$initDep c(rep(0.7,4),rep(1,6))
+scenario$scenario45$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 46 : Uhistc(0.2,2,1)_initYear1984_nS7_initDep0.7_nDiff4
@@ -415,6 +460,7 @@ scenario$scenario46$opMod$Umult c(0.2,2,1)
 scenario$scenario46$opMod$initYear c(rep(1984,4),rep(1954,6))
 scenario$scenario46$opMod$nS 7
 scenario$scenario46$opMod$initDep c(rep(0.7,4),rep(1,6))
+scenario$scenario46$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 47 : Uhistc(0.2,2,1)_initYear1976_nS10_initDep0.7_nDiff4
@@ -424,6 +470,7 @@ scenario$scenario47$opMod$Umult c(0.2,2,1)
 scenario$scenario47$opMod$initYear c(rep(1976,4),rep(1954,6))
 scenario$scenario47$opMod$nS 10
 scenario$scenario47$opMod$initDep c(rep(0.7,4),rep(1,6))
+scenario$scenario47$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 48 : Uhistc(1,1,1)_initYear2003_nS10_initDep0.7_nDiff4
@@ -433,6 +480,7 @@ scenario$scenario48$opMod$Umult c(1,1,1)
 scenario$scenario48$opMod$initYear c(rep(2003,4),rep(1954,6))
 scenario$scenario48$opMod$nS 10
 scenario$scenario48$opMod$initDep c(rep(0.7,4),rep(1,6))
+scenario$scenario48$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 49 : Uhistc(1,1,1)_initYear1976_nS4_initDep1_nDiff4
@@ -442,6 +490,7 @@ scenario$scenario49$opMod$Umult c(1,1,1)
 scenario$scenario49$opMod$initYear c(rep(1976,4),rep(1954,6))
 scenario$scenario49$opMod$nS 4
 scenario$scenario49$opMod$initDep c(rep(1,4),rep(1,6))
+scenario$scenario49$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 50 : Uhistc(0.2,2,1)_initYear1984_nS4_initDep1_nDiff4
@@ -451,6 +500,7 @@ scenario$scenario50$opMod$Umult c(0.2,2,1)
 scenario$scenario50$opMod$initYear c(rep(1984,4),rep(1954,6))
 scenario$scenario50$opMod$nS 4
 scenario$scenario50$opMod$initDep c(rep(1,4),rep(1,6))
+scenario$scenario50$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 51 : Uhistc(0.2,2,1)_initYear1976_nS7_initDep1_nDiff4
@@ -460,6 +510,7 @@ scenario$scenario51$opMod$Umult c(0.2,2,1)
 scenario$scenario51$opMod$initYear c(rep(1976,4),rep(1954,6))
 scenario$scenario51$opMod$nS 7
 scenario$scenario51$opMod$initDep c(rep(1,4),rep(1,6))
+scenario$scenario51$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 52 : Uhistc(1,1,1)_initYear2003_nS7_initDep1_nDiff4
@@ -469,6 +520,7 @@ scenario$scenario52$opMod$Umult c(1,1,1)
 scenario$scenario52$opMod$initYear c(rep(2003,4),rep(1954,6))
 scenario$scenario52$opMod$nS 7
 scenario$scenario52$opMod$initDep c(rep(1,4),rep(1,6))
+scenario$scenario52$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 53 : Uhistc(1,1,1)_initYear1984_nS10_initDep1_nDiff4
@@ -478,6 +530,7 @@ scenario$scenario53$opMod$Umult c(1,1,1)
 scenario$scenario53$opMod$initYear c(rep(1984,4),rep(1954,6))
 scenario$scenario53$opMod$nS 10
 scenario$scenario53$opMod$initDep c(rep(1,4),rep(1,6))
+scenario$scenario53$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
 # Scenario 54 : Uhistc(0.2,2,1)_initYear2003_nS10_initDep1_nDiff4
@@ -487,136 +540,11 @@ scenario$scenario54$opMod$Umult c(0.2,2,1)
 scenario$scenario54$opMod$initYear c(rep(2003,4),rep(1954,6))
 scenario$scenario54$opMod$nS 10
 scenario$scenario54$opMod$initDep c(rep(1,4),rep(1,6))
+scenario$scenario54$opMod$initBioCode c(rep(1,4),rep(0,6))
 #
 #
-# Management Procedures 
+## Management Procedures
 #
-## MP 1: noJointPriors
-## 
-#mp$mp1$ctrl$mpLabel 'noJointPriors'
-#mp$mp1$assess$estYearEff FALSE
-#mp$mp1$assess$kappa2 0.00001
-#mp$mp1$assess$lnUPriorCode 0
-#mp$mp1$assess$fixsigU2 TRUE
-#mp$mp1$assess$lnsigUmsy2 -2.4
-#mp$mp1$assess$fixUbar TRUE
-#mp$mp1$assess$lnqPriorCode 0
-#mp$mp1$assess$fixtauq2 TRUE
-#mp$mp1$assess$lntauq2 -2.4
-#mp$mp1$assess$fixqbar TRUE
-#mp$mp1$assess$estqms 'unique'
-#mp$mp1$assess$fixqss FALSE
-#mp$mp1$assess$msRE c('zeta_st')
-#mp$mp1$assess$ssRE c('eps_t')
-##
-## MP 2: YearEffOnly
-## 
-#mp$mp2$ctrl$mpLabel 'YearEffOnly'
-#mp$mp2$assess$estYearEff TRUE
-#mp$mp2$assess$kappa2 0.1
-#mp$mp2$assess$lnUPriorCode 0
-#mp$mp2$assess$fixsigU2 TRUE
-#mp$mp2$assess$lnsigUmsy2 -2.4
-#mp$mp2$assess$fixUbar TRUE
-#mp$mp2$assess$lnqPriorCode 0
-#mp$mp2$assess$fixtauq2 TRUE
-#mp$mp2$assess$lntauq2 -2.4
-#mp$mp2$assess$fixqbar TRUE
-#mp$mp2$assess$estqms 'unique'
-#mp$mp2$assess$fixqss FALSE
-#mp$mp2$assess$msRE c('zeta_st','eps_t')
-#mp$mp2$assess$ssRE c('eps_t')
-##
-## MP 3: qPriorOnly
-## 
-#mp$mp3$ctrl$mpLabel 'qPriorOnly'
-#mp$mp3$assess$estYearEff FALSE
-#mp$mp3$assess$kappa2 0.00001
-#mp$mp3$assess$lnUPriorCode 0
-#mp$mp3$assess$fixsigU2 TRUE
-#mp$mp3$assess$lnsigUmsy2 -2.4
-#mp$mp3$assess$fixUbar TRUE
-#mp$mp3$assess$lnqPriorCode 1
-#mp$mp3$assess$fixtauq2 FALSE
-#mp$mp3$assess$lntauq2 -2.4
-#mp$mp3$assess$fixqbar FALSE
-#mp$mp3$assess$estqms 'unique'
-#mp$mp3$assess$fixqss FALSE
-#mp$mp3$assess$msRE c('zeta_st','lnq_os')
-#mp$mp3$assess$ssRE c('eps_t')
-##
-## MP 4: UmsyPriorOnly
-## 
-#mp$mp4$ctrl$mpLabel 'UmsyPriorOnly'
-#mp$mp4$assess$estYearEff FALSE
-#mp$mp4$assess$kappa2 0.00001
-#mp$mp4$assess$lnUPriorCode 1
-#mp$mp4$assess$fixsigU2 FALSE
-#mp$mp4$assess$lnsigUmsy2 -2.4
-#mp$mp4$assess$fixUbar FALSE
-#mp$mp4$assess$lnqPriorCode 0
-#mp$mp4$assess$fixtauq2 TRUE
-#mp$mp4$assess$lntauq2 -2.4
-#mp$mp4$assess$fixqbar TRUE
-#mp$mp4$assess$estqms 'unique'
-#mp$mp4$assess$fixqss FALSE
-#mp$mp4$assess$msRE c('zeta_st','lnUmsy')
-#mp$mp4$assess$ssRE c('eps_t')
-##
-## MP 5: qUpriors
-## 
-#mp$mp5$ctrl$mpLabel 'qUpriors'
-#mp$mp5$assess$estYearEff FALSE
-#mp$mp5$assess$kappa2 0.00001
-#mp$mp5$assess$lnUPriorCode 1
-#mp$mp5$assess$fixsigU2 FALSE
-#mp$mp5$assess$lnsigUmsy2 -2.4
-#mp$mp5$assess$fixUbar FALSE
-#mp$mp5$assess$lnqPriorCode 1
-#mp$mp5$assess$fixtauq2 FALSE
-#mp$mp5$assess$lntauq2 -2.4
-#mp$mp5$assess$fixqbar FALSE
-#mp$mp5$assess$estqms 'unique'
-#mp$mp5$assess$fixqss FALSE
-#mp$mp5$assess$msRE c('zeta_st','lnUmsy','lnq_os')
-#mp$mp5$assess$ssRE c('eps_t')
-##
-## MP 6: qYEpriors
-## 
-#mp$mp6$ctrl$mpLabel 'qYEpriors'
-#mp$mp6$assess$estYearEff TRUE
-#mp$mp6$assess$kappa2 0.1
-#mp$mp6$assess$lnUPriorCode 0
-#mp$mp6$assess$fixsigU2 TRUE
-#mp$mp6$assess$lnsigUmsy2 -2.4
-#mp$mp6$assess$fixUbar TRUE
-#mp$mp6$assess$lnqPriorCode 1
-#mp$mp6$assess$fixtauq2 FALSE
-#mp$mp6$assess$lntauq2 -2.4
-#mp$mp6$assess$fixqbar FALSE
-#mp$mp6$assess$estqms 'unique'
-#mp$mp6$assess$fixqss FALSE
-#mp$mp6$assess$msRE c('zeta_st','eps_t','lnq_os')
-#mp$mp6$assess$ssRE c('eps_t')
-##
-## MP 7: UmsyYEpriors
-## 
-#mp$mp7$ctrl$mpLabel 'UmsyYEpriors'
-#mp$mp7$assess$estYearEff TRUE
-#mp$mp7$assess$kappa2 0.1
-#mp$mp7$assess$lnUPriorCode 1
-#mp$mp7$assess$fixsigU2 FALSE
-#mp$mp7$assess$lnsigUmsy2 -2.4
-#mp$mp7$assess$fixUbar FALSE
-#mp$mp7$assess$lnqPriorCode 0
-#mp$mp7$assess$fixtauq2 TRUE
-#mp$mp7$assess$lntauq2 -2.4
-#mp$mp7$assess$fixqbar TRUE
-#mp$mp7$assess$estqms 'unique'
-#mp$mp7$assess$fixqss FALSE
-#mp$mp7$assess$msRE c('zeta_st','eps_t','lnUmsy')
-#mp$mp7$assess$ssRE c('eps_t')
-##
 # MP 1: allJointPriors
 # 
 mp$mp1$ctrl$mpLabel 'allJointPriors'
@@ -632,7 +560,7 @@ mp$mp1$assess$lntauq2 -2.4
 mp$mp1$assess$fixqbar FALSE
 mp$mp1$assess$estqms 'unique'
 mp$mp1$assess$fixqss FALSE
-mp$mp1$assess$msRE c('zeta_st','eps_t','lnUmsy','lnq_os')
+mp$mp1$assess$msRE c('zeta_st','eps_t','lnq_os')
 mp$mp1$assess$ssRE c('eps_t')
 #
 # File ends <not run>

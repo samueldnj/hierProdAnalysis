@@ -14,7 +14,7 @@ opMod$SigmaDiag c(0.025,0.025,0.025,0.025,0.025)
 opMod$corrOffDiag 0.5
 opMod$initDep c(1,1,1,1,1)
 opMod$nS 5
-opMod$fYear c(1976,1976,1976,1976,1976)
+opMod$fYear c(1984,1976,1976,1976,1976)
 opMod$lYear 2017
 opMod$Umult c(0.1,2,1)
 opMod$Umax NULL
@@ -47,7 +47,7 @@ assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
 assess$lnq c(-.51,-.51,-.51)
 assess$logit_gammaYr 0
 assess$tau2 c(0.01,0.01,0.01)
-assess$initBioCode c(0,0,0,0,0)
+assess$initBioCode c(1,0,0,0,0)
 assess$kappa2 0.1
 assess$Sigma2 0.1
 assess$SigmaDiagMult c(1,1,1,1,1)

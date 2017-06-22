@@ -115,7 +115,6 @@ Type objective_function<Type>::operator() ()
   vector<Type>      tauq_o  = exp(lntauq_o);
   vector<Type>      tauq2_o = exp(Type(2) * lntauq_o);
   Type              Umsybar = exp(lnUmsybar);
-  Type              sigUmsy = exp(lnsigUmsy);
   Type              sigUmsy2= exp(Type(2) * lnsigUmsy);
   // Random Effects
   Type              kappa2  = exp(lnkappa2);
@@ -167,7 +166,7 @@ Type objective_function<Type>::operator() ()
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
       Bt(s,t) = posfun(Bt(s,t),Type(2e-3),pospen);
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
-      nllRE += Type(1000.0)*pospen;      
+      nllRE += Type(10000.0)*pospen;      
     }
   }
   // Loop again to add species and year effects
