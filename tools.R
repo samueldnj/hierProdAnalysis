@@ -19,6 +19,124 @@
 # 
 # --------------------------------------------------------------------------
 
+makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)"),
+                                              initYear = c(1976,1984,2003),
+                                              nS = c(4,7,10),
+                                              initDep = c(0.4,0.7,1.0),
+                                              nDiff = c(0,2,4) ),
+                              nPoints = 1
+                            )
+{
+  # Creates a Latin Hyper Rectangle experimental design from a list of factor levels
+  # inputs:     levels = list of factor levels
+  #             nPoints = number of points to sample from the LHR design
+
+  # First, create an array to hold the design
+  # First, we need the number of factors and their levels to make dimensions
+  nLevels     <- lapply ( X = levels, FUN = length )
+  nLevels     <- unlist( nLevels )
+  nFactors    <- length( nLevels )
+
+  # Create the array, using the factor levels as dimnames
+  LHRdesign   <- array( NA, dim = nLevels, dimnames = levels )
+
+  # Choose the entries in the array as the size of the largest dimension
+  maxEntry  <- max(nLevels)
+
+  # I think adding the entry dimension indices mod maxEntry will
+  # populate the matrix and preserve the latin property. To do this
+  # we gotta expand.grid for all possible entries
+  dimIndices <- vector(mode = "list", length = nFactors )
+  for( lIdx in 1:nFactors )
+  {
+    dimIndices[[lIdx]] <- 1:nLevels[lIdx]
+  }
+  entryIndices <- expand.grid( dimIndices )
+
+  # Loop over the entryIndices data.frame and pull the rows
+  for( rIdx in 1:nrow(entryIndices) )
+  {
+    entryIdx <- as.numeric(entryIndices[rIdx,])
+    LHRdesign[matrix(entryIdx,nrow=1)] <- (sum(entryIdx) %% maxEntry)
+  }
+
+  # Now sample design space for treatments
+  points      <- sample( x = 0:(maxEntry-1), size = nPoints )
+  treatments  <- which( LHRdesign %in% points, arr.ind = F )
+  treatments  <- arrayInd(  ind = treatments, .dim = dim(LHRdesign), 
+                            .dimnames = dimnames(LHRdesign), useNames = T)
+
+  out <- list(  levels = levels,
+                designArray = LHRdesign,
+                treatments =  treatments
+              )
+
+  out
+
+}
+
+# makeInfoScenarioDesign()
+# Creates the .bch file for a historical fishing intensity experiment,
+# without the MP section underneath.
+makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,1,1)"),
+                                                    initYear = c(1976,1984,2003),
+                                                    nS = c(4,7,10),
+                                                    initDep = c(.4,.7,1.0),
+                                                    nDiff = c(0,2,4)
+                                                  ),
+                                    base = list(  initYear = 1954, initDep = 1,
+                                                  nS = 10 ),
+                                    nPoints = 1,
+                                    bchName = "infoScenarios" )
+{
+  # First, make the LHR design
+  lhrDesign <- makeLHRfromList( levels = levels, nPoints = nPoints )
+
+  treatments <- lhrDesign$treatments
+
+  # Now start making the batch file for the simulation experiment
+  outFile <- paste( bchName, ".bch", sep = "")
+  cat(  "# Batch Control File, created ", date(), " by makeFixedprocREDesign() \n", 
+        file = outFile, append = F, sep = "" )
+  cat( "parameter value\n", sep = "", append = T, file = outFile)
+  cat( "#\n", file = outFile, append = T )
+  cat( "# Scenarios \n", file = outFile, append = T )
+  cat( "#\n", file = outFile, append = T )
+  # This will loop over the design matrix and create the scenario entry in the 
+  # batch control file
+  for( rIdx in 1:nrow(treatments) )
+  {
+    scenLabel <- ""
+    for( cIdx in 1:ncol(treatments) )
+    {
+      scenLabel <- paste( scenLabel, colnames(treatments)[cIdx], 
+                          levels[[ cIdx ]][ treatments[ rIdx, cIdx ] ], sep = "" )
+      if( cIdx < ncol(treatments) ) scenLabel <- paste( scenLabel, "_", sep = "" )
+    }
+    nDiff <- levels$nDiff[ treatments[rIdx,"nDiff" ] ]
+    nSame <- base$nS - nDiff
+    cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
+    cat( "#\n", file = outFile, append = T )
+    cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
+          sep = "", append = T, file = outFile )  
+    cat(  "scenario$scenario", rIdx, "$opMod$Umult ", levels$Uhist[treatments[rIdx, "Uhist"] ], "\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$initYear c(rep(", levels$initYear[treatments[rIdx,"initYear"] ],
+          ",", nDiff, "),rep(", base$initYear, ",", nSame, "))\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$nS ", levels$nS[treatments[rIdx,"nS"] ] ,"\n",
+          sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$opMod$initDep c(rep(", levels$initDep[treatments[rIdx,"initDep"] ],
+          ",", nDiff, "),rep(", base$initDep, ",", nSame, "))\n",
+          sep = "", append = T, file = outFile  )
+    cat( "#\n", file = outFile, append = T )
+    
+    cat( "#\n", file = outFile, append = T )
+  }
+
+  treatments
+}
+
 # makeFhistDesign()
 # Creates the .bch file for a historical fishing intensity experiment,
 # without the MP section underneath.

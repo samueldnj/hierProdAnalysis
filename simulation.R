@@ -350,6 +350,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
     obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*kappa2
     obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*Sigma2
+
+    browser()
   }
 
   if( !is.null(obj$assess$tauq2P1) ) obj$assess$tauq2Prior[1] <- obj$assess$tauq2P1
@@ -929,9 +931,23 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ms$profiles[[i]] <- simEst$msFit$profiles
     }
 
-  }
+    # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
+    ssHess <- blob$am$ss$hesspd
+    msHess <- blob$am$ms$hesspd
+    hessPD <- ssHess
+    for( s in 1:ncol(hessPD) )
+      hessPD[,s] <- as.logical(ssHess[,s] * msHess)
 
-  cat ( "Completed ", nReps, " replicates.\n", sep = "" )
+    browser()
+    completed <- apply(X = hessPD, FUN = sum, MARGIN = 2, na.rm = T )
+    if( all( completed > obj$ctrl$signifReps ) )
+    {
+      cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )
+    } 
+  }
+  if(any( completed < obj$ctrl$signifReps ) )
+    cat (   "Completed ", nReps, " replicates without reaching ", 
+            obj$ctrl$signifReps, "for each stock.\n", sep = "" )
 
   blob
 }
