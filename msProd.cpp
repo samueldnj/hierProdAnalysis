@@ -183,7 +183,7 @@ Type objective_function<Type>::operator() ()
 
   // Concentrate species specific obs error likelihood?
   // Sum of squares vector
-  array<Type>  ss_os(nO,nS);
+  array<Type>   ss_os(nO,nS);
   vector<Type>  tau2hat_o(nO);
   array<Type>   validObs(nO,nS);
   array<Type>   qhat(nO,nS);

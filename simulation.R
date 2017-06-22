@@ -601,6 +601,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   } 
   if( class( sdrep ) == "try-error" )
   {
+    browser()
     sdrep <- NA
     CIs <- NA
   }

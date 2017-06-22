@@ -2,7 +2,7 @@
 parameter value
 ctrl$scenarioName "allSame"
 ctrl$mpLabel "allSame"
-ctrl$nReps 300
+ctrl$nReps 400
 ctrl$signifReps 100
 ctrl$rSeed 1
 ctrl$fixProc FALSE
