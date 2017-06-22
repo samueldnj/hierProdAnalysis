@@ -14,7 +14,7 @@ opMod$SigmaDiag rep(0.025,10)
 opMod$corrOffDiag 0.5
 opMod$initDep rep(1,10)
 opMod$nS 10
-opMod$fYear rep(1976,10)
+opMod$fYear rep(1984,10)
 opMod$lYear 2017
 opMod$Umult c(0.1,2,1)
 opMod$Umax NULL
@@ -27,9 +27,9 @@ opMod$tUpeak 10
 opMod$tUtrough 25
 opMod$nSurv 2
 opMod$surveyFreq c(1,1,1)
-opMod$fYearSurv c(1984,2003,1976)
-opMod$lYearSurv c(2003,2017,2017)
-opMod$qSurvM c(0.5,0.628,0.3)
+opMod$fYearSurv c(1984,2003,1954)
+opMod$lYearSurv c(2003,2017,1984)
+opMod$qSurvM c(0.5,0.6,0.7)
 opMod$qSurvSD c(0.1,0.1,0.2)
 opMod$tauSurv c(0.2,0.4,0.5)
 opMod$gammaYr 0.0

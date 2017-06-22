@@ -79,12 +79,12 @@ makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)")
 # Creates the .bch file for a historical fishing intensity experiment,
 # without the MP section underneath.
 makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,1,1)"),
-                                                    initYear = c(1976,1984,2003),
+                                                    initYear = c(1984,2003),
                                                     nS = c(4,7,10),
                                                     initDep = c(.4,.7,1.0),
                                                     nDiff = c(0,2,4)
                                                   ),
-                                    base = list(  initYear = 1954, initDep = 1,
+                                    base = list(  initYear = 1984, initDep = 1,
                                                   nS = 10 ),
                                     nPoints = 1,
                                     bchName = "infoScenarios" )
