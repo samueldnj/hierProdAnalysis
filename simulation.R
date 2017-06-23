@@ -607,7 +607,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     CIs <- NA
   }
   # If sdrep exists, compute confidence intervals
-  if( !is.na( sdrep ) )
+  if( !any(is.na( sdrep )) )
   {
     CIs <-  summary( sdrep ) 
     colnames( CIs ) <- c( "val", "se" )
@@ -848,13 +848,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ss$profiles[[i]] <- vector( mode = "list", length = nS )
     for( s in 1:nS )
     {
-      if(  !is.na(simEst$ssFit[[s]]$sdrep) )
+      if(  !any(is.na(simEst$ssFit[[s]]$rep)) | !any(is.null(simEst$ssFit[[s]]$rep)) )
       {
         # Recover report from optimisation
         sdrep     <- simEst$ssFit[[s]]$sdrep
         fitrep    <- simEst$ssFit[[s]]$rep
         CIs       <- simEst$ssFit[[s]]$CIs
-        estList   <- as.list(sdrep,"Estimate")
 
         # Now save estimates
         blob$am$ss$Bmsy[i,s]                  <- fitrep$Bmsy
@@ -864,13 +863,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ss$kappa2[i,s]                <- fitrep$kappa2
         blob$am$ss$tau2_o[i,,s]               <- fitrep$tau2_o
         blob$am$ss$dep[i,s,sT[s]:nT]          <- fitrep$Bt/fitrep$Bmsy/2
-        blob$am$ss$epst[i,s,(sT[s]+1):nT]     <- estList$eps_t
         blob$am$ss$gamma[i,s]                 <- fitrep$gammaYr
         blob$am$ss$Bt[i,s,sT[s]:nT]           <- fitrep$Bt
         # Estimator performance flags
-        blob$am$ss$maxGrad[i,s]               <- max(sdrep$gradient.fixed)
-        blob$am$ss$hesspd[i,s]                <- sdrep$pdHess
-        blob$am$ss$sdrep[[i]][[s]]            <- sdrep
+        if(!any(is.na(sdrep)))
+        {
+          blob$am$ss$maxGrad[i,s]               <- max(sdrep$gradient.fixed)
+          blob$am$ss$hesspd[i,s]                <- sdrep$pdHess
+          blob$am$ss$sdrep[[i]][[s]]            <- sdrep
+        }
         blob$am$ss$CIs[[i]][[s]]              <- CIs
         blob$am$ss$fitrep[[i]][[s]]           <- fitrep
 
@@ -881,13 +882,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     }
 
     # Now multispecies
-    if (  !is.na(simEst$msFit) )
+    if (  !any(is.na(simEst$msFit$rep)) | !any(is.null(simEst$msFit$rep))  )
     {
       # Recover report from optimisation
       sdrep     <- simEst$msFit$sdrep
       fitrep    <- simEst$msFit$rep
       CIs       <- simEst$msFit$CIs
-      estList   <- as.list(sdrep,"Estimate")
+      
       # Now save estimates
       blob$am$ms$Bmsy[i,]                 <- fitrep$Bmsy
       blob$am$ms$Umsy[i,]                 <- fitrep$Umsy
@@ -896,8 +897,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ms$Sigma2[i,]               <- fitrep$SigmaDiag
       blob$am$ms$kappa2[i,]               <- fitrep$kappa2
       blob$am$ms$Bt[i,,]                  <- fitrep$Bt
-      blob$am$ms$epst[i,2:nT]             <- estList$eps_t
-      blob$am$ms$zetat[i,,2:nT]           <- estList$zeta_st
       blob$am$ms$tau2_o[i,]               <- fitrep$tau2_o
       blob$am$ms$gamma[i]                 <- fitrep$gammaYr
       blob$am$ms$qbar_o[i,]               <- fitrep$qbar_o
@@ -911,9 +910,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ms$dep[i,s,sT[s]:nT]        <- blob$am$ms$Bt[i,s,sT[s]:nT]/fitrep$Bmsy[s]/2
       }
       # Estimator Performance Flags
-      blob$am$ms$hesspd[i]          <- sdrep$pdHess
-      blob$am$ms$maxGrad[i]         <- max(sdrep$gradient.fixed)
-      blob$am$ms$sdrep[[i]]         <- sdrep
+      if(!any(is.na(sdrep)))
+      {
+        blob$am$ms$hesspd[i]             <- max(sdrep$gradient.fixed)
+        blob$am$ms$maxGrad[i]            <- sdrep$pdHess
+        blob$am$ms$sdrep[[i]]            <- sdrep
+      }
       blob$am$ms$fitrep[[i]]        <- fitrep
       blob$am$ms$CIs[[i]]           <- CIs
 
@@ -929,7 +931,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       hessPD[,s] <- as.logical(ssHess[,s] * msHess)
 
     completed <- apply(X = hessPD, FUN = sum, MARGIN = 2, na.rm = T )
-    if( all( completed > obj$ctrl$signifReps ) )
+    if( all( completed >= obj$ctrl$signifReps ) )
     {
       cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )
       break

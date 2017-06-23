@@ -14,7 +14,7 @@ opMod$SigmaDiag c(0.025,0.025,0.025,0.025,0.025)
 opMod$corrOffDiag 0.5
 opMod$initDep c(1,1,1,1,1)
 opMod$nS 5
-opMod$fYear c(1984,1976,1976,1976,1976)
+opMod$fYear c(2003,1984,1984,1984,1984)
 opMod$lYear 2017
 opMod$Umult c(0.1,2,1)
 opMod$Umax NULL
@@ -31,7 +31,7 @@ opMod$fYearSurv c(1984,2003,1976)
 opMod$lYearSurv c(2003,2017,2017)
 opMod$qSurvM c(0.5,0.628,0.3)
 opMod$qSurvSD c(0.1,0.1,0.2)
-opMod$tauSurv c(0.2,0.4,0.5)
+opMod$tauSurv c(0.2,0.5,0.5)
 opMod$gammaYr 0.0
 opMod$kappaMult 1
 assess$profiles FALSE
@@ -42,7 +42,7 @@ assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$estYearEff TRUE
 assess$fitTrials 3
-assess$maxfn 1000
+assess$maxfn 10000
 assess$Umsy c(0.2,0.25,0.4,0.3,0.25)
 assess$lnq c(-.51,-.51,-.51)
 assess$logit_gammaYr 0

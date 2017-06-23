@@ -364,14 +364,14 @@ Type objective_function<Type>::operator() ()
   ADREPORT(Binit);
   ADREPORT(tau2_o);
   ADREPORT(kappa2);
-  if (nS > 1 )
-  {
-    ADREPORT(SigmaDiag);
-    ADREPORT(Umsybar);
-    ADREPORT(sigUmsy2);
-    ADREPORT(qbar_o);
-    ADREPORT(tauq2_o)
-  }
+  // if (nS > 1 )
+  // {
+  //   ADREPORT(SigmaDiag);
+  //   ADREPORT(Umsybar);
+  //   ADREPORT(sigUmsy2);
+  //   ADREPORT(qbar_o);
+  //   ADREPORT(tauq2_o)
+  // }
   // ADREPORT(gammaYr);
   
   // Everything else //

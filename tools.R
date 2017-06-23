@@ -117,14 +117,14 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     nSame <- base$nS - nDiff
     initDep <- levels$initDep[ treatments[ rIdx, "initDep" ] ]
     initYear <- levels$initYear[ treatments[ rIdx, "initYear" ] ]
-    if( initDep != 1 | initYear != base$initYear  ) initBioCode <- 1
+    if( (initDep != 1 | initYear != base$initYear) & nDiff > 0  ) initBioCode <- 1 else initBioCode <- 0
     cat( "# Scenario ", rIdx, " : ", scenLabel, "\n", file = outFile, append = T, sep = "" )
     cat( "#\n", file = outFile, append = T )
     cat(  "scenario$scenario", rIdx, "$ctrl$scenarioName '", scenLabel, "'\n", 
           sep = "", append = T, file = outFile )  
     cat(  "scenario$scenario", rIdx, "$opMod$Umult ", levels$Uhist[treatments[rIdx, "Uhist"] ], "\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$initYear c(rep(", levels$initYear[treatments[rIdx,"initYear"] ],
+    cat(  "scenario$scenario", rIdx, "$opMod$fYear c(rep(", levels$initYear[treatments[rIdx,"initYear"] ],
           ",", nDiff, "),rep(", base$initYear, ",", nSame, "))\n",
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$nS ", levels$nS[treatments[rIdx,"nS"] ] ,"\n",
