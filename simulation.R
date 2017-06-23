@@ -607,7 +607,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     CIs <- NA
   }
   # If sdrep exists, compute confidence intervals
-  if( !any(is.na( sdrep ) )
+  if( !any(is.na( sdrep ) ) )
   {
     CIs <-  summary( sdrep ) 
     colnames( CIs ) <- c( "val", "se" )
