@@ -28,7 +28,7 @@ opMod$tUtrough 25
 opMod$nSurv 2
 opMod$surveyFreq c(1,1,1)
 opMod$fYearSurv c(1984,2003,1954)
-opMod$lYearSurv c(2003,2017,1984)
+opMod$lYearSurv c(2003,2017,1995)
 opMod$qSurvM c(0.5,0.6,0.7)
 opMod$qSurvSD c(0.1,0.1,0.2)
 opMod$tauSurv c(0.2,0.4,0.5)

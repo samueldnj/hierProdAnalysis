@@ -82,7 +82,7 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
                                                     initYear = c(1984,2003),
                                                     nS = c(4,7,10),
                                                     initDep = c(.4,.7,1.0),
-                                                    nDiff = c(0,2,4)
+                                                    nDiff = c(0,1,2,3)
                                                   ),
                                     base = list(  initYear = 1984, initDep = 1,
                                                   nS = 10 ),
