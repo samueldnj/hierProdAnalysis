@@ -192,7 +192,7 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$nS ", levels$nS[treatments[rIdx,"nS"] ],"\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$corrTargVar ", levels$targVar[treatments[rIdx,"targVar"] ],"\n",
+    cat(  "scenario$scenario", rIdx, "$opMod$corrTargVar '", levels$targVar[treatments[rIdx,"targVar"] ],"'\n",
           sep = "", append = T, file = outFile  )
     cat( "#\n", file = outFile, append = T )
   }
