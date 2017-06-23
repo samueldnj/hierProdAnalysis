@@ -34,7 +34,7 @@ for( i in 1:length(batchFiles))
   .statTables(1:nSims,expPrefix[i])
 
   # Now copy the project folder to dropbox
-  copyDest <- file.path("~/Dropbox/Work/cwMS_experiments/TMB",expPrefix[i])
+  copyDest <- file.path("/Volumes/home/thesisStuff/cwMSexperiments/TMB/",expPrefix[i])
   dir.create( copyDest )
 
   # Copy project folder contents recursively to copyDest
