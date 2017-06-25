@@ -188,6 +188,8 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$kappaMult ", levels$m[treatments[rIdx,"m"] ],"\n",
           sep = "", append = T, file = outFile  )
+    cat(  "scenario$scenario", rIdx, "$ctrl$fixedProc TRUE\n",
+          sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag ", levels$c[treatments[rIdx,"c"] ],"\n",
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$nS ", levels$nS[treatments[rIdx,"nS"] ],"\n",
