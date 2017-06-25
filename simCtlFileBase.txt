@@ -2,7 +2,7 @@
 parameter value
 ctrl$scenarioName "DERPA-base"
 ctrl$mpLabel "base"
-ctrl$nReps 10
+ctrl$nReps 2
 ctrl$signifReps 1
 ctrl$rSeed 1
 ctrl$fixProc FALSE

@@ -188,7 +188,7 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$kappaMult ", levels$m[treatments[rIdx,"m"] ],"\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$ctrl$fixedProc TRUE\n",
+    cat(  "scenario$scenario", rIdx, "$ctrl$fixProc TRUE\n",
           sep = "", append = T, file = outFile  )
     cat(  "scenario$scenario", rIdx, "$opMod$corrOffDiag ", levels$c[treatments[rIdx,"c"] ],"\n",
           sep = "", append = T, file = outFile  )
@@ -779,6 +779,7 @@ doBatchRun <- function( arg )
   # runMSE with the batch file
   # add random delay to offset simFolder names
   runSimEst(ctlFile=arg[1], folder=arg[2])
+  return(NULL)
 }
 
 
@@ -852,7 +853,7 @@ doBatchRun <- function( arg )
           nCores, " cores.\n", sep = "" )
     tBegin    <- proc.time()
     startDate <- date()
-    tmp     <- clusterApply(cl, x=parBatchArgList, fun=doBatchRun)
+    tmp       <- parLapplyLB(cl, X=parBatchArgList, fun=doBatchRun)
     # tmp <-lapply(X=parBatchArgList, FUN=doBatchRun)
     stopCluster(cl)
 

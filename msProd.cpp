@@ -32,6 +32,7 @@ Type invLogit(Type x, Type scale, Type trans){
   return scale/(Type(1.0) + exp(-Type(1.0)*x)) - trans;
 }
 
+
 // objective function
 template<class Type>
 Type objective_function<Type>::operator() ()
