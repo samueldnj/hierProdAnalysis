@@ -853,7 +853,7 @@ doBatchRun <- function( arg )
           nCores, " cores.\n", sep = "" )
     tBegin    <- proc.time()
     startDate <- date()
-    tmp       <- parLapplyLB(cl, X=parBatchArgList, fun=doBatchRun)
+    tmp       <- clusterApplyLB(cl, x=parBatchArgList, fun=doBatchRun)
     # tmp <-lapply(X=parBatchArgList, FUN=doBatchRun)
     stopCluster(cl)
 
