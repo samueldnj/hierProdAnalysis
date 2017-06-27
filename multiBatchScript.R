@@ -14,9 +14,9 @@ source("control.R")
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("infoScenarios.bch","fixedProcRE.bch")
-baseCtlFiles  <- c("simCtlFileAllSameBase.txt","simCtlFileAllSameBase.txt")
-expPrefix     <- c("allSame_infoScenarios","allSame_fixedProcRE")
+batchFiles    <- c("FixedProcRE.bch")
+baseCtlFiles  <- c("simCtlFileAllSameBase.txt")
+expPrefix     <- c("allSame_fixedProcRE")
 
 # Now loop over the experiments
 
@@ -55,8 +55,8 @@ for( i in 1:length(batchFiles))
     system(command=paste("rm -d -R ",simsPath[k],sep=""))
 
   cat("Removing batch files from ./project/batch folder\n", sep="")
-  for(k in 1:length(batchContentsPath))
-    system(command=paste("rm -d -R ",batchContentsPath[k],sep=""))
+  # for(k in 1:length(batchContentsPath))
+    # system(command=paste("rm -d -R ",batchContentsPath[k],sep=""))
 
   cat("Experiment and tidy-up complete, ready to start next experiment.\n")
 }

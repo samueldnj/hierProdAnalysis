@@ -141,6 +141,8 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     cat( "#\n", file = outFile, append = T )
   }
 
+  write.csv(x = treatments, file = paste(bchName,"LHrD.csv"))
+
   treatments
 }
 
@@ -198,6 +200,8 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
           sep = "", append = T, file = outFile  )
     cat( "#\n", file = outFile, append = T )
   }
+
+  write.csv(x = treatments, file = paste(bchName,"LHrD.csv"))
 
   treatments
 }
