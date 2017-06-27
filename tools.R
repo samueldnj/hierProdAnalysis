@@ -795,7 +795,8 @@ doBatchRun <- function( arg )
 # Side Effects: A simulation folder containing *.info and *.Rdata file (blob) and
 #               for each row of the design dataframe, i.e., for each simulation.
 # Source:       A.R. Kronlund
-.runBatchJob <- function( batchDesign=NULL, par=FALSE,prefix=NULL, initPar = 1 )
+.runBatchJob <- function( batchDesign=NULL, par=FALSE,prefix=NULL, initPar = 1,
+                          subset = NULL )
 {
   # Runs simulations from the design data.frame specified in batchDesign object.
   # 1. Does the mseR input parameter file exist? If YES then read the file.
@@ -832,21 +833,30 @@ doBatchRun <- function( arg )
     options(warn=-1)
     # Get number of batch runs
     nBatchFiles   <- length(batchParFile)
-    nSims         <- nBatchFiles - initPar + 1
 
     # Create folder names for batch running
     batchFolderNames <- paste("parBat",prefix,1:nBatchFiles,sep="")
     
     # combine folder and control file names
-    parBatchArgList <- vector(mode = "list", length = length(batchParFile) - initPar + 1)
-    for(i in initPar:nBatchFiles)
+    if( !is.null( subset ) )
     {
-      listIdx <- i - initPar + 1
-      parBatchArgList[[listIdx]] <- c( batchParFile[i],batchFolderNames[i])
+      parBatchArgList <- vector(mode = "list", length = length(subset) )
+      for( i in 1:length(subset) )
+      {
+        parBatchArgList[[i]] <- c( batchParFile[ subset[i] ],batchFolderNames[ subset[i] ])   
+      }
+    } else {
+      parBatchArgList <- vector(mode = "list", length = length(batchParFile) - initPar + 1)
+      for(i in initPar:nBatchFiles)
+      {
+        parBatchArgList[[i - initPar + 1]] <- c( batchParFile[i],batchFolderNames[i])
+      }
     }
 
+    nSims <- length(parBatchArgList)
+
     # Now set # of cores and make a cluster
-    nCores  <- min(nBatchFiles,detectCores()-1)
+    nCores  <- min(length(parBatchArgList),detectCores()-1)
     cl      <- makePSOCKcluster(nCores)
     # Run parallel batch
     cat ("Running ", nSims, " simulations in parallel on ",
