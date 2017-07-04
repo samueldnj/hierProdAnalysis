@@ -60,6 +60,8 @@ makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)")
     LHRdesign[matrix(entryIdx,nrow=1)] <- (sum(entryIdx) %% maxEntry)
   }
 
+  # Now randomly permute the dimensions
+
   # Now sample design space for treatments
   points      <- sample( x = 0:(maxEntry-1), size = nPoints )
   treatments  <- which( LHRdesign %in% points, arr.ind = F )
@@ -141,7 +143,20 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     cat( "#\n", file = outFile, append = T )
   }
 
-  write.csv(x = treatments, file = paste(bchName,"LHrD.csv"))
+  row.names(treatments) <- NULL
+
+  treatments <- as.data.frame(treatments)
+  for( k in 1:nrow(treatments) )
+  {
+    for( l in 1:length(names(levels)))
+    {
+      nom       <- names(treatments)[l]
+      levelIdx  <- as.numeric(treatments[k, nom])
+      treatments[ k, nom ] <- levels[nom][[1]][levelIdx]
+    }
+  }
+
+  write.csv(x = treatments, file = paste(bchName,"LHrD.csv",sep="_"))
 
   treatments
 }
@@ -201,7 +216,20 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
     cat( "#\n", file = outFile, append = T )
   }
 
-  write.csv(x = treatments, file = paste(bchName,"LHrD.csv"))
+  row.names(treatments) <- NULL
+
+  treatments <- as.data.frame(treatments)
+  for( k in 1:nrow(treatments) )
+  {
+    for( l in 1:length(names(levels)))
+    {
+      nom       <- names(treatments)[l]
+      levelIdx  <- as.numeric(treatments[k, nom])
+      treatments[ k, nom ] <- levels[nom][[1]][levelIdx]
+    }
+  }
+
+  write.csv(x = treatments, file = paste(bchName,"LHrD.csv",sep="_"))
 
   treatments
 }

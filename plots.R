@@ -61,9 +61,9 @@ makeNewTabCols <- function( tableRoot = "obsErrNew" )
   write.csv( MAREtab, MAREtabPath )
 }
 
-plotStatTableGraphs <- function(  tableRoot = "fixedProcRE_allJoint",
-                                  resp = c("BnT","Umsy","Bmsy","Dep","HessPD","q_1","tau2_1"),
-                                  axes = c("Umax","corrTargVar"),
+plotStatTableGraphs <- function(  tableRoot = "allSame_fixedProcRE",
+                                  resp = c("BnT","Umsy","Bmsy","Dep","HessPD","q_1","q_2","tau2_1","tau2_2"),
+                                  axes = c("kappaMult","corr"),
                                   MARE = TRUE,
                                   RE = TRUE,
                                   groupPars = TRUE )
@@ -218,10 +218,9 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
   # only using 2 axes
   table  <-   table %>%
               filter( mp == MP, nS == nSp, species == spec ) %>%
-              group_by( qOM, UmsyOM, kappaMult, corr, Umax, tUpeak ) %>%
+              group_by( kappaMult, corr, Umax, tUpeak ) %>%
               summarise_if(.predicate = "is.numeric",.funs="median") %>%
-              ungroup() %>%
-              mutate( Umsybar025 = Ubar025, Umsybar975 = Ubar975 )
+              ungroup()
 
 
   # Get levels for axes
@@ -236,7 +235,7 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
   y   <- unique(table %>% pull(axesCols[2]))
   y   <- y[order(y)]
 
-  groupPars <- c("qbar","Umsybar","tauq2","sigU2")
+  groupPars <- c("Umsybar","tauq2","sigU2")
   
   # Create an array to hold info
   z <- array( NA, dim = c( length(x), length(y), length(groupPars), 3 ),
@@ -341,19 +340,19 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
   if(!is.null(spec))  tab  <-   tab %>% filter( species == spec ) 
   if(!is.null(nSp))   tab  <-   tab %>% filter( nS == nSp )
 
-  # Run predictions if explanatory model supplied
-  predTab <- tab %>% mutate( ssPred = NA, msPred = NA )
-  if( !is.null(ssModel) )
-  {
-    predTab <-  predTab %>% 
-                mutate( ssPred = predict( ssModel, newdata = predTab ) )
-  }
+  # # Run predictions if explanatory model supplied
+  # predTab <- tab %>% mutate( ssPred = NA, msPred = NA )
+  # if( !is.null(ssModel) )
+  # {
+  #   predTab <-  predTab %>% 
+  #               mutate( ssPred = predict( ssModel, newdata = predTab ) )
+  # }
 
-  if( !is.null(msModel) )
-  {
-    predTab <-  predTab %>% 
-                mutate( msPred = predict( msModel, newdata = predTab ) )
-  }
+  # if( !is.null(msModel) )
+  # {
+  #   predTab <-  predTab %>% 
+  #               mutate( msPred = predict( msModel, newdata = predTab ) )
+  # }
 
   # response colnames
   respCols <- paste(c("ss","ms"),resp,sep = "")
@@ -361,11 +360,11 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
 
   # Get levels for axes
   axesCols <- integer(length=length(axes))
-  predAxesCols <- integer(length=length(axes))
+  # predAxesCols <- integer(length=length(axes))
   for ( i in 1:3)
   {
     axesCols[i]     <- which(names(tab) == axes[i])
-    predAxesCols[i] <- which(names(predTab) == axes[i])
+    # predAxesCols[i] <- which(names(predTab) == axes[i])
   }
   # order levels
   w   <- unique(tab %>% pull(axesCols[1]))
@@ -405,24 +404,30 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
         wRows <- which ( tab[,axesCols[1] ] == wVal)
         xRows <- which ( tab[,axesCols[2] ] == xVal)
         yRows <- which ( tab[,axesCols[3] ] == yVal)
-        wRowsPred <- which ( predTab[,predAxesCols[1] ] == wVal)
-        xRowsPred <- which ( predTab[,predAxesCols[2] ] == xVal)
-        yRowsPred <- which ( predTab[,predAxesCols[3] ] == yVal)
+        # wRowsPred <- which ( predTab[,predAxesCols[1] ] == wVal)
+        # xRowsPred <- which ( predTab[,predAxesCols[2] ] == xVal)
+        # yRowsPred <- which ( predTab[,predAxesCols[3] ] == yVal)
         rows      <- intersect(intersect(wRows,xRows),yRows)
-        predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
+        # predRows  <- intersect(intersect(wRowsPred,xRowsPred),yRowsPred)
         if( length(rows) == 0 ) next
         filtered <- tab[rows,respCols]
-        if( nrow(filtered) > 1 ) filtered <- filtered[ 1, ]
-        predTab <- predTab[rows,]
-        if( nrow(predTab > 1) ) predTab <- predTab[ 1, ]
+        if( nrow(filtered) > 1 ) 
+          filtered <-  apply(X = filtered, FUN = mean, MARGIN = 2, na.rm = T)
         # Fill array
         z[wIdx,xIdx,yIdx,respCols] <- as.numeric( filtered )
-        zPred[wIdx,xIdx,yIdx,respCols] <- as.numeric( predTab[ , c( "ssPred", "msPred" ) ] )
+        # Now fill zPred array  
+        # predTab <- predTab[predRows,c("ssPred","msPred")]
+        # if(any(!is.na(predTab)))
+        # {
+        #   if( nrow(predTab > 1) ) predTab <- apply(X = predTab, FUN = mean, MARGIN = 2, na.rm = T)
+        #   zPred[wIdx,xIdx,yIdx,respCols] <- as.numeric( predTab[ , c( "ssPred", "msPred" ) ] )
+        # }  
       }
     }
   }
+  if(any(grepl(pattern="msHessPD", x = respCols)) ) z[,,,"msHessPD"] <- z[,,,"msHessPD"] + 100
 
-  zDelta <- log2(z[,,,1] / z[,,,2])
+  zDelta <- log2(z[,,,1] / (z[,,,2]))
 
   cols <- brewer.pal( n = length(w), name = "Dark2" )
   xShift <- 1 / (length(w) + 2)

@@ -912,8 +912,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Estimator Performance Flags
       if(!any(is.na(sdrep)))
       {
-        blob$am$ms$hesspd[i]             <- max(sdrep$gradient.fixed)
-        blob$am$ms$maxGrad[i]            <- sdrep$pdHess
+        blob$am$ms$hesspd[i]             <- sdrep$pdHess
+        blob$am$ms$maxGrad[i]            <- max(sdrep$gradient.fixed)
         blob$am$ms$sdrep[[i]]            <- sdrep
       }
       blob$am$ms$fitrep[[i]]        <- fitrep

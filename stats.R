@@ -28,13 +28,13 @@ checkCorr <- function(  tabName = "rKqExp.csv",
 }
 
 
-# groupPars <- c("qbar","tauq2","Umsybar","sigU2")
 
-metaModels <- function( tabName = "obsErrNew_MARE",
-                        multiResp = c("BnT","Umsy","q","Dep","Bmsy"),
+
+metaModels <- function( tabName = "allSame_infoScenarios_MRE",
+                        multiResp = c("BnT","Umsy","q_1","q_2","Dep","Bmsy"),
                         singleResp = NULL,
                         spec = c("Stock1"),
-                        expVars = c("nHi","CVlo","CVhi","nS","mp"),
+                        expVars = c("Umax","fYear","initDep","nDiff","nS","mp"),
                         sig = .05, intercept = FALSE,
                         scaled = TRUE, saveOut = TRUE, interactions = FALSE )
 {
@@ -340,10 +340,10 @@ AICrank <- function ( modelList, sig )
     out
   }
 
-  cutScenario <- function(x)
+  cutScenario <- function(x,n)
   {
     x <- str_split(x,"_")
-    x <- sapply(X = x, FUN = pull, n = 2)
+    x <- sapply(X = x, FUN = pull, n)
     x
   }
 
@@ -354,22 +354,21 @@ AICrank <- function ( modelList, sig )
     x
   }
 
+
   # medTab <- file.path(getwd(),"project/statistics",medTab)
   # medTab <- read.csv( medTab, header=TRUE, stringsAsFactors=FALSE )   
   # medTab <- medTab %>% filter( species == spec )
-
 
   # Scale inputs
   if( scaled )
   {
     table <-  table %>%
-              mutate( qOM = scaleNum(qOM),
-                      UmsyOM = scaleNum(UmsyOM),
-                      BmsyOM = scaleNum(BmsyOM),
-                      tau2OM = scaleNum(tau2OM),
-                      kappaTrue = scaleNum(kappaTrue),
+              mutate( nS = scaleNum(nS),
+                      Umax = scaleNum(Umax),
+                      kappaMult = scaleNum(kappaMult),
                       corr = scaleNum(corr),
-                      SigmaTrue = scaleNum(SigmaTrue) )
+                      fYear = scaleNum(fYear),
+                      initDep = scaleNum(initDep) )
   }
 
   # Function to fit GLMs given...
