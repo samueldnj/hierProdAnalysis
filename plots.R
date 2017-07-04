@@ -9,64 +9,12 @@
 #
 # --------------------------------------------------------------------------
 
-makeNewTabCols <- function( tableRoot = "obsErrNew" )
-{
-  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
-  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
-  MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
-  MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
-
-  MREtabRoot  <- paste(tableRoot,"_MRE", sep = "")
-  MREtabFile  <- paste(tableRoot,"_MRE.csv", sep = "")
-  MREtabPath <- file.path(getwd(),"project","Statistics",MREtabFile)
-  MREtab     <- read.csv( MREtabPath, header=TRUE, stringsAsFactors=FALSE )
-
-  REtabRoot  <- paste(tableRoot,"_RE", sep = "")
-  REtabFile  <- paste(tableRoot,"_RE.csv", sep = "")
-  REtabPath <- file.path(getwd(),"project","Statistics",REtabFile)
-  REtab     <- read.csv( REtabPath, header=TRUE, stringsAsFactors=FALSE )
-
-
-  splitScenLabel <- function ( scenLabel, match = "CVhi" )
-  {
-    splitLabel <- unlist(str_split(scenLabel,"_"))
-    element <- splitLabel[grep( match, splitLabel, value = F)]
-    splitElement <- unlist(str_split(element,match))
-    num <- as.numeric(splitElement[2])
-    num
-  }
-
-  MAREtab <-  MAREtab %>%
-              group_by( scenario, mp, species ) %>%
-              mutate( CVhi = splitScenLabel(scenario,match = "CVhi"),
-                      CVlo = splitScenLabel(scenario,match = "CVlo"),
-                      nHi = splitScenLabel(scenario,match = "nHi"))
-
-  REtab <-  REtab %>%
-            group_by( scenario, mp, species, rep ) %>%
-            mutate( CVhi  = splitScenLabel(scenario,match = "CVhi"),
-                    CVlo = splitScenLabel(scenario,match = "CVlo"),
-                      nHi = splitScenLabel(scenario,match = "nHi") )
-
-
-  MREtab <- MREtab %>%
-            group_by( scenario, mp, species ) %>%
-            mutate( CVhi  = splitScenLabel(scenario,match = "CVhi"),
-                    CVlo = splitScenLabel(scenario,match = "CVlo"),
-                      nHi = splitScenLabel(scenario,match = "nHi") )
-
-
-  write.csv( REtab, REtabPath )
-  write.csv( MREtab, MREtabPath )
-  write.csv( MAREtab, MAREtabPath )
-}
-
-plotStatTableGraphs <- function(  tableRoot = "allSame_fixedProcRE",
+plotStatTableGraphs <- function(  tableRoot = "allSame_infoScenarios",
                                   resp = c("BnT","Umsy","Bmsy","Dep","HessPD","q_1","q_2","tau2_1","tau2_2"),
-                                  axes = c("kappaMult","corr"),
+                                  axes = c("fYear","nDiff"),
                                   MARE = TRUE,
                                   RE = TRUE,
-                                  groupPars = TRUE )
+                                  groupPars = FALSE )
 {
   # plotStatTableGraphs()
   # Plots the statistics table information and saves into

@@ -19,6 +19,66 @@
 # 
 # --------------------------------------------------------------------------
 
+
+
+
+makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
+{
+  ## Path specific function - needs updating in mutate arguments ##
+  # Cretes new column(s) in stats tables from the scenario label, 
+  # used when factor levels for metamodels are not included in the 
+  # control file (e.g. nDiff in infoScenarios)
+  # inputs:   tableRoot = root file name of stats table
+  #           ALSO REQUIRES UPDATING IN MUTATE ARGUMENTS
+  # outputs:  NA
+  # Side-eff: rewrites stat tables (MARE, MRE and RE versions) with
+  #           new cols
+
+  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
+  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
+  MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
+  MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  MREtabRoot  <- paste(tableRoot,"_MRE", sep = "")
+  MREtabFile  <- paste(tableRoot,"_MRE.csv", sep = "")
+  MREtabPath <- file.path(getwd(),"project","Statistics",MREtabFile)
+  MREtab     <- read.csv( MREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  REtabRoot  <- paste(tableRoot,"_RE", sep = "")
+  REtabFile  <- paste(tableRoot,"_RE.csv", sep = "")
+  REtabPath <- file.path(getwd(),"project","Statistics",REtabFile)
+  REtab     <- read.csv( REtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+
+  splitScenLabel <- function ( scenLabel, match = "CVhi" )
+  {
+    splitLabel <- unlist(str_split(scenLabel,"_"))
+    element <- splitLabel[grep( match, splitLabel, value = F)]
+    splitElement <- unlist(str_split(element,match))
+    num <- as.numeric(splitElement[2])
+    num
+  }
+
+  ## UPDATE MUTATE ARGUMENTS ##
+  MAREtab <-  MAREtab %>%
+              group_by( scenario, mp, species ) %>%
+              mutate( nDiff = splitScenLabel(scenario,match = "nDiff") )
+
+  REtab <-  REtab %>%
+            group_by( scenario, mp, species, rep ) %>%
+            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff") )
+
+
+  MREtab <- MREtab %>%
+            group_by( scenario, mp, species ) %>%
+            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff") )
+
+
+  write.csv( REtab, REtabPath )
+  write.csv( MREtab, MREtabPath )
+  write.csv( MAREtab, MAREtabPath )
+}
+
 makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)"),
                                               initYear = c(1976,1984,2003),
                                               nS = c(4,7,10),

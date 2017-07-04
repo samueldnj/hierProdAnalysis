@@ -28,14 +28,68 @@ checkCorr <- function(  tabName = "rKqExp.csv",
 }
 
 
+makeDeltaCols <- function( tabName = "allSame_infoScenarios_MARE" )
+{
+  # read in table
+  tabFile     <- paste( tabName, ".csv", sep  = "" )
+  tabPath     <- file.path(getwd(),"project","Statistics",tabFile)
+  tab         <- read.csv( tabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  # Takes the mean of numeric columns, or the first value
+  # of other columns (will pick stock1 in most cases)
+  meanTop <- function(x)
+  {
+    if(is.numeric(x)) out <- mean(x)
+    else out <- x[1]
+
+    out
+  }
+
+  # summarise complex table to get mean MARE values
+  # and stock1's other factor levels
+  complexTab <- tab %>%
+                group_by(scenario, mp) %>%
+                summarise_all( .funs=meanTop) %>%
+                ungroup() %>%
+                mutate( DeltaBmsy = log2(ssBmsy / msBmsy),
+                        DeltaBnT  = log2(ssBnT / msBnT),
+                        DeltaUmsy = log2(ssUmsy / msUmsy),
+                        Deltaq_1  = log2(ssq_1 / msq_1),
+                        Deltaq_2  = log2(ssq_2 / msq_2),
+                        DeltaDep  = log2(ssDep / msDep) )
 
 
-metaModels <- function( tabName = "allSame_infoScenarios_MRE",
-                        multiResp = c("BnT","Umsy","q_1","q_2","Dep","Bmsy"),
-                        singleResp = NULL,
+  tab <-  tab %>%
+          mutate( DeltaBmsy = log2(ssBmsy / msBmsy),
+                  DeltaBnT  = log2(ssBnT / msBnT),
+                  DeltaUmsy = log2(ssUmsy / msUmsy),
+                  Deltaq_1  = log2(ssq_1 / msq_1),
+                  Deltaq_2  = log2(ssq_2 / msq_2),
+                  DeltaDep  = log2(ssDep / msDep) )
+
+  # Write complex delta table
+  cplxTabName   <- paste(tabName,"cplx",sep = "_")
+  cplxFileName  <- paste(cplxTabName,".csv",sep = "")
+  cplxSavePath  <- file.path(getwd(),"project","Statistics",cplxFileName)
+  write.csv( x = complexTab, file = cplxSavePath )
+
+  # write stock delta table
+  tabFile       <- paste( tabName, "_Delta.csv", sep = "" )
+  tabPath       <- file.path(getwd(),"project","Statistics",tabFile)
+  write.csv( x = tab, file = tabPath )
+
+  cat("Delta columns appended to ", tabPath, ",\n",
+      "Complex tab file ", cplxTabName, " created at ", cplxSavePath, "\n", sep = "" )
+}
+
+# Fits a GLM to the supplied stat table, using the named columns as explanatory 
+# and response variables. 
+metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
+                        multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+                        singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
                         spec = c("Stock1"),
-                        expVars = c("Umax","fYear","initDep","nDiff","nS","mp"),
-                        sig = .05, intercept = FALSE,
+                        expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+                        sig = .05, intercept = TRUE,
                         scaled = TRUE, saveOut = TRUE, interactions = FALSE )
 {
   # Create an rDataFile output name
@@ -51,6 +105,7 @@ metaModels <- function( tabName = "allSame_infoScenarios_MRE",
   names( respList ) <- multiResp
   # Group parameters (MS prior mean/var, convergence stats )
   groupList <- vector(mode = "list", length = length(singleResp))
+  if(!is.null(singlResp)) names(groupList) <- singleResp
   fitList$ss <- respList
   fitList$ms <- respList
   fitList$group <- groupList
@@ -116,15 +171,20 @@ metaModels <- function( tabName = "allSame_infoScenarios_MRE",
     write.csv( x = AICms, file = file.path(savePath,AICmsFile ) )
   }
   # then the group pars
-  for( par in singleResp)
+  if( !is.null(singleResp))
   {
-    # recover ss and ms AIC tables
-    AIC <- fitList$group[[par]]$AICrank
-    # Main effects first
-    AICfile <- paste(rDataName,par,"AIC.csv",sep = "")
-    
-    write.csv( x = AIC, file = file.path(savePath,AICfile ) )
+    for( pIdx in 1:length(singleResp) )
+    {
+      par <- singleResp[pIdx]
+      # recover ss and ms AIC tables
+      AIC <- fitList$group[[pIdx]]$AICrank
+      # Main effects first
+      AICfile <- paste(rDataName,par,"AIC.csv",sep = "")
+      
+      write.csv( x = AIC, file = file.path(savePath,AICfile ) )
+    }
   }
+    
   fitList
 }
 
