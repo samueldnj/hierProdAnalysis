@@ -10,8 +10,8 @@
 #
 # --------------------------------------------------------------------------
 
-checkCorr <- function(  tabName = "rKqExp.csv",
-                        cols = c("ssq","ssUmsy","ssBmsy"),
+checkCorr <- function(  tabName = "allSame_fixedProcRE_RE.csv",
+                        cols = c("ssq_1","ssq_2","ssBmsy","ssBnT"),
                         spec = NULL )
 {
   # first read in the table
@@ -28,7 +28,7 @@ checkCorr <- function(  tabName = "rKqExp.csv",
 }
 
 
-makeDeltaCols <- function( tabName = "allSame_infoScenarios_MARE" )
+makeDeltaCols <- function( tabName = "pubBase_MARE" )
 {
   # read in table
   tabFile     <- paste( tabName, ".csv", sep  = "" )
@@ -90,7 +90,7 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                         spec = c("Stock1"),
                         expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
                         sig = .05, intercept = TRUE,
-                        scaled = TRUE, saveOut = TRUE, interactions = FALSE )
+                        scaled = TRUE, saveOut = TRUE, interactions = FALSE, dropTest = TRUE )
 {
   # Create an rDataFile output name
   rDataName <- tabName
@@ -105,7 +105,7 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
   names( respList ) <- multiResp
   # Group parameters (MS prior mean/var, convergence stats )
   groupList <- vector(mode = "list", length = length(singleResp))
-  if(!is.null(singlResp)) names(groupList) <- singleResp
+  if(!is.null(singleResp)) names(groupList) <- singleResp
   fitList$ss <- respList
   fitList$ms <- respList
   fitList$group <- groupList
@@ -124,7 +124,8 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                                                 scaled = scaled,
                                                 abs = FALSE,
                                                 spec = spec,
-                                                interactions = interactions )
+                                                interactions = interactions,
+                                                dropTest = dropTest )
     fitList$ms[[rIdx]] <- .DASEmodelSelection(  tabName = tabName,
                                                 resp = msResp,
                                                 expVars = expVars,
@@ -133,7 +134,8 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                                                 scaled = scaled,
                                                 abs = FALSE,
                                                 spec = spec,
-                                                interactions = interactions )
+                                                interactions = interactions,
+                                                dropTest = dropTest )
   }
   if(!is.null(singleResp))
   {
@@ -147,7 +149,9 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                                                     intercept = intercept,
                                                     scaled = scaled,
                                                     abs = FALSE,
-                                                    interactions = interactions )
+                                                    interactions = interactions,
+                                                    dropTest = dropTest,
+                                                    spec = spec )
     }  
   } 
   savePath <- file.path( getwd(), "project", "Statistics", rDataName ) 
@@ -184,8 +188,35 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
       write.csv( x = AIC, file = file.path(savePath,AICfile ) )
     }
   }
-    
+
+  # Now organise the top ranked models into a single table
+  pull1AIC <- function(par, list, prefix = "")
+  {
+    out <- list[[par]]$AICrank[1,]
+    out$par <- paste(prefix,par,sep = "")
+
+    out
+  }
+
+  ssTop <- lapply(X = multiResp, FUN = pull1AIC, list = fitList$ss, prefix = "ss" )
+  ssTop <- do.call(what = "rbind", args = ssTop )
+  msTop <- lapply(X = multiResp, FUN = pull1AIC, list = fitList$ms, prefix = "ms" )
+  msTop <- do.call(what = "rbind", args = msTop )
+
+  topRank <- rbind( ssTop, msTop )
+
+  if( !is.null(singleResp) )
+  {
+    groupTop <- lapply(X = singleResp, FUN = pull1AIC, list = fitList$group, prefix = "" )
+    groupTop <- do.call(what = "rbind", args = groupTop )
+    topRank <- rbind( topRank, groupTop )
+  }
+  # Save
+  topRankFile <- paste( rDataName, "topRank.csv", sep = "" )
+  write.csv( x = topRank, file = topRankFile )
+
   fitList
+  
 }
 
 # .DASEmodelSelection()
@@ -207,7 +238,8 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                                   intercept = FALSE,
                                   abs = FALSE,
                                   scaled = TRUE,
-                                  interactions = FALSE )
+                                  interactions = FALSE,
+                                  dropTest = TRUE )
 {
   # First, fit main effects
   mainEff <- .DASEexperiment( tabName = tabName,
@@ -264,9 +296,9 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
 
     allModels <- c(mainEff$GLM[-length(mainEff$GLM)],fullModels$GLM)
   } else allModels <- mainEff$GLM
-
+  if( grepl(pattern = "Delta", x = resp ) ) scale = 1 else scale = 100
   # Now rank AICc values in each model
-  aicRank     <- AICrank( allModels, sig = sig )
+  aicRank     <- AICrank( allModels, sig = sig, scale = scale, drop = dropTest )
 
   aicRank
 }
@@ -274,12 +306,13 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
 
 # Automate ranking by AIC values, append effect sizes
 # to the output.
-AICrank <- function ( modelList, sig )
+AICrank <- function ( modelList, sig, scale, drop = TRUE )
 {
   # Count models
   nModels   <- length( modelList )
   summList  <- lapply( X = modelList, FUN = summary )
-  dropList  <- lapply( X = modelList, FUN = drop1, test = "LRT" )
+  if( drop ) 
+    dropList  <- lapply( X = modelList, FUN = drop1, test = "LRT" )
 
   # Pull out model with all coefficients for effect size recording
   fullModel <- modelList[[ nModels ]]
@@ -306,9 +339,10 @@ AICrank <- function ( modelList, sig )
     nPar <- nrow(summList[[k]]$coefficients)
     nObs <- length(summList[[k]]$deviance.resid)
     rank.df[k,"AICc"] <- summList[[k]]$aic + nPar*(nPar + 1) / (nObs - nPar - 1)
-    rank.df[k,"maxPr"] <- max(dropList[[k]][-1,5])
+    if( drop )
+      rank.df[k,"maxPr"] <- max(dropList[[k]][-1,5])
     coefSumm <- coef(summList[[k]])
-    coefSumm[,1:2] <- round(coefSumm[,1:2] * 100,2)
+    coefSumm[,1:2] <- round(coefSumm[,1:2] * scale,2)
     effects <- paste( coefSumm[,1], " (", coefSumm[,2],")", sep = "" )
     for( eIdx in 1:nrow( coefSumm ) )
     {
@@ -321,8 +355,10 @@ AICrank <- function ( modelList, sig )
 
   # Join effect sizes to ranks, and remove insignificant models
   rank.df <-  rank.df %>% 
-              left_join( y = effect.df, by = "Number" ) %>%
-              filter( maxPr < sig )
+              left_join( y = effect.df, by = "Number" ) 
+  if( drop )
+    rank.df <- rank.df  %>%
+               filter( maxPr < sig )
 
 
   rank.df[,"deltaAICc"] <- rank.df[,"AICc"] - min(rank.df[,"AICc"])
@@ -365,7 +401,10 @@ AICrank <- function ( modelList, sig )
   # restrict to nominated species/stock
   if(!is.null(spec)) 
     table <-  table %>%
-              filter( species == spec )
+              filter( species %in% spec )
+
+
+  
 
   # Functions to rearrange the table using dplyr
   medTop <- function(x)
@@ -455,6 +494,10 @@ AICrank <- function ( modelList, sig )
     }
     interactions
   }
+
+  # browser()
+  table$mp <- as.factor(table$mp)
+  table$mp <- relevel(table$mp, ref = "noJointPriors")
 
   # Generate the sets of possible effects
   # First, take the power set of main effects and collapse into formulae

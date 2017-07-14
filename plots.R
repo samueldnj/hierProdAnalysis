@@ -3525,6 +3525,158 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
             at = c(0.9,0.1),padj=2,col="grey50",cex=0.8 )
 }
 
+# plotSimPerf()
+# A function to plot simulation-estimation performance for a whole
+# collection of replicates. Resulting plot is a dot and bar graph
+# showing relative error distributions for nominated parameters
+# inputs:   sim = numeric indicator of simulation in project folder
+#           folder = optional character indicating sim folder name
+#           pars = nominated estimated leading and derived parameters 
+# outputs:  NULL
+plotStockPerfMultiSim <- function ( pars = c("Bmsy","Umsy","q_os","dep","BnT","tau2_o","totRE"), 
+                                    sims=1, spec = 1, nSurv = 2,
+                                    est="MLE", devLabels = TRUE,
+                                    title = TRUE, plotMARE = FALSE )
+{
+  # Set plotting window
+  par (mfrow = c(1,length(sims)), mar = c(1,0,2,1), oma = c(3,0,2,0) )
+
+  # Create a wrapper function for generating quantiles
+  quantWrap <- function ( entry = 1, x = ssRE, ... )
+  {
+    if (is.null(dim(x[[entry]]))) x[[entry]] <- matrix(x[[entry]],ncol=1)
+    xDim <- dim(x[[entry]])
+    margins <- 2:length(xDim)
+    quants <- apply ( X = x[[entry]], FUN = quantile, MARGIN = margins, ... )
+    if(class(quants) == "array")
+      return( aperm(quants) )
+    else return( t(quants) )
+  }
+
+  
+
+  blobList <- vector(mode = "list", length=length(sims))
+  # Loop over sims and load their MLEs
+  for( sIdx in 1:length(sims) )
+  { 
+    sim <- sims[sIdx]
+    .loadSim(sim)
+
+    blobList[[sIdx]]$mp       <- blob$ctrl$mp
+    blobList[[sIdx]]$scenario <- blob$ctrl$scenario
+    blobList[[sIdx]]$stamp    <- paste( blob$ctrl$scenario, blob$ctrl$mp, sep = ":")
+    blobList[[sIdx]]$nO       <- blob$opMod$nSurv
+
+    blobList[[sIdx]]$ssQuant  <- lapply ( X = seq_along(blob$am$ss$err.mle[pars]), 
+                                          FUN = quantWrap, x=blob$am$ss$err.mle[pars], 
+                                          probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+    names( blobList[[sIdx]]$ssQuant ) <- names( blob$am$ss$err.mle[pars] )
+
+    
+    blobList[[sIdx]]$msQuant  <- lapply ( X = seq_along(blob$am$ms$err.mle[pars]), 
+                                          FUN = quantWrap, x=blob$am$ms$err.mle[pars], 
+                                          probs = c(0.025, 0.5, 0.975), na.rm = TRUE)
+
+    names( blobList[[sIdx]]$msQuant ) <- names( blob$am$ms$err.mle[pars] )
+
+
+  }
+
+  # Multisurvey parameters
+  if( "q_os" %in% pars )
+  {
+    q_os <- paste( "q_", 1:nSurv, sep = "" )
+    pars <- c( pars[pars != "q_os"], q_os ) 
+  }
+
+  if( "tau2_o" %in% pars )
+  {
+    tau2_o <- paste( "tau2_", 1:nSurv, sep = "" )
+    pars <- c( pars[pars != "tau2_o"], tau2_o ) 
+  }
+
+  # Create an array of quantile values 
+  # (dims = species,percentiles,parameters,models)
+  quantiles <- array ( NA, dim = c(length(sims),3,length(pars),2))
+  dimnames (quantiles) <- list (  character(length(sims)),
+                                  c("2.5%","50%","97.5%"), 
+                                  pars,
+                                  c("ss","ms") )
+
+
+  for( sIdx in 1:length(sims) )
+  {
+    # populate table
+    for (p in 1:length(pars))
+    {
+      parName <- pars[p]
+      # Change behaviour if survey specific stuff is involved
+      # SDNJ: Check backwards compatibility for master branch
+      if( grepl( "q_", parName ) | grepl("tau2_", parName ) )
+      {
+        if( grepl( "q_", parName ) ) parName <- "q_os"
+        if( grepl("tau2_", parName ) ) parName <- "tau2_o"  
+        surveyNo <- as.numeric(str_split(pars[p],"_")[[1]][2])
+        # Now fill in the survey specific deets
+        # REs
+        quantiles[sIdx,,pars[p],1] <- blobList[[sIdx]]$ssQuant[ parName ][[1]][spec,surveyNo,]
+        quantiles[sIdx,,pars[p],2] <- blobList[[sIdx]]$msQuant[ parName ][[1]][spec,surveyNo,]
+        # # MARE
+        # MARE[s,pars[p],1] <- ssAQuant[[ parName ]][s,surveyNo]
+        # MARE[s,pars[p],2] <- msAQuant[[ parName ]][s,surveyNo]
+      } else {
+        quantiles[sIdx,,pars[p],1] <- blobList[[sIdx]]$ssQuant[ parName ][[1]][spec,]
+        quantiles[sIdx,,pars[p],2] <- blobList[[sIdx]]$msQuant[ parName ][[1]][spec,]
+        # # MARE
+        # MARE[s,pars[p],1] <- ssAQuant[[ parName ]][s]
+        # MARE[s,pars[p],2] <- msAQuant[[ parName ]][s]
+      }
+    }
+
+    med <- quantiles[sIdx,"50%",,]
+    q975 <- quantiles[sIdx,"97.5%",,]
+    q025 <- quantiles[sIdx,"2.5%",,]
+
+    # Plot main dotchart
+    plotTitle <- blobList[[sIdx]]$mp
+    FitCounter <- paste( "nReps = ", sum(blob$goodReps[,spec]), sep = "" )
+    dotchart ( x = t(med), xlim = c(-1.5,1.5), main = "",
+                    pch = 16, cex = 1.2)
+      mtext( side = 3, text = plotTitle, cex = 0.8, las = 0, line = 2 )
+      mtext( side = 3, text = FitCounter, cex = 1, las = 0, line = 1 )
+      # axis ( side = 1, at = seq(-1.5,1.5,by=0.5) )
+    
+    # Now add segments
+    for ( p in length(pars):1)
+    {
+      parIdx <- length(pars) - p + 1
+      plotY <- 2 * p + 2 * (p-1)
+      segments( q025[pars[parIdx],"ss"],plotY-1,q975[pars[parIdx],"ss"],plotY-1,lty=1,col="grey60", lwd=3)  
+      segments( q025[pars[parIdx],"ms"],plotY,q975[pars[parIdx],"ms"],plotY,lty=1,col="grey60", lwd=3)  
+      if(plotMARE) 
+      {
+        points(x = mare[parIdx,"ss"],y = plotY-1, pch = 2, cex = 1.2 )
+        points(x = mare[parIdx,"ms"],y = plotY, pch = 2, cex = 1.2 )
+      }
+    }
+
+    abline ( v = 0, lty = 3, lwd = 0.5 )
+
+  }
+
+  
+  if( title )
+  {
+    mtext ( text = "Relative Error", side = 1, outer = TRUE, line = 2, cex = 1.5)
+    mtext ( text = "Parameter", side = 2, outer = TRUE, line = 1, cex = 1.5)
+  }
+  
+  # if( devLabels )
+  #   mtext ( text = c(stamp),side=1, outer = TRUE, 
+  #           at = c(0.75),padj=1,col="grey50" )
+
+}
+
 
 # plotSimPerf()
 # A function to plot simulation-estimation performance for a whole
