@@ -1,18 +1,19 @@
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
-// msProd_TMB.cpp
+// msProd.cpp
 // 
 // A multi-stock surplus production (Schaefer) state-space model with 
 // joint prior distributions applied to catchability (q) 
-// and productivity (U_msy)
+// and productivity (U_msy), and a process error year-effect component (eps_t) 
+// shared between stocks
 // 
 // Author: Samuel Johnson
 // Date: 1 November, 2016
-// Purpose: The assessment model in a simulation study of multi-stock
+//
+// Purpose: This is the assessment model in a simulation study of multi-stock
 // robin hood methods.
 // 
 // Updates:
-//    May 13, 2017: Added multiple surveys, ready for application
-//                  to real DERPA data
+//    May 13, 2017: Added multiple surveys
 // 
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 
@@ -184,17 +185,14 @@ Type objective_function<Type>::operator() ()
   // Concentrate species specific obs error likelihood?
   // Sum of squares vector
   array<Type>   ss_os(nO,nS);
-  vector<Type>  tau2hat_o(nO);
   array<Type>   validObs(nO,nS);
-  array<Type>   qhat(nO,nS);
   array<Type>   zSum(nO,nS);
   // Fill with 0s
   validObs.fill(0.0);
   zSum.fill(0.0);
   ss_os.fill(0.0);
   Type nllObs = 0.0;
-  // qhat.fill(0.0);
-  // tau2hat_o.fill(0.0);
+  
   // Compute observation likelihood
   // Loop over surveys
   for( int o=0; o < nO; o++ )
@@ -205,7 +203,7 @@ Type objective_function<Type>::operator() ()
       // times
       for( int t = initT(s); t < nT; t++ )
       {
-        // only add a contribution if the data exists (Ist < 0 is missing)
+        // only add a contribution if the data exists (It < 0 is missing)
         if (It(o,s,t) > 0) 
         {
           validObs(o,s) += int(1);
@@ -216,12 +214,6 @@ Type objective_function<Type>::operator() ()
         }       
       }
     }
-    tau2hat_o( o ) = ss_os.matrix().row(o).sum() / ( validObs.matrix().row(o).sum() - 1 );
-    for( int s = 1; s < nS; s++ )
-    {
-      if( nS == 1) qhat(o,s) = exp( zSum(o,s) / validObs(o,s) );
-      if( nS > 1 ) qhat(o,s) = exp( ( zSum(o,s) / tau2_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2hat_o(o) + 1 / tauq2_o(o) ) );  
-    }   
   }
   nll += nllObs;
 
@@ -365,17 +357,8 @@ Type objective_function<Type>::operator() ()
   ADREPORT(Binit);
   ADREPORT(tau2_o);
   ADREPORT(kappa2);
-  // if (nS > 1 )
-  // {
-  //   ADREPORT(SigmaDiag);
-  //   ADREPORT(Umsybar);
-  //   ADREPORT(sigUmsy2);
-  //   ADREPORT(qbar_o);
-  //   ADREPORT(tauq2_o)
-  // }
-  // ADREPORT(gammaYr);
-  
-  // Everything else //
+
+  // MLEs of everything  //
   REPORT(Bt);
   REPORT(Ut);
   REPORT(Binit);
@@ -390,8 +373,6 @@ Type objective_function<Type>::operator() ()
   REPORT(nT);
   REPORT(nO);
   REPORT(nS);
-  REPORT(tau2hat_o);
-  REPORT(qhat);
   if (nS > 1)
   {
     REPORT(Sigma);

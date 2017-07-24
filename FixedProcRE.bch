@@ -12,6 +12,7 @@ scenario$scenario1$ctrl$fixProc TRUE
 scenario$scenario1$opMod$corrOffDiag 0.3
 scenario$scenario1$opMod$nS 4
 scenario$scenario1$opMod$corrTargVar 'Ct'
+scenario$scenario1$opMod$corrOpt TRUE
 #
 # Scenario 2 : m1.5_c0.5_Uhistc(0.2,2,1)_targVarCt_nS4
 #
@@ -22,6 +23,7 @@ scenario$scenario2$ctrl$fixProc TRUE
 scenario$scenario2$opMod$corrOffDiag 0.5
 scenario$scenario2$opMod$nS 4
 scenario$scenario2$opMod$corrTargVar 'Ct'
+scenario$scenario2$opMod$corrOpt TRUE
 #
 # Scenario 3 : m1_c0.7_Uhistc(0.2,2,1)_targVarCt_nS4
 #
@@ -32,6 +34,7 @@ scenario$scenario3$ctrl$fixProc TRUE
 scenario$scenario3$opMod$corrOffDiag 0.7
 scenario$scenario3$opMod$nS 4
 scenario$scenario3$opMod$corrTargVar 'Ct'
+scenario$scenario3$opMod$corrOpt TRUE
 #
 # Scenario 4 : m0.5_c0.9_Uhistc(0.2,2,1)_targVarCt_nS4
 #
@@ -42,6 +45,7 @@ scenario$scenario4$ctrl$fixProc TRUE
 scenario$scenario4$opMod$corrOffDiag 0.9
 scenario$scenario4$opMod$nS 4
 scenario$scenario4$opMod$corrTargVar 'Ct'
+scenario$scenario4$opMod$corrOpt TRUE
 #
 # Scenario 5 : m2_c0.1_Uhistc(1,1,1)_targVarCt_nS4
 #
@@ -52,6 +56,7 @@ scenario$scenario5$ctrl$fixProc TRUE
 scenario$scenario5$opMod$corrOffDiag 0.1
 scenario$scenario5$opMod$nS 4
 scenario$scenario5$opMod$corrTargVar 'Ct'
+scenario$scenario5$opMod$corrOpt TRUE
 #
 # Scenario 6 : m1.5_c0.3_Uhistc(1,1,1)_targVarCt_nS4
 #
@@ -62,6 +67,7 @@ scenario$scenario6$ctrl$fixProc TRUE
 scenario$scenario6$opMod$corrOffDiag 0.3
 scenario$scenario6$opMod$nS 4
 scenario$scenario6$opMod$corrTargVar 'Ct'
+scenario$scenario6$opMod$corrOpt TRUE
 #
 # Scenario 7 : m1_c0.5_Uhistc(1,1,1)_targVarCt_nS4
 #
@@ -72,6 +78,7 @@ scenario$scenario7$ctrl$fixProc TRUE
 scenario$scenario7$opMod$corrOffDiag 0.5
 scenario$scenario7$opMod$nS 4
 scenario$scenario7$opMod$corrTargVar 'Ct'
+scenario$scenario7$opMod$corrOpt TRUE
 #
 # Scenario 8 : m0.5_c0.7_Uhistc(1,1,1)_targVarCt_nS4
 #
@@ -82,6 +89,7 @@ scenario$scenario8$ctrl$fixProc TRUE
 scenario$scenario8$opMod$corrOffDiag 0.7
 scenario$scenario8$opMod$nS 4
 scenario$scenario8$opMod$corrTargVar 'Ct'
+scenario$scenario8$opMod$corrOpt TRUE
 #
 # Scenario 9 : m2_c0.1_Uhistc(0.2,2,1)_targVarBt_nS4
 #
@@ -92,6 +100,7 @@ scenario$scenario9$ctrl$fixProc TRUE
 scenario$scenario9$opMod$corrOffDiag 0.1
 scenario$scenario9$opMod$nS 4
 scenario$scenario9$opMod$corrTargVar 'Bt'
+scenario$scenario9$opMod$corrOpt TRUE
 #
 # Scenario 10 : m1.5_c0.3_Uhistc(0.2,2,1)_targVarBt_nS4
 #
@@ -102,6 +111,7 @@ scenario$scenario10$ctrl$fixProc TRUE
 scenario$scenario10$opMod$corrOffDiag 0.3
 scenario$scenario10$opMod$nS 4
 scenario$scenario10$opMod$corrTargVar 'Bt'
+scenario$scenario10$opMod$corrOpt TRUE
 #
 # Scenario 11 : m1_c0.5_Uhistc(0.2,2,1)_targVarBt_nS4
 #
@@ -112,6 +122,7 @@ scenario$scenario11$ctrl$fixProc TRUE
 scenario$scenario11$opMod$corrOffDiag 0.5
 scenario$scenario11$opMod$nS 4
 scenario$scenario11$opMod$corrTargVar 'Bt'
+scenario$scenario11$opMod$corrOpt TRUE
 #
 # Scenario 12 : m0.5_c0.7_Uhistc(0.2,2,1)_targVarBt_nS4
 #
@@ -122,6 +133,7 @@ scenario$scenario12$ctrl$fixProc TRUE
 scenario$scenario12$opMod$corrOffDiag 0.7
 scenario$scenario12$opMod$nS 4
 scenario$scenario12$opMod$corrTargVar 'Bt'
+scenario$scenario12$opMod$corrOpt TRUE
 #
 # Scenario 13 : m1.5_c0.1_Uhistc(1,1,1)_targVarBt_nS4
 #
@@ -132,6 +144,7 @@ scenario$scenario13$ctrl$fixProc TRUE
 scenario$scenario13$opMod$corrOffDiag 0.1
 scenario$scenario13$opMod$nS 4
 scenario$scenario13$opMod$corrTargVar 'Bt'
+scenario$scenario13$opMod$corrOpt TRUE
 #
 # Scenario 14 : m1_c0.3_Uhistc(1,1,1)_targVarBt_nS4
 #
@@ -142,6 +155,7 @@ scenario$scenario14$ctrl$fixProc TRUE
 scenario$scenario14$opMod$corrOffDiag 0.3
 scenario$scenario14$opMod$nS 4
 scenario$scenario14$opMod$corrTargVar 'Bt'
+scenario$scenario14$opMod$corrOpt TRUE
 #
 # Scenario 15 : m0.5_c0.5_Uhistc(1,1,1)_targVarBt_nS4
 #
@@ -152,6 +166,7 @@ scenario$scenario15$ctrl$fixProc TRUE
 scenario$scenario15$opMod$corrOffDiag 0.5
 scenario$scenario15$opMod$nS 4
 scenario$scenario15$opMod$corrTargVar 'Bt'
+scenario$scenario15$opMod$corrOpt TRUE
 #
 # Scenario 16 : m2_c0.9_Uhistc(1,1,1)_targVarBt_nS4
 #
@@ -162,6 +177,7 @@ scenario$scenario16$ctrl$fixProc TRUE
 scenario$scenario16$opMod$corrOffDiag 0.9
 scenario$scenario16$opMod$nS 4
 scenario$scenario16$opMod$corrTargVar 'Bt'
+scenario$scenario16$opMod$corrOpt TRUE
 #
 # Scenario 17 : m2_c0.1_Uhistc(0.2,2,1)_targVarCt_nS7
 #
@@ -172,6 +188,7 @@ scenario$scenario17$ctrl$fixProc TRUE
 scenario$scenario17$opMod$corrOffDiag 0.1
 scenario$scenario17$opMod$nS 7
 scenario$scenario17$opMod$corrTargVar 'Ct'
+scenario$scenario17$opMod$corrOpt TRUE
 #
 # Scenario 18 : m1.5_c0.3_Uhistc(0.2,2,1)_targVarCt_nS7
 #
@@ -182,6 +199,7 @@ scenario$scenario18$ctrl$fixProc TRUE
 scenario$scenario18$opMod$corrOffDiag 0.3
 scenario$scenario18$opMod$nS 7
 scenario$scenario18$opMod$corrTargVar 'Ct'
+scenario$scenario18$opMod$corrOpt TRUE
 #
 # Scenario 19 : m1_c0.5_Uhistc(0.2,2,1)_targVarCt_nS7
 #
@@ -192,6 +210,7 @@ scenario$scenario19$ctrl$fixProc TRUE
 scenario$scenario19$opMod$corrOffDiag 0.5
 scenario$scenario19$opMod$nS 7
 scenario$scenario19$opMod$corrTargVar 'Ct'
+scenario$scenario19$opMod$corrOpt TRUE
 #
 # Scenario 20 : m0.5_c0.7_Uhistc(0.2,2,1)_targVarCt_nS7
 #
@@ -202,6 +221,7 @@ scenario$scenario20$ctrl$fixProc TRUE
 scenario$scenario20$opMod$corrOffDiag 0.7
 scenario$scenario20$opMod$nS 7
 scenario$scenario20$opMod$corrTargVar 'Ct'
+scenario$scenario20$opMod$corrOpt TRUE
 #
 # Scenario 21 : m1.5_c0.1_Uhistc(1,1,1)_targVarCt_nS7
 #
@@ -212,6 +232,7 @@ scenario$scenario21$ctrl$fixProc TRUE
 scenario$scenario21$opMod$corrOffDiag 0.1
 scenario$scenario21$opMod$nS 7
 scenario$scenario21$opMod$corrTargVar 'Ct'
+scenario$scenario21$opMod$corrOpt TRUE
 #
 # Scenario 22 : m1_c0.3_Uhistc(1,1,1)_targVarCt_nS7
 #
@@ -222,6 +243,7 @@ scenario$scenario22$ctrl$fixProc TRUE
 scenario$scenario22$opMod$corrOffDiag 0.3
 scenario$scenario22$opMod$nS 7
 scenario$scenario22$opMod$corrTargVar 'Ct'
+scenario$scenario22$opMod$corrOpt TRUE
 #
 # Scenario 23 : m0.5_c0.5_Uhistc(1,1,1)_targVarCt_nS7
 #
@@ -232,6 +254,7 @@ scenario$scenario23$ctrl$fixProc TRUE
 scenario$scenario23$opMod$corrOffDiag 0.5
 scenario$scenario23$opMod$nS 7
 scenario$scenario23$opMod$corrTargVar 'Ct'
+scenario$scenario23$opMod$corrOpt TRUE
 #
 # Scenario 24 : m2_c0.9_Uhistc(1,1,1)_targVarCt_nS7
 #
@@ -242,6 +265,7 @@ scenario$scenario24$ctrl$fixProc TRUE
 scenario$scenario24$opMod$corrOffDiag 0.9
 scenario$scenario24$opMod$nS 7
 scenario$scenario24$opMod$corrTargVar 'Ct'
+scenario$scenario24$opMod$corrOpt TRUE
 #
 # Scenario 25 : m1.5_c0.1_Uhistc(0.2,2,1)_targVarBt_nS7
 #
@@ -252,6 +276,7 @@ scenario$scenario25$ctrl$fixProc TRUE
 scenario$scenario25$opMod$corrOffDiag 0.1
 scenario$scenario25$opMod$nS 7
 scenario$scenario25$opMod$corrTargVar 'Bt'
+scenario$scenario25$opMod$corrOpt TRUE
 #
 # Scenario 26 : m1_c0.3_Uhistc(0.2,2,1)_targVarBt_nS7
 #
@@ -262,6 +287,7 @@ scenario$scenario26$ctrl$fixProc TRUE
 scenario$scenario26$opMod$corrOffDiag 0.3
 scenario$scenario26$opMod$nS 7
 scenario$scenario26$opMod$corrTargVar 'Bt'
+scenario$scenario26$opMod$corrOpt TRUE
 #
 # Scenario 27 : m0.5_c0.5_Uhistc(0.2,2,1)_targVarBt_nS7
 #
@@ -272,6 +298,7 @@ scenario$scenario27$ctrl$fixProc TRUE
 scenario$scenario27$opMod$corrOffDiag 0.5
 scenario$scenario27$opMod$nS 7
 scenario$scenario27$opMod$corrTargVar 'Bt'
+scenario$scenario27$opMod$corrOpt TRUE
 #
 # Scenario 28 : m2_c0.9_Uhistc(0.2,2,1)_targVarBt_nS7
 #
@@ -282,6 +309,7 @@ scenario$scenario28$ctrl$fixProc TRUE
 scenario$scenario28$opMod$corrOffDiag 0.9
 scenario$scenario28$opMod$nS 7
 scenario$scenario28$opMod$corrTargVar 'Bt'
+scenario$scenario28$opMod$corrOpt TRUE
 #
 # Scenario 29 : m1_c0.1_Uhistc(1,1,1)_targVarBt_nS7
 #
@@ -292,6 +320,7 @@ scenario$scenario29$ctrl$fixProc TRUE
 scenario$scenario29$opMod$corrOffDiag 0.1
 scenario$scenario29$opMod$nS 7
 scenario$scenario29$opMod$corrTargVar 'Bt'
+scenario$scenario29$opMod$corrOpt TRUE
 #
 # Scenario 30 : m0.5_c0.3_Uhistc(1,1,1)_targVarBt_nS7
 #
@@ -302,6 +331,7 @@ scenario$scenario30$ctrl$fixProc TRUE
 scenario$scenario30$opMod$corrOffDiag 0.3
 scenario$scenario30$opMod$nS 7
 scenario$scenario30$opMod$corrTargVar 'Bt'
+scenario$scenario30$opMod$corrOpt TRUE
 #
 # Scenario 31 : m2_c0.7_Uhistc(1,1,1)_targVarBt_nS7
 #
@@ -312,6 +342,7 @@ scenario$scenario31$ctrl$fixProc TRUE
 scenario$scenario31$opMod$corrOffDiag 0.7
 scenario$scenario31$opMod$nS 7
 scenario$scenario31$opMod$corrTargVar 'Bt'
+scenario$scenario31$opMod$corrOpt TRUE
 #
 # Scenario 32 : m1.5_c0.9_Uhistc(1,1,1)_targVarBt_nS7
 #
@@ -322,6 +353,7 @@ scenario$scenario32$ctrl$fixProc TRUE
 scenario$scenario32$opMod$corrOffDiag 0.9
 scenario$scenario32$opMod$nS 7
 scenario$scenario32$opMod$corrTargVar 'Bt'
+scenario$scenario32$opMod$corrOpt TRUE
 #
 # Scenario 33 : m1.5_c0.1_Uhistc(0.2,2,1)_targVarCt_nS10
 #
@@ -332,6 +364,7 @@ scenario$scenario33$ctrl$fixProc TRUE
 scenario$scenario33$opMod$corrOffDiag 0.1
 scenario$scenario33$opMod$nS 10
 scenario$scenario33$opMod$corrTargVar 'Ct'
+scenario$scenario33$opMod$corrOpt TRUE
 #
 # Scenario 34 : m1_c0.3_Uhistc(0.2,2,1)_targVarCt_nS10
 #
@@ -342,6 +375,7 @@ scenario$scenario34$ctrl$fixProc TRUE
 scenario$scenario34$opMod$corrOffDiag 0.3
 scenario$scenario34$opMod$nS 10
 scenario$scenario34$opMod$corrTargVar 'Ct'
+scenario$scenario34$opMod$corrOpt TRUE
 #
 # Scenario 35 : m0.5_c0.5_Uhistc(0.2,2,1)_targVarCt_nS10
 #
@@ -352,6 +386,7 @@ scenario$scenario35$ctrl$fixProc TRUE
 scenario$scenario35$opMod$corrOffDiag 0.5
 scenario$scenario35$opMod$nS 10
 scenario$scenario35$opMod$corrTargVar 'Ct'
+scenario$scenario35$opMod$corrOpt TRUE
 #
 # Scenario 36 : m2_c0.9_Uhistc(0.2,2,1)_targVarCt_nS10
 #
@@ -362,6 +397,7 @@ scenario$scenario36$ctrl$fixProc TRUE
 scenario$scenario36$opMod$corrOffDiag 0.9
 scenario$scenario36$opMod$nS 10
 scenario$scenario36$opMod$corrTargVar 'Ct'
+scenario$scenario36$opMod$corrOpt TRUE
 #
 # Scenario 37 : m1_c0.1_Uhistc(1,1,1)_targVarCt_nS10
 #
@@ -372,6 +408,7 @@ scenario$scenario37$ctrl$fixProc TRUE
 scenario$scenario37$opMod$corrOffDiag 0.1
 scenario$scenario37$opMod$nS 10
 scenario$scenario37$opMod$corrTargVar 'Ct'
+scenario$scenario37$opMod$corrOpt TRUE
 #
 # Scenario 38 : m0.5_c0.3_Uhistc(1,1,1)_targVarCt_nS10
 #
@@ -382,6 +419,7 @@ scenario$scenario38$ctrl$fixProc TRUE
 scenario$scenario38$opMod$corrOffDiag 0.3
 scenario$scenario38$opMod$nS 10
 scenario$scenario38$opMod$corrTargVar 'Ct'
+scenario$scenario38$opMod$corrOpt TRUE
 #
 # Scenario 39 : m2_c0.7_Uhistc(1,1,1)_targVarCt_nS10
 #
@@ -392,6 +430,7 @@ scenario$scenario39$ctrl$fixProc TRUE
 scenario$scenario39$opMod$corrOffDiag 0.7
 scenario$scenario39$opMod$nS 10
 scenario$scenario39$opMod$corrTargVar 'Ct'
+scenario$scenario39$opMod$corrOpt TRUE
 #
 # Scenario 40 : m1.5_c0.9_Uhistc(1,1,1)_targVarCt_nS10
 #
@@ -402,6 +441,7 @@ scenario$scenario40$ctrl$fixProc TRUE
 scenario$scenario40$opMod$corrOffDiag 0.9
 scenario$scenario40$opMod$nS 10
 scenario$scenario40$opMod$corrTargVar 'Ct'
+scenario$scenario40$opMod$corrOpt TRUE
 #
 # Scenario 41 : m1_c0.1_Uhistc(0.2,2,1)_targVarBt_nS10
 #
@@ -412,6 +452,7 @@ scenario$scenario41$ctrl$fixProc TRUE
 scenario$scenario41$opMod$corrOffDiag 0.1
 scenario$scenario41$opMod$nS 10
 scenario$scenario41$opMod$corrTargVar 'Bt'
+scenario$scenario41$opMod$corrOpt TRUE
 #
 # Scenario 42 : m0.5_c0.3_Uhistc(0.2,2,1)_targVarBt_nS10
 #
@@ -422,6 +463,7 @@ scenario$scenario42$ctrl$fixProc TRUE
 scenario$scenario42$opMod$corrOffDiag 0.3
 scenario$scenario42$opMod$nS 10
 scenario$scenario42$opMod$corrTargVar 'Bt'
+scenario$scenario42$opMod$corrOpt TRUE
 #
 # Scenario 43 : m2_c0.7_Uhistc(0.2,2,1)_targVarBt_nS10
 #
@@ -432,6 +474,7 @@ scenario$scenario43$ctrl$fixProc TRUE
 scenario$scenario43$opMod$corrOffDiag 0.7
 scenario$scenario43$opMod$nS 10
 scenario$scenario43$opMod$corrTargVar 'Bt'
+scenario$scenario43$opMod$corrOpt TRUE
 #
 # Scenario 44 : m1.5_c0.9_Uhistc(0.2,2,1)_targVarBt_nS10
 #
@@ -442,6 +485,7 @@ scenario$scenario44$ctrl$fixProc TRUE
 scenario$scenario44$opMod$corrOffDiag 0.9
 scenario$scenario44$opMod$nS 10
 scenario$scenario44$opMod$corrTargVar 'Bt'
+scenario$scenario44$opMod$corrOpt TRUE
 #
 # Scenario 45 : m0.5_c0.1_Uhistc(1,1,1)_targVarBt_nS10
 #
@@ -452,6 +496,7 @@ scenario$scenario45$ctrl$fixProc TRUE
 scenario$scenario45$opMod$corrOffDiag 0.1
 scenario$scenario45$opMod$nS 10
 scenario$scenario45$opMod$corrTargVar 'Bt'
+scenario$scenario45$opMod$corrOpt TRUE
 #
 # Scenario 46 : m2_c0.5_Uhistc(1,1,1)_targVarBt_nS10
 #
@@ -462,6 +507,7 @@ scenario$scenario46$ctrl$fixProc TRUE
 scenario$scenario46$opMod$corrOffDiag 0.5
 scenario$scenario46$opMod$nS 10
 scenario$scenario46$opMod$corrTargVar 'Bt'
+scenario$scenario46$opMod$corrOpt TRUE
 #
 # Scenario 47 : m1.5_c0.7_Uhistc(1,1,1)_targVarBt_nS10
 #
@@ -472,6 +518,7 @@ scenario$scenario47$ctrl$fixProc TRUE
 scenario$scenario47$opMod$corrOffDiag 0.7
 scenario$scenario47$opMod$nS 10
 scenario$scenario47$opMod$corrTargVar 'Bt'
+scenario$scenario47$opMod$corrOpt TRUE
 #
 # Scenario 48 : m1_c0.9_Uhistc(1,1,1)_targVarBt_nS10
 #
@@ -482,4 +529,152 @@ scenario$scenario48$ctrl$fixProc TRUE
 scenario$scenario48$opMod$corrOffDiag 0.9
 scenario$scenario48$opMod$nS 10
 scenario$scenario48$opMod$corrTargVar 'Bt'
+scenario$scenario48$opMod$corrOpt TRUE
 #
+# Management Procedures 
+#
+# MP 1: noJointPriors
+# 
+mp$mp1$ctrl$mpLabel 'noJointPriors'
+mp$mp1$assess$estYearEff FALSE
+mp$mp1$assess$kappa2 0.00001
+mp$mp1$assess$lnUPriorCode 0
+mp$mp1$assess$fixsigU2 TRUE
+mp$mp1$assess$lnsigUmsy2 -2.4
+mp$mp1$assess$fixUbar TRUE
+mp$mp1$assess$lnqPriorCode 0
+mp$mp1$assess$fixtauq2 TRUE
+mp$mp1$assess$lntauq2 -2.4
+mp$mp1$assess$fixqbar TRUE
+mp$mp1$assess$estqms 'unique'
+mp$mp1$assess$fixqss FALSE
+mp$mp1$assess$msRE c('zeta_st')
+mp$mp1$assess$ssRE c('eps_t')
+#
+# MP 2: YearEffOnly
+# 
+mp$mp2$ctrl$mpLabel 'YearEffOnly'
+mp$mp2$assess$estYearEff TRUE
+mp$mp2$assess$kappa2 0.1
+mp$mp2$assess$lnUPriorCode 0
+mp$mp2$assess$fixsigU2 TRUE
+mp$mp2$assess$lnsigUmsy2 -2.4
+mp$mp2$assess$fixUbar TRUE
+mp$mp2$assess$lnqPriorCode 0
+mp$mp2$assess$fixtauq2 TRUE
+mp$mp2$assess$lntauq2 -2.4
+mp$mp2$assess$fixqbar TRUE
+mp$mp2$assess$estqms 'unique'
+mp$mp2$assess$fixqss FALSE
+mp$mp2$assess$msRE c('zeta_st','eps_t')
+mp$mp2$assess$ssRE c('eps_t')
+#
+# MP 3: qPriorOnly
+# 
+mp$mp3$ctrl$mpLabel 'qPriorOnly'
+mp$mp3$assess$estYearEff FALSE
+mp$mp3$assess$kappa2 0.00001
+mp$mp3$assess$lnUPriorCode 0
+mp$mp3$assess$fixsigU2 TRUE
+mp$mp3$assess$lnsigUmsy2 -2.4
+mp$mp3$assess$fixUbar TRUE
+mp$mp3$assess$lnqPriorCode 1
+mp$mp3$assess$fixtauq2 FALSE
+mp$mp3$assess$lntauq2 -2.4
+mp$mp3$assess$fixqbar FALSE
+mp$mp3$assess$estqms 'unique'
+mp$mp3$assess$fixqss FALSE
+mp$mp3$assess$msRE c('zeta_st','lnq_os')
+mp$mp3$assess$ssRE c('eps_t')
+#
+# MP 4: UmsyPriorOnly
+# 
+mp$mp4$ctrl$mpLabel 'UmsyPriorOnly'
+mp$mp4$assess$estYearEff FALSE
+mp$mp4$assess$kappa2 0.00001
+mp$mp4$assess$lnUPriorCode 1
+mp$mp4$assess$fixsigU2 FALSE
+mp$mp4$assess$lnsigUmsy2 -2.4
+mp$mp4$assess$fixUbar FALSE
+mp$mp4$assess$lnqPriorCode 0
+mp$mp4$assess$fixtauq2 TRUE
+mp$mp4$assess$lntauq2 -2.4
+mp$mp4$assess$fixqbar TRUE
+mp$mp4$assess$estqms 'unique'
+mp$mp4$assess$fixqss FALSE
+mp$mp4$assess$msRE c('zeta_st')
+mp$mp4$assess$ssRE c('eps_t')
+#
+# MP 5: qUpriors
+# 
+mp$mp5$ctrl$mpLabel 'qUpriors'
+mp$mp5$assess$estYearEff FALSE
+mp$mp5$assess$kappa2 0.00001
+mp$mp5$assess$lnUPriorCode 1
+mp$mp5$assess$fixsigU2 FALSE
+mp$mp5$assess$lnsigUmsy2 -2.4
+mp$mp5$assess$fixUbar FALSE
+mp$mp5$assess$lnqPriorCode 1
+mp$mp5$assess$fixtauq2 FALSE
+mp$mp5$assess$lntauq2 -2.4
+mp$mp5$assess$fixqbar FALSE
+mp$mp5$assess$estqms 'unique'
+mp$mp5$assess$fixqss FALSE
+mp$mp5$assess$msRE c('zeta_st','lnq_os')
+mp$mp5$assess$ssRE c('eps_t')
+#
+# MP 6: qYEpriors
+# 
+mp$mp6$ctrl$mpLabel 'qYEpriors'
+mp$mp6$assess$estYearEff TRUE
+mp$mp6$assess$kappa2 0.1
+mp$mp6$assess$lnUPriorCode 0
+mp$mp6$assess$fixsigU2 TRUE
+mp$mp6$assess$lnsigUmsy2 -2.4
+mp$mp6$assess$fixUbar TRUE
+mp$mp6$assess$lnqPriorCode 1
+mp$mp6$assess$fixtauq2 FALSE
+mp$mp6$assess$lntauq2 -2.4
+mp$mp6$assess$fixqbar FALSE
+mp$mp6$assess$estqms 'unique'
+mp$mp6$assess$fixqss FALSE
+mp$mp6$assess$msRE c('zeta_st','eps_t','lnq_os')
+mp$mp6$assess$ssRE c('eps_t')
+#
+# MP 7: UmsyYEpriors
+# 
+mp$mp7$ctrl$mpLabel 'UmsyYEpriors'
+mp$mp7$assess$estYearEff TRUE
+mp$mp7$assess$kappa2 0.1
+mp$mp7$assess$lnUPriorCode 1
+mp$mp7$assess$fixsigU2 FALSE
+mp$mp7$assess$lnsigUmsy2 -2.4
+mp$mp7$assess$fixUbar FALSE
+mp$mp7$assess$lnqPriorCode 0
+mp$mp7$assess$fixtauq2 TRUE
+mp$mp7$assess$lntauq2 -2.4
+mp$mp7$assess$fixqbar TRUE
+mp$mp7$assess$estqms 'unique'
+mp$mp7$assess$fixqss FALSE
+mp$mp7$assess$msRE c('zeta_st','eps_t')
+mp$mp7$assess$ssRE c('eps_t')
+#
+# MP 8: allJointPriors
+# 
+mp$mp8$ctrl$mpLabel 'allJointPriors'
+mp$mp8$assess$estYearEff TRUE
+mp$mp8$assess$kappa2 0.1
+mp$mp8$assess$lnUPriorCode 1
+mp$mp8$assess$fixsigU2 FALSE
+mp$mp8$assess$lnsigUmsy2 -2.4
+mp$mp8$assess$fixUbar FALSE
+mp$mp8$assess$lnqPriorCode 1
+mp$mp8$assess$fixtauq2 FALSE
+mp$mp8$assess$lntauq2 -2.4
+mp$mp8$assess$fixqbar FALSE
+mp$mp8$assess$estqms 'unique'
+mp$mp8$assess$fixqss FALSE
+mp$mp8$assess$msRE c('zeta_st','eps_t','lnq_os')
+mp$mp8$assess$ssRE c('eps_t')
+#
+# File ends <not run>

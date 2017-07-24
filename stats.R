@@ -10,8 +10,8 @@
 #
 # --------------------------------------------------------------------------
 
-checkCorr <- function(  tabName = "allSame_fixedProcRE_RE.csv",
-                        cols = c("ssq_1","ssq_2","ssBmsy","ssBnT"),
+checkCorr <- function(  tabName = "pubBase_RE.csv",
+                        cols = c("ssq_1","ssq_2","ssBmsy","ssBnT","msq_1","msq_2","msBmsy","msBnT"),
                         spec = NULL )
 {
   # first read in the table
