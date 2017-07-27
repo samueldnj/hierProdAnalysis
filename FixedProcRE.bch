@@ -505,7 +505,7 @@ scenario$scenario46$opMod$Umult c(1,1,1)
 scenario$scenario46$opMod$kappaMult 2
 scenario$scenario46$ctrl$fixProc TRUE
 scenario$scenario46$opMod$corrOffDiag 0.5
-scenario$scenario46$opMod$nS 10
+scenario$scenario46$opMod$nS 10So
 scenario$scenario46$opMod$corrTargVar 'Bt'
 scenario$scenario46$opMod$corrOpt TRUE
 #

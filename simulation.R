@@ -597,10 +597,16 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   {
     sdrep <- NA
     CIs <- NA
+    rep <- NA
   } else {
     sdrep <- try( sdreport( obj ) )
     rep   <- try( obj$report() )
   } 
+  if( class( rep ) == "try-error" )
+  {
+    rep <- NA
+    CIs <- NA
+  }
   if( class( sdrep ) == "try-error" )
   {
     sdrep <- NA

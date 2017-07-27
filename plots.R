@@ -56,20 +56,56 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_infoScenarios",
       nSppMAREtab   <- MAREtab %>% filter( nS == nSp )
       spp           <- unique(nSppMAREtab$species) 
 
+      # loop over response variables
       for( rIdx in 1:length(resp) )
       {
-        response = resp[rIdx]
-        plotFile      <- paste(response,"_",nSp,"stocks_",MAREtabRoot,"_byMP.pdf", sep = "") 
+        # loop over species/stocks
+        for( spIdx in 1:nSp )
+        {
+          response      <- resp[rIdx]
+          sppName       <- spp[spIdx]
+          plotFile      <- paste(response,"_",sppName,"_",nSp,"stocks_",MAREtabRoot,"_byMP.pdf", sep = "") 
+          plotPath      <- file.path(nSpFolder,plotFile)
+          pdf( file = plotPath, width = 17, height = 11 )
+          plotMAREs(  tableName = MAREtabRoot, table = nSppMAREtab,
+                      axes = c(axes,"mp"), nSp = nSp, spec = sppName, resp = response )
+          dev.off()  
+        }
+        plotFile      <- paste(response,"_allStocks_",nSp,"stocks_",MAREtabRoot,"_byMP.pdf", sep = "") 
         plotPath      <- file.path(nSpFolder,plotFile)
-        pdf( file = plotPath, width = 11, height = 17 )
+        pdf( file = plotPath, width = 17, height = 11 )
         plotMAREs(  tableName = MAREtabRoot, table = nSppMAREtab,
-                    axes = c(axes,"mp"), nSp = nSp, spec = "Stock1", resp = response )
-        dev.off()
+                    axes = c(axes,"mp"), nSp = nSp, spec = spp, resp = response )
+        dev.off()     
       }
     }
+    # Now plot for all stock sizes aggregated
+    folderName <- paste("allComplexSizes")
+    folderPath <- file.path(MAREdir,folderName)
+    dir.create( folderPath )
+    spp        <- unique(MAREtab$species) 
+    for( rIdx in 1:length(resp) )
+      {
+        for( spIdx in 1:max(nSpp) )
+        {
+          response      <- resp[rIdx]
+          sppName       <- spp[spIdx]
+          plotFile      <- paste(response,"_",sppName,"_allComplexSizes_",MAREtabRoot,"_byMP.pdf", sep = "") 
+          plotPath      <- file.path(folderPath,plotFile)
+          pdf( file = plotPath, width = 17, height = 11 )
+          plotMAREs(  tableName = MAREtabRoot, table = MAREtab,
+                      axes = c(axes,"mp"), nSp = NULL, spec = sppName, resp = response )
+          dev.off()  
+        }
+        plotFile      <- paste(response,"_allStocks_allComplexSizes_",MAREtabRoot,"_byMP.pdf", sep = "") 
+        plotPath      <- file.path(folderPath,plotFile)
+        pdf( file = plotPath, width = 17, height = 11 )
+        plotMAREs(  tableName = MAREtabRoot, table = MAREtab,
+                    axes = c(axes,"mp"), nSp = NULL, spec = spp, resp = response )
+        dev.off()     
+      }
+
   }
-
-
   
 
   # Now plot relative error distributions
@@ -97,18 +133,74 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_infoScenarios",
 
       for( rIdx in 1:length(resp) )
       {
-        response = resp[rIdx]
-        plotFile      <- paste(response,"_",nSp,"stocks_",REtabRoot,"_byMP.pdf", sep = "") 
+        # plot RE dists for each stock
+        for( spIdx in 1:length(spp) )
+        { 
+          sppName       <- spp[spIdx]
+          response      <- resp[rIdx]
+          plotFile      <- paste(response,"_",sppName,"_",nSp,"stocks_",REtabRoot,"_byMP.pdf", sep = "") 
+          plotPath      <- file.path(nSpFolder,plotFile)
+          pdf( file = plotPath, width = 11, height = 17 )
+          plotREdists(  tableName = REtabRoot, 
+                        table = nSppREtab,
+                        axes = c(axes,"mp"), 
+                        nSp = nSp, 
+                        spec = sppName, 
+                        resp = response )
+          dev.off()
+        }
+        # Now plot RE dists over the whole complex - might not be useful but
+        # should check anyhow
+        plotFile      <- paste(response,"_allStocks_",nSp,"stocks_",REtabRoot,"_byMP.pdf", sep = "") 
         plotPath      <- file.path(nSpFolder,plotFile)
         pdf( file = plotPath, width = 11, height = 17 )
         plotREdists(  tableName = REtabRoot, 
                       table = nSppREtab,
                       axes = c(axes,"mp"), 
                       nSp = nSp, 
-                      spec = "Stock1", 
+                      spec = NULL, 
+                      resp = response )
+        dev.off()   
+      }
+    }
+
+    # Now do it for all complex sizes
+    nSp           <- max(nSpp)
+    folderName    <- paste("allComplexSizes",sep = "_")
+    folderPath    <- file.path(REdir,folderName)
+    dir.create(folderPath)
+    spp           <- unique(REtab$species) 
+
+    for( rIdx in 1:length(resp) )
+    {
+      # plot RE dists for each stock
+      for( spIdx in 1:length(spp) )
+      { 
+        sppName       <- spp[spIdx]
+        response      <- resp[rIdx]
+        plotFile      <- paste(response,"_",sppName,"_allComplexSizes_",REtabRoot,"_byMP.pdf", sep = "") 
+        plotPath      <- file.path(folderPath,plotFile)
+        pdf( file = plotPath, width = 11, height = 17 )
+        plotREdists(  tableName = REtabRoot, 
+                      table = REtab,
+                      axes = c(axes,"mp"), 
+                      nSp = NULL, 
+                      spec = sppName, 
                       resp = response )
         dev.off()
       }
+      # Now plot RE dists over the whole complex - might not be useful but
+      # should check anyhow
+      plotFile      <- paste(response,"_allStocks_allComplexSizes_",REtabRoot,"_byMP.pdf", sep = "") 
+      plotPath      <- file.path(folderPath,plotFile)
+      pdf( file = plotPath, width = 11, height = 17 )
+      plotREdists(  tableName = REtabRoot, 
+                    table = REtab,
+                    axes = c(axes,"mp"), 
+                    nSp = NULL, 
+                    spec = NULL, 
+                    resp = response )
+      dev.off()   
     }
   }
   
@@ -165,7 +257,7 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
   # restrict to correct number of species, summarise group pars since we're
   # only using 2 axes
   table  <-   table %>%
-              filter( mp == MP, nS == nSp, species == spec ) %>%
+              filter( mp == MP, nS %in% nSp, species %in% spec ) %>%
               group_by( kappaMult, corr, Umax, tUpeak ) %>%
               summarise_if(.predicate = "is.numeric",.funs="median") %>%
               ungroup()
@@ -285,8 +377,8 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
   tab <- table
   # Restrict to subtables if requested
   if(!is.null(MP))    tab  <-   tab %>% filter( mp == MP ) 
-  if(!is.null(spec))  tab  <-   tab %>% filter( species == spec ) 
-  if(!is.null(nSp))   tab  <-   tab %>% filter( nS == nSp )
+  if(!is.null(spec))  tab  <-   tab %>% filter( species %in% spec ) 
+  if(!is.null(nSp))   tab  <-   tab %>% filter( nS %in% nSp )
 
   # # Run predictions if explanatory model supplied
   # predTab <- tab %>% mutate( ssPred = NA, msPred = NA )
@@ -375,7 +467,20 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
   }
   if(any(grepl(pattern="msHessPD", x = respCols)) ) z[,,,"msHessPD"] <- z[,,,"msHessPD"] + 100
 
-  zDelta <- log2(z[,,,1] / (z[,,,2]))
+  zDelta <- (z[,,,1] / z[,,,2]) - 1
+
+  # Because of missing factor levels for some stocks, the dimension
+  # of zDelta might reduce too much for the plotting code below. This
+  # will fix it.
+  if( length( dim( zDelta ) ) < length( dim(z) ) - 1 )
+  {
+    missingDim            <- which( !(dim(z)[1:3] %in% dim(zDelta)) )
+    newDims               <- numeric( length = 3 )
+    newDims[missingDim]   <- 1
+    newDims[-missingDim]  <- dim( zDelta )
+    newDimNames           <- dimnames( z )[1:3]
+    zDelta <- array(zDelta, dim = newDims, dimnames = newDimNames )
+  }
 
   cols <- brewer.pal( n = length(w), name = "Dark2" )
   xShift <- 1 / (length(w) + 2)
@@ -384,14 +489,16 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
   
   # Plot contents. Use w values as line groupings, x values as
   # horizontal axis points, and y values as panel row groups
-  par( mfrow = c(length(y), 3), mar = c(2,2,2,1), oma = c(3,3,2,2) )
+  par( mfcol = c(3, length(y)), mar = c(2,2,2,1), oma = c(3,3,2,2) )
   for( yIdx in 1:length(y) )
   {
     # Plot SS model
     plot( x = c(1 - leftShift,length(x)+leftShift), 
           y = c(0,max(z, na.rm = T )), type = "n",
           axes = FALSE )
-      if( yIdx == 1 ) mtext( side = 3, text = "Single Species Model", cex = 0.8)
+      mtext(side = 3,, text =  y[yIdx])
+      if( yIdx == length(y) ) mtext( side = 4, text = "Single Species Model", cex = 0.8)
+      if( yIdx == 1)  mtext( side = 2, outer = F, text = "MARE (%)", cex = 1.2, line = 2 )
       axis( side = 1, at = 1:length(x),labels = x )
       axis( side = 2, las = 1 )
       for( wIdx in 1:length(w) )
@@ -400,35 +507,33 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
               xright = 1:length(x) - leftShift + xShift*(wIdx), ytop = z[ wIdx, , yIdx, respCols[1] ],
               col = cols[wIdx] )
       }
-      panLab( x = 0.8, y = 0.8, 
-              txt = paste( axes[3], " = ", y[yIdx], sep = "" ) )
     # plot MS model
     plot( x = c(1 - leftShift,length(x)+leftShift), 
           y = c(0,max(z,na.rm = T)), type = "n",
           axes = FALSE )
       axis( side = 1, at = 1:length(x),labels = x )
       axis( side = 2, las = 1 )
-      if( yIdx == 1 ) mtext( side = 3, text = "Joint Model", cex = 0.8)
+      if( yIdx == length(y) ) mtext( side = 4, text = "Joint Model", cex = 0.8)
+      if( yIdx == 1)  mtext( side = 2, outer = F, text = "MARE (%)", cex = 1.2, line = 2 )
       for( wIdx in 1:length(w) )
       {
         rect( xleft = 1:length(x) + xShift*(wIdx-1) - leftShift, ybottom = 0, 
               xright = 1:length(x) + xShift*(wIdx) - leftShift , ytop = z[ wIdx, , yIdx, respCols[2] ],
               col = cols[wIdx] )
       }
-      panLab( x = 0.8, y = 0.8, 
-              txt = paste( axes[3], " = ", y[yIdx], sep = "" ) )
 
     # plot Delta statistic
     plot( x = c(1 - leftShift,length(x)+leftShift), 
           y = range(zDelta,na.rm = T), type = "n",
           axes = FALSE )
-      if( yIdx == 1 ) panLegend(  legTxt = paste( axes[1], " = ", w ),
+      if( yIdx == length(y) ) panLegend(  legTxt = paste( axes[1], " = ", w ),
                                   lty = 1, pch = 16, cex = 1,
                                   lwd = 0.8, col = cols,
                                   x = 0.1, y = 0.7, bty = "n" )
       axis( side = 1, at = 1:length(x),labels = x )
       axis( side = 2, las = 1 )
-      if( yIdx == 1 ) mtext( side = 3, text = "Delta Values", cex = 0.8)
+      if( yIdx == length(y) ) mtext( side = 4, text = "Delta Values", cex = 0.8)
+      if( yIdx == 1)  mtext( side = 2, outer = F, text = "Delta", cex = 1.2, line = 2 )
       for( wIdx in 1:length(w) )
       {
         xShift <- 1/(length(w) + 2)
@@ -436,12 +541,9 @@ plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
               xright = 1:length(x) + xShift*(wIdx) - leftShift , ytop = zDelta[ wIdx, , yIdx ],
               col = cols[wIdx] )
       }
-      panLab( x = 0.8, y = 0.8, 
-              txt = paste( axes[3], " = ", y[yIdx], sep = "" ) )
   }
   mtext( side = 3, outer = T, text = tableName, cex = 1.2 )
   mtext( side = 1, outer =T, text = axes[2], cex = 1.2 )
-  mtext( side = 2, outer = T, text = "Relative Error (%)", cex = 1.2, line = 1 )
   mtext( side = 1, outer = T, text = resp, cex = 1, col = "grey50",
           adj = 0.9, line = 1.3 )
   mtext( side = 1, outer = T, text = spec, cex = 1, col = "grey50",
@@ -456,7 +558,8 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
                           nSp = 6,
                           table = NULL,
                           ssModel = NULL,
-                          msModel = NULL
+                          msModel = NULL,
+                          yLim = c(-2,2)
                         )
 {
   # plotREdists()
@@ -485,8 +588,8 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
   tab <- table
   # Restrict to subtables if requested
   if(!is.null(MP))    tab  <-   tab %>% filter( mp == MP ) 
-  if(!is.null(spec))  tab  <-   tab %>% filter( species == spec ) 
-  if(!is.null(nSp))   tab  <-   tab %>% filter( nS == nSp )
+  if(!is.null(spec))  tab  <-   tab %>% filter( species %in% spec ) 
+  if(!is.null(nSp))   tab  <-   tab %>% filter( nS %in% nSp )
 
   # Run predictions if explanatory model supplied
   predTab <- tab %>% mutate( ssPred = NA, msPred = NA )
@@ -575,6 +678,8 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
   xShift <- 1 / (length(w) + 2)
   leftShift <- length(w)*xShift / 2
   
+  if( is.null(yLim) ) yLim <- range(z,na.rm = T)
+
   # Plot contents. Use w values as line groupings, x values as
   # horizontal axis points, and y values as panel row groups
   par( mfrow = c(length(y), 2), mar = c(2,2,2,1), oma = c(3,3,2,2) )
@@ -582,7 +687,7 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
   {
     # Plot SS model
     plot( x = c(1-leftShift,length(x)+leftShift), 
-          y = range(z, na.rm = T ), type = "n",
+          y = yLim, type = "n",
           axes = FALSE )
       if( yIdx == 1 ) panLegend(  legTxt = paste( axes[1], " = ", w ),
                                   lty = 1, pch = 16, cex = 1,
@@ -598,16 +703,16 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
         lines(  x = 1:length(x) - leftShift + xShift*(wIdx-1), y = z[ wIdx, , yIdx, respCols[1], 2], col = cols[wIdx],
                 lwd = 0.6, lty = 3 )
         points( x = 1:length(x) - leftShift + xShift*(wIdx-1), y = z[ wIdx, , yIdx, respCols[1], 2 ], col = cols[wIdx],
-                pch = 16, cex = 1 )
+                pch = 16, cex = 2 )
         segments( x0 = 1:length(x) - leftShift + xShift*(wIdx-1), y0 = z[ wIdx, , yIdx, respCols[1], 1],
                   x1 = 1:length(x) - leftShift + xShift*(wIdx-1), y1 = z[ wIdx, , yIdx, respCols[1], 3],
-                  col = cols[wIdx], lwd = 2 )
+                  col = cols[wIdx], lwd = 3 )
       }
       panLab( x = 0.8, y = 0.8, 
               txt = paste( axes[3], " = ", y[yIdx], sep = "" ) )
     # plot MS model
     plot( x = c(1-leftShift,length(x)+leftShift), 
-          y = range(z,na.rm = T), type = "n",
+          y = yLim, type = "n",
           axes = FALSE )
       axis( side = 1, at = 1:length(x),labels = x )
       axis( side = 2, las = 1 )
@@ -617,12 +722,12 @@ plotREdists <- function(  tableName = "allSame_RE_msIncr__RE",
       for( wIdx in 1:length(w) )
       {
         lines(  x = 1:length(x) - leftShift + xShift*(wIdx-1), y = z[ wIdx, , yIdx, respCols[2], 2], col = cols[wIdx],
-                lwd = 0.6, lty = 3 )
+                lwd = 1, lty = 3 )
         points( x = 1:length(x) - leftShift + xShift*(wIdx-1), y = z[ wIdx, , yIdx, respCols[2], 2 ], col = cols[wIdx],
-                pch = 16, cex = 1 )
+                pch = 16, cex = 2 )
         segments( x0 = 1:length(x) - leftShift + xShift*(wIdx-1), y0 = z[ wIdx, , yIdx, respCols[2], 1],
                   x1 = 1:length(x) - leftShift + xShift*(wIdx-1), y1 = z[ wIdx, , yIdx, respCols[2], 3],
-                  col = cols[wIdx], lwd = 2 )
+                  col = cols[wIdx], lwd = 3 )
       }
       panLab( x = 0.8, y = 0.8, 
               txt = paste( axes[3], " = ", y[yIdx], sep = "" ) )
@@ -3336,6 +3441,8 @@ plotBCUenvelopes <- function( sim = 1,
             at = c(0.9),padj=2,col="grey50",cex=0.8 )
 }
 
+corrTitles <- c("corr(Bt) = 0.1", "corr(Bt) = 0.9", "corr(Ct) = 0.1", "corr(Ct) = 0.9" )
+
 # plotBC()
 # Plots a given replicate's true and estimated time series of biomass and 
 # catch for all stocks
@@ -3344,170 +3451,180 @@ plotBCUenvelopes <- function( sim = 1,
 #           folder=name of folder/blob file (supercedes sim number)
 # output:   NULL
 # usage:    post-simulation run, plotting performance
-plotBC <- function( rep = 1, sim=1, legend=TRUE,
+plotBC <- function( rep = 1, sims=1, legend=TRUE,
                     data = FALSE, labSize = 2, tickSize = 1.2,
                     fYear = 1988, devLabels = TRUE, CIs = FALSE,
-                    scale = FALSE )
+                    scale = FALSE, est = TRUE,
+                    titles = NULL )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
-  if (!exists(x="blob",where=1)) .loadSim(sim)
-
-  # Create a stamp from scenario and mp name
-  scenario  <- blob$ctrl$scenario
-  mp        <- blob$ctrl$mp
-  stamp     <- paste(scenario,":",mp,sep="")
-  repCount  <- paste("Replicate ",rep,"/",blob$ctrl$nReps,sep="")
+  .loadSim(sims[1])
 
   # Recover blob elements for plotting
   nS <- blob$opMod$nS
-  
-
-  # Species names
-  specNames <- blob$ctrl$speciesNames
-
-  # True OM quantities
-  omBt  <- blob$om$Bt[rep,,]
-  Ct    <- blob$om$Ct[rep,,]
-  It    <- blob$om$It[rep,,]
-  Ut    <- blob$om$Ut[rep,,]
-  
-  # Single species model
-  ssBt  <- blob$am$ss$Bt[rep,,]
-  # ssq   <- blob$am$ss$q[rep,]
-
-  # Multispecies model
-  msBt  <- blob$am$ms$Bt[rep,,]
-  msBt[msBt < 0] <- NA
-  # msq   <- blob$am$ms$q[rep,]  
-
-  # Year indexing
-  if(!is.null(blob$opMod$fYear)) 
-  {
-    nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
-    fYear <- min(blob$opMod$fYear)
-  } else nT <- blob$opMod$nT
-  # browser()
-  years <- fYear:(fYear + nT - 1)
-
-  # Estimated Ut
-  ssUt <- Ct / ssBt
-  msUt <- Ct / msBt
-
-  if( CIs )
-  {
-    # arrays to hold CIs
-    ssBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
-    msBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
-
-    msCIs <- blob$am$ms$CIs[[ rep ]]
-    ssCIs <- blob$am$ss$CIs[[rep]]
-
-    # browser()
-    if( !is.na(msCIs) )
-    {
-      Btrows <- which( msCIs$par == "Bt" )
-      msBio[ , , 1 ] <- matrix( msCIs[ Btrows , "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 2 ] <- matrix( msCIs[ Btrows, "val" ], nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 3 ] <- matrix( msCIs[ Btrows, "lCI" ], nrow = nS, ncol = nT, byrow = FALSE ) 
-    }
-    for( s in 1:nS )
-    {
-      if( is.null( ssCIs[[ s ]] ) ) next
-      if( is.na( ssCIs[[ s ]] ) ) next
-      Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
-      ssBio[ s, , 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT )
-      ssBio[ s, , 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT )
-      ssBio[ s, , 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT )  
-    }
-  
-  }
-
-  # Pull Bmsy and Umsy from the blob
-  Umsy <- blob$opMod$Umsy
-  Bmsy <- blob$opMod$Bmsy
-  MSY  <- Umsy*Bmsy
-
-  if( scale )
-  {
-    # Now loop over species and scale
-    for( s in 1:nS )
-    {
-      omBt[s,]  <- omBt[s,]/Bmsy[s]/2
-      Ct[s,]    <- (Ct[s,]/MSY[s])
-      Ut[s,]    <- Ut[s,]/Umsy[s]
-      ssBt[s,]  <- ssBt[s,]/Bmsy[s]/2
-      msBt[s,]  <- msBt[s,]/Bmsy[s]/2
-      msUt[s,]    <- msUt[s,]/Umsy[s]
-      ssUt[s,]    <- ssUt[s,]/Umsy[s]
-      if(CIs)
-      {
-        ssBio[s,,]<- ssBio[s,,]/Bmsy[s]/2
-        msBio[s,,]<- msBio[s,,]/Bmsy[s]/2  
-      }
-    }  
-  }
-  
-  
-  # Recover diagnostics for the fits
-  hpdSS <- blob$am$ss$hesspd[rep,]
-  grdSS <- blob$am$ss$maxGrad[rep,]
-  hpdMS <- blob$am$ms$hesspd[rep]
-  grdMS <- blob$am$ms$maxGrad[rep]
-
-  # Set colours for each model
-  ssCol <- "steelblue"
-  msCol <- "salmon"
 
   # Set up plot window
-  par ( mfrow = c(nS,1), mar = c(1,3,2,0), oma = c(3,4,2,0.5),
+  par ( mfcol = c(nS,length(sims)), mar = c(1,3,2,0), oma = c(3,4,2,0.5),
         las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
-  # Plot biomass, actual and estimated, including 2 index series,
-  # scaled by model estimated q
-  maxBt <- 1.1*max(omBt,na.rm=T)
-  if(CIs) maxBt <- max(maxBt,2)
-  for ( s in 1:nS )
-  {
-    if( !scale ) maxBt <- 1.1*max ( omBt[s,] ,na.rm=TRUE)
-    if( (!scale) & CIs ) maxBt <- max ( maxBt, msBio[s,,], ssBio[s,,], na.rm = T )
-    plot    ( x = c(fYear,max(years)), y = c(0,maxBt), type = "n",
-              ylim = c(0,maxBt), ylab = "", axes=FALSE, xlab = "" ,
-              main = "" )
-      # plot catch
-      rect( xleft = years-.4, xright = years+.4,
-            ybottom = 0, ytop = Ct[s,], col = "grey80", border = NA )
-      axis( side = 1, las = 0 )
-      axis( side = 2, las = 1 )
-    if (s == 1) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
-                            col=c(ssCol,msCol), lty = c(2,3), 
-                            lwd = c(2,2), cex=c(1), bty="n" )
-      panLab( x = .5, y = .9, txt = paste("Stock ", s, sep = "" ) )
 
+  for( simIdx in 1:length(sims) )
+  {
+    .loadSim( sims[simIdx] )
+  
+
+    # Create a stamp from scenario and mp name
+    scenario  <- blob$ctrl$scenario
+    mp        <- blob$ctrl$mp
+    stamp     <- paste(scenario,":",mp,sep="")
+    repCount  <- paste("Replicate ",rep,"/",blob$ctrl$nReps,sep="")
 
     
-    if( devLabels )
+    
+
+    # Species names
+    specNames <- blob$ctrl$speciesNames
+
+    # True OM quantities
+    omBt  <- blob$om$Bt[rep,,]
+    Ct    <- blob$om$Ct[rep,,]
+    It    <- blob$om$It[rep,,]
+    Ut    <- blob$om$Ut[rep,,]
+    
+    # Single species model
+    ssBt  <- blob$am$ss$Bt[rep,,]
+    # ssq   <- blob$am$ss$q[rep,]
+
+    # Multispecies model
+    msBt  <- blob$am$ms$Bt[rep,,]
+    msBt[msBt < 0] <- NA
+    # msq   <- blob$am$ms$q[rep,]  
+
+    # Year indexing
+    if(!is.null(blob$opMod$fYear)) 
     {
-      if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1.1)
-      if ( hpdMS & !is.na(hpdMS) ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1.1)  
-    }
-    if( data ) points  ( x = years, y = It[s,]/ssq[s], pch = 2, cex = 0.6, col="grey70" )
-    if( data ) points  ( x = years, y = It[s,]/msq[s], pch = 5, cex = 0.6, col="grey70" )
-    lines   ( x = years, y = omBt[s,], col = "black", lwd = 2)
-    lines   ( x = years, y = ssBt[s,], col = ssCol, lwd = 2, lty = 2 )
-    lines   ( x = years, y = msBt[s,], col = msCol, lwd = 2, lty = 3 )
+      nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
+      fYear <- min(blob$opMod$fYear)
+    } else nT <- blob$opMod$nT
+    # browser()
+    years <- fYear:(fYear + nT - 1)
+
+    # Estimated Ut
+    ssUt <- Ct / ssBt
+    msUt <- Ct / msBt
+
     if( CIs )
     {
-      lines ( x = years, y = ssBio[s,,1], col = ssCol, lwd = 1, lty = 2)
-      lines ( x = years, y = ssBio[s,,3], col = ssCol, lwd = 1, lty = 2)
-      lines ( x = years, y = msBio[s,,1], col = msCol, lwd = 1, lty = 3)
-      lines ( x = years, y = msBio[s,,3], col = msCol, lwd = 1, lty = 3)
+      # arrays to hold CIs
+      ssBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+      msBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+
+      msCIs <- blob$am$ms$CIs[[ rep ]]
+      ssCIs <- blob$am$ss$CIs[[rep]]
+
+      # browser()
+      if( !is.na(msCIs) )
+      {
+        Btrows <- which( msCIs$par == "Bt" )
+        msBio[ , , 1 ] <- matrix( msCIs[ Btrows , "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
+        msBio[ , , 2 ] <- matrix( msCIs[ Btrows, "val" ], nrow = nS, ncol = nT, byrow = FALSE )
+        msBio[ , , 3 ] <- matrix( msCIs[ Btrows, "lCI" ], nrow = nS, ncol = nT, byrow = FALSE ) 
+      }
+      for( s in 1:nS )
+      {
+        if( is.null( ssCIs[[ s ]] ) ) next
+        if( is.na( ssCIs[[ s ]] ) ) next
+        Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
+        ssBio[ s, , 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT )
+        ssBio[ s, , 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT )
+        ssBio[ s, , 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT )  
+      }
+    
     }
+
+    # Pull Bmsy and Umsy from the blob
+    Umsy <- blob$opMod$Umsy
+    Bmsy <- blob$opMod$Bmsy
+    MSY  <- Umsy*Bmsy
+
+    if( scale )
+    {
+      # Now loop over species and scale
+      for( s in 1:nS )
+      {
+        omBt[s,]  <- omBt[s,]/Bmsy[s]/2
+        Ct[s,]    <- (Ct[s,]/MSY[s])
+        Ut[s,]    <- Ut[s,]/Umsy[s]
+        ssBt[s,]  <- ssBt[s,]/Bmsy[s]/2
+        msBt[s,]  <- msBt[s,]/Bmsy[s]/2
+        msUt[s,]    <- msUt[s,]/Umsy[s]
+        ssUt[s,]    <- ssUt[s,]/Umsy[s]
+        if(CIs)
+        {
+          ssBio[s,,]<- ssBio[s,,]/Bmsy[s]/2
+          msBio[s,,]<- msBio[s,,]/Bmsy[s]/2  
+        }
+      }  
+    }
+    
+    
+    # Recover diagnostics for the fits
+    hpdSS <- blob$am$ss$hesspd[rep,]
+    grdSS <- blob$am$ss$maxGrad[rep,]
+    hpdMS <- blob$am$ms$hesspd[rep]
+    grdMS <- blob$am$ms$maxGrad[rep]
+
+    # Set colours for each model
+    ssCol <- "steelblue"
+    msCol <- "salmon"
+
+    # Plot biomass, actual and estimated, including 2 index series,
+    # scaled by model estimated q
+    maxBt <- 1.1*max(omBt,na.rm=T)
+    if(CIs) maxBt <- max(maxBt,2)
+    for ( s in 1:nS )
+    {
+      if( !scale ) maxBt <- 1.1*max ( omBt[s,] ,na.rm=TRUE)
+      if( (!scale) & CIs ) maxBt <- max ( maxBt, msBio[s,,], ssBio[s,,], na.rm = T )
+      plot    ( x = c(fYear,max(years)), y = c(0,maxBt), type = "n",
+                ylim = c(0,maxBt), ylab = "", axes=FALSE, xlab = "" ,
+                main = "" )
+        if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+        # plot catch
+        rect( xleft = years-.4, xright = years+.4,
+              ybottom = 0, ytop = Ct[s,], col = "grey80", border = NA )
+        axis( side = 1, las = 0 )
+        axis( side = 2, las = 1 )
+      if (s == 1 & est) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
+                              col=c(ssCol,msCol), lty = c(2,3), 
+                              lwd = c(2,2), cex=c(1), bty="n" )
+        panLab( x = .5, y = .9, txt = paste("Stock ", s, sep = "" ) )
+ 
+      if( devLabels )
+      {
+        if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1.1)
+        if ( hpdMS & !is.na(hpdMS) ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1.1)  
+      }
+      lines   ( x = years, y = omBt[s,], col = "black", lwd = 2)
+      if(est)
+      {
+        lines   ( x = years, y = ssBt[s,], col = ssCol, lwd = 2, lty = 2 )
+        lines   ( x = years, y = msBt[s,], col = msCol, lwd = 2, lty = 3 )
+        if( CIs )
+        {
+          lines ( x = years, y = ssBio[s,,1], col = ssCol, lwd = 1, lty = 2)
+          lines ( x = years, y = ssBio[s,,3], col = ssCol, lwd = 1, lty = 2)
+          lines ( x = years, y = msBio[s,,1], col = msCol, lwd = 1, lty = 3)
+          lines ( x = years, y = msBio[s,,3], col = msCol, lwd = 1, lty = 3)
+        }  
+      }
+    }
+    mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5)
+    mtext ( text = "Biomass (Kt)", outer = TRUE, side = 2, line = 2, las = 0 )
+    if( devLabels )
+      mtext ( text = c(stamp,repCount),side=1, outer = TRUE, 
+              at = c(0.9,0.1),padj=2,col="grey50",cex=0.8 )
   }
-  mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5)
-  mtext ( text = "Biomass (Kt)", outer = TRUE, side = 2, line = 2, las = 0 )
-  if( devLabels )
-    mtext ( text = c(stamp,repCount),side=1, outer = TRUE, 
-            at = c(0.9,0.1),padj=2,col="grey50",cex=0.8 )
 }
 
 # plotBCU()

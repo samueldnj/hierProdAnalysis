@@ -12,17 +12,26 @@
 
 checkCorr <- function(  tabName = "pubBase_RE.csv",
                         cols = c("ssq_1","ssq_2","ssBmsy","ssBnT","msq_1","msq_2","msBmsy","msBnT"),
-                        spec = NULL )
+                        spec = NULL, MP = NULL, nSp = NULL )
 {
   # first read in the table
   tabPath <- file.path(getwd(),"project/statistics",tabName)
   table <- read.csv( tabPath, header=TRUE, stringsAsFactors=FALSE ) 
 
   # restrict to correct number of species
-  if( !is.null(spec) ) table <- table %>% filter( species == spec )
+  # Restrict to subtables if requested
+  if(!is.null(MP))    table  <-   table %>% filter( mp %in% MP ) 
+  if(!is.null(spec))  table  <-   table %>% filter( species %in% spec ) 
+  if(!is.null(nSp))   table  <-   table %>% filter( nS %in% nSp )
+
+  # Restrict to columns
+  table <- table[,cols]
 
   # Now compute the correlation
-  corrMtx <- cor( table[, cols], use = "pairwise.complete.obs" )
+  corrMtx <- cor( table, use = "pairwise.complete.obs" )
+
+  # Plot a pairs plot for shits and giggles
+  pairs(table)
 
   corrMtx
 }
@@ -51,21 +60,21 @@ makeDeltaCols <- function( tabName = "pubBase_MARE" )
                 group_by(scenario, mp) %>%
                 summarise_all( .funs=meanTop) %>%
                 ungroup() %>%
-                mutate( DeltaBmsy = log2(ssBmsy / msBmsy),
-                        DeltaBnT  = log2(ssBnT / msBnT),
-                        DeltaUmsy = log2(ssUmsy / msUmsy),
-                        Deltaq_1  = log2(ssq_1 / msq_1),
-                        Deltaq_2  = log2(ssq_2 / msq_2),
-                        DeltaDep  = log2(ssDep / msDep) )
+                mutate( DeltaBmsy = (ssBmsy / msBmsy) - 1,
+                        DeltaBnT  = (ssBnT / msBnT) - 1,
+                        DeltaUmsy = (ssUmsy / msUmsy) - 1,
+                        Deltaq_1  = (ssq_1 / msq_1) - 1,
+                        Deltaq_2  = (ssq_2 / msq_2) - 1,
+                        DeltaDep  = (ssDep / msDep)  - 1)
 
 
   tab <-  tab %>%
-          mutate( DeltaBmsy = log2(ssBmsy / msBmsy),
-                  DeltaBnT  = log2(ssBnT / msBnT),
-                  DeltaUmsy = log2(ssUmsy / msUmsy),
-                  Deltaq_1  = log2(ssq_1 / msq_1),
-                  Deltaq_2  = log2(ssq_2 / msq_2),
-                  DeltaDep  = log2(ssDep / msDep) )
+          mutate( DeltaBmsy = (ssBmsy / msBmsy) - 1,
+                  DeltaBnT  = (ssBnT / msBnT) - 1,
+                  DeltaUmsy = (ssUmsy / msUmsy) - 1,
+                  Deltaq_1  = (ssq_1 / msq_1) - 1,
+                  Deltaq_2  = (ssq_2 / msq_2) - 1,
+                  DeltaDep  = (ssDep / msDep)  - 1)
 
   # Write complex delta table
   cplxTabName   <- paste(tabName,"cplx",sep = "_")
