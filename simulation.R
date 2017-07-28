@@ -854,7 +854,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ss$profiles[[i]] <- vector( mode = "list", length = nS )
     for( s in 1:nS )
     {
-      if(  !any(is.na(simEst$ssFit[[s]]$rep)) | !any(is.null(simEst$ssFit[[s]]$rep)) )
+      if(  !any(is.na(simEst$ssFit[[s]]$rep)) & !any(is.null(simEst$ssFit[[s]]$rep)) )
       {
         # Recover report from optimisation
         sdrep     <- simEst$ssFit[[s]]$sdrep
@@ -888,7 +888,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     }
 
     # Now multispecies
-    if (  !any(is.na(simEst$msFit$rep)) | !any(is.null(simEst$msFit$rep))  )
+    if (  !any(is.na(simEst$msFit$rep)) & !any(is.null(simEst$msFit$rep))  )
     {
       # Recover report from optimisation
       sdrep     <- simEst$msFit$sdrep
