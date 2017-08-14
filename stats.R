@@ -10,7 +10,7 @@
 #
 # --------------------------------------------------------------------------
 
-checkCorr <- function(  tabName = "pubBase_RE.csv",
+checkCorr <- function(  tabName = "allSame_infoScenarios_RE.csv",
                         cols = c("ssq_1","ssq_2","ssBmsy","ssBnT","msq_1","msq_2","msBmsy","msBnT"),
                         spec = NULL, MP = NULL, nSp = NULL )
 {

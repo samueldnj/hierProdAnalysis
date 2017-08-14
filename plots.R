@@ -342,16 +342,47 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
 }
 
 
+plotRastersPub <- function( saveName = "corrRasters.png",
+                            tabRoot = "allSame_fixedProcRE_MARE",
+                            axes = c("corr","kappaMult"),
+                            breakRange = c(-1,2),
+                            MP = NULL,
+                            resp = c("DeltaBnT","DeltaUmsy"),
+                            save = F )
+{
+  saveFile <- file.path(".","project","figs",saveName)
 
-plotRasters <- function(  tableName = "allSame_fixedProcRE_MARE_Delta",
+  if(save) png( filename = saveFile, width = 10, height = 20,
+                res = 300, type = "quartz")
+
+  par( mfrow = c(2,length(resp)), mar = c(2,2,1,1), oma = c(3,3,3,1) )
+  plotRasters(  tableName = paste(tabRoot,"Delta",sep = "_"),
+                axes = axes, breakRange = breakRange, MP = MP, resp = resp,
+                setPar = F, titles = c("B_T","U_MSY") )
+
+  plotRasters(  tableName = paste(tabRoot,"Cplx",sep = "_"),
+                axes = axes, breakRange = breakRange, MP = MP, resp = resp,
+                setPar = F, titles = "" )  
+
+  mtext( outer = T, text  = c("(a)", "(b)"), side = 2, line = 1,
+          at = c(0.7, 0.3), las = 1)
+  if(save) dev.off()
+  cat("Done!\n")
+}
+
+
+
+plotRasters <- function(  tableName = "allSame_fixedProcRE_MARE_Cplx",
                           axes = c("corr","kappaMult"),
-                          resp = c("DeltaUmsy","DeltaBnT"),
-                          spec = "Stock1",
-                          MP = "qPriorOnly",
+                          resp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+                          spec = c("Stock1"),
+                          MP = NULL,
                           nSp = c(4,7,10),
                           table = NULL,
                           breakRange = c(-1,1),
-                          save = F
+                          save = F,
+                          titles = NULL,
+                          setPar = T
                       )
 {
   # plotRasterss()
@@ -393,7 +424,7 @@ plotRasters <- function(  tableName = "allSame_fixedProcRE_MARE_Delta",
     pdf ( file = outFile, width = wdh, height = hgt )
   }
 
-  par(mfrow = c(length(resp),1), mar = c(2,2,3,1), oma = c(2,2,1,1) ) 
+  if( setPar ) par(mfrow = c(length(resp),1), mar = c(2,2,3,1), oma = c(2,2,1,1) ) 
   colBreaks   <- c(-100,seq(breakRange[1],0,length=8),seq(0,breakRange[2],length=8)[-1],100)
   redScale    <- brewer.pal(8, "Reds")
   greenScale  <- brewer.pal(8, "Greens" )
@@ -406,7 +437,9 @@ plotRasters <- function(  tableName = "allSame_fixedProcRE_MARE_Delta",
     plot( brickObj$brick[[k]], legend = FALSE, 
         asp=NA, ylab="", xlab = "", col = rgScale, breaks = colBreaks,
         axes = FALSE, cex.main = 1.5 )
-      mtext( text = names(brickObj$brick)[k], side = 3, line = 1, cex = 1.5)
+      if(is.null(titles)) 
+        mtext( text = names(brickObj$brick)[k], side = 3, line = 1, cex = 1.5)
+        else mtext( text = titles[k], side = 3, line = 1, cex = 1.5)
       # if( k == 1 ) mtext ( text = "(a)", side = 2, las = 1, line = 2 )
       text( brickObj$brick[[k]], digits = 2, halo = T, cex = 1.5, axes = FALSE )
       axis( side = 2, at = 1:length(brickObj$y) - 0.5, labels = brickObj$y, las = 1 )
@@ -3659,9 +3692,9 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
   nS <- blob$opMod$nS
   nO <- blob$opMod$nSurv
 
-  if( !is.null( nStocks) ) nStocks <- min( nS, nStocks )
-
+  if( !is.null( nStocks) ) nStocks <- min( nS, nStocks ) else nStocks <- nS
   # Set up plot window
+
   par ( mfcol = c(nStocks,length(sims)), mar = c(1,2,2,0), oma = c(4.5,4.5,2,0.5),
         las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
 
