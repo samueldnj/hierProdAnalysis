@@ -14,9 +14,9 @@ source("control.R")
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("FixedProcRE.bch")
+batchFiles    <- c("incfoScenarios.bch")
 baseCtlFiles  <- c("simCtlFileAllSameBase.txt")
-expPrefix     <- c("allSame_fixedProcRE")
+expPrefix     <- c("allSame_infoScenarios")
 
 # Now loop over the experiments
 

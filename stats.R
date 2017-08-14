@@ -37,7 +37,7 @@ checkCorr <- function(  tabName = "pubBase_RE.csv",
 }
 
 
-makeDeltaCols <- function( tabName = "pubBase_MARE" )
+.makeDeltaCols <- function( tabName = "pubBase_MARE" )
 {
   # read in table
   tabFile     <- paste( tabName, ".csv", sep  = "" )
