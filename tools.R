@@ -80,7 +80,7 @@ makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
 }
 
 makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)"),
-                                              initYear = c(1976,1984,2003),
+                                              initYear = c(1984,2003),
                                               nS = c(4,7,10),
                                               initDep = c(0.4,0.7,1.0),
                                               nDiff = c(0,2,4) ),
@@ -194,7 +194,7 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     cat(  "scenario$scenario", rIdx, "$opMod$initDep c(rep(", levels$initDep[treatments[rIdx,"initDep"] ],
           ",", nDiff, "),rep(", base$initDep, ",", nSame, "))\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$initBioCode c(rep(", initBioCode,
+    cat(  "scenario$scenario", rIdx, "$assess$initBioCode c(rep(", initBioCode,
           ",", nDiff, "),rep(0,", nSame, "))\n",
           sep = "", append = T, file = outFile  )
 
