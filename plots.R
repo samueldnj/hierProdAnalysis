@@ -9,9 +9,10 @@
 #
 # --------------------------------------------------------------------------
 
-plotStatTableGraphs <- function(  tableRoot = "allSame_infoScenarios",
+
+plotStatTableGraphs <- function(  tableRoot = "allSame_fixedProcRE",
                                   resp = c("BnT","Umsy","Bmsy","Dep","HessPD","q_1","q_2","tau2_1","tau2_2"),
-                                  axes = c("fYear","nDiff"),
+                                  axes = c("kappaMult","corr"),
                                   MARE = TRUE,
                                   RE = TRUE,
                                   groupPars = FALSE )
@@ -339,6 +340,83 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
               x = 0.1, y = 0.9, bty = "n" )
   mtext( side = 1, outer = TRUE, text = axes[1], line = 1.5 )  
 }
+
+
+
+plotRasters <- function(  tableName = "allSame_fixedProcRE_MARE_Delta",
+                          axes = c("corr","kappaMult"),
+                          resp = c("DeltaUmsy","DeltaBnT"),
+                          spec = "Stock1",
+                          MP = "qPriorOnly",
+                          nSp = c(4,7,10),
+                          table = NULL,
+                          breakRange = c(-1,1),
+                          save = F
+                      )
+{
+  # plotRasterss()
+  # Plots MARE (response variable) values as a function
+  # of given axes (depends on experimental factors). 
+  # Will group points using lines corresponding to the first axis (w) and 
+  # plot across values of the second axes (x), with multi-panel rows 
+  # corresponding to the third (y). Panel columns are 
+  # single and Joint AMs.
+  # inputs:   tableName = RE table in statistics folder
+  #           axes = 3-char vector naming RE table columns
+  #           resp = response variable of interest for RE values 
+  #                  (usually a leading or derived AM parameter)
+  #           table = optional df to replace loading file, useful for 
+  #                   automated plotting to directory
+  # outputs:  NULL
+
+  # Read in table if none supplied
+  if( is.null(table) )
+  {
+    # Load table
+    fileName <- paste( tableName, ".csv", sep = "" )
+    tablePath <- file.path ( getwd(), "project/Statistics", fileName )
+    table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE ) 
+  }
+  tab <- table
+  # Restrict to subtables if requested
+  if(!is.null(MP))    tab  <-   tab %>% filter( mp == MP ) 
+  if(!is.null(spec))  tab  <-   tab %>% filter( species %in% spec ) 
+  if(!is.null(nSp))   tab  <-   tab %>% filter( nS %in% nSp )
+
+  # Now make rasters
+  brickObj <- makeRasterFromTable( table = tab, axes = axes, colnames = resp )
+
+  if( save )
+  {
+    outFile <- paste( tableRoot, "complexPubRasters.pdf", sep = "")
+    outFile <- file.path("./project/figs/",outFile)
+    pdf ( file = outFile, width = wdh, height = hgt )
+  }
+
+  par(mfrow = c(length(resp),1), mar = c(2,2,3,1), oma = c(2,2,1,1) ) 
+  colBreaks   <- c(-100,seq(breakRange[1],0,length=8),seq(0,breakRange[2],length=8)[-1],100)
+  redScale    <- brewer.pal(8, "Reds")
+  greenScale  <- brewer.pal(8, "Greens" )
+  rgScale     <- c(redScale[8:1],greenScale)
+  rrScale     <- c(redScale[8:1],redScale)
+
+  # Now plot the raster brick layers
+  for(k in 1:length(resp) )
+  {
+    plot( brickObj$brick[[k]], legend = FALSE, 
+        asp=NA, ylab="", xlab = "", col = rgScale, breaks = colBreaks,
+        axes = FALSE, cex.main = 1.5 )
+      mtext( text = names(brickObj$brick)[k], side = 3, line = 1, cex = 1.5)
+      # if( k == 1 ) mtext ( text = "(a)", side = 2, las = 1, line = 2 )
+      text( brickObj$brick[[k]], digits = 2, halo = T, cex = 1.5, axes = FALSE )
+      axis( side = 2, at = 1:length(brickObj$y) - 0.5, labels = brickObj$y, las = 1 )
+      axis( side = 1, at = 1:length(brickObj$x) - 0.5, labels = brickObj$x ) 
+  }  
+
+  if(save) dev.off()
+}
+
+
 
 plotMAREs <- function(  tableName = "allSame_RE_msIncr__MARE",
                         axes = c("corr","kappaMult","mp"),
@@ -885,6 +963,7 @@ plotFhist <- function ( sims = 1:2,
                         seed = 2,
                         save = FALSE,
                         fileName = "depPlot.pdf",
+                        reverse = TRUE,
                         ... )
 {
   # plotFhist()
@@ -903,6 +982,8 @@ plotFhist <- function ( sims = 1:2,
   nReps <- blob$ctrl$signifReps
   nS    <- blob$opMod$nS
 
+  if( reverse ) sIndices <- rev(1:nS)
+  else sIndices <- 1:nS
 
   # create an array for holding biomass
   depBlob <- array (  NA, dim = c(length(sims),nTraj,nS,nT),
@@ -964,12 +1045,13 @@ plotFhist <- function ( sims = 1:2,
   years <- c(years,2017)
 
 
-  par( mfrow = c( nrows, ncols ), mar = c(1.5,1.5,1,1.5), oma = c(3,3,1,3) )
+  par( mfrow = c( nrows, ncols ), mar = c(1.5,1.5,1,1.5), oma = c(3,4,1,3) )
   # Loop over U and t values
   for( U in ordUmax )
   {
-    for ( sIdx in 1:nS )
+    for ( sIdxNum in 1:length(sIndices) )
     { 
+      sIdx <- sIndices[sIdxNum]
       sim <- which ( Umax == U )
       plot( x = c(1984,2017), y = c(0,1.2), type = "n", axes = FALSE,
             xlab = "", ylab = "" )
@@ -982,13 +1064,13 @@ plotFhist <- function ( sims = 1:2,
         lines( x = 1984:2017, y = Fblob[ sim, sIdx, ], lty = 1, lwd = 2)
         axis( side = 1, at = years )
         axis( side = 2, las = 1 )
-        if( sIdx < nS ) axis( side = 4, las = 1, labels = FALSE )
+        if( sIdxNum < length(sIndices) ) axis( side = 4, las = 1, labels = FALSE )
         else axis( side = 4, las = 1 )
         # panLab( txt = labs[counter], x = 0.8, y = 0.9, cex = 1.2 )
       counter <- counter + 1
     }
   }
-  mtext( side = 2, outer = TRUE, text = "Depletion", cex = 1.5, line = 1.5 )
+  mtext( side = 2, outer = TRUE, text = "Relative Biomass (B_t/B_0)", cex = 1.5, line = 1.5 )
   mtext( side = 1, outer = TRUE, text = "Year", cex = 1.5, line = 1.5 )
   mtext( side = 4, outer = TRUE, text = "Harvest Rate", cex = 1.5, line = 1.5 )
   if( save ) dev.off()
@@ -2183,7 +2265,8 @@ makeRasterFromTable <- function ( table,
       yRows <- which ( table[,axesCols[2] ] == yVal)
       rows <- intersect(xRows,yRows)
       if( length(rows) == 0 ) next
-      z[length(y)-yIdx+1,xIdx,] <- as.numeric(table[rows,colnames])
+      # browser()
+      z[length(y)-yIdx+1,xIdx,] <- apply(X = as.matrix(table[rows,colnames]), FUN = mean, MARGIN = 2, na.rm = T)
     }
   }
   # create raster brick
@@ -2196,113 +2279,6 @@ makeRasterFromTable <- function ( table,
 
   out
 }
-
-# plotRasters()
-# Reads in a statistics table produced by .statTableXXX()
-# and produces plots of performance contours.
-# inputs:     tableName=charactre vector of file name root
-#             axes=
-plotRasters <- function ( tableName = "allSame_Fhist_msIncr_MARE",
-                          axes = c("corr","kappaMult"),
-                          pars = c("BnT","Umsy","q","Dep"),
-                          wdh = 14, hgt = 18,
-                          breakRange = c(-1,1),
-                          compMean = TRUE,
-                          tcex = 1.5,
-                          legend = FALSE,
-                          devLabels = FALSE,
-                          hess = FALSE,
-                           ... )
-{
-  # Load table
-  fileName <- paste( tableName, ".csv", sep = "" )
-  tablePath <- file.path ( getwd(), "project/Statistics", fileName )
-  table <- read.csv( tablePath, header=TRUE, stringsAsFactors=FALSE )
-
-  # browser()
-  tabFolder <- file.path(getwd(),"project","figs",tableName )
-  dir.create(tabFolder)
-  # Now get the list of MPs
-  MPs <- unique( table$mp )
-  # browser()
-  # Loop over MPs, and plot one set of raster fields for
-  # each of the other levels
-  for (mp in MPs)
-  {
-    mpFolder  <- file.path(tabFolder,mp)
-    dir.create(mpFolder)
-    mpTab     <- table %>% filter( mp == mp )
-    nCorr     <- unique(mpTab$lastNegCorr)
-    tUtrough  <- unique(mpTab$tUtrough)
-    nS        <- unique(mpTab$nS)
-    levels    <- list (nCorr = nCorr, tUtrough = tUtrough, nS = nS )
-    grid      <- expand.grid(levels)
-    for( g in 1:nrow(grid) )
-    {
-      # Set up output file
-      outFile <- paste( grid[g,]$nS, 
-                        "S_tUtr", grid[g,]$tUtrough,
-                        "_nCorr", grid[g,]$nCorr,
-                        ".pdf", sep = "")
-      outFile <- file.path(mpFolder,outFile)
-      pdf ( file = outFile, width = wdh, height = hgt )
-      plotCompContour(  tableName = fileName,
-                        mpLabel = mp,
-                        axes = axes,
-                        pars = pars,
-                        nSp = grid[g,"nS"],
-                        tUtr = grid[g,"tUtrough"],
-                        negCorr = grid[g,"nCorr"],
-                        tcex = tcex,
-                        breakRange = breakRange,
-                        compMean = compMean,
-                        legend = legend,
-                        devLabels = devLabels,
-                        ...)
-      dev.off()
-      outFile <- paste( grid[g,]$nS, 
-                        "S_tUtr", grid[g,]$tUtrough,
-                        "_nCorr", grid[g,]$nCorr,
-                        "_MS.pdf", sep = "")
-      outFile <- file.path(mpFolder,outFile)
-      pdf ( file = outFile, width = wdh, height = hgt )
-      plotModContour(  tableName = fileName,
-                        mpLabel = mp,
-                        axes = axes,
-                        pars = pars,
-                        nSp = grid[g,"nS"],
-                        tUtr = grid[g,"tUtrough"],
-                        negCorr = grid[g,"nCorr"],
-                        model = "ms", tcex = tcex,
-                        breakRange = breakRange,
-                        compMean = compMean,
-                        devLabels = devLabels,
-                        hess = hess )
-      dev.off()
-      outFile <- paste( grid[g,]$nS, 
-                        "S_tUtr", grid[g,]$tUtrough,
-                        "_nCorr", grid[g,]$nCorr,
-                        "_SS.pdf", sep = "")
-      outFile <- file.path( mpFolder, outFile )
-      pdf ( file = outFile, width = wdh, height = hgt )
-      plotModContour(  tableName = fileName,
-                        mpLabel = mp,
-                        axes = axes,
-                        pars = pars,
-                        nSp = grid[g,"nS"],
-                        tUtr = grid[g,"tUtrough"],
-                        negCorr = grid[g,"nCorr"],
-                        model = "ss", tcex = tcex,
-                        breakRange = breakRange,
-                        compMean = compMean,
-                        devLabels = devLabels,
-                        hess = hess )
-      dev.off()
-    }
-  }
-  # No return
-}
-
 
 # plotModContour()
 # Plots the correlation  experiment MSE contours for
@@ -3194,6 +3170,97 @@ plotBenvelopes <- function( sim = 1,
 }
 
 
+plotUshrinkage <- function( sim = 1, rep = 1, SS = T, MS = T, MSdist = T, OM = T,
+                            devLabels = T )
+{
+  # load the simulation
+  .loadSim(sim)
+
+  # Now grab OM U values
+  nStocks <- blob$opMod$nS
+  U_om    <- blob$opMod$Umsy[1:nStocks]
+  
+  # grab both SS and MS estimated Umsy
+  estUmsy <- array( 0, dim = c( nStocks, 2, 3 ),
+                        dimnames = list( 1:nStocks, c("ss","ms"), c("LB", "MLE", "UB" ) )
+                  )
+  # Save estimate tables
+  SS_CIs <- blob$am$ss$CIs[[rep]]
+  MS_CIs <- blob$am$ms$CIs[[rep]]
+  # First grab single stock estimates
+
+  for( sIdx in 1:nStocks )
+  {
+    stockCIs <- SS_CIs[[sIdx]]
+    estUmsy[sIdx, "ss", ] <- as.numeric(stockCIs[stockCIs$par == "Umsy",c(4,2,5)])
+  }
+  estUmsy[,"ms",] <- as.matrix(MS_CIs[MS_CIs$par == "Umsy",c(4,2,5)])
+
+  Umsybar <- blob$am$ms$Umsybar[rep,]
+  sigU2   <- blob$am$ms$sigU2[rep,]
+
+  mpLabel <- blob$ctrl$mpLabel
+
+  # Set up plotting window
+  estUmsy[!is.finite(estUmsy)] <- NA
+  URange  <- range( estUmsy, U_om )
+  xLim    <- c( .8*URange[1],1.2*URange[2] )
+
+  UestNorm <- dnorm(seq(xLim[1],xLim[2], length = 100), mean = Umsybar, sd = sqrt(sigU2) )
+
+  cols <- brewer.pal(n = nStocks+1, name= "PuOr")
+
+  yPoints <- seq(0,max(UestNorm),length = nStocks+1)
+  yPoints <- yPoints[2:4]
+
+  yJitter <- seq(-.1, .1, length = nStocks)  
+  
+
+
+  plot( x = xLim, y = c( 0, 1.2*max(UestNorm) ), type = "n", axes = F, xlab = "", ylab = "" )
+    x       <- seq( xLim[1], xLim[2], length = 100 )
+    axis( side = 1 )
+    if( SS )
+    {
+      points( x = estUmsy[,"ss","MLE"], y = yPoints[1] + yJitter, pch = 17, cex = 2, col = cols )
+      segments( x0 = estUmsy[,"ss","LB"], x1 = estUmsy[,"ss","UB"], y0 = yPoints[1] + yJitter,
+                col = cols, lwd = 2 )
+    }
+    if( MS )
+    {
+      points( x = estUmsy[,"ms","MLE"], y = yPoints[3] + yJitter, pch =16, cex = 2, col = cols )
+      segments( x0 = estUmsy[,"ms","LB"], x1 = estUmsy[,"ms","UB"], y0 = yPoints[3] + yJitter,
+                col = cols, lwd = 2 )
+
+    }
+    if( MSdist )
+    {
+      lines( x = x, y = UestNorm, lty = 2, lwd = 3, col = "grey50" )
+      abline( v = Umsybar, col ="grey50" )
+    }
+    if( OM ) points( x = U_om, y = yPoints[2] + yJitter, col = cols, pch = 18, cex = 2 )
+    if( (SS & MS) & (!OM) )
+      segments( x0 = estUmsy[,"ss","MLE"], x1 = estUmsy[,"ms","MLE"],
+                y0 = yPoints[1] + yJitter, y1 = yPoints[3] + yJitter,
+                col = cols)
+    if( SS & MS & OM )
+    {
+      segments( x0 = estUmsy[,"ss","MLE"], x1 = U_om,
+                y0 = yPoints[1] + yJitter, y1 = yPoints[2] + yJitter,
+                col = cols )
+      segments( x0 = estUmsy[,"ms","MLE"], x1 = U_om,
+                y0 = yPoints[3] + yJitter, y1 = yPoints[2] + yJitter,
+                col = cols)
+    }
+
+
+  mtext( side = 1, text = "Productivity", outer = F, line = 2 )
+  if( devLabels ) mtext( side = 1, line = 2, adj = 1, text = mpLabel )
+
+  
+}
+
+
 # plotqDists()
 # Does what it says, plots to quartz the estimated and simulated q distributions
 # for the complex in a given simulation and replicate.
@@ -3202,7 +3269,7 @@ plotBenvelopes <- function( sim = 1,
 # ouputs:   NULL
 # side-eff: plots to quartz
 # source: SDNJ
-plotqDists <- function( sim = 1, rep = 1 )
+plotqDists <- function( sim = 1, rep = 1, surveys = c(1,2), devLabels = TRUE )
 {
   # load the simulation
   .loadSim(sim)
@@ -3221,14 +3288,18 @@ plotqDists <- function( sim = 1, rep = 1 )
   estqSurvM   <- blob$am$ms$qbar[rep,]
   estqSurvSD  <- sqrt(blob$am$ms$tauq2[rep,])
 
+  SS_CIs <- blob$am$ss$CIs[[rep]]
+  MS_CIs <- blob$am$ms$CIs[[rep]]
+
+
   mpLabel <- blob$ctrl$mpLabel
 
   # Split plotting window
-  par( mfrow = c(nSurv,1), mar = c(1,1,1,1), oma = c(3,3,1,1) )
+  par( mfrow = c(length(surveys),1), mar = c(1,1,1,1), oma = c(3,3,1,1) )
   # Calculate range of q values
   qRange  <- range( simq, estqSS, estqMS )
   xLim    <- c( .8*qRange[1],1.2*qRange[2] )
-  for( survIdx in 1:nSurv )
+  for( survIdx in surveys )
   {
     # Now make simulated and estimated distributions
     x       <- seq( xLim[1], xLim[2], length = 100 )
@@ -3256,7 +3327,7 @@ plotqDists <- function( sim = 1, rep = 1 )
       abline( v = estqSurvM[survIdx], lty = survIdx + 1 + nSurv )
   }
   mtext( side = 1, text = "Catchability", outer = T, line = 1 )
-  mtext( side = 1, line = 2, adj = 1, text = mpLabel )
+  if( devLabels ) mtext( side = 1, line = 2, adj = 1, text = mpLabel )
 
   
 } 
@@ -3441,21 +3512,19 @@ plotBCUenvelopes <- function( sim = 1,
             at = c(0.9),padj=2,col="grey50",cex=0.8 )
 }
 
-corrTitles <- c("corr(Bt) = 0.1", "corr(Bt) = 0.9", "corr(Ct) = 0.1", "corr(Ct) = 0.9" )
-
 # plotBC()
 # Plots a given replicate's true and estimated time series of biomass and 
-# catch for all stocks
-# inputs:   rep=replicate number for plotting; 
-#           sim=number indicating blob to load (alpha order in project folder)
-#           folder=name of folder/blob file (supercedes sim number)
+# catch for all stocks, with sims as columns
+# inputs:   sims=numeric indicating blobs to load (alpha order in project folder)
+#           legend=logical indicating plotting of legend (SS/MS line cols)
+#           data=logical indicating whether to plot survey data
 # output:   NULL
 # usage:    post-simulation run, plotting performance
-plotBC <- function( rep = 1, sims=1, legend=TRUE,
-                    data = FALSE, labSize = 2, tickSize = 1.2,
-                    fYear = 1988, devLabels = TRUE, CIs = FALSE,
-                    scale = FALSE, est = TRUE,
-                    titles = NULL )
+plotBenv <- function(  sims=1, legend=TRUE,
+                        data = FALSE, labSize = 2, tickSize = 1.2,
+                        fYear = 1988, devLabels = TRUE,
+                        scale = FALSE, est = TRUE,
+                        titles = NULL )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -3463,10 +3532,140 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
 
   # Recover blob elements for plotting
   nS <- blob$opMod$nS
+  nO <- blob$opMod$nSurv
 
   # Set up plot window
-  par ( mfcol = c(nS,length(sims)), mar = c(1,3,2,0), oma = c(3,4,2,0.5),
+  par ( mfcol = c(nS,length(sims)), mar = c(1,3,2,0), oma = c(4,4,2,0.5),
         las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
+
+  for( simIdx in 1:length(sims) )
+  {
+    .loadSim( sims[simIdx] )
+  
+
+    # Create a stamp from scenario and mp name
+    scenario  <- blob$ctrl$scenario
+    mp        <- blob$ctrl$mp
+    stamp     <- paste(scenario,":",mp,sep="")
+
+    
+    
+
+    # Species names
+    specNames <- blob$ctrl$speciesNames
+
+    # True OM quantities
+    omBt  <- apply( X = blob$om$Bt, MARGIN = c(2,3), FUN = quantile, probs = c(0.05, 0.5, 0.95), na.rm = T )
+    # Single species model
+    ssBt <- blob$am$ss$Bt
+    ssBt[ssBt<0] <- NA
+    ssBt  <- apply( X = ssBt, MARGIN = c(2,3), FUN = quantile, probs = c(0.05, 0.5, 0.95), na.rm = T )
+    # Multispecies model
+    msBt <- blob$am$ms$Bt
+    msBt[msBt<0] <- NA
+    msBt  <- apply( X = msBt, MARGIN = c(2,3), FUN = quantile, probs = c(0.05, 0.5, 0.95), na.rm = T )
+
+
+
+    # Year indexing
+    if(!is.null(blob$opMod$fYear)) 
+    {
+      nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
+      fYear <- min(blob$opMod$fYear)
+    } else nT <- blob$opMod$nT
+    # browser()
+    years <- fYear:(fYear + nT - 1)
+
+    # Pull Bmsy and Umsy from the blob
+    Bmsy <- blob$opMod$Bmsy
+
+    if( scale )
+    {
+      # Now loop over species and scale
+      for( s in 1:nS )
+      {
+        omBt[s,]  <- omBt[s,]/Bmsy[s]/2
+        ssBt[s,]  <- ssBt[s,]/Bmsy[s]/2
+        msBt[s,]  <- msBt[s,]/Bmsy[s]/2
+      }  
+    }
+    
+    # Set colours for each model
+    ssCol <- "steelblue"
+    msCol <- "salmon"
+
+    # Plot biomass, actual and estimated, including 2 index series,
+    # scaled by model estimated q
+    maxBt <- 1.1*max(omBt,na.rm=T)
+    for ( s in 1:nS )
+    {
+      plot    ( x = c(fYear,max(years)), y = c(0,maxBt), type = "n",
+                ylim = c(0,maxBt), ylab = "", axes=FALSE, xlab = "" ,
+                main = "" )
+        if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+        axis( side = 1, las = 0, cex.axis = labSize )
+        axis( side = 2, las = 1, cex.axis = labSize )
+      if (s == 1 & est & legend) 
+        panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
+                    col=c(ssCol,msCol), lty = c(2,3), 
+                    lwd = c(2,2), cex=c(1), bty="n" )
+        panLab( x = .5, y = .9, txt = paste("Stock ", s, sep = "" ), cex = labSize )
+ 
+      polygon   ( x = c(years,rev(years)), y = c(omBt[1,s,],rev(omBt[3,s,])), border = NA, 
+                  col = "grey80" )
+      lines( x = years, y = omBt[2,s,], col = "black", lwd = 3 )
+      if(est)
+      {
+        ssColPoly <- adjustcolor( ssCol, alpha.f = 0.3)
+        msColPoly <- adjustcolor( msCol, alpha.f = 0.5)
+        polygon(  x = c(years, rev(years)), y = c(ssBt[1,s,],rev(ssBt[3,s,])),
+                  border = NA, col = ssColPoly )
+        lines   ( x = years, y = ssBt[2,s,], col = ssCol, lwd = 3, lty = 2 )
+        polygon(  x = c(years, rev(years)), y = c(msBt[1,s,],rev(msBt[3,s,])),
+                  border = NA, col = msColPoly )
+        lines   ( x = years, y = msBt[2,s,], col = msCol, lwd = 3, lty = 3 )
+      }
+    }
+    mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize )
+    mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 2, las = 0, cex = labSize )
+    if( devLabels )
+      mtext ( text = c(stamp),side=1, outer = TRUE, 
+              at = c(0.8),padj=2,col="grey50",cex=0.8 )
+  }
+}
+
+
+corrTitles <- c("corr(Bt) = 0.1", "corr(Bt) = 0.9", "corr(Ct) = 0.1", "corr(Ct) = 0.9" )
+
+# plotBC()
+# Plots a given replicate's true and estimated time series of biomass and 
+# catch for all stocks, with sims as columns
+# inputs:   rep=replicate number for plotting; 
+#           sims=numeric indicating blobs to load (alpha order in project folder)
+# output:   NULL
+# usage:    post-simulation run, plotting performance
+plotBC <- function( rep = 1, sims=1, legend=TRUE,
+                    data = FALSE, labSize = 2, tickSize = 2,
+                    fYear = 1988, devLabels = TRUE, CIs = FALSE,
+                    scale = FALSE, est = TRUE,
+                    titles = NULL, MPtitles = TRUE,
+                    nStocks = NULL  )
+{
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  .loadSim(sims[1])
+
+  # Recover blob elements for plotting
+  nS <- blob$opMod$nS
+  nO <- blob$opMod$nSurv
+
+  if( !is.null( nStocks) ) nStocks <- min( nS, nStocks )
+
+  # Set up plot window
+  par ( mfcol = c(nStocks,length(sims)), mar = c(1,2,2,0), oma = c(4.5,4.5,2,0.5),
+        las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
+
+  if( MPtitles ) titles <- numeric( length = length(sims) )
 
   for( simIdx in 1:length(sims) )
   {
@@ -3488,8 +3687,9 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
     # True OM quantities
     omBt  <- blob$om$Bt[rep,,]
     Ct    <- blob$om$Ct[rep,,]
-    It    <- blob$om$It[rep,,]
+    I_ost <- blob$om$I_ost[rep,,,]
     Ut    <- blob$om$Ut[rep,,]
+    q_os  <- blob$om$q_os[rep,,]
     
     # Single species model
     ssBt  <- blob$am$ss$Bt[rep,,]
@@ -3500,6 +3700,8 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
     msBt[msBt < 0] <- NA
     # msq   <- blob$am$ms$q[rep,]  
 
+    if( MPtitles ) titles[simIdx] <- mp
+
     # Year indexing
     if(!is.null(blob$opMod$fYear)) 
     {
@@ -3508,6 +3710,14 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
     } else nT <- blob$opMod$nT
     # browser()
     years <- fYear:(fYear + nT - 1)
+
+    # Groom I_ost to remove unused data
+    I_ost[I_ost < 0] <- NA
+    for( s in 1:nS ) 
+    { 
+      fYear_s <- blob$opMod$fYear[s]
+      I_ost[,s,1:(fYear_s-fYear)] <- NA
+    }
 
     # Estimated Ut
     ssUt <- Ct / ssBt
@@ -3555,6 +3765,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
         omBt[s,]  <- omBt[s,]/Bmsy[s]/2
         Ct[s,]    <- (Ct[s,]/MSY[s])
         Ut[s,]    <- Ut[s,]/Umsy[s]
+        I_ost[,s,]<- I_ost[,s,]/Bmsy[s]/2
         ssBt[s,]  <- ssBt[s,]/Bmsy[s]/2
         msBt[s,]  <- msBt[s,]/Bmsy[s]/2
         msUt[s,]    <- msUt[s,]/Umsy[s]
@@ -3580,12 +3791,13 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
 
     # Plot biomass, actual and estimated, including 2 index series,
     # scaled by model estimated q
-    maxBt <- 1.1*max(omBt,na.rm=T)
+    maxBt <- 1.1*max(omBt, 2*Bmsy,na.rm=T)
     if(CIs) maxBt <- max(maxBt,2)
-    for ( s in 1:nS )
+    for ( s in 1:nStocks )
     {
-      if( !scale ) maxBt <- 1.1*max ( omBt[s,] ,na.rm=TRUE)
+      if( !scale ) maxBt <- 1.1*max ( omBt[s,], 2*Bmsy[s] ,na.rm=TRUE)
       if( (!scale) & CIs ) maxBt <- max ( maxBt, msBio[s,,], ssBio[s,,], na.rm = T )
+      if( scale ) maxBt <- 1.1
       plot    ( x = c(fYear,max(years)), y = c(0,maxBt), type = "n",
                 ylim = c(0,maxBt), ylab = "", axes=FALSE, xlab = "" ,
                 main = "" )
@@ -3593,23 +3805,34 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
         # plot catch
         rect( xleft = years-.4, xright = years+.4,
               ybottom = 0, ytop = Ct[s,], col = "grey80", border = NA )
-        axis( side = 1, las = 0 )
-        axis( side = 2, las = 1 )
-      if (s == 1 & est) panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
-                              col=c(ssCol,msCol), lty = c(2,3), 
-                              lwd = c(2,2), cex=c(1), bty="n" )
-        panLab( x = .5, y = .9, txt = paste("Stock ", s, sep = "" ) )
- 
+        if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
+        axis( side = 2, las = 1, cex.axis = tickSize )
+      if (s == 1 & est & legend) 
+        panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
+                    col=c(ssCol,msCol), lty = c(2,3), 
+                    lwd = c(2,2), cex=c(1), bty="n" )
+        panLab( x = .5, y = .9, txt = paste("Stock ", s, sep = "" ),
+                cex = labSize )
+      # Plot data
+      if( data )
+      {
+        for( o in 1:nO ) 
+        {
+          points( x = years, y = I_ost[o,s,]/q_os[o,s], pch = o, cex = 1.5, col = "grey50" )
+        }
+      }
+      # Add developer labels
       if( devLabels )
       {
         if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",col=ssCol,cex=1.1)
         if ( hpdMS & !is.na(hpdMS) ) panLab (x=0.9,y=0.85,txt="h",col=msCol,cex=1.1)  
       }
-      lines   ( x = years, y = omBt[s,], col = "black", lwd = 2)
+      # Add OM biomass
+      lines   ( x = years, y = omBt[s,], col = "black", lwd = 3)
       if(est)
       {
-        lines   ( x = years, y = ssBt[s,], col = ssCol, lwd = 2, lty = 2 )
-        lines   ( x = years, y = msBt[s,], col = msCol, lwd = 2, lty = 3 )
+        lines   ( x = years, y = ssBt[s,], col = ssCol, lwd = 3, lty = 2 )
+        lines   ( x = years, y = msBt[s,], col = msCol, lwd = 3, lty = 3 )
         if( CIs )
         {
           lines ( x = years, y = ssBio[s,,1], col = ssCol, lwd = 1, lty = 2)
@@ -3618,9 +3841,10 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
           lines ( x = years, y = msBio[s,,3], col = msCol, lwd = 1, lty = 3)
         }  
       }
+      
     }
-    mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5)
-    mtext ( text = "Biomass (Kt)", outer = TRUE, side = 2, line = 2, las = 0 )
+    mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize)
+    mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 2, las = 0, cex = labSize )
     if( devLabels )
       mtext ( text = c(stamp,repCount),side=1, outer = TRUE, 
               at = c(0.9,0.1),padj=2,col="grey50",cex=0.8 )
@@ -3894,6 +4118,14 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
 }
 
 
+mpNamesPerfPlot <- c( noJointPriors ="None", 
+                      YearEffOnly = "eps_t", 
+                      qPriorOnly = "q", 
+                      UmsyPriorOnly = "r", 
+                      qUpriors = "q / r", 
+                      qYEpriors = "q / eps_t",
+                      UmsyYEpriors = "r / eps_t", 
+                      allJointPriors = "q / r / eps_t" )
 
 # plotSimPerf()
 # A function to plot simulation-estimation performance for a whole
@@ -3903,14 +4135,13 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-plotStockPerfMultiSim <- function ( pars = c("BnT","Bmsy","q_os","Umsy","dep"), 
+plotStockPerfMultiSim <- function ( pars = c("BnT","Bmsy","Umsy","dep"), 
                                     sims=1, spec = 1, nSurv = 2,
                                     devLabels = TRUE,
-                                    title = TRUE, plotMARE = FALSE )
+                                    title = TRUE, plotMARE = FALSE,
+                                    mpNames = mpNamesPerfPlot,
+                                    labSize = 2 )
 {
-  # Set plotting window
-  par (mfrow = c(1,length(sims)), mar = c(1,0,2,1), oma = c(3,0,2,0) )
-
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )
   {
@@ -3972,7 +4203,9 @@ plotStockPerfMultiSim <- function ( pars = c("BnT","Bmsy","q_os","Umsy","dep"),
                                   c("ss","ms") )
 
 
-  MPs   <- "Single Stock"
+  MPs   <- c("Single Stock")
+
+
   for( sIdx in 1:length(sims) )
   {
     # populate table
@@ -4004,34 +4237,51 @@ plotStockPerfMultiSim <- function ( pars = c("BnT","Bmsy","q_os","Umsy","dep"),
 
     MPs <- c(MPs,blobList[[sIdx]]$mp)
   }
+
+  if( !is.null(mpNames) ) 
+  {
+    for( nomIdx in 1:length(mpNames) )
+      MPs[MPs == names(mpNames)[nomIdx]] <- mpNames[nomIdx]
+  } 
+
   # Pull out RE dists
   med <- quantiles[ ,"50%",, ]
   q975 <- quantiles[ ,"97.5%",, ]
   q025 <- quantiles[ ,"2.5%",, ]
 
+
+
   # Set up plotting environment
-  par( mfrow = c(length(pars),1), mar = c(1,2,1,2), oma = c(3,7,1,6) )
-  xlim  <- c(-1.5,1.5)  
+  par( mfrow = c(length(pars),1), mar = c(0,4,0,2), oma = c(4,7,1,8) )
+  xlim  <- c(-1,1.5)  
   # Loop over pars
   for( pIdx in 1:length(pars) )
   {
     par <- pars[pIdx]
-    plot( x = xlim, y = 2*c(0,length(MPs)+1), type = "n", axes = F )
-      if( pIdx == length(pars) ) axis( side = 1 )
-      abline( v = 0, lty = 2, lwd = 1 )
-      axis( side = 2 , at = 2*1:length(MPs), labels = MPs, las = 1, cex.axis = 0.8 )
-      segments( x0 = q025[1,par,"ss"], y0 = 2, x1 = q975[1,par,"ss"], y1 = 2, lty=1, col="grey60", lwd = 3 )
-      points( x = med[1,par,"ss"], y = 2, pch = 16 )
-      segments( x0 = q025[,par,"ms"], y0 = 2*(2:length(MPs)), x1 = q975[,par,"ms"], y1 = 2*(2:length(MPs)), lty=1, col="grey60", lwd = 3 )
-      points( x = med[,par,"ms"], y = 2*(2:length(MPs)), pch = 16 )
-      mtext( side = 4, text = par, las = 1, line = 2 )
+
+    plot( x = xlim, y = 2*c(0,length(MPs)+1), type = "n", axes = F, ylab = "" )
+      if( pIdx == length(pars) ) axis( side = 1, cex.axis = labSize )
+      abline( v = 0, lty = 3, lwd = 1 )
+      axis( side = 2 , at = 2*1:length(MPs), labels = MPs, las = 1, cex.axis = labSize )
+      segments( x0 = q025[1,par,"ss"], y0 = 2, x1 = q975[1,par,"ss"], y1 = 2, lty=2, col="grey60", lwd = 4 )
+      points( x = med[1,par,"ss"], y = 2, pch = 17, cex = 2 )
+      segments( x0 = q025[,par,"ms"], y0 = 2*(2:length(MPs)), x1 = q975[,par,"ms"], y1 = 2*(2:length(MPs)), lty=1, col="grey60", lwd = 4 )
+      points( x = med[,par,"ms"], y = 2*(2:length(MPs)), pch = 16, cex = 2 )
+      if( par == "BnT" )  par <- paste("B_",spec,",T", sep = "" )
+      if( par == "dep" )  par <- paste("B_", spec,",T/B_",spec, ",0", sep = "")
+      if( par == "Bmsy" ) par <- paste("B_", spec, ",MSY", sep = "")
+      if( par == "Umsy" ) par <- paste("U_", spec, ",MSY", sep = "")
+      if( grepl(x = par, pattern = "q_") )  
+        par <- paste(par,",",spec, sep = "")
+
+      mtext( side = 4, text = par, las = 1, line = 2, cex = labSize )
   }
 
   if( title )
   {
-    mtext ( text = "Relative Error", side = 1, outer = TRUE, line = 2, cex = 1.5)
-    mtext ( text = "AM configuration", side = 2, outer = TRUE, line = 5, cex = 1.5)
-    mtext ( text = "Parameter", side = 4, outer = TRUE, line = 4, cex = 1.5, las = 0)
+    mtext ( text = "Relative Error", side = 1, outer = TRUE, line = 3, cex = 1.5)
+    # mtext ( text = "AM configuration", side = 2, outer = TRUE, line = 5, cex = 1.5)
+    # mtext ( text = "Parameter", side = 4, outer = TRUE, line =  cex = 1.5, las = 0)
   }
 
 }
