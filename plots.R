@@ -343,11 +343,11 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
 
 
 plotRastersPub <- function( saveName = "corrRasters.png",
-                            tabRoot = "allSame_fixedProcRE_MARE",
-                            axes = c("corr","kappaMult"),
-                            breakRange = c(-1,2),
+                            tabRoot = "allSame_infoScenarios_MARE",
+                            axes = c("nS","nDiff"),
+                            breakRange = c(-1,1),
                             MP = NULL,
-                            resp = c("DeltaBnT","DeltaUmsy"),
+                            resp = c("DeltaBnT","DeltaUmsy","DeltaDep"),
                             save = F )
 {
   saveFile <- file.path(".","project","figs",saveName)
@@ -358,7 +358,7 @@ plotRastersPub <- function( saveName = "corrRasters.png",
   par( mfrow = c(2,length(resp)), mar = c(2,2,1,1), oma = c(3,3,3,1) )
   plotRasters(  tableName = paste(tabRoot,"Delta",sep = "_"),
                 axes = axes, breakRange = breakRange, MP = MP, resp = resp,
-                setPar = F, titles = c("B_T","U_MSY") )
+                setPar = F, titles = c("B_T","U_MSY","B_T/B_0") )
 
   plotRasters(  tableName = paste(tabRoot,"Cplx",sep = "_"),
                 axes = axes, breakRange = breakRange, MP = MP, resp = resp,
