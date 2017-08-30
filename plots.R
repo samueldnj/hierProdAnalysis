@@ -231,6 +231,40 @@ plotStatTableGraphs <- function(  tableRoot = "allSame_fixedProcRE",
 }
 
 
+plotLatinSquareRect <- function( sqDim = 4, rectY = 3 )
+{
+  # Set up plotting area
+  par( mfrow = c(2,1), mar = c(2,2,2,2), oma = c(1,1,1,1) )
+
+  # First plot a latin square
+  plot(x = c(0,1), y = c(0,1), type = "n", axes = F )
+    rect( xleft = 0, xright = 1, ybottom = 0, ytop = 1 )
+    for( i in 1:(sqDim-1) )
+    {
+      segments( x0 = 0, y0 = i/(sqDim), x1 = 1, y1 = i/(sqDim) )
+      segments( y0 = 0, x0 = i/(sqDim), y1 = 1, x1 = i/(sqDim) )
+    }
+    centres <- seq( from = 1 / sqDim / 2, by = 1 / sqDim, length = sqDim)
+    panLab( x = centres, y = centres[sample(1:sqDim,size = sqDim)],
+            txt = "X", cex = 2  )
+    mtext( side = 1, text = "(a)" )
+
+  # Now the rectangle
+  plot(x = c(0,1), y = c(0,rectY/sqDim), type = "n", axes = F )
+    rect( xleft = 0, xright = 1, ybottom = 0, ytop = rectY/sqDim )
+    for( i in 1:(sqDim-1) )
+    {
+      segments( x0 = 0, y0 = i/(sqDim), x1 = 1, y1 = i/(sqDim) )
+      segments( y0 = 0, x0 = i/(sqDim), y1 = 1, x1 = i/(sqDim) )
+    }
+    browser()
+    centres <- seq( from = 1 / sqDim / 2, by = 1 / sqDim, length = sqDim)
+    panLab( x = centres, y = centres[sample(1:rectY,size = rectY)],
+            txt = "X", cex = 1  )
+    mtext( side = 1, text = "(b)" )
+}
+
+
 
 plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
                             axes = c("qOM","UmsyOM"),
@@ -343,8 +377,9 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
 
 
 plotRastersPub <- function( saveName = "corrRasters.png",
-                            tabRoot = "allSame_infoScenarios_MARE",
-                            axes = c("nS","nDiff"),
+                            tabRoot = "allSame_fixedProcRE_MARE",
+                            axes = c("corr","kappaMult"),
+                            titles = c("Correlation","Relative Magnitude of\nShared Effect"),
                             breakRange = c(-1,1),
                             MP = NULL,
                             resp = c("DeltaBnT","DeltaUmsy","DeltaDep"),
@@ -355,7 +390,7 @@ plotRastersPub <- function( saveName = "corrRasters.png",
   if(save) png( filename = saveFile, width = 10, height = 20,
                 res = 300, type = "quartz")
 
-  par( mfrow = c(2,length(resp)), mar = c(2,2,1,1), oma = c(3,3,3,1) )
+  par( mfrow = c(2,length(resp)), mar = c(2,2,1,1), oma = c(4,6,3,1) )
   plotRasters(  tableName = paste(tabRoot,"Delta",sep = "_"),
                 axes = axes, breakRange = breakRange, MP = MP, resp = resp,
                 setPar = F, titles = c("B_T","U_MSY","B_T/B_0") )
@@ -365,7 +400,9 @@ plotRastersPub <- function( saveName = "corrRasters.png",
                 setPar = F, titles = "" )  
 
   mtext( outer = T, text  = c("(a)", "(b)"), side = 2, line = 1,
-          at = c(0.7, 0.3), las = 1)
+          at = c(0.75, 0.25), las = 1)
+  mtext( outer = T, side = 1, line = 2, text = titles[1] )
+  mtext( outer = T, side = 2, line = 3, text = titles[2], las = 0 )
   if(save) dev.off()
   cat("Done!\n")
 }
@@ -3557,7 +3594,7 @@ plotBenv <- function(  sims=1, legend=TRUE,
                         data = FALSE, labSize = 2, tickSize = 1.2,
                         fYear = 1988, devLabels = TRUE,
                         scale = FALSE, est = TRUE,
-                        titles = NULL )
+                        titles = NULL, density = NULL )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -3636,7 +3673,7 @@ plotBenv <- function(  sims=1, legend=TRUE,
                 ylim = c(0,maxBt), ylab = "", axes=FALSE, xlab = "" ,
                 main = "" )
         if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
-        axis( side = 1, las = 0, cex.axis = labSize )
+        if(s == nS)axis( side = 1, las = 0, cex.axis = labSize )
         axis( side = 2, las = 1, cex.axis = labSize )
       if (s == 1 & est & legend) 
         panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
@@ -3645,18 +3682,20 @@ plotBenv <- function(  sims=1, legend=TRUE,
         panLab( x = .5, y = .9, txt = paste("Stock ", s, sep = "" ), cex = labSize )
  
       polygon   ( x = c(years,rev(years)), y = c(omBt[1,s,],rev(omBt[3,s,])), border = NA, 
-                  col = "grey80" )
-      lines( x = years, y = omBt[2,s,], col = "black", lwd = 3 )
+                  col = "grey70" )
+      lines( x = years, y = omBt[2,s,], col = "black", lwd = 2 )
       if(est)
       {
-        ssColPoly <- adjustcolor( ssCol, alpha.f = 0.3)
-        msColPoly <- adjustcolor( msCol, alpha.f = 0.5)
+        ssColPoly <- adjustcolor( ssCol, alpha.f = 0.4)
+        msColPoly <- adjustcolor( msCol, alpha.f = 0.4)
         polygon(  x = c(years, rev(years)), y = c(ssBt[1,s,],rev(ssBt[3,s,])),
-                  border = NA, col = ssColPoly )
-        lines   ( x = years, y = ssBt[2,s,], col = ssCol, lwd = 3, lty = 2 )
+                  border = NA, col = ssColPoly, angle = 45, density = density,
+                  lty = 1, lwd = 2 )
         polygon(  x = c(years, rev(years)), y = c(msBt[1,s,],rev(msBt[3,s,])),
-                  border = NA, col = msColPoly )
-        lines   ( x = years, y = msBt[2,s,], col = msCol, lwd = 3, lty = 3 )
+                  border = NA, col = msColPoly, angle = -45, density = density,
+                  lty = 1, lwd = 2 )
+        lines   ( x = years, y = ssBt[2,s,], col = ssCol, lwd = 2, lty = 2 )
+        lines   ( x = years, y = msBt[2,s,], col = msCol, lwd = 2, lty = 3 )
       }
     }
     mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize )
@@ -3821,6 +3860,30 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
     # Set colours for each model
     ssCol <- "steelblue"
     msCol <- "salmon"
+    legText <- c()
+    legPch  <- c()
+    legCol <- c()
+    legLty  <- c()
+    legLwd  <- c()
+    
+    if( est ) 
+    {
+      legText <- c(legText,"ss","ms")
+      legPch  <- c(legPch,NA,NA)
+      legCol <- c(legCol,ssCol,msCol)
+      legLty  <- c(legLty,2,3)
+      legLwd  <- c(legLwd,3,3)
+    }
+    if( data ) 
+    {
+      legText <- c(legText,"Survey 1", "Survey 2")
+      legPch  <- c(legPch,1,2)
+      legCol <- c(legCol,"grey50","grey50")
+      legLty  <- c(legLty,NA,NA)
+      legLwd  <- c(legLwd,NA,NA)
+    }
+
+
 
     # Plot biomass, actual and estimated, including 2 index series,
     # scaled by model estimated q
@@ -3840,11 +3903,11 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
               ybottom = 0, ytop = Ct[s,], col = "grey80", border = NA )
         if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
         axis( side = 2, las = 1, cex.axis = tickSize )
-      if (s == 1 & est & legend) 
-        panLegend ( x=0.2,y=1,legTxt=c("ss","ms"),
-                    col=c(ssCol,msCol), lty = c(2,3), 
-                    lwd = c(2,2), cex=c(1), bty="n" )
-        panLab( x = .5, y = .9, txt = paste("Stock ", s, sep = "" ),
+      if (s == 2 & legend) 
+        panLegend ( x=0.2,y=1,legTxt=legText,
+                    col=legCol, lty = legLty, 
+                    lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
+        panLab( x = .8, y = .9, txt = paste("Stock ", s, sep = "" ),
                 cex = labSize )
       # Plot data
       if( data )

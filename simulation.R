@@ -97,13 +97,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     { # If this is the first one, then initialise the OM using .popInit, 
       # and save the om to a global object for future simulations
       obj$om <- .popInit( obj = obj, Ust = Ust,
-                      specNames = obj$ctrl$speciesNames  )
+                          specNames = obj$ctrl$speciesNames  )
       globalOM <<- obj$om
     } # If this is rep >= 2 then load the saved OM, and skip the .popInit
     else obj$om <- globalOM 
   } else # If proc errors are changing, then just run the OM every time
       obj$om <- .popInit( obj = obj, Ust = Ust,
-                      specNames = obj$ctrl$speciesNames  )
+                          specNames = obj$ctrl$speciesNames  )
 
 
 
@@ -162,12 +162,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
 
   # Initialise list to hold the data
-  om <- list (  Bt        = matrix (NA,nrow=nS, ncol=max(nT) ),
-                Ct        = matrix (NA,nrow=nS, ncol=max(nT) ),
-                Ut        = matrix (NA,nrow=nS, ncol=max(nT) ),
+  om <- list (  Nt        = matrix( NA,nrow=nS, ncol=max(nT) ),
+                Bt        = matrix( NA,nrow=nS, ncol=max(nT) ),
+                wbart     = matrix( NA,nrow=nS, ncol=max(nT) ),
+                Ct        = matrix( NA,nrow=nS, ncol=max(nT) ),
+                Ut        = matrix( NA,nrow=nS, ncol=max(nT) ),
                 epst      = epst,
                 zetat     = zetat,
-                dep       = matrix (NA,nrow=nS, ncol=max(nT) ),
+                dep       = matrix( NA,nrow=nS, ncol=max(nT) ),
                 kappa2    = kappa*kappa,
                 Sigma2    = Sigma*Sigma,
                 msCorr    = msCorr,
