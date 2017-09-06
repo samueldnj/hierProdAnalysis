@@ -3339,7 +3339,8 @@ plotUshrinkage <- function( sim = 1, rep = 1, SS = T, MS = T, MSdist = T, OM = T
 # ouputs:   NULL
 # side-eff: plots to quartz
 # source: SDNJ
-plotqDists <- function( sim = 1, rep = 1, surveys = c(1,2), devLabels = TRUE )
+plotqDists <- function( sim = 1, rep = 1, surveys = c(1,2), devLabels = TRUE,
+                        OM = TRUE, MS = TRUE, SS = TRUE )
 {
   # load the simulation
   .loadSim(sim)
@@ -3367,8 +3368,8 @@ plotqDists <- function( sim = 1, rep = 1, surveys = c(1,2), devLabels = TRUE )
   # Split plotting window
   par( mfrow = c(length(surveys),1), mar = c(1,1,1,1), oma = c(3,3,1,1) )
   # Calculate range of q values
-  qRange  <- range( simq, estqSS, estqMS )
-  xLim    <- c( .8*qRange[1],1.2*qRange[2] )
+  qRange  <- range( simq, estqSS, estqMS, na.rm = T )
+  xLim    <- c( .5*qRange[1],1.5*qRange[2] )
   for( survIdx in surveys )
   {
     # Now make simulated and estimated distributions
@@ -3380,21 +3381,32 @@ plotqDists <- function( sim = 1, rep = 1, surveys = c(1,2), devLabels = TRUE )
       axis( side = 1 )
       panLab( x = .8, y = 0.8, txt = paste("Survey ", survIdx, sep = "") )
       # Plot distributions
-      lines( x = x, y = qlNorm, lty = survIdx + 1, lwd = 3 )
-      lines( x = x, y = qlNormEst, lty = survIdx + 1, lwd = 3, col = "grey60" )
+      if( OM ) 
+        lines( x = x, y = qlNorm, lty = survIdx + 1, lwd = 3 )
+      if( MS )
+        lines( x = x, y = qlNormEst, lty = survIdx + 1, lwd = 3, col = "grey60" )
       # Plot simulated survey mean q
-      abline( v = qSurvM[survIdx], lty = survIdx + 1 )
-      # Now plot the simulated values for each stock
-      text( x = simq[survIdx,], y = (1:nStocks)*max(qlNorm)/(nStocks + 1),
-            labels = 1:nStocks )
+      if( OM )
+      {
+        abline( v = qSurvM[survIdx], lty = survIdx + 1 )
+        # Now plot the simulated values for each stock
+        text( x = simq[survIdx,], y = (1:nStocks)*max(qlNorm)/(nStocks + 1),
+              labels = 1:nStocks )
+      }
+      
       # Joint SS and MS estimates with a thin line
-      segments( x0 = estqSS[survIdx,], y0 = (1:nStocks)*max(qlNorm)/(nStocks + 1),
-                x1 = estqMS[survIdx,], y1 = (1:nStocks)*max(qlNorm)/(nStocks + 1),
-                lwd = .8, lty = 4 )
+      if( SS & MS )
+        segments( x0 = estqSS[survIdx,], y0 = (1:nStocks)*max(qlNorm)/(nStocks + 1),
+                  x1 = estqMS[survIdx,], y1 = (1:nStocks)*max(qlNorm)/(nStocks + 1),
+                  lwd = .8, lty = 4 )
       # Plot SS and MS estimates
-      points( x = estqSS[survIdx,], y = (1:nStocks)*max(qlNorm)/(nStocks + 1), pch = 16 )
-      points( x = estqMS[survIdx,], y = (1:nStocks)*max(qlNorm)/(nStocks + 1), pch = 17 )
-      abline( v = estqSurvM[survIdx], lty = survIdx + 1 + nSurv )
+      if( SS )
+        points( x = estqSS[survIdx,], y = (1:nStocks)*max(qlNorm)/(nStocks + 1), pch = 16 )
+      if( MS )
+      {
+        points( x = estqMS[survIdx,], y = (1:nStocks)*max(qlNorm)/(nStocks + 1), pch = 17 )
+        abline( v = estqSurvM[survIdx], lty = survIdx + 1 + nSurv )
+      }
   }
   mtext( side = 1, text = "Catchability", outer = T, line = 1 )
   if( devLabels ) mtext( side = 1, line = 2, adj = 1, text = mpLabel )
@@ -3721,7 +3733,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
                     fYear = 1988, devLabels = TRUE, CIs = FALSE,
                     scale = FALSE, est = TRUE,
                     titles = NULL, MPtitles = TRUE,
-                    nStocks = NULL  )
+                    nStocks = NULL, MS = TRUE, SS = TRUE   )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -3765,12 +3777,12 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
     
     # Single species model
     ssBt  <- blob$am$ss$Bt[rep,,]
-    # ssq   <- blob$am$ss$q[rep,]
+    ssq   <- blob$am$ss$q_os[rep,,]
 
     # Multispecies model
     msBt  <- blob$am$ms$Bt[rep,,]
     msBt[msBt < 0] <- NA
-    # msq   <- blob$am$ms$q[rep,]  
+    msq   <- blob$am$ms$q_os[rep,,]  
 
     if( MPtitles ) titles[simIdx] <- mp
 
@@ -3781,6 +3793,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
       fYear <- min(blob$opMod$fYear)
     } else nT <- blob$opMod$nT
     # browser()
+    sT <- blob$opMod$fYear - fYear + 1
     years <- fYear:(fYear + nT - 1)
 
     # Groom I_ost to remove unused data
@@ -3805,7 +3818,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
       ssCIs <- blob$am$ss$CIs[[rep]]
 
       # browser()
-      if( !is.na(msCIs) )
+      if( !any(is.na(msCIs)) )
       {
         Btrows <- which( msCIs$par == "Bt" )
         msBio[ , , 1 ] <- matrix( msCIs[ Btrows , "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
@@ -3814,14 +3827,14 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
       }
       for( s in 1:nS )
       {
+
         if( is.null( ssCIs[[ s ]] ) ) next
-        if( is.na( ssCIs[[ s ]] ) ) next
+        if( any(is.na( ssCIs[[ s ]] )) ) next
         Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
-        ssBio[ s, , 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT )
-        ssBio[ s, , 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT )
-        ssBio[ s, , 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT )  
+        ssBio[ s, sT[s]:nT, 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT-sT[s]+1 )
+        ssBio[ s, sT[s]:nT, 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT-sT[s]+1 )
+        ssBio[ s, sT[s]:nT, 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT-sT[s]+1 )  
       }
-    
     }
 
     # Pull Bmsy and Umsy from the blob
@@ -3847,6 +3860,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
           ssBio[s,,]<- ssBio[s,,]/Bmsy[s]/2
           msBio[s,,]<- msBio[s,,]/Bmsy[s]/2  
         }
+        Bmsy[s]   <- 1
       }  
     }
     
@@ -3887,13 +3901,12 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
 
     # Plot biomass, actual and estimated, including 2 index series,
     # scaled by model estimated q
-    maxBt <- 1.1*max(omBt, 2*Bmsy,na.rm=T)
-    if(CIs) maxBt <- max(maxBt,2)
+    maxBt <- 1
     for ( s in 1:nStocks )
     {
-      if( !scale ) maxBt <- 1.1*max ( omBt[s,], 2*Bmsy[s] ,na.rm=TRUE)
+      if( !scale ) maxBt <- 1.1*max ( maxBt, omBt[s,], 2*Bmsy[s] ,na.rm=TRUE)
       if( (!scale) & CIs ) maxBt <- max ( maxBt, msBio[s,,], ssBio[s,,], na.rm = T )
-      if( scale ) maxBt <- 1.1
+      if( scale | data ) maxBt <- max(2,maxBt)
       plot    ( x = c(fYear,max(years)), y = c(0,maxBt), type = "n",
                 ylim = c(0,maxBt), ylab = "", axes=FALSE, xlab = "" ,
                 main = "" )
@@ -3907,7 +3920,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
         panLegend ( x=0.2,y=1,legTxt=legText,
                     col=legCol, lty = legLty, 
                     lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
-        panLab( x = .8, y = .9, txt = paste("Stock ", s, sep = "" ),
+        panLab( x = .8, y = .9, txt = specNames[s],
                 cex = labSize )
       # Plot data
       if( data )
@@ -3915,6 +3928,11 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
         for( o in 1:nO ) 
         {
           points( x = years, y = I_ost[o,s,]/q_os[o,s], pch = o, cex = 1.5, col = "grey50" )
+          if( SS ) 
+            points( x = years, y = I_ost[o,s,]/ssq[o,s], pch = o, cex = 1.5, col = "grey50" )
+          if( MS ) 
+            points( x = years, y = I_ost[o,s,]/msq[o,s], pch = o, cex = 1.5, col = "grey50" )
+
         }
       }
       # Add developer labels
@@ -3927,14 +3945,23 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
       lines   ( x = years, y = omBt[s,], col = "black", lwd = 3)
       if(est)
       {
-        lines   ( x = years, y = ssBt[s,], col = ssCol, lwd = 3, lty = 2 )
-        lines   ( x = years, y = msBt[s,], col = msCol, lwd = 3, lty = 3 )
+        if( SS ) 
+          lines( x = years, y = ssBt[s,], col = ssCol, lwd = 3, lty = 2 )
+        if( MS ) 
+          lines( x = years, y = msBt[s,], col = msCol, lwd = 3, lty = 3 )
         if( CIs )
         {
-          lines ( x = years, y = ssBio[s,,1], col = ssCol, lwd = 1, lty = 2)
-          lines ( x = years, y = ssBio[s,,3], col = ssCol, lwd = 1, lty = 2)
-          lines ( x = years, y = msBio[s,,1], col = msCol, lwd = 1, lty = 3)
-          lines ( x = years, y = msBio[s,,3], col = msCol, lwd = 1, lty = 3)
+          if( SS )
+          {
+            lines( x = years[sT[s]:nT], y = ssBio[s,sT[s]:nT,1], col = ssCol, lwd = 1, lty = 2)
+            lines( x = years[sT[s]:nT], y = ssBio[s,sT[s]:nT,3], col = ssCol, lwd = 1, lty = 2)  
+          }
+          if( MS )
+          {
+            lines( x = years[sT[s]:nT], y = msBio[s,sT[s]:nT,1], col = msCol, lwd = 1, lty = 3)
+            lines( x = years[sT[s]:nT], y = msBio[s,sT[s]:nT,3], col = msCol, lwd = 1, lty = 3)  
+          }
+          
         }  
       }
       

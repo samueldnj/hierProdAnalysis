@@ -306,6 +306,31 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 }
 
 
+.realDataOM <- function( obj )
+{
+  # Create dummy om object here for real data
+  realDataFile <- file.path( getwd(), paste(obj$ctrl$realData,".Rdata",sep = "") )
+  load( realDataFile )
+  om <- list()
+
+  # Set time frame
+  fYear <- obj$assess$fYear
+  lYear <- obj$assess$lYear
+
+  minYear <- min(fYear)
+  maxYear <- max(lYear)
+
+  om$I_ost  <- data$indices[,,as.character(minYear:maxYear)]
+  om$Ct     <- data$katch[,as.character(minYear:maxYear)]
+
+  om$sT <- fYear - minYear + 1
+  om$nT <- lYear - fYear + 1
+
+  obj$om <- om
+
+  return(obj)
+}
+
 
 # makeDataLists()
 # Takes an om list object produced by opModel() and creates 
@@ -317,14 +342,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 #           ssPar=nS-list of single species init. par lists
 .makeDataLists <- function ( obj )
 {
-  # Recover om and control lists
+  
   om    <- obj$om
   opMod <- obj$opMod
+  
   # Needs to create nS SS dat and par lists, and 1 MS dat and par list.
   # First, SS:
   # Recover number of species
   nS    <- opMod$nS
-  nSurv <- om$nSurv
+  nSurv <- opMod$nSurv
   nT    <- om$nT
   sT    <- om$sT
   # Make dat and par lists
@@ -336,7 +362,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   sumCat <- numeric(length = nS)
   for(s in 1:nS)
   {
-    sumCat[s] <- sum( obj$om$Ct[s,sT[s]:max(nT)] )
+    sumCat[s] <- sum( om$Ct[s,sT[s]:max(nT)] )
   }
   sumCat <- as.numeric(sumCat)
 
@@ -360,29 +386,21 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   if( !is.null(obj$assess$sigU2P2) ) obj$assess$sigU2Prior[2] <- obj$assess$sigU2P2
 
   # Create IW scale matrix
-  if( obj$assess$wishType == "diag" ) wishScale <- diag( obj$om$Sigma2 )
+  if( obj$assess$wishType == "diag" ) wishScale <- diag( opMod$SigmaDiag[1:nS] )
   if( obj$assess$wishType == "corr" )
   {
    # Create correlation matrix - lastNegCorr makes species nS have negative correlation
-    msCorr <- matrix (obj$opMod$corrOffDiag, nrow = nS, ncol = nS)
-    if( obj$opMod$lastNegCorr )
-    {
-      msCorr[nS,] <- -1. * obj$opMod$corrOffDiag
-      msCorr[,nS] <- -1. * obj$opMod$corrOffDiag
-    } 
+    msCorr <- matrix (opMod$corrOffDiag, nrow = nS, ncol = nS)
     diag(msCorr) <- 1
-    wishScale <- diag(sqrt(obj$om$Sigma2)) %*% msCorr %*% diag(sqrt(obj$om$Sigma2))
+    wishScale <- diag(sqrt(opMod$SigmaDiag[1:nS])) %*% msCorr %*% diag(sqrt(opMod$SigmaDiag[1:nS]))
   }
 
   # loop over species
   for (s in 1:nS )
   {
     # Make dat list 
-    ssDat[[s]] <- list (  It              = array(obj$om$I_ost[,s,sT[s]:max(nT)], dim = c(nSurv,1,nT[s])),
-                          Ct              = matrix(obj$om$Ct[s,sT[s]:max(nT)], nrow=1),
-                          nO              = nSurv,
-                          nS              = 1,
-                          nT              = nT[s],
+    ssDat[[s]] <- list (  It              = array(om$I_ost[,s,sT[s]:max(nT)], dim = c(nSurv,1,nT[s])),
+                          Ct              = matrix(om$Ct[s,sT[s]:max(nT)], nrow=1),
                           SigmaPriorCode  = obj$assess$SigmaPriorCode,
                           sigUPriorCode   = obj$assess$sigUPriorCode,
                           tauqPriorCode   = obj$assess$tauqPriorCode,
@@ -457,8 +475,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   
   
   # now make dat, par and map (par masking) lists for the MS model
-  msDat <- list ( It              = obj$om$I_ost,
-                  Ct              = obj$om$Ct,
+  msDat <- list ( It              = om$I_ost,
+                  Ct              = om$Ct,
                   SigmaPriorCode  = obj$assess$SigmaPriorCode,
                   sigUPriorCode   = obj$assess$sigUPriorCode,
                   tauqPriorCode   = obj$assess$tauqPriorCode,
@@ -622,8 +640,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     CIs <-  CIs %>% 
               as.data.frame() %>%
               mutate( par = rownames( CIs ),
-                      lCI = val - 1.645 * se,
-                      uCI = val + 1.645 * se ) %>%
+                      lCI = val - se,
+                      uCI = val + se ) %>%
               dplyr::select( par, val, se, lCI, uCI )
     if ( profiles )
     {
@@ -679,7 +697,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 {
 
   # Run operating model to generate data
-  obj <- .opModel ( obj, seed = seed )
+  if( is.null(obj$ctrl$realData) ) obj <- .opModel ( obj, seed = seed )
+  else obj <- .realDataOM( obj )
+
 
   # Create data objects for AMs
   datPar <- .makeDataLists ( obj )
@@ -835,16 +855,22 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Run sim-est procedure
     simEst <- .seedFit ( seed = seeds[i], obj=obj, quiet = quiet)
 
+
     # Save OM values
-    blob$om$Bt[i,,]         <- simEst$om$Bt
+    # If simulating, save all biological OM values
+    if( is.null( obj$ctrl$realData ) )
+    {
+      blob$om$Bt[i,,]         <- simEst$om$Bt
+      blob$om$epst[i,,]       <- simEst$om$epst
+      blob$om$Ut[i,,]         <- simEst$om$Ut
+      blob$om$zetat[i,,]      <- simEst$om$zetat
+      blob$om$delta_ost[i,,,] <- simEst$om$delta_ost
+      blob$om$q_os[i,,]       <- simEst$om$q_os
+      blob$om$dep[i,,]        <- simEst$om$dep  
+    }
+    # Save catch and indices if not simulating
     blob$om$Ct[i,,]         <- simEst$om$Ct
-    blob$om$epst[i,,]       <- simEst$om$epst
-    blob$om$Ut[i,,]         <- simEst$om$Ut
-    blob$om$zetat[i,,]      <- simEst$om$zetat
-    blob$om$delta_ost[i,,,] <- simEst$om$delta_ost
     blob$om$I_ost[i,,,]     <- simEst$om$I_ost
-    blob$om$q_os[i,,]       <- simEst$om$q_os
-    blob$om$dep[i,,]        <- simEst$om$dep
 
     # Save AM results
     # Loop over single species

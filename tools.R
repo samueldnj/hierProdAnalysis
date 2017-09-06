@@ -79,63 +79,6 @@ makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
   write.csv( MAREtab, MAREtabPath )
 }
 
-makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)"),
-                                              initYear = c(1984,2003),
-                                              nS = c(4,7,10),
-                                              initDep = c(0.4,0.7,1.0),
-                                              nDiff = c(0,2,4) ),
-                              nPoints = 1
-                            )
-{
-  # Creates a Latin Hyper Rectangle experimental design from a list of factor levels
-  # inputs:     levels = list of factor levels
-  #             nPoints = number of points to sample from the LHR design
-
-  # First, create an array to hold the design
-  # First, we need the number of factors and their levels to make dimensions
-  nLevels     <- lapply ( X = levels, FUN = length )
-  nLevels     <- unlist( nLevels )
-  nFactors    <- length( nLevels )
-
-  # Create the array, using the factor levels as dimnames
-  LHRdesign   <- array( NA, dim = nLevels, dimnames = levels )
-
-  # Choose the entries in the array as the size of the largest dimension
-  maxEntry  <- max(nLevels)
-
-  # I think adding the entry dimension indices mod maxEntry will
-  # populate the matrix and preserve the latin property. To do this
-  # we gotta expand.grid for all possible entries
-  dimIndices <- vector(mode = "list", length = nFactors )
-  for( lIdx in 1:nFactors )
-  {
-    dimIndices[[lIdx]] <- 1:nLevels[lIdx]
-  }
-  entryIndices <- expand.grid( dimIndices )
-
-  # Loop over the entryIndices data.frame and pull the rows
-  for( rIdx in 1:nrow(entryIndices) )
-  {
-    entryIdx <- as.numeric(entryIndices[rIdx,])
-    LHRdesign[matrix(entryIdx,nrow=1)] <- (sum(entryIdx) %% maxEntry)
-  }
-
-  # Now randomly permute the dimensions
-
-  # Now sample design space for treatments
-  points      <- sample( x = 0:(maxEntry-1), size = nPoints )
-  treatments  <- which( LHRdesign %in% points, arr.ind = F )
-  treatments  <- arrayInd(  ind = treatments, .dim = dim(LHRdesign), 
-                            .dimnames = dimnames(LHRdesign), useNames = T)
-
-  out <- list(  levels = levels,
-                designArray = LHRdesign,
-                treatments =  treatments
-              )
-
-  out
-
-}
 
 # makeInfoScenarioDesign()
 # Creates the .bch file for a historical fishing intensity experiment,
@@ -1787,4 +1730,64 @@ function(i=1)
 {
   usr=par("usr"); inset.x=0.05*(usr[2]-usr[1]); inset.y=0.05*(usr[4]-usr[3])
   text(usr[1]+inset.x,usr[4]-inset.y,paste("(",letters[i],")",sep=""),cex=1.,font=1)
+}
+
+makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)"),
+                                              initYear = c(1984,2003),
+                                              nS = c(4,7,10),
+                                              initDep = c(0.4,0.7,1.0),
+                                              nDiff = c(0,2,4) ),
+                              nPoints = 1
+                            )
+{
+  # Creates a Latin Hyper Rectangle experimental design from a list of factor levels
+  # inputs:     levels = list of factor levels
+  #             nPoints = number of points to sample from the LHR design
+
+  # First, create an array to hold the design
+  # First, we need the number of factors and their levels to make dimensions
+  nLevels     <- lapply ( X = levels, FUN = length )
+  nLevels     <- unlist( nLevels )
+  nFactors    <- length( nLevels )
+
+  # Create the array, using the factor levels as dimnames
+  LHRdesign   <- array( NA, dim = nLevels, dimnames = levels )
+
+  # Choose the entries in the array as the size of the largest dimension
+  maxEntry  <- max(nLevels)
+
+  # I think adding the entry dimension indices mod maxEntry will
+  # populate the matrix and preserve the latin property. To do this
+  # we gotta expand.grid for all possible entries
+  dimIndices <- vector(mode = "list", length = nFactors )
+  for( lIdx in 1:nFactors )
+  {
+    dimIndices[[lIdx]] <- 1:nLevels[lIdx]
+  }
+  entryIndices <- expand.grid( dimIndices )
+
+  # Loop over the entryIndices data.frame and pull the rows
+  for( rIdx in 1:nrow(entryIndices) )
+  {
+    entryIdx <- as.numeric(entryIndices[rIdx,])
+    LHRdesign[matrix(entryIdx,nrow=1)] <- (sum(entryIdx) %% maxEntry)
+  }
+
+  # Now randomly permute the dimensions
+  idx <- lapply(dim(LHRdesign), sample)
+  LHRdesign[] <- do.call(`[`, c( list(LHRdesign), idx) )
+
+  # Now sample design space for treatments
+  points      <- sample( x = 0:(maxEntry-1), size = nPoints )
+  treatments  <- which( LHRdesign %in% points, arr.ind = F )
+  treatments  <- arrayInd(  ind = treatments, .dim = dim(LHRdesign), 
+                            .dimnames = dimnames(LHRdesign), useNames = T)
+
+  out <- list(  levels = levels,
+                designArray = LHRdesign,
+                treatments =  treatments
+              )
+
+  out
+
 }
