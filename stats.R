@@ -10,7 +10,103 @@
 #
 # --------------------------------------------------------------------------
 
-checkCorr <- function(  tabName = "allSame_infoScenarios_RE.csv",
+
+fitTablePub <- function(  fitTab = "DoverAssessPubFinal.csv",
+                          pars = c(  "Umsy", "BnT", "Bmsy", "DnT", "U_Umsy", "AICc" ),
+                          models = c("qPriorOnly","UmsyPriorOnly","qUpriors"),
+                          saveFile = "DoverAssessPub_AICTable.csv" )
+{
+  # First, read in the table
+  tabPath <- file.path(getwd(),"project/statistics",fitTab)
+  table <- read.csv( tabPath, header=TRUE, stringsAsFactors=FALSE )  
+
+  # Reduce to only wanted MPs
+  table <- table %>% filter( mp %in% models )
+
+  # Now split by scenario
+  scenarios <- unique(table$scenario)
+
+  # Count stocks
+  stocks <- unique( table$stock )
+  nStocks <- length( stocks )
+
+  baseFitMtx <- matrix( NA, ncol = 5, nrow = length(models) + 1)
+  colnames(baseFitMtx) <- c("Parameter", "Model", stocks )
+  baseFitTab <- as.data.frame( baseFitMtx )
+
+  # Column names for models
+  ssPars  <- paste( "ss", pars, sep = "" )
+  ssParSE <- paste( ssPars, "se", sep = "")
+
+  msPars  <- paste( "ms", pars, sep = "" )
+  msParSE <- paste( msPars, "se", sep = "")
+
+  # Create a list to hold a fit table for each scenario
+  scenList <- vector(mode="list", length = 2)
+  names(scenList) <- scenarios
+
+  for( scenIdx in 1:length( scenarios ) )
+  {
+    scenTable <-  table %>%
+                  filter( scenario == scenarios[scenIdx] )
+
+    parList <- vector( mode = "list", length = length(pars) + 1 )
+    names(parList) <- pars
+
+    for( pIdx in 1:length(pars) )
+    {
+      # Now start populating a parTab
+      parTab <- baseFitTab
+      parTab$Parameter <- pars[pIdx]
+      parTab$Model <- c( "Single-stock", models )
+
+      # Loop over models
+      for( mIdx in 1:length(models) )
+      {
+        modTab <- filter( scenTable, mp == models[mIdx] )
+        if( mIdx == 1 )
+        {
+          # Populate single stock model
+          for( sIdx in 1:nStocks )
+          {
+            # Now pull stock spec estimates
+            stockTab <- filter( modTab, stock == stocks[sIdx] )
+            parEst  <- round(stockTab[,ssPars[pIdx]], digits = 2)
+            if( pars[pIdx] != "AICc" ) 
+            {
+              parSE   <- round(stockTab[,ssParSE[pIdx]], digits =2)
+              parEst  <- paste( parEst, " (",parSE,")", sep = "")
+            }
+            parTab[1,stocks[sIdx]] <- parEst        
+          }
+        }
+        # Now pull MS model estimates
+        # Populate single stock model
+        for( sIdx in 1:nStocks )
+        {
+          # Now pull stock spec estimates
+          stockTab <- filter( modTab, stock == stocks[sIdx] )
+          parEst  <- round(stockTab[,msPars[pIdx]], digits = 2)
+          if( pars[pIdx] != "AICc" ) 
+          {
+            parSE   <- round(stockTab[,msParSE[pIdx]], digits = 2)
+            parEst  <- paste( parEst, " (",parSE,")", sep = "")
+          }
+          # browser()
+          parTab[mIdx + 1,stocks[sIdx]] <- parEst        
+        }
+      }
+      parList[[pIdx]] <- parTab  
+    }
+    scenList[[scenIdx]] <- do.call("rbind",parList)
+  }
+  outTable <- do.call("cbind",scenList)
+  savePath <- file.path(".","project","Statistics",saveFile)
+  write.csv( outTable, savePath )
+}
+
+
+checkCorr <- function(  tabName = "allSame_randProcCorr_MRE.csv",
                         cols = c("ssq_1","ssq_2","ssBmsy","ssBnT","msq_1","msq_2","msBmsy","msBnT"),
                         spec = NULL, MP = NULL, nSp = NULL )
 {
@@ -593,6 +689,27 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 }
 
 
+#.fitTable()
+# Wrapper for .simFits, produces stacked tables of estimates
+# and SEs for multiple fit runs
+# inputs:   sims=integer vector indicating simulations in ./project/
+# outputs:  statTable=table of statistics for a project/group
+# usage:    to produce output for a project and create .csv tables of 
+#           performance statistics
+# side-eff: creates tables of statistics in ./project/stats/
+.fitTable <- function (sims=1,tabName = "fitTable.csv", par = FALSE, clust )
+{ 
+  # call function
+  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simFits )
+  else tableList <- lapply ( X = sims, FUN = .simFits )
+
+  # now make the table and return
+  fitTable <-  do.call("rbind",tableList)
+  savePath <- file.path(getwd(),"project","Statistics",tabName)
+  write.csv ( fitTable, file = savePath )
+  fitTable
+}
+
 # .statTableSummarise() & .statTableSummariseAbs()
 # A custom function that will take the columns of the RE stat table
 # and return a summarised version, using summarise_all(). Numeric
@@ -641,6 +758,227 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   }
   out
 }
+
+
+# .simStatRE()
+# Produces a statistics table for leading pars in a simulation from
+# the output produced by a runSimEst() call
+# inputs:   sim=int indicating which simulation to compute stats for
+# outputs:  statTable=data.frame of mean squared error BnT and Umsy
+# usage:    in lapply to produce stats for a group of simulations
+.simFits <- function ( sim=1 )
+{
+  # First, load blob
+  source("tools.R")
+  .loadSim(sim)
+
+  om    <- blob$om
+  opMod <- blob$opMod
+  pars  <- blob$opMod$pars
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+  
+  # Control info
+  nS      <- blob$opMod$nS
+  nSurv   <- blob$opMod$nSurv
+  species <- blob$ctrl$speciesName[1:nS]
+  nReps   <- blob$ctrl$nReps
+  fYear   <- blob$opMod$fYear
+  lYear   <- blob$opMod$lYear
+
+  nT <- lYear - fYear + 1
+  sT <- fYear - min(fYear) + 1
+  maxT <- max(nT)
+
+  # First, create a data.frame of NAs with a row for each of MRE,MARE
+  colLabels <- c( "scenario","mp","stock","ssAIC", "ssAICc","msAIC","msAICc",
+                  "ssBnT","ssBnTse","msBnT","msBnTse",
+                  "ssUmsy","ssUmsyse","msUmsy","msUmsyse",
+                  "ssBmsy","ssBmsyse","msBmsy","msBmsyse",
+                  "ssDnT","ssDnTse","msDnT","msDnTse",
+                  "ssU_Umsy","ssU_Umsyse", "msU_Umsy", "msU_Umsyse",
+                  "msHessPD", "ssHessPD","nReps", 
+                  "nS", "nSurv")
+
+  q_surv        <- paste( "q_", 1:nSurv, sep = "" )
+  q_surv.se     <- paste( q_surv, "se", sep = "" )
+  q_surv.seSS   <- paste( c("ss"), q_surv.se, sep = "" )
+  q_surv.seMS   <- paste( c("ms"), q_surv.se, sep = "" )
+  q_survSS      <- paste( c("ss"), q_surv, sep = "" )
+  q_survMS      <- paste( c("ms"), q_surv, sep = "" )
+  tau2_surv     <- paste( "tau2_", 1:nSurv, sep = "" )
+  tau2_survSS   <- paste( c("ss"), tau2_surv, sep = "" )
+  tau2_survMS   <- paste( c("ms"), tau2_surv, sep = "" )
+  qbar_surv     <- paste( "qbar_", 1:nSurv, sep = "" )
+  tauq2_surv    <- paste( "tauq2_", 1:nSurv, sep = "" )
+
+
+  colLabels <- c( colLabels, 
+                  q_survSS, q_survMS, q_surv.seSS, q_surv.seMS,
+                  tau2_survSS, tau2_survMS, 
+                  qbar_surv,
+                  tauq2_surv )
+  
+  fitTable <- matrix( NA, nrow = nS*nReps, ncol = length( colLabels ) )
+  
+
+  colnames(fitTable)    <- colLabels
+  fitTable              <- as.data.frame(fitTable)
+
+  # Start filling stat table
+  # First, OM pars and labels
+  fitTable$scenario        <- blob$ctrl$scenarioName
+  fitTable$mp              <- blob$ctrl$mpLabel
+  fitTable$stock           <- species[1:nS]
+  fitTable$nS              <- opMod$nS
+  fitTable$fYear           <- fYear[1:nS]
+  fitTable$nSurv           <- nSurv
+  fitTable$sigmaPriorCode  <- blob$assess$SigmaPriorCode
+  fitTable$lnUPriorCode    <- blob$assess$lnUPriorCode
+  fitTable$lnqPriorCode    <- blob$assess$lnqPriorCode
+  fitTable$initBioCode     <- blob$assess$initBioCode[1:nS]
+
+
+  # Now values that change with the replicate
+  for( sIdx in 1:nS )
+  {
+    # Compute AICc for each model
+    # survey q values, survey obs err var, 
+    # 3 leading pars (B, r, PE)
+    # initial biomass if estimated
+    ssK <- nSurv*2 + 3 + blob$assess$initBioCode[sIdx]
+
+    # q_os values, tau_o, B and r for each stock, initBioCodes, sigma for PE
+    msK <- nS * nSurv + nSurv + 2*nS + sum(blob$assess$initBioCode[1:nS]) + 1
+    # Add prior q if estiamted
+    if( blob$assess$lnqPriorCode == 1 ) msK <- msK + 2 * nSurv 
+    # Add prior U if estimated
+    if( blob$assess$lnUPriorCode == 1 ) msK <- msK + 2
+    # Add shared YE if estimated
+    if( blob$assess$estYearEff == TRUE ) msK <- msK + 1
+
+    # Compute AIC
+    ssAIC <- 2*ssK + 2*ss$fitrep[[1]][[sIdx]]$nll
+    msAIC <- 2*msK + 2*ms$fitrep[[1]]$nll
+
+    nSampSS <- nT[sIdx]
+    nSampMS <- sum(nT)
+    # Compute AICc
+    ssAICc <- ssAIC + 2*ssK*(ssK+1) / (nSampSS - ssK - 1)
+    msAICc <- msAIC + 2*msK*(msK+1) / (nSampMS - msK - 1)
+
+    if( length(ssAICc) == 0) ssAICc <- NA
+    if( length(msAICc) == 0) msAICc <- NA
+
+    fitTable[sIdx, c("ssAIC","ssAICc")] <- c(ssAIC, ssAICc)
+    fitTable[sIdx, c("msAIC","msAICc")] <- c(msAIC, msAICc)
+
+    # For those that exist, pull estimates and ses from CIs object
+    ssCI <- ss$CIs[[1]][[sIdx]]
+    msCI <- ms$CIs[[1]]
+
+    if( is.null(ssCI) ) ssCI <- NA
+    if( is.null(msCI) ) msCI <- NA
+
+    # SS model
+    # Check if converged
+    if( !is.na(ssCI) )
+    {
+      # First, pull BnT
+      ssBtrows <- which( ssCI$par == "Bt" )
+      ssBnTrow <- max(ssBtrows)   
+      fitTable[sIdx,c("ssBnT","ssBnTse")]        <- ssCI[ssBnTrow,c("val","se")]
+      
+      # Productivity
+      ssUmsyRow <- which( ssCI$par == "Umsy" )
+      fitTable[sIdx,c("ssUmsy","ssUmsyse")]        <- ssCI[ssUmsyRow,c("val","se")]
+      
+      # Optimal Biomass
+      ssBmsyRow <- which( ssCI$par == "Bmsy" )
+      fitTable[sIdx,c("ssBmsy","ssBmsyse")]        <- ssCI[ssBmsyRow,c("val","se")]
+      
+      # Current depletion
+      ssDnTRow <- which( ssCI$par == "DnT" )
+      fitTable[sIdx,c("ssDnT","ssDnTse")]        <- ssCI[ssDnTRow,c("val","se")]
+
+      # Current U_Umsy
+      relUrows <- which( ssCI$par == "U_Umsy" )
+      ssrelUrow <- max( relUrows )
+      fitTable[sIdx,c("ssU_Umsy","ssU_Umsyse")]        <- ssCI[ssrelUrow,c("val","se")]      
+    }
+      
+
+    # Check if MS model converged
+    if(!is.na(msCI))
+    {
+      # MS model
+      # biomass
+      msBtrows <- which( msCI$par == "Bt" )
+      msBnTrow <- max(msBtrows) - nS + sIdx
+      fitTable[sIdx,c("msBnT","msBnTse")]        <- msCI[msBnTrow,c("val","se")]
+      # Prod
+      msUmsyRow <- max(which( msCI$par == "Umsy" )) - nS + sIdx
+      fitTable[sIdx,c("msUmsy","msUmsyse")]        <- msCI[msUmsyRow,c("val","se")]
+      # opt biomass
+      msBmsyRow <- max(which( msCI$par == "Bmsy" )) - nS + sIdx    
+      fitTable[sIdx,c("msBmsy","msBmsyse")]        <- msCI[msBmsyRow,c("val","se")]
+      # current depletion
+      msDnTRow <- max(which( msCI$par == "DnT" )) - nS + sIdx
+      fitTable[sIdx,c("msDnT","msDnTse")]        <- msCI[msDnTRow,c("val","se")] 
+      # relative fishing mortality (U/Umsy)
+      relUrows <- which( msCI$par == "U_Umsy" )
+      msrelUrow <- max(relUrows) - nS + sIdx
+      fitTable[sIdx,c("msU_Umsy","msU_Umsyse")]        <- msCI[msrelUrow,c("val","se")]
+
+    }
+  
+    # Loop over surveys for catchability values
+    for( oIdx in 1:nSurv )
+    {
+      sscolPar <- paste( "ssq_", oIdx, sep = "" )
+      sscolSE  <- paste( sscolPar,"se", sep = "" )
+
+      mscolPar <- paste( "msq_", oIdx, sep = "" )
+      mscolSE  <- paste( mscolPar,"se", sep = "" )
+
+      if( !is.na(ssCI) )
+      {
+        ssqRow  <- which(ssCI$par == "q_os" )[oIdx]
+        fitTable[sIdx, c(sscolPar,sscolSE)]      <- ssCI[ssqRow, c("val","se")]  
+      }
+      if( !is.na(msCI) )
+      {
+        msqRow  <- max(which(msCI$par == "q_os" ) ) - nS * nSurv + (sIdx-1)*nSurv + oIdx
+        fitTable[sIdx, c(mscolPar,mscolSE)]      <- msCI[msqRow, c("val","se")]  
+      }
+    } 
+
+    # Avoid the uncertainty in these estimates - these aren't really meaningful
+    fitTable[sIdx, "msHessPD"]    <- ms$hesspd
+    fitTable[sIdx, "ssHessPD"]    <- ss$hesspd[,sIdx]
+    fitTable[sIdx, tau2_survSS]   <- ss$tau2_o[,,sIdx]
+    fitTable[sIdx, tau2_survMS]   <- ms$tau2_o
+    fitTable[sIdx, qbar_surv]     <- ms$qbar_o
+    fitTable[sIdx, tauq2_surv]    <- ms$tauq2_o
+
+  }
+
+  fitTable <- fitTable %>%
+              group_by( mp ) %>%
+              mutate( ssAICcSum = sum(ssAICc),
+                      ssBnTCV = ssBnTse / ssBnT * ssHessPD,
+                      msBnTCV = msBnTse / msBnT * msHessPD,
+                      ssUmsyCV = ssUmsyse / ssUmsy * ssHessPD,
+                      msUmsyCV = msUmsyse / msUmsy * msHessPD,
+                      ssBmsyCV = ssBmsyse / ssBmsy * ssHessPD,
+                      msBmsyCV = msBmsyse / msBmsy * msHessPD,
+                      ssDnTCV = ssDnTse / ssDnT * ssHessPD,
+                      msDnTCV = msDnTse / msDnT * msHessPD)
+  
+  # return
+  fitTable
+}
+
 
 # .simStatRE()
 # Produces a statistics table for leading pars in a simulation from

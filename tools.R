@@ -20,6 +20,62 @@
 # --------------------------------------------------------------------------
 
 
+makeParEstTablePub <- function( tables = c("DoverBase", "DoverLoPE"),
+                                models = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors"),
+                                pars = c("Umsy","BnT","Bmsy","DnT","AICc"),
+                                nStocks = 3,
+                                saveName = "DoverStrongWeak.csv" )
+{
+  tabSkelParMod <- matrix( ncol = nStocks + 2, nrow = length(models) + 1 )
+
+  tabList <- vector(mode = "list", length = length(tables) )
+  names(tabList) = tables
+
+  for( tIdx in 1:length(tables) )
+  {
+    tabName <- tables[tIdx]
+    tabFile <- paste(tabName,".csv",sep = "")
+    tabPath <- file.path(".","project","Statistics",tabFile)
+    tab <- read.csv( tabPath, header = T, stringsAsFactors = F)
+    parTabList <- vector( mode = "list", length = length(pars) )
+    stocks <- unique( tab$stock )
+    for( pIdx in 1:length( pars ) )
+    {
+      parTab <- tabSkelParMod
+      parTab[,1] <- pars[pIdx]
+      colnames(parTab) <- c("Parameter","Model",stocks)
+      for( mIdx in 1:length(models) )
+      {
+        # filter down to the model
+        tmpTab <- tab %>%
+                  filter( mp == models[mIdx] )
+        # If it's the first model then save the SS results
+        if( mIdx == 1 )
+        {
+          ssPar <- paste( "ss", pars[pIdx], sep = "" )
+          parTab[1,2] <- "Single-Stock"
+          parTab[1,3:5] <- as.numeric(tmpTab[,ssPar])
+        }
+        # Now save the MS results
+        msPar <- paste( "ms", pars[pIdx], sep = "" )
+        parTab[1+mIdx,2] <- models[mIdx]
+        parTab[1+mIdx,3:5] <- as.numeric(tmpTab[,msPar])
+      }
+      parTab <- as.data.frame(parTab)
+      parTabList[[pIdx]] <- parTab
+    } 
+    # Now bind the specific parameter tables together
+    tabList[[tIdx]] <- do.call("rbind",parTabList)
+  }
+  # And now the cbind each table
+  aggTab <- do.call("cbind",tabList)
+
+  # Now save
+  savePath <- file.path(".","project","Statistics",saveName)
+  write.csv(aggTab, savePath)
+
+  aggTab
+}
 
 
 makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
@@ -1116,6 +1172,7 @@ doBatchRun <- function( arg )
       
       # This step compares the names in the i-th scenario to the names in the
       # first column of newPars to find the common names using intersect.
+      # browser()
 
       # Change all .subChar symbols to "$".
       names(scenario[[i]]) <- gsub( .subChar,"$",names(scenario[[i]]), fixed=TRUE )

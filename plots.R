@@ -10,6 +10,113 @@
 # --------------------------------------------------------------------------
 
 
+plotCVbarsMultiTable <- function( tabRoots = c("DoverBase", "DoverLoPE"),
+                                  titles = c("Strong","Weak"),
+                                  pars = c( "DnT", "Bmsy", "BnT",  "Umsy"  ),
+                                  models = c("noJointPriors","qPriorOnly","qUpriors","UmsyPriorOnly"),
+                                  modLabs = expression("Single-Stock","None",q,q/U,U)  )
+{
+  par( mfrow = c( 1, length(tabRoots) ), oma = c(3,2,2,1), mar = c(1,2,1,2) )
+  for( tabIdx in 1:length( tabRoots ) ) plotCVbars( tableRoot = tabRoots[tabIdx],
+                                                    pars = pars,
+                                                    models = models,
+                                                    legend = (tabIdx == length(tabRoots) ),
+                                                    modLabs = modLabs )
+  mtext( outer = T, side = 1, text = "Coefficient of Variation (%)", line = 2)
+  mtext( outer = T, side = 3, text = titles, cex = 1.5, at = seq(1/length(tabRoots)/2, by = 1/length(tabRoots)))
+}
+
+
+plotCVbars <- function( tableRoot = "DoverBase",
+                        pars = c( "BnT", "Bmsy",  "Umsy", "DnT" ),
+                        models = c("noJointPriors","qPriorOnly","qUpriors"),
+                        legend = FALSE,
+                        parLabels = expression( B[T]/B[0], B[MSY], B[T], U[MSY] ),
+                        modLabs = expression("Single-Stock","None",q,q/U)  )
+{
+
+  # Read in table
+  tabFile <- paste("./project/Statistics/",tableRoot,".csv", sep = "")
+  tab <- read.csv(tabFile, header = T)
+
+  estSS <- paste("ss", pars, sep = "" )
+  cvSS  <- paste(estSS, "CV", sep = "" )
+
+  estMS <- paste("ms", pars, sep = "" )
+  cvMS  <- paste(estMS, "CV", sep = "" )
+
+  checkPDhess <- function( x, hess )
+  {
+    if( !any( hess ) ) return(NA)
+    else return(x)
+  }
+
+  tab <-  tab %>%
+          filter( mp %in% models ) %>%
+          dplyr::select(  cvSS, cvMS, mp, ssAICc, 
+                          msAICc, msHessPD, ssHessPD ) %>%
+          group_by( mp ) %>%
+          mutate( ssAICcSum = sum(ssAICc) ) %>%
+          ungroup()
+
+  tab[tab == 0] <- NA
+
+  # Create colour palette
+  cols <- brewer.pal( n = length(models)+1, name = "Dark2")
+
+  nModels <- length(models) + 1
+
+  # Now let's plot CVs
+  plot( x = c(0,110), y = c(0,length(pars) ), type = "n", axes = F,
+        xlab = "",
+        ylab = "" )
+    axis( side = 1 )
+    axis( side = 2, at = 0.5 + 0:(length(pars)-1), labels = parLabels,
+          las = 1 )
+    for( pIdx in 1:length(pars) )
+    {
+      parCVss <- cvSS[grepl(pattern = pars[pIdx], x = cvSS )]
+      parCVms <- cvMS[grepl(pattern = pars[pIdx], x = cvMS )]
+      plotTab <-  tab %>%
+                  group_by( mp ) %>%
+                  summarise_all( funs(mean,sd) )
+
+      meanCVss <- as.numeric(unique( plotTab[,paste(parCVss,"mean",sep = "_")] ))
+      sdCVss <- as.numeric(unique( plotTab[,paste(parCVss,"sd",sep = "_")] ))
+
+      rect( xleft = 0, xright = c(meanCVss) * 100,
+            ybottom = (pIdx - 1) + nModels/(nModels+1) - 1/(nModels + 1) / 2,
+            ytop =  (pIdx - 1)+nModels/(nModels+1) + 1/(nModels + 1)/2,
+            col = cols[1], border = NA )
+      segments( x0 = (c(meanCVss) - c(sdCVss)) * 100,
+                x1 = (c(meanCVss) + c(sdCVss)) * 100,
+                y0 = (pIdx - 1) + (nModels)/(nModels+1),
+                lwd = 3, col = "black" )
+      for( mIdx in 1:length(models) )
+      {
+        plotTabMod <-  plotTab %>%
+                    filter( mp == models[mIdx] )
+
+        meanCVms <- unlist(plotTabMod[,paste(parCVms,"mean",sep = "_")])
+        sdCVms <- unlist(plotTabMod[,paste(parCVms,"sd",sep = "_")])
+
+        if( is.na(meanCVms) | is.na(sdCVms) | length(meanCVms) == 0 | length(sdCVms) == 0 ) next
+
+        rect( xleft = 0, xright = meanCVms * 100,
+              ybottom = (pIdx - 1) + (nModels - mIdx)/(nModels+1) - 1/(nModels + 1) / 2,
+              ytop =  (pIdx - 1)+(nModels - mIdx)/(nModels+1) + 1/(nModels + 1)/2,
+              col = cols[mIdx + 1], border = NA )
+        segments( x0 = (c(meanCVms) - c(sdCVms)) * 100,
+                  x1 = (c(meanCVms) + c(sdCVms)) * 100,
+                  y0 = (pIdx - 1) + (nModels - mIdx)/(nModels+1),
+                  lwd = 3, col = "black" )
+      }
+    }
+    if(legend) panLegend( x = "bottomright", legTxt = modLabs,
+                          fill = cols, border = NA, bty = "n" )
+
+}
+
 plotStatTableGraphs <- function(  tableRoot = "allSame_fixedProcRE",
                                   resp = c("BnT","Umsy","Bmsy","Dep","HessPD","q_1","q_2","tau2_1","tau2_2"),
                                   axes = c("kappaMult","corr"),
@@ -376,8 +483,8 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
 }
 
 
-plotRastersPub <- function( saveName = "corrRasters.png",
-                            tabRoot = "allSame_fixedProcRE_MARE",
+plotRastersPub <- function( saveName = "corrRastersRand.png",
+                            tabRoot = "allSame_randProcCorr_MARE",
                             axes = c("corr","kappaMult"),
                             titles = c("Correlation","Relative Magnitude of\nShared Effect"),
                             breakRange = c(-1,1),
@@ -390,7 +497,7 @@ plotRastersPub <- function( saveName = "corrRasters.png",
   if(save) png( filename = saveFile, width = 10, height = 20,
                 res = 300, type = "quartz")
 
-  par( mfrow = c(2,length(resp)), mar = c(2,2,1,1), oma = c(4,6,3,1) )
+  par( mfrow = c(2,length(resp)), mar = c(2,1.5,1,1), oma = c(4,6,3,1) )
   plotRasters(  tableName = paste(tabRoot,"Delta",sep = "_"),
                 axes = axes, breakRange = breakRange, MP = MP, resp = resp,
                 setPar = F, titles = c("B_T","U_MSY","B_T/B_0") )
@@ -406,6 +513,8 @@ plotRastersPub <- function( saveName = "corrRasters.png",
   if(save) dev.off()
   cat("Done!\n")
 }
+
+
 
 
 
@@ -1029,7 +1138,7 @@ plotREtableSlice <- function( tableName = "Fhist_pub_MARE",
 }
 
 plotFhist <- function ( sims = 1:2,
-                        nTraj = 40,
+                        nTraj = 60,
                         seed = 2,
                         save = FALSE,
                         fileName = "depPlot.pdf",
@@ -1042,7 +1151,6 @@ plotFhist <- function ( sims = 1:2,
   # This one's a little path specific, and only needs
   # to be pointed to the correct sims
   # inputs      sims=numeric vector indicating sims in project dir
-  # I chose two levels for t_d = 6,14, and 2 levels for U_d = 0.4,2
   
   .loadSim(sims[1])
 
@@ -1107,7 +1215,7 @@ plotFhist <- function ( sims = 1:2,
     pdf( file = outFile, ... )
   } 
   # Make plot labels
-  # labs <- c("(a)", "(b)", "(c)", "(d)" )
+  labs <- c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)" )
   counter <- 1
 
   # now make x axis year ticks
@@ -1136,11 +1244,11 @@ plotFhist <- function ( sims = 1:2,
         axis( side = 2, las = 1 )
         if( sIdxNum < length(sIndices) ) axis( side = 4, las = 1, labels = FALSE )
         else axis( side = 4, las = 1 )
-        # panLab( txt = labs[counter], x = 0.8, y = 0.9, cex = 1.2 )
+        panLab( txt = labs[counter], x = 0.8, y = 0.9, cex = 1.2 )
       counter <- counter + 1
     }
   }
-  mtext( side = 2, outer = TRUE, text = "Relative Biomass (B_t/B_0)", cex = 1.5, line = 1.5 )
+  mtext( side = 2, outer = TRUE, text = expression(Relative~Biomass~B[t]/B[0]), cex = 1.5, line = 1.5 )
   mtext( side = 1, outer = TRUE, text = "Year", cex = 1.5, line = 1.5 )
   mtext( side = 4, outer = TRUE, text = "Harvest Rate", cex = 1.5, line = 1.5 )
   if( save ) dev.off()
@@ -2833,10 +2941,10 @@ plotCompContour <- function ( tableName   = "RE_coarse_pub_MARE.csv",
 # inputs:   sim=number of the simulation in the project folder (alphabetical)
 #           rep=optional number of replicate to start scanning from
 #           est=character indicating which esitimates for plotting (MLE or MCMC)
-plotRepScan <- function ( sim =1, rep = 1, est = "MLE")
+plotRepScan <- function ( sim =1, rep = 1)
 {
   # First load the simulation
-  .loadSim(sim)
+  .loadSim(sim[1])
 
   # Recover number of reps
   nReps <- blob$ctrl$nReps
@@ -2850,7 +2958,7 @@ plotRepScan <- function ( sim =1, rep = 1, est = "MLE")
 
   for (r in rep:nReps)
   {
-    plotBCU(r,est)
+    plotBC(rep = r, sims = sim )
     invisible(readline(prompt="Press [enter] for the next plot."))
   }
   return(invisible())
@@ -3721,6 +3829,505 @@ plotBenv <- function(  sims=1, legend=TRUE,
 
 corrTitles <- c("corr(Bt) = 0.1", "corr(Bt) = 0.9", "corr(Ct) = 0.1", "corr(Ct) = 0.9" )
 
+mpTitles <- expression("Single-stock", q, U, q/U)
+baseTitles <- expression("Single-stock", q/U/epsilon[t])
+
+
+
+# plotBCfit()
+# Plot fit, CIs and data for a set of simulations. This is made for sim objects 
+# that were run on realData, so some of the code is a little path specific.
+# Single stock fits are plotted as the first column, taken from the first
+# sim object. Takes the first replicate.
+# inputs:   sims=numeric indicating blobs to load (alpha order in project folder)
+#           data=logical indicating plotting data scaled by estimated q
+#           CIs=logical indicating plotting CIs (1se) as polygons around estimate
+#           scale= logical indicating whether catch is scaled by estimated MSY
+#                   and biomass is scaled by estimated B0
+# output:   NULL
+# usage:    post-simulation run, plotting performance
+plotBCfit <- function(  sims=1, legend=TRUE,
+                        data = FALSE,
+                        CIs = FALSE,
+                        scale = FALSE,
+                        titles = mpTitles, MPtitles = FALSE,
+                        labSize = 2, tickSize = 2, 
+                        devLabels = TRUE, maxBt = c(70,30,30) )
+{
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  .loadSim(sims[1])
+
+  # Recover blob elements for plotting
+  nStocks <- blob$opMod$nS
+  nS <- nStocks
+  nO <- blob$opMod$nSurv
+
+  # Set up plot window
+
+  par ( mfcol = c(nStocks,length(sims)+1), mar = c(1,2,2,2), oma = c(4.5,4.5,2,0.5),
+        las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
+
+  if( MPtitles ) titles <- numeric( length = length(sims)+1 )
+
+  titles[1] <- "Single-Stock"
+
+  for( simIdx in 1:length(sims) )
+  {
+    .loadSim( sims[simIdx] )
+  
+
+    # Create a stamp from scenario and mp name
+    scenario  <- blob$ctrl$scenario
+    mp        <- blob$ctrl$mp
+    stamp     <- paste(scenario,":",mp,sep="")
+
+    # Species names
+    specNames <- blob$ctrl$speciesNames
+
+    # True OM quantities
+    Ct    <- blob$om$Ct[1,,]
+    I_ost <- blob$om$I_ost[1,,,]
+
+    # Year indexing
+    if(!is.null(blob$opMod$fYear)) 
+    {
+      nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
+      fYear <- min(blob$opMod$fYear)
+    } else nT <- blob$opMod$nT
+
+    sT <- blob$opMod$fYear - fYear + 1
+    years <- fYear:(fYear + nT - 1)
+
+    # Groom I_ost to remove unused data
+    I_ost[I_ost < 0] <- NA
+    for( s in 1:nS ) 
+    { 
+      fYear_s <- blob$opMod$fYear[s]
+      I_ost[,s,1:(fYear_s-fYear)] <- NA
+    }
+
+    # Leading par estimates
+    # Single Stock
+    ssBmsy  <- blob$am$ss$Bmsy
+    ssUmsy  <- blob$am$ss$Umsy
+    ssq     <- blob$am$ss$q_os[1,,]
+    ssMSY   <- blob$am$ss$msy
+
+    # Multi-stock
+    msBmsy  <- blob$am$ms$Bmsy
+    msUmsy  <- blob$am$ms$Umsy
+    msq     <- blob$am$ms$q_os[1,,]  
+    msMSY   <- blob$am$ms$msy
+
+
+    # arrays to hold CIs
+    ssBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+    msBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+
+    msCIs <- blob$am$ms$CIs[[ 1 ]]
+    ssCIs <- blob$am$ss$CIs[[1]]
+    # Populate CIs
+    if( !any(is.na(msCIs)) )
+    {
+      Btrows <- which( msCIs$par == "Bt" )
+      msBio[ , , 1 ] <- matrix( msCIs[ Btrows, "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 2 ] <- matrix( msCIs[ Btrows, "val" ], nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 3 ] <- matrix( msCIs[ Btrows, "lCI" ], nrow = nS, ncol = nT, byrow = FALSE ) 
+    }
+
+    msBio[ msBio == -1 ] <- NA
+    
+    for( s in 1:nS )
+    {
+
+      if( is.null( ssCIs[[ s ]] ) ) next
+      if( any(is.na( ssCIs[[ s ]] )) ) next
+      Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
+      ssBio[ s, sT[s]:nT, 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT-sT[s]+1 )  
+    }
+
+    if( MPtitles ) titles[simIdx+1] <- mp
+    
+    
+    # Recover diagnostics for the fits
+    hpdSS <- blob$am$ss$hesspd[1,]
+    grdSS <- blob$am$ss$maxGrad[1,]
+    hpdMS <- blob$am$ms$hesspd[1]
+    grdMS <- blob$am$ms$maxGrad[1]
+
+    # Set colours for each model
+    ssCol <- "steelblue"
+    msCol <- "salmon"
+    legText <- c()
+    legPch  <- c()
+    legCol <- c()
+    legLty  <- c()
+    legLwd  <- c()
+
+    require(scales)
+    polyCol <- alpha("grey70", alpha = .5)
+  
+    if( data ) 
+    {
+      legText <- c(legText,"Survey 1", "Survey 2")
+      legPch  <- c(legPch,1,2)
+      legCol <- c(legCol,"grey50","grey50")
+      legLty  <- c(legLty,NA,NA)
+      legLwd  <- c(legLwd,NA,NA)
+    }
+
+    # Plot SS model if first sim
+    if( simIdx == 1 )
+    { 
+      for ( s in 1:nStocks )
+      {
+        plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+              ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
+              main = "" )
+          if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+          # plot catch
+          rect( xleft = years-.4, xright = years+.4,
+                ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
+          if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
+          axis( side = 2, las = 1, cex.axis = tickSize )
+        if (s == 2 & legend) 
+          panLegend ( x=0.2,y=1,legTxt=legText,
+                      col=legCol, lty = legLty, 
+                      lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
+          panLab( x = .2, y = .9, txt = specNames[s],
+                  cex = labSize )
+       
+        # Add developer labels
+        if( devLabels )
+        {
+          if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",cex=1.1)
+        }
+        # Add confidence intervals
+        if( CIs )
+        {
+          yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
+          polygon(  x = yearsPoly, y = c(ssBio[s,sT[s]:nT,1],rev(ssBio[s,sT[s]:nT,3])),
+                    col = polyCol, border = NA )
+        }
+        # Add point estimates
+        lines( x = years[sT[s]:nT], y = ssBio[s,sT[s]:nT,2], lwd = 3 )
+         # Plot data
+        if( data )
+        {
+          for( o in 1:nO ) 
+            points( x = years, y = I_ost[o,s,]/ssq[o,s], pch = o, cex = 1.5, col = "grey10" )
+        }
+      }
+    }
+
+    # Plot biomass, actual and estimated, including 2 index series,
+    # scaled by model estimated q
+    for ( s in 1:nStocks )
+    {
+      plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+            ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
+            main = "" )
+        if( !is.null(titles) & s == 1 ) title( main = titles[simIdx+1] )
+        # plot catch
+        rect( xleft = years-.4, xright = years+.4,
+              ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
+        if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
+        axis( side = 2, las = 1, cex.axis = tickSize )
+      if (s == 2 & legend) 
+        panLegend ( x=0.2,y=1,legTxt=legText,
+                    col=legCol, lty = legLty, 
+                    lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
+        # panLab( x = .8, y = .9, txt = specNames[s],
+        #         cex = labSize )
+      
+      # Add developer labels
+      if( devLabels )
+      {
+        if ( hpdMS & !is.na(hpdMS) ) panLab (x=0.9,y=0.85,txt="h",cex=1.1)  
+      }
+      # Add confidence intervals
+      if( CIs )
+      {
+        yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
+        polygon(  x = yearsPoly, y = c(msBio[s,sT[s]:nT,1],rev(msBio[s,sT[s]:nT,3])),
+                  col = polyCol, border = NA )
+      }
+      # Plot data
+      if( data )
+      {
+        for( o in 1:nO ) 
+          points( x = years, y = I_ost[o,s,]/msq[o,s], pch = o, cex = 1.5, col = "grey10" )
+      }
+      # Add point estimates
+      lines( x = years, y = msBio[s,,2], lwd = 3 )
+
+      
+    }
+    mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize)
+    mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 2, las = 0, cex = labSize )
+    
+  }
+  if( devLabels )
+    mtext ( text = c(stamp),side=1, outer = TRUE, 
+            at = c(0.9),padj=2,col="grey50",cex=0.8 )
+}
+
+# plotBCfit()
+# Plot fit, CIs and data for a set of simulations. This is made for sim objects 
+# that were run on realData, so some of the code is a little path specific.
+# Single stock fits are plotted as the first column, taken from the first
+# sim object. Takes the first replicate.
+# inputs:   sims=numeric indicating blobs to load (alpha order in project folder)
+#           data=logical indicating plotting data scaled by estimated q
+#           CIs=logical indicating plotting CIs (1se) as polygons around estimate
+#           scale= logical indicating whether catch is scaled by estimated MSY
+#                   and biomass is scaled by estimated B0
+# output:   NULL
+# usage:    post-simulation run, plotting performance
+plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
+                        data = FALSE,
+                        CIs = FALSE,
+                        scale = FALSE,
+                        titles = baseTitles, MPtitles = FALSE,
+                        labSize = 2, tickSize = 2, 
+                        devLabels = TRUE, maxBt = c(70,30,30) )
+{
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  .loadSim(sims[1])
+
+  # Recover blob elements for plotting
+  nStocks <- blob$opMod$nS
+  nS <- nStocks
+  nO <- blob$opMod$nSurv
+
+  # Set up plot window
+
+  par ( mfcol = c(nStocks,length(sims)+1), mar = c(1,2,2,2), oma = c(4.5,4.5,2,0.5),
+        las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
+
+  if( MPtitles ) titles <- numeric( length = length(sims)+1 )
+
+  titles[1] <- "Single-Stock"
+
+  for( simIdx in 1:length(sims) )
+  {
+    .loadSim( sims[simIdx] )
+  
+
+    # Create a stamp from scenario and mp name
+    scenario  <- blob$ctrl$scenario
+    mp        <- blob$ctrl$mp
+    stamp     <- paste(scenario,":",mp,sep="")
+
+    # Species names
+    specNames <- paste("Stock ", 1:nS, sep = "" )
+
+    # True OM quantities
+    Ct    <- blob$om$Ct[rep,,]
+    I_ost <- blob$om$I_ost[rep,,,]
+
+    # Year indexing
+    if(!is.null(blob$opMod$fYear)) 
+    {
+      nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
+      fYear <- min(blob$opMod$fYear)
+    } else nT <- blob$opMod$nT
+
+    sT <- blob$opMod$fYear - fYear + 1
+    years <- fYear:(fYear + nT - 1)
+
+    # Groom I_ost to remove unused data
+    I_ost[I_ost < 0] <- NA
+    for( s in 1:nS ) 
+    { 
+      fYear_s <- blob$opMod$fYear[s]
+      I_ost[,s,1:(fYear_s-fYear)] <- NA
+    }
+
+    omBt    <- blob$om$Bt[rep,,] 
+
+    # Leading par estimates
+    # Single Stock
+    ssBmsy  <- blob$am$ss$Bmsy[rep,]
+    ssUmsy  <- blob$am$ss$Umsy[rep,]
+    ssq     <- blob$am$ss$q_os[rep,,]
+    ssMSY   <- blob$am$ss$msy[rep,]
+
+    # Multi-stock
+    msBmsy  <- blob$am$ms$Bmsy[rep,]
+    msUmsy  <- blob$am$ms$Umsy[rep,]
+    msq     <- blob$am$ms$q_os[rep,,]  
+    msMSY   <- blob$am$ms$msy[rep,]
+
+
+    # arrays to hold CIs
+    ssBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+    msBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+
+    msCIs <- blob$am$ms$CIs[[ rep ]]
+    ssCIs <- blob$am$ss$CIs[[ rep ]]
+    # Populate CIs
+    if( !any(is.na(msCIs)) )
+    {
+      Btrows <- which( msCIs$par == "Bt" )
+      msBio[ , , 1 ] <- matrix( msCIs[ Btrows, "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 2 ] <- matrix( msCIs[ Btrows, "val" ], nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 3 ] <- matrix( msCIs[ Btrows, "lCI" ], nrow = nS, ncol = nT, byrow = FALSE ) 
+    }
+
+    msBio[ msBio == -1 ] <- NA
+    
+    for( s in 1:nS )
+    {
+
+      if( is.null( ssCIs[[ s ]] ) ) next
+      if( any(is.na( ssCIs[[ s ]] )) ) next
+      Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
+      ssBio[ s, sT[s]:nT, 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT-sT[s]+1 )  
+    }
+
+    if( MPtitles ) titles[simIdx+1] <- mp
+    
+    
+    # Recover diagnostics for the fits
+    hpdSS <- blob$am$ss$hesspd[rep,]
+    grdSS <- blob$am$ss$maxGrad[rep,]
+    hpdMS <- blob$am$ms$hesspd[rep]
+    grdMS <- blob$am$ms$maxGrad[rep]
+
+    # Set colours for each model
+    ssCol <- "steelblue"
+    msCol <- "salmon"
+    legText <- c()
+    legPch  <- c()
+    legCol <- c()
+    legLty  <- c()
+    legLwd  <- c()
+
+    require(scales)
+    polyCol <- alpha("grey70", alpha = .5)
+    msPolyCol <- alpha(msCol, alpha = .4)
+    ssPolyCol <- alpha(ssCol, alpha = .4)
+  
+    if( data ) 
+    {
+      legText <- c(legText,"Survey 1", "Survey 2")
+      legPch  <- c(legPch,1,2)
+      legCol <- c(legCol,"grey50","grey50")
+      legLty  <- c(legLty,NA,NA)
+      legLwd  <- c(legLwd,NA,NA)
+    }
+
+    # Plot SS model if first sim
+    if( simIdx == 1 )
+    { 
+      for ( s in 1:nStocks )
+      {
+        plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+              ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
+              main = "" )
+          if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+          # plot catch
+          rect( xleft = years-.4, xright = years+.4,
+                ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
+          if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
+          axis( side = 2, las = 1, cex.axis = tickSize )
+        if (s == 2 & legend) 
+          panLegend ( x=0.2,y=1,legTxt=legText,
+                      col=legCol, lty = legLty, 
+                      lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
+          panLab( x = .2, y = .9, txt = specNames[s],
+                  cex = labSize )
+       
+        # Add developer labels
+        if( devLabels )
+        {
+          if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",cex=1.1)
+        }
+        # Add confidence intervals
+        if( CIs )
+        {
+          yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
+          polygon(  x = yearsPoly, y = c(ssBio[s,sT[s]:nT,1],rev(ssBio[s,sT[s]:nT,3])),
+                    col = ssPolyCol, border = NA )
+        }
+        # Plot OM Bt
+        lines( x = years[sT[s]:nT], y = omBt[s,sT[s]:nT], lwd = 3 )
+        # Add point estimates
+        lines( x = years[sT[s]:nT], y = ssBio[s,sT[s]:nT,2], lwd = 3, col = ssCol, lty = 2 )
+
+         # Plot data
+        if( data )
+        {
+          for( o in 1:nO ) 
+            points( x = years, y = I_ost[o,s,]/ssq[o,s], pch = o, cex = 1.5, col = "grey10" )
+        }
+      }
+    }
+
+    # Plot biomass, actual and estimated, including 2 index series,
+    # scaled by model estimated q
+    for ( s in 1:nStocks )
+    {
+      plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+            ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
+            main = "" )
+        if( !is.null(titles) & s == 1 ) title( main = titles[simIdx+1] )
+        # plot catch
+        rect( xleft = years-.4, xright = years+.4,
+              ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
+        if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
+        axis( side = 2, las = 1, cex.axis = tickSize )
+      if (s == 2 & legend) 
+        panLegend ( x=0.2,y=1,legTxt=legText,
+                    col=legCol, lty = legLty, 
+                    lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
+        # panLab( x = .8, y = .9, txt = specNames[s],
+        #         cex = labSize )
+      
+      # Add developer labels
+      if( devLabels )
+      {
+        if ( hpdMS & !is.na(hpdMS) ) panLab (x=0.9,y=0.85,txt="h",cex=1.1)  
+      }
+      # Add confidence intervals
+      if( CIs )
+      {
+        yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
+        polygon(  x = yearsPoly, y = c(msBio[s,sT[s]:nT,1],rev(msBio[s,sT[s]:nT,3])),
+                  col = msPolyCol, border = NA )
+      }
+      # Plot data
+      if( data )
+      {
+        for( o in 1:nO ) 
+          points( x = years, y = I_ost[o,s,]/msq[o,s], pch = o, cex = 1.5, col = "grey10" )
+      }
+      # Plot OM Bt
+      lines( x = years[sT[s]:nT], y = omBt[s,sT[s]:nT], lwd = 3 )
+      # Add point estimates
+      lines( x = years, y = msBio[s,,2], lwd = 3, col = msCol, lty = 2 )
+
+      
+    }
+    mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize)
+    mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 2, las = 0, cex = labSize )
+    
+  }
+  if( devLabels )
+    mtext ( text = c(stamp),side=1, outer = TRUE, 
+            at = c(0.9),padj=2,col="grey50",cex=0.8 )
+}
+
+
+
+
 # plotBC()
 # Plots a given replicate's true and estimated time series of biomass and 
 # catch for all stocks, with sims as columns
@@ -3762,9 +4369,6 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
     stamp     <- paste(scenario,":",mp,sep="")
     repCount  <- paste("Replicate ",rep,"/",blob$ctrl$nReps,sep="")
 
-    
-    
-
     # Species names
     specNames <- blob$ctrl$speciesNames
 
@@ -3774,6 +4378,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
     I_ost <- blob$om$I_ost[rep,,,]
     Ut    <- blob$om$Ut[rep,,]
     q_os  <- blob$om$q_os[rep,,]
+    if(any(is.na(q_os))) q_os <- matrix(1,nrow=nO, nS)
     
     # Single species model
     ssBt  <- blob$am$ss$Bt[rep,,]
@@ -3907,6 +4512,7 @@ plotBC <- function( rep = 1, sims=1, legend=TRUE,
       if( !scale ) maxBt <- 1.1*max ( maxBt, omBt[s,], 2*Bmsy[s] ,na.rm=TRUE)
       if( (!scale) & CIs ) maxBt <- max ( maxBt, msBio[s,,], ssBio[s,,], na.rm = T )
       if( scale | data ) maxBt <- max(2,maxBt)
+      if(!MS & !SS & all(q_os == 1)) maxBt <- 1.1*max(I_ost, na.rm = T)
       plot    ( x = c(fYear,max(years)), y = c(0,maxBt), type = "n",
                 ylim = c(0,maxBt), ylab = "", axes=FALSE, xlab = "" ,
                 main = "" )
@@ -4242,13 +4848,13 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
 
 
 mpNamesPerfPlot <- c( noJointPriors ="None", 
-                      YearEffOnly = "eps_t", 
-                      qPriorOnly = "q", 
-                      UmsyPriorOnly = "r", 
-                      qUpriors = "q / r", 
-                      qYEpriors = "q / eps_t",
-                      UmsyYEpriors = "r / eps_t", 
-                      allJointPriors = "q / r / eps_t" )
+                      YearEffOnly = expression(epsilon[t]), 
+                      qPriorOnly = expression(q), 
+                      UmsyPriorOnly = expression(r), 
+                      qUpriors = expression( q / r ), 
+                      qYEpriors = expression(q / epsilon[t]),
+                      UmsyYEpriors = expression(r / epsilon[t]), 
+                      allJointPriors = expression(q / r / epsilon[t]) )
 
 # plotSimPerf()
 # A function to plot simulation-estimation performance for a whole
@@ -4258,12 +4864,12 @@ mpNamesPerfPlot <- c( noJointPriors ="None",
 #           folder = optional character indicating sim folder name
 #           pars = nominated estimated leading and derived parameters 
 # outputs:  NULL
-plotStockPerfMultiSim <- function ( pars = c("BnT","Bmsy","Umsy","dep"), 
-                                    sims=1, spec = 1, nSurv = 2,
+plotStockPerfMultiSim <- function ( pars = c("Umsy","BnT","Bmsy","dep","q_os"), 
+                                    sims = 1, spec = 1, nSurv = 2,
                                     devLabels = TRUE,
                                     title = TRUE, plotMARE = FALSE,
                                     mpNames = mpNamesPerfPlot,
-                                    labSize = 2 )
+                                    labSize = 1 )
 {
   # Create a wrapper function for generating quantiles
   quantWrap <- function ( entry = 1, x = ssRE, ... )
@@ -4363,8 +4969,16 @@ plotStockPerfMultiSim <- function ( pars = c("BnT","Bmsy","Umsy","dep"),
 
   if( !is.null(mpNames) ) 
   {
+    # Replace each term in MPs with the corresponding mpNames expression,
+    # however, we can't run comparisons in MPs after replacing one, as
+    # comparisons of expressions are not allowed
+    mpNum <- numeric(length(mpNames))
     for( nomIdx in 1:length(mpNames) )
-      MPs[MPs == names(mpNames)[nomIdx]] <- mpNames[nomIdx]
+    { 
+      mpNum[nomIdx] <- which(MPs == names(mpNames)[nomIdx])
+    }
+    for( num in 1:length(mpNum))
+      MPs[mpNum[num]] <- mpNames[num]
   } 
 
   # Pull out RE dists
@@ -4382,22 +4996,30 @@ plotStockPerfMultiSim <- function ( pars = c("BnT","Bmsy","Umsy","dep"),
   {
     par <- pars[pIdx]
 
-    plot( x = xlim, y = 2*c(0,length(MPs)+1), type = "n", axes = F, ylab = "" )
+    plot( x = xlim, y = 3*c(0,length(MPs)+1), type = "n", axes = F, ylab = "" )
       if( pIdx == length(pars) ) axis( side = 1, cex.axis = labSize )
       abline( v = 0, lty = 3, lwd = 1 )
-      axis( side = 2 , at = 2*1:length(MPs), labels = MPs, las = 1, cex.axis = labSize )
-      segments( x0 = q025[1,par,"ss"], y0 = 2, x1 = q975[1,par,"ss"], y1 = 2, lty=2, col="grey60", lwd = 4 )
-      points( x = med[1,par,"ss"], y = 2, pch = 17, cex = 2 )
-      segments( x0 = q025[,par,"ms"], y0 = 2*(2:length(MPs)), x1 = q975[,par,"ms"], y1 = 2*(2:length(MPs)), lty=1, col="grey60", lwd = 4 )
-      points( x = med[,par,"ms"], y = 2*(2:length(MPs)), pch = 16, cex = 2 )
-      if( par == "BnT" )  par <- paste("B_",spec,",T", sep = "" )
-      if( par == "dep" )  par <- paste("B_", spec,",T/B_",spec, ",0", sep = "")
-      if( par == "Bmsy" ) par <- paste("B_", spec, ",MSY", sep = "")
-      if( par == "Umsy" ) par <- paste("U_", spec, ",MSY", sep = "")
-      if( grepl(x = par, pattern = "q_") )  
-        par <- paste(par,",",spec, sep = "")
-
-      mtext( side = 4, text = par, las = 1, line = 2, cex = labSize )
+      axis( side = 2 , at = 3*1:length(MPs), labels = MPs, las = 1, cex.axis = 1.2 )
+      segments( x0 = q025[1,par,"ss"], y0 = 3, x1 = q975[1,par,"ss"], y1 = 3, lty=2, col="grey60", lwd = 4 )
+      points( x = med[1,par,"ss"], y = 3, pch = 17, cex = 2 )
+      segments( x0 = q025[,par,"ms"], y0 = 3*(2:length(MPs)), x1 = q975[,par,"ms"], y1 = 3*(2:length(MPs)), lty=1, col="grey60", lwd = 4 )
+      points( x = med[,par,"ms"], y = 3*(2:length(MPs)), pch = 16, cex = 2 )
+      if( par == "BnT" )  parLab <- expression(B[T])
+      if( par == "dep" )  parLab <- expression(B[T]/B[0])
+      if( par == "Bmsy" ) parLab <- expression(B[MSY])
+      if( par == "Umsy" ) parLab <- expression(U[MSY])
+      if( grepl(x = par, pattern = "q_") )
+      { 
+        oIdx <- str_split(par,"_")
+        oIdx <- unlist(oIdx)[2]
+        if( oIdx == 1 )
+          parLab <- expression(q[1,1])
+        if( oIdx == 2 )
+          parLab <- expression(q[2,1])
+      }
+      if( is.null(parLab) ) parLab <- par
+      mtext( side = 4, text = parLab, las = 1, line = 2, cex = 1.5 )
+      
   }
 
   if( title )

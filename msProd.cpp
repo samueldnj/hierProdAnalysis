@@ -51,6 +51,7 @@ Type objective_function<Type>::operator() ()
   int nT = It.dim(2);           // No of time steps
 
   // Model switches
+  DATA_INTEGER(kappaPriorCode); // 0 => OFF, 1 => IG on kappa2
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
   DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
   DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
@@ -135,7 +136,8 @@ Type objective_function<Type>::operator() ()
   // Derived variables
   vector<Type>      msy = Bmsy * Umsy;
   array<Type>       Ut(nS,nT);
-  vector<Type>      DnT;
+  vector<Type>      DnT(nS);
+  array<Type>       U_Umsy(nS,nT);
 
   // Procedure Section //
   // First create the correlation matrix for the species effects
@@ -226,7 +228,7 @@ Type objective_function<Type>::operator() ()
   for (int s=0; s<nS; s++ )
   {
     nllBprior += Type(0.5) * pow( Bmsy(s) - mBmsy(s), Type(2) ) / sBmsy(s) / sBmsy(s); 
-    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ; 
+    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s)/2, 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ;
   }
 
   // multispecies shared priors
@@ -293,13 +295,13 @@ Type objective_function<Type>::operator() ()
   
   // Variance IG priors
   // Obs error var
-  Type nllVarPrior = 0.0;
   for( int o = 0; o < nO; o++ )
   {
-    nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
+    nll += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
   }
   // year effect deviations var
-  nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
+  if( kappaPriorCode == 1 | nS == 1)  
+    nll += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
   // Now multispecies priors
   if (nS > 1)
   {
@@ -308,44 +310,48 @@ Type objective_function<Type>::operator() ()
     {
       for( int o = 0; o < nO; o++)
       {
-        nllVarPrior += (tauq2Prior(0)+Type(1))*Type(2)*lntauq_o(o)+tauq2Prior(1)/tauq2_o(o);    
+        nll += (tauq2Prior(0)+Type(1))*Type(2)*lntauq_o(o)+tauq2Prior(1)/tauq2_o(o);    
       }
     }
     if( tauqPriorCode == 1 )
     {
       for( int o = 0; o < nO; o++)
       {
-        nllVarPrior += Type(0.5) * pow( tauq2_o(o) - tauq2Prior(0), 2) / tauq2Prior(1);
+        nll += Type(0.5) * pow( tauq2_o(o) - tauq2Prior(0), 2) / tauq2Prior(1);
       }
     }
     // shared U prior variance
     if( sigUPriorCode == 0 )
     {
-      nllVarPrior += (sigU2Prior(0)+Type(1))*Type(2.)*lnsigUmsy+sigU2Prior(1)/sigUmsy2;  
+      nll += (sigU2Prior(0)+Type(1))*Type(2.)*lnsigUmsy+sigU2Prior(1)/sigUmsy2;  
     }
     if( sigUPriorCode == 1 )
     {
-      nllVarPrior += Type(0.5) * pow( sigUmsy2 - sigU2Prior(0), 2) / sigU2Prior(1);
+      nll += Type(0.5) * pow( sigUmsy2 - sigU2Prior(0), 2) / sigU2Prior(1);
     }
     
     // Apply Sigma Prior
     if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
     {
-      nllVarPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+      nll += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
     }
     if( SigmaPriorCode == 1 ) // Apply IW prior to Sigma matrix
     {
       matrix<Type> traceMat = wishScale * Sigma.inverse();
       Type trace = 0.0;
       for (int s=0;s<nS;s++) trace += traceMat(s,s);
-      nllVarPrior += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
+      nll += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
     }
   }
-  nll += nllVarPrior;
 
   // Derive some output variables
   Ut  = Ct / Bt;
   DnT = Bt.col(nT-1)/Bmsy/2;
+
+  for( int t = 0; t < nT; t ++ )
+  {
+    U_Umsy.col(t) = Ut.col(t) / Umsy;
+  }
 
   // Reporting Section //
   // Variables we want SEs for
@@ -357,12 +363,22 @@ Type objective_function<Type>::operator() ()
   ADREPORT(Binit);
   ADREPORT(tau2_o);
   ADREPORT(kappa2);
+  ADREPORT(DnT);
+  ADREPORT(U_Umsy);
+  if( nS > 1 )
+  {
+    ADREPORT(Umsybar);
+    ADREPORT(sigUmsy2);
+    ADREPORT(qbar_o);
+    ADREPORT(tauq2_o);
+  }
 
   // MLEs of everything  //
   REPORT(Bt);
   REPORT(Ut);
   REPORT(Binit);
   REPORT(DnT);
+  REPORT(U_Umsy)
   REPORT(q_os);
   REPORT(msy);
   REPORT(Bmsy);
@@ -390,7 +406,6 @@ Type objective_function<Type>::operator() ()
   REPORT(nllqPrior);
   REPORT(nllUprior);
   REPORT(nllBprior);
-  REPORT(nllVarPrior);
   
   return nll;
 }

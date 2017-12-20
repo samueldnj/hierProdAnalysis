@@ -320,7 +320,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   minYear <- min(fYear)
   maxYear <- max(lYear)
 
-  om$I_ost  <- data$indices[,,as.character(minYear:maxYear)]
+  om$I_ost  <- data$indices[,,as.character(minYear:maxYear),1]
   om$Ct     <- data$katch[,as.character(minYear:maxYear)]
 
   om$sT <- fYear - minYear + 1
@@ -402,6 +402,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssDat[[s]] <- list (  It              = array(om$I_ost[,s,sT[s]:max(nT)], dim = c(nSurv,1,nT[s])),
                           Ct              = matrix(om$Ct[s,sT[s]:max(nT)], nrow=1),
                           SigmaPriorCode  = obj$assess$SigmaPriorCode,
+                          kappaPriorCode  = as.integer(obj$assess$estYearEff),
                           sigUPriorCode   = obj$assess$sigUPriorCode,
                           tauqPriorCode   = obj$assess$tauqPriorCode,
                           lnqPriorCode    = obj$assess$lnqPriorCode,
@@ -433,7 +434,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
                           eps_t             = rep( 0, nT[s]-1 ),
-                          lnkappa2          = log( obj$assess$kappa2 ),
+                          lnkappa2          = ifelse( obj$assess$estYearEff, log( obj$assess$kappa2 ), log( obj$assess$Sigma2 ) ),
                           zeta_st           = matrix( 0, nrow = 1, ncol = nT[s]-1 ),
                           lnSigmaDiag       = 0,
                           SigmaDiagMult     = 0,
@@ -478,6 +479,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   msDat <- list ( It              = om$I_ost,
                   Ct              = om$Ct,
                   SigmaPriorCode  = obj$assess$SigmaPriorCode,
+                  kappaPriorCode  = as.integer(obj$assess$estYearEff),
                   sigUPriorCode   = obj$assess$sigUPriorCode,
                   tauqPriorCode   = obj$assess$tauqPriorCode,
                   lnqPriorCode    = obj$assess$lnqPriorCode,
@@ -602,8 +604,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
 
-  # if(length(RE) > 1) browser()
-
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
                         objective = obj$fn,
@@ -611,6 +611,22 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         control = ctrl,
                         lower = -Inf,
                         upper= Inf ) )
+  convFit <- NULL
+
+  if(length(RE) > 1) browser()
+
+  
+  if( !is.null(convFit) ) fit <- convFit
+
+  if( class(fit) == "try-error" )
+  {
+    fit <- try( nlminb (  start = 2*obj$par,
+                          objective = obj$fn,
+                          gradient = obj$gr,
+                          control = ctrl,
+                          lower = -Inf,
+                          upper= Inf ) )    
+  }
 
   # Run SD report on the fit if it works, and get the rep file
   if( class ( fit ) == "try-error" ) 
