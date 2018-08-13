@@ -604,6 +604,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
 
+  nTries <- 1
+
+  browser()
+
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
                         objective = obj$fn,
@@ -611,21 +615,41 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         control = ctrl,
                         lower = -Inf,
                         upper= Inf ) )
-  convFit <- NULL
 
-  if(length(RE) > 1) browser()
-
-  
-  if( !is.null(convFit) ) fit <- convFit
-
+  # Routine to try re fitting with jittered
+  # initial biological parameters
+  # Check class of fit object, if try-error, then
+  # failed to fit, retry!
   if( class(fit) == "try-error" )
   {
-    fit <- try( nlminb (  start = 2*obj$par,
-                          objective = obj$fn,
-                          gradient = obj$gr,
-                          control = ctrl,
-                          lower = -Inf,
-                          upper= Inf ) )    
+    cat("(MSG) msProd had trouble converging, jittering initial values. \n")
+    for( i in 1:fitTrials )
+    {
+      cat(paste("(MSG) i = ", i, "\n", sep = "" ))
+      
+      nTries <- nTries + 1
+      par$lnBmsy  <- log((1 + i/10)*exp(par$lnBmsy))
+      par$lnUmsy  <- log((1 + i/10)*exp(par$lnUmsy))
+      par$lnBinit <- log((1 + i/10)*exp(par$lnBinit))
+
+      obj <- MakeADFun (  dat = dat, parameters = par, map = map,
+                          random = RE, silent = quiet )      
+
+      fit <- try( nlminb (  start = obj$par,
+                            objective = obj$fn,
+                            gradient = obj$gr,
+                            control = ctrl,
+                            lower = -Inf,
+                            upper= Inf ) )   
+
+      if( class(fit) != "try-error" )
+      {
+        cat("(MSG) Succeeded after ", nTries , " attempts \n", sep = "" )
+        break                         
+      } 
+
+      cat("(MSG) Failed to fit after ", nTries , " attempts \n", sep = "" )
+    }
   }
 
   # Run SD report on the fit if it works, and get the rep file
@@ -648,6 +672,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     sdrep <- NA
     CIs <- NA
   }
+  # Now we need to check the hessian - is it PD? If 
+  # not, we need to rejitter and try again...
+
+
   # If sdrep exists, compute confidence intervals
   if( !any(is.na( sdrep ) ) )
   {
@@ -693,7 +721,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   } else profileList <- NA
 
   # Return
-  out <- list( sdrep = sdrep, rep=rep, CIs = CIs)
+  out <- list( sdrep = sdrep, rep=rep, CIs = CIs, nTries = nTries )
   if( profiles ) out$profiles <- profileList
 
   out

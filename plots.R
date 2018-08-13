@@ -4202,8 +4202,8 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
     grdMS <- blob$am$ms$maxGrad[rep]
 
     # Set colours for each model
-    ssCol <- "steelblue"
-    msCol <- "salmon"
+    ssCol <- "grey50"
+    msCol <- "grey50"
     legText <- c()
     legPch  <- c()
     legCol <- c()
@@ -4212,8 +4212,8 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
 
     require(scales)
     polyCol <- alpha("grey70", alpha = .5)
-    msPolyCol <- alpha(msCol, alpha = .4)
-    ssPolyCol <- alpha(ssCol, alpha = .4)
+    msPolyCol <- "grey70"
+    ssPolyCol <- "grey70"
   
     if( data ) 
     {
@@ -4233,6 +4233,13 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
               ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
               main = "" )
           if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+          # Plot confidence intervals
+          if( CIs )
+          {
+            yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
+            polygon(  x = yearsPoly, y = c(ssBio[s,sT[s]:nT,1],rev(ssBio[s,sT[s]:nT,3])),
+                      col = ssPolyCol, border = NA )
+          }
           # plot catch
           rect( xleft = years-.4, xright = years+.4,
                 ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
@@ -4251,12 +4258,6 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
           if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",cex=1.1)
         }
         # Add confidence intervals
-        if( CIs )
-        {
-          yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
-          polygon(  x = yearsPoly, y = c(ssBio[s,sT[s]:nT,1],rev(ssBio[s,sT[s]:nT,3])),
-                    col = ssPolyCol, border = NA )
-        }
         # Plot OM Bt
         lines( x = years[sT[s]:nT], y = omBt[s,sT[s]:nT], lwd = 3 )
         # Add point estimates

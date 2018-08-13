@@ -157,7 +157,7 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
 
   # Now start making the batch file for the simulation experiment
   outFile <- paste( bchName, ".bch", sep = "")
-  cat(  "# Batch Control File, created ", date(), " by makeFixedprocREDesign() \n", 
+  cat(  "# Batch Control File, created ", date(), " by makeInfoScenarioDesign() \n", 
         file = outFile, append = F, sep = "" )
   cat( "parameter value\n", sep = "", append = T, file = outFile)
   cat( "#\n", file = outFile, append = T )

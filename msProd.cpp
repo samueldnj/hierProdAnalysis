@@ -99,6 +99,7 @@ Type objective_function<Type>::operator() ()
 
   // State variables
   array<Type>       Bt(nS,nT);
+  array<Type>       lnBt(nS,nT);
   // Leading parameters
   vector<Type>      Bmsy    = exp(lnBmsy);
   vector<Type>      Umsy    = exp(lnUmsy);
@@ -158,19 +159,23 @@ Type objective_function<Type>::operator() ()
     omegat(t) = gammaYr * omegat(t-1) + (1 - gammaYr) * eps_t(t-1);  
   }
   
+  // Initialise biomass and log-biomass
   Bt.fill(-1);
+  lnBt.fill(0.0);
   // Now loop over species, reconstruct history from initT
   for( int s = 0; s < nS; s++ )
   {
     // initialise population, if initBioCode(s)==0 this will be eqbm
     if( initBioCode(s) == 0 ) Bt(s,initT(s)) = Type(2) * Bmsy(s);
     if( initBioCode(s) == 1 ) Bt(s,initT(s)) = Binit(s);
+    lnBt(s,initT(s)) = log(Bt(s,initT(s)));
     for( int t = initT(s)+1; t < nT; t++ )
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
       Bt(s,t) = posfun(Bt(s,t),Type(2e-3),pospen);
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
-      nllRE += Type(10000.0)*pospen;      
+      nllRE += Type(100.0)*pospen;      
+      lnBt(s,t) = log(Bt(s,t));
     }
   }
   // Loop again to add species and year effects
@@ -356,6 +361,7 @@ Type objective_function<Type>::operator() ()
   // Reporting Section //
   // Variables we want SEs for
   ADREPORT(Bt);
+  ADREPORT(lnBt);
   ADREPORT(q_os);
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
