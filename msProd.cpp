@@ -66,7 +66,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(lnBmsy);             // Biomass at MSY
   PARAMETER_VECTOR(lnUmsy);             // Optimal exploitation rate            
   PARAMETER_VECTOR(lntau2_o);           // survey obs error var
-  PARAMETER_ARRAY(lnq_os);              // Survey-Species spec catchability
+  // PARAMETER_ARRAY(lnq_os);              // Survey-Species spec catchability
   PARAMETER_VECTOR(lnBinit);            // Non-equilibrium initial biomass
   // Priors
   PARAMETER_VECTOR(lnqbar_o);           // survey mean catchability
@@ -106,13 +106,13 @@ Type objective_function<Type>::operator() ()
   vector<Type>      tau2_o  = exp(lntau2_o);
   vector<Type>      Binit   = exp(lnBinit);
   array<Type>       q_os(nO,nS);
-  for( int o = 0; o < nO; o++ )
-  {
-    for( int s = 0; s < nS; s++ )
-    {
-      q_os(o,s) = exp(lnq_os(o,s));
-    }
-  }
+  // for( int o = 0; o < nO; o++ )
+  // {
+  //   for( int s = 0; s < nS; s++ )
+  //   {
+  //     q_os(o,s) = exp(lnq_os(o,s));
+  //   }
+  // }
   
   // Prior hyperpars
   vector<Type>      qbar_o  = exp(lnqbar_o);
@@ -194,10 +194,12 @@ Type objective_function<Type>::operator() ()
   array<Type>   ss_os(nO,nS);
   array<Type>   validObs(nO,nS);
   array<Type>   qhat_os(nO,nS);
-  array<Type>   zSum(nO,nS);
+  array<Type>   z_ost(nO,nS,nT);
+  array<Type>   zSum_os(nO,nS);
   // Fill with 0s
   validObs.fill(0.0);
-  zSum.fill(0.0);
+  z_ost.fill(0.0);
+  zSum_os.fill(0.0);
   ss_os.fill(0.0);
   Type nllObs = 0.0;
   
@@ -215,14 +217,21 @@ Type objective_function<Type>::operator() ()
         if (It(o,s,t) > 0) 
         {
           validObs(o,s) += int(1);
-          Type res = log( It( o, s, t ) ) - log( Bt( s, t ) );
-          zSum(o,s) += res;
-          ss_os(o,s) += pow( res - lnq_os(o,s), 2 );
-          nllObs += Type(0.5) * ( lntau2_o(o) + pow( res - lnq_os(o,s), 2 ) / tau2_o(o) );
+          z_ost(o,s,t) = log( It( o, s, t ) ) - log( Bt( s, t ) );
+          zSum_os(o,s) += z_ost(o,s,t);
         }       
       }
-      // Compute conditional MLE for survey/stock catchability
-      
+      if( nS == 1) qhat_os(o,s) = exp( zSum_os(o,s) / validObs(o,s) );
+      if( nS > 1 ) qhat_os(o,s) = exp( ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2_o(o) + 1 / tauq2_o(o) ) );  
+
+      // Now compute likelihood
+      for( int t = initT(s); t < nT; t++)
+      {
+        if (It(o,s,t) > 0) 
+        {
+          nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - log(qhat_os(o,s)), 2 ) / tau2_o(o) );
+        }
+      }
     }
   }
   nll += nllObs;
@@ -252,12 +261,12 @@ Type objective_function<Type>::operator() ()
         // Shared Prior
         if( lnqPriorCode == 1 )
         {
-          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( lnq_os(o,s) - lnqbar_o(o), 2 ) / tauq2_o(o) ;  
+          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( log(qhat_os(o,s)) - lnqbar_o(o), 2 ) / tauq2_o(o) ;  
         }
         // No shared prior (uses the same prior as the SS model)
         if( lnqPriorCode == 0 )
         {
-          nllqPrior += Type(0.5) * pow( q_os(o,s) - mq, 2 ) / sq / sq;  
+          nllqPrior += Type(0.5) * pow( qhat_os(o,s) - mq, 2 ) / sq / sq;  
         }
       }
       // productivity
@@ -294,7 +303,7 @@ Type objective_function<Type>::operator() ()
     for (int o=0; o<nO; o++)
     {
       // catchability
-      nllqPrior += Type(0.5) * pow( exp(lnq_os(o,0)) - mq, 2 ) / sq / sq;
+      nllqPrior += Type(0.5) * pow( qhat_os(o,0) - mq, 2 ) / sq / sq;
     }
     // productivity
     nllUprior += Type(0.5) * pow( Umsy(0) - mUmsy, 2 ) / sUmsy / sUmsy;
@@ -365,7 +374,7 @@ Type objective_function<Type>::operator() ()
   // Variables we want SEs for
   ADREPORT(Bt);
   ADREPORT(lnBt);
-  ADREPORT(q_os);
+  ADREPORT(qhat_os);
   ADREPORT(Bmsy);
   ADREPORT(Umsy);
   ADREPORT(msy);
@@ -388,7 +397,8 @@ Type objective_function<Type>::operator() ()
   REPORT(Binit);
   REPORT(DnT);
   REPORT(U_Umsy)
-  REPORT(q_os);
+  REPORT(qhat_os);
+  REPORT(eps_t);
   REPORT(msy);
   REPORT(Bmsy);
   REPORT(Umsy);
