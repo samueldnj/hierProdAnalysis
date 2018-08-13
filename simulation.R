@@ -387,12 +387,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lnqPriorCode    = obj$assess$lnqPriorCode,
                           lnUPriorCode    = obj$assess$lnUPriorCode,
                           initT           = 0,
-                          initBioCode     = obj$assess$initBioCode[s] )
+                          initBioCode     = obj$assess$initBioCode[s],
+                          posPenFactor    = obj$assess$posPenFactor )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
                           lnUmsy            = log(obj$assess$Umsy[s]),
                           lntau2_o          = log(obj$assess$tau2[1:nSurv]),
-                          lnq_os            = matrix(obj$assess$lnq[1:nSurv], nrow = nSurv, ncol = 1),
                           lnBinit           = log(sumCat[s]/2),
                           lnqbar_o          = rep(obj$assess$lnqbar_o, nSurv),
                           lntauq_o          = rep(obj$assess$lntauq_o, nSurv),
@@ -463,12 +463,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnqPriorCode    = obj$assess$lnqPriorCode,
                   lnUPriorCode    = obj$assess$lnUPriorCode,
                   initT           = as.integer(sT - 1)[1:nS],         # correct for indexing starting at 0 in TMB
-                  initBioCode     = as.integer(obj$assess$initBioCode[1:nS])
+                  initBioCode     = as.integer(obj$assess$initBioCode[1:nS]),
+                  posPenFactor    = obj$assess$posPenFactor
                 )
   msPar <- list ( lnBmsy            = log(sumCat[1:nS]/2),
                   lnUmsy            = log(obj$assess$Umsy[1:nS]),
                   lntau2_o          = log(obj$assess$tau2[1:nSurv]),
-                  lnq_os            = matrix(obj$assess$lnq[1:nSurv], nrow = nSurv, ncol = nS),
                   lnBinit           = log(sumCat[1:nS]/2),
                   lnqbar_o          = rep(obj$assess$lnqbar_o,nSurv),
                   lntauq_o          = rep(obj$assess$lntauq_o,nSurv),
@@ -573,17 +573,20 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 .callProcTMB <- function (  dat=ssDat[[1]], par=ssPar[[1]], map = ssMap[[1]],
                             fitTrials = 3, maxfn = 10000, quiet = TRUE, 
                             TMBlib="msProd", UB = ssUB, LB = ssLB,
-                            RE = c("eps_t"),
+                            RE = c("eps_t"), tracePar = FALSE,
                             profiles = FALSE )
 { 
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = RE, silent = quiet )
+  # Trace fixed effect parameter values
+  obj$env$tracepar <- tracePar
+
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
-
-  # if(length(RE) > 1) browser()
-
+  
+  # Start counting estimation attempts
+  nTries <- 1
   # optimise the model
   fit <- try( nlminb (  start = obj$par,
                         objective = obj$fn,
@@ -591,6 +594,29 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                         control = ctrl,
                         lower = -Inf,
                         upper= Inf ) )
+
+  if(length(par$lnBmsy) > 1) browser()
+
+  while( class(fit) == "try-error" )
+  {
+    
+    nTries <- nTries + 1
+    cat("Not able to converge with given starting values, jittering \n" )
+
+    fit <- try( nlminb (  start = obj$par + rnorm(length(obj$par)),
+                          objective = obj$fn,
+                          gradient = obj$gr,
+                          control = ctrl,
+                          lower = -Inf,
+                          upper= Inf ) )
+
+    # Break out if we reach the number of fit trials
+    if( nTries == fitTrials )
+    {
+      break
+    }
+  }
+
 
   # Run SD report on the fit if it works, and get the rep file
   if( class ( fit ) == "try-error" ) 
@@ -614,8 +640,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     CIs <-  CIs %>% 
               as.data.frame() %>%
               mutate( par = rownames( CIs ),
-                      lCI = val - 1.645 * se,
-                      uCI = val + 1.645 * se ) %>%
+                      lCI = val - 1.96 * se,
+                      uCI = val + 1.96 * se ) %>%
               dplyr::select( par, val, se, lCI, uCI )
     if ( profiles )
     {
@@ -651,7 +677,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   } else profileList <- NA
 
   # Return
-  out <- list( sdrep = sdrep, rep=rep, CIs = CIs)
+  out <- list( sdrep = sdrep, rep=rep, CIs = CIs, nTries = nTries + 1 )
   if( profiles ) out$profiles <- profileList
 
   out
@@ -691,6 +717,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                                     RE = obj$assess$ssRE,
                                     LB = datPar$ssLB[[ s ]],
                                     UB = datPar$ssUB[[ s ]],
+                                    tracePar = obj$assess$tracePar,
                                     profiles = obj$assess$profiles )
   }
   cat ( "Fitting ", obj$opMod$nS," species hierarchically.\n", 
@@ -705,6 +732,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           RE = obj$assess$msRE,
                           LB = datPar$msLB,
                           UB = datPar$msUB,
+                          tracePar = obj$assess$tracePar,
                           profiles = obj$assess$profiles )
 
   cat ( "Completed replicate ", seed - obj$ctrl$rSeed, " of ", 
@@ -772,6 +800,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   hesspd  = matrix(FALSE,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   maxGrad = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  nTries  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   sdrep   = vector( mode = "list", length = nReps ),
                   CIs     = vector( mode = "list", length = nReps ),
                   fitrep  = vector( mode = "list", length = nReps ) )
@@ -801,6 +830,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Ut      = array (NA,dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                   hesspd  = matrix(FALSE, nrow = nReps, ncol = 1),
                   maxGrad = matrix(NA, nrow = nReps, ncol = 1),
+                  nTries  = matrix(NA, nrow = nReps, ncol = 1),
                   sdrep   = vector( mode = "list", length = nReps ),
                   CIs     = vector( mode = "list", length = nReps ),
                   fitrep  = vector( mode = "list", length = nReps ) )
@@ -859,7 +889,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ss$Bmsy[i,s]                  <- fitrep$Bmsy
         blob$am$ss$Umsy[i,s]                  <- fitrep$Umsy
         blob$am$ss$msy[i,s]                   <- fitrep$msy
-        blob$am$ss$q_os[i,,s]                 <- fitrep$q_os
+        blob$am$ss$q_os[i,,s]                 <- fitrep$qhat_os
         blob$am$ss$kappa2[i,s]                <- fitrep$kappa2
         blob$am$ss$tau2_o[i,,s]               <- fitrep$tau2_o
         blob$am$ss$dep[i,s,sT[s]:nT]          <- fitrep$Bt/fitrep$Bmsy/2
@@ -874,6 +904,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         }
         blob$am$ss$CIs[[i]][[s]]              <- CIs
         blob$am$ss$fitrep[[i]][[s]]           <- fitrep
+        blob$am$ss$nTries[i,s]                <- simEst$ssFit[[s]]$nTries              
 
         if( obj$assess$profiles )
           blob$am$ss$profiles[[i]][[s]] <- simEst$ssFit[[s]]$profiles
@@ -893,7 +924,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ms$Bmsy[i,]                 <- fitrep$Bmsy
       blob$am$ms$Umsy[i,]                 <- fitrep$Umsy
       blob$am$ms$msy[i,]                  <- fitrep$msy
-      blob$am$ms$q_os[i,,]                <- fitrep$q_os
+      blob$am$ms$q_os[i,,]                <- fitrep$qhat_os
       blob$am$ms$Sigma2[i,]               <- fitrep$SigmaDiag
       blob$am$ms$kappa2[i,]               <- fitrep$kappa2
       blob$am$ms$Bt[i,,]                  <- fitrep$Bt
@@ -912,13 +943,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Estimator Performance Flags
       if(!any(is.na(sdrep)))
       {
-        blob$am$ms$hesspd[i]             <- max(sdrep$gradient.fixed)
-        blob$am$ms$maxGrad[i]            <- sdrep$pdHess
+        blob$am$ms$hesspd[i]             <- sdrep$pdHess
+        blob$am$ms$maxGrad[i]            <- max(sdrep$gradient.fixed)
         blob$am$ms$sdrep[[i]]            <- sdrep
       }
       blob$am$ms$fitrep[[i]]        <- fitrep
       blob$am$ms$CIs[[i]]           <- CIs
-
+      blob$am$ms$nTries[i]          <- simEst$msFit$nTries
+      
       if( obj$assess$profiles )
         blob$am$ms$profiles[[i]] <- simEst$msFit$profiles
     }
