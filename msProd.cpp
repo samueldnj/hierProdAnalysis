@@ -172,7 +172,7 @@ Type objective_function<Type>::operator() ()
     for( int t = initT(s)+1; t < nT; t++ )
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
-      Bt(s,t) = posfun(Bt(s,t),Type(2e-3),pospen);
+      Bt(s,t) = posfun(Bt(s,t),Type(1e-3),pospen);
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
       nllRE += Type(100.0)*pospen;      
       lnBt(s,t) = log(Bt(s,t));
@@ -193,6 +193,7 @@ Type objective_function<Type>::operator() ()
   // Sum of squares vector
   array<Type>   ss_os(nO,nS);
   array<Type>   validObs(nO,nS);
+  array<Type>   qhat_os(nO,nS);
   array<Type>   zSum(nO,nS);
   // Fill with 0s
   validObs.fill(0.0);
@@ -207,7 +208,7 @@ Type objective_function<Type>::operator() ()
     // species
     for( int s = 0; s < nS; s++ )
     {
-      // times
+      // time
       for( int t = initT(s); t < nT; t++ )
       {
         // only add a contribution if the data exists (It < 0 is missing)
@@ -220,6 +221,8 @@ Type objective_function<Type>::operator() ()
           nllObs += Type(0.5) * ( lntau2_o(o) + pow( res - lnq_os(o,s), 2 ) / tau2_o(o) );
         }       
       }
+      // Compute conditional MLE for survey/stock catchability
+      
     }
   }
   nll += nllObs;
