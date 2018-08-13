@@ -19,61 +19,122 @@
 # 
 # --------------------------------------------------------------------------
 
-makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)"),
-                                              initYear = c(1976,1984,2003),
-                                              nS = c(4,7,10),
-                                              initDep = c(0.4,0.7,1.0),
-                                              nDiff = c(0,2,4) ),
-                              nPoints = 1
-                            )
+
+makeParEstTablePub <- function( tables = c("DoverBase", "DoverLoPE"),
+                                models = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors"),
+                                pars = c("Umsy","BnT","Bmsy","DnT","AICc"),
+                                nStocks = 3,
+                                saveName = "DoverStrongWeak.csv" )
 {
-  # Creates a Latin Hyper Rectangle experimental design from a list of factor levels
-  # inputs:     levels = list of factor levels
-  #             nPoints = number of points to sample from the LHR design
+  tabSkelParMod <- matrix( ncol = nStocks + 2, nrow = length(models) + 1 )
 
-  # First, create an array to hold the design
-  # First, we need the number of factors and their levels to make dimensions
-  nLevels     <- lapply ( X = levels, FUN = length )
-  nLevels     <- unlist( nLevels )
-  nFactors    <- length( nLevels )
+  tabList <- vector(mode = "list", length = length(tables) )
+  names(tabList) = tables
 
-  # Create the array, using the factor levels as dimnames
-  LHRdesign   <- array( NA, dim = nLevels, dimnames = levels )
-
-  # Choose the entries in the array as the size of the largest dimension
-  maxEntry  <- max(nLevels)
-
-  # I think adding the entry dimension indices mod maxEntry will
-  # populate the matrix and preserve the latin property. To do this
-  # we gotta expand.grid for all possible entries
-  dimIndices <- vector(mode = "list", length = nFactors )
-  for( lIdx in 1:nFactors )
+  for( tIdx in 1:length(tables) )
   {
-    dimIndices[[lIdx]] <- 1:nLevels[lIdx]
+    tabName <- tables[tIdx]
+    tabFile <- paste(tabName,".csv",sep = "")
+    tabPath <- file.path(".","project","Statistics",tabFile)
+    tab <- read.csv( tabPath, header = T, stringsAsFactors = F)
+    parTabList <- vector( mode = "list", length = length(pars) )
+    stocks <- unique( tab$stock )
+    for( pIdx in 1:length( pars ) )
+    {
+      parTab <- tabSkelParMod
+      parTab[,1] <- pars[pIdx]
+      colnames(parTab) <- c("Parameter","Model",stocks)
+      for( mIdx in 1:length(models) )
+      {
+        # filter down to the model
+        tmpTab <- tab %>%
+                  filter( mp == models[mIdx] )
+        # If it's the first model then save the SS results
+        if( mIdx == 1 )
+        {
+          ssPar <- paste( "ss", pars[pIdx], sep = "" )
+          parTab[1,2] <- "Single-Stock"
+          parTab[1,3:5] <- as.numeric(tmpTab[,ssPar])
+        }
+        # Now save the MS results
+        msPar <- paste( "ms", pars[pIdx], sep = "" )
+        parTab[1+mIdx,2] <- models[mIdx]
+        parTab[1+mIdx,3:5] <- as.numeric(tmpTab[,msPar])
+      }
+      parTab <- as.data.frame(parTab)
+      parTabList[[pIdx]] <- parTab
+    } 
+    # Now bind the specific parameter tables together
+    tabList[[tIdx]] <- do.call("rbind",parTabList)
   }
-  entryIndices <- expand.grid( dimIndices )
+  # And now the cbind each table
+  aggTab <- do.call("cbind",tabList)
 
-  # Loop over the entryIndices data.frame and pull the rows
-  for( rIdx in 1:nrow(entryIndices) )
-  {
-    entryIdx <- as.numeric(entryIndices[rIdx,])
-    LHRdesign[matrix(entryIdx,nrow=1)] <- (sum(entryIdx) %% maxEntry)
-  }
+  # Now save
+  savePath <- file.path(".","project","Statistics",saveName)
+  write.csv(aggTab, savePath)
 
-  # Now sample design space for treatments
-  points      <- sample( x = 0:(maxEntry-1), size = nPoints )
-  treatments  <- which( LHRdesign %in% points, arr.ind = F )
-  treatments  <- arrayInd(  ind = treatments, .dim = dim(LHRdesign), 
-                            .dimnames = dimnames(LHRdesign), useNames = T)
-
-  out <- list(  levels = levels,
-                designArray = LHRdesign,
-                treatments =  treatments
-              )
-
-  out
-
+  aggTab
 }
+
+
+makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
+{
+  ## Path specific function - needs updating in mutate arguments ##
+  # Cretes new column(s) in stats tables from the scenario label, 
+  # used when factor levels for metamodels are not included in the 
+  # control file (e.g. nDiff in infoScenarios)
+  # inputs:   tableRoot = root file name of stats table
+  #           ALSO REQUIRES UPDATING IN MUTATE ARGUMENTS
+  # outputs:  NA
+  # Side-eff: rewrites stat tables (MARE, MRE and RE versions) with
+  #           new cols
+
+  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
+  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
+  MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
+  MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  MREtabRoot  <- paste(tableRoot,"_MRE", sep = "")
+  MREtabFile  <- paste(tableRoot,"_MRE.csv", sep = "")
+  MREtabPath <- file.path(getwd(),"project","Statistics",MREtabFile)
+  MREtab     <- read.csv( MREtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+  REtabRoot  <- paste(tableRoot,"_RE", sep = "")
+  REtabFile  <- paste(tableRoot,"_RE.csv", sep = "")
+  REtabPath <- file.path(getwd(),"project","Statistics",REtabFile)
+  REtab     <- read.csv( REtabPath, header=TRUE, stringsAsFactors=FALSE )
+
+
+  splitScenLabel <- function ( scenLabel, match = "CVhi" )
+  {
+    splitLabel <- unlist(str_split(scenLabel,"_"))
+    element <- splitLabel[grep( match, splitLabel, value = F)]
+    splitElement <- unlist(str_split(element,match))
+    num <- as.numeric(splitElement[2])
+    num
+  }
+
+  ## UPDATE MUTATE ARGUMENTS ##
+  MAREtab <-  MAREtab %>%
+              group_by( scenario, mp, species ) %>%
+              mutate( nDiff = splitScenLabel(scenario,match = "nDiff") )
+
+  REtab <-  REtab %>%
+            group_by( scenario, mp, species, rep ) %>%
+            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff") )
+
+
+  MREtab <- MREtab %>%
+            group_by( scenario, mp, species ) %>%
+            mutate( nDiff  = splitScenLabel(scenario,match = "nDiff") )
+
+
+  write.csv( REtab, REtabPath )
+  write.csv( MREtab, MREtabPath )
+  write.csv( MAREtab, MAREtabPath )
+}
+
 
 # makeInfoScenarioDesign()
 # Creates the .bch file for a historical fishing intensity experiment,
@@ -96,7 +157,7 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
 
   # Now start making the batch file for the simulation experiment
   outFile <- paste( bchName, ".bch", sep = "")
-  cat(  "# Batch Control File, created ", date(), " by makeFixedprocREDesign() \n", 
+  cat(  "# Batch Control File, created ", date(), " by makeInfoScenarioDesign() \n", 
         file = outFile, append = F, sep = "" )
   cat( "parameter value\n", sep = "", append = T, file = outFile)
   cat( "#\n", file = outFile, append = T )
@@ -132,7 +193,7 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     cat(  "scenario$scenario", rIdx, "$opMod$initDep c(rep(", levels$initDep[treatments[rIdx,"initDep"] ],
           ",", nDiff, "),rep(", base$initDep, ",", nSame, "))\n",
           sep = "", append = T, file = outFile  )
-    cat(  "scenario$scenario", rIdx, "$opMod$initBioCode c(rep(", initBioCode,
+    cat(  "scenario$scenario", rIdx, "$assess$initBioCode c(rep(", initBioCode,
           ",", nDiff, "),rep(0,", nSame, "))\n",
           sep = "", append = T, file = outFile  )
 
@@ -140,6 +201,21 @@ makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,
     
     cat( "#\n", file = outFile, append = T )
   }
+
+  row.names(treatments) <- NULL
+
+  treatments <- as.data.frame(treatments)
+  for( k in 1:nrow(treatments) )
+  {
+    for( l in 1:length(names(levels)))
+    {
+      nom       <- names(treatments)[l]
+      levelIdx  <- as.numeric(treatments[k, nom])
+      treatments[ k, nom ] <- levels[nom][[1]][levelIdx]
+    }
+  }
+
+  write.csv(x = treatments, file = paste(bchName,"LHrD.csv",sep="_"))
 
   treatments
 }
@@ -198,6 +274,21 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
           sep = "", append = T, file = outFile  )
     cat( "#\n", file = outFile, append = T )
   }
+
+  row.names(treatments) <- NULL
+
+  treatments <- as.data.frame(treatments)
+  for( k in 1:nrow(treatments) )
+  {
+    for( l in 1:length(names(levels)))
+    {
+      nom       <- names(treatments)[l]
+      levelIdx  <- as.numeric(treatments[k, nom])
+      treatments[ k, nom ] <- levels[nom][[1]][levelIdx]
+    }
+  }
+
+  write.csv(x = treatments, file = paste(bchName,"LHrD.csv",sep="_"))
 
   treatments
 }
@@ -1081,6 +1172,7 @@ doBatchRun <- function( arg )
       
       # This step compares the names in the i-th scenario to the names in the
       # first column of newPars to find the common names using intersect.
+      # browser()
 
       # Change all .subChar symbols to "$".
       names(scenario[[i]]) <- gsub( .subChar,"$",names(scenario[[i]]), fixed=TRUE )
@@ -1695,4 +1787,64 @@ function(i=1)
 {
   usr=par("usr"); inset.x=0.05*(usr[2]-usr[1]); inset.y=0.05*(usr[4]-usr[3])
   text(usr[1]+inset.x,usr[4]-inset.y,paste("(",letters[i],")",sep=""),cex=1.,font=1)
+}
+
+makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)"),
+                                              initYear = c(1984,2003),
+                                              nS = c(4,7,10),
+                                              initDep = c(0.4,0.7,1.0),
+                                              nDiff = c(0,2,4) ),
+                              nPoints = 1
+                            )
+{
+  # Creates a Latin Hyper Rectangle experimental design from a list of factor levels
+  # inputs:     levels = list of factor levels
+  #             nPoints = number of points to sample from the LHR design
+
+  # First, create an array to hold the design
+  # First, we need the number of factors and their levels to make dimensions
+  nLevels     <- lapply ( X = levels, FUN = length )
+  nLevels     <- unlist( nLevels )
+  nFactors    <- length( nLevels )
+
+  # Create the array, using the factor levels as dimnames
+  LHRdesign   <- array( NA, dim = nLevels, dimnames = levels )
+
+  # Choose the entries in the array as the size of the largest dimension
+  maxEntry  <- max(nLevels)
+
+  # I think adding the entry dimension indices mod maxEntry will
+  # populate the matrix and preserve the latin property. To do this
+  # we gotta expand.grid for all possible entries
+  dimIndices <- vector(mode = "list", length = nFactors )
+  for( lIdx in 1:nFactors )
+  {
+    dimIndices[[lIdx]] <- 1:nLevels[lIdx]
+  }
+  entryIndices <- expand.grid( dimIndices )
+
+  # Loop over the entryIndices data.frame and pull the rows
+  for( rIdx in 1:nrow(entryIndices) )
+  {
+    entryIdx <- as.numeric(entryIndices[rIdx,])
+    LHRdesign[matrix(entryIdx,nrow=1)] <- (sum(entryIdx) %% maxEntry)
+  }
+
+  # Now randomly permute the dimensions
+  idx <- lapply(dim(LHRdesign), sample)
+  LHRdesign[] <- do.call(`[`, c( list(LHRdesign), idx) )
+
+  # Now sample design space for treatments
+  points      <- sample( x = 0:(maxEntry-1), size = nPoints )
+  treatments  <- which( LHRdesign %in% points, arr.ind = F )
+  treatments  <- arrayInd(  ind = treatments, .dim = dim(LHRdesign), 
+                            .dimnames = dimnames(LHRdesign), useNames = T)
+
+  out <- list(  levels = levels,
+                designArray = LHRdesign,
+                treatments =  treatments
+              )
+
+  out
+
 }

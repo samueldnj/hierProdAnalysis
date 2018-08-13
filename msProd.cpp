@@ -1,18 +1,19 @@
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
-// msProd_TMB.cpp
+// msProd.cpp
 // 
 // A multi-stock surplus production (Schaefer) state-space model with 
 // joint prior distributions applied to catchability (q) 
-// and productivity (U_msy)
+// and productivity (U_msy), and a process error year-effect component (eps_t) 
+// shared between stocks
 // 
 // Author: Samuel Johnson
 // Date: 1 November, 2016
-// Purpose: The assessment model in a simulation study of multi-stock
+//
+// Purpose: This is the assessment model in a simulation study of multi-stock
 // robin hood methods.
 // 
 // Updates:
-//    May 13, 2017: Added multiple surveys, ready for application
-//                  to real DERPA data
+//    May 13, 2017: Added multiple surveys
 // 
 // ><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><>><><>><><>><><>><>
 
@@ -50,6 +51,7 @@ Type objective_function<Type>::operator() ()
   int nT = It.dim(2);           // No of time steps
 
   // Model switches
+  DATA_INTEGER(kappaPriorCode); // 0 => OFF, 1 => IG on kappa2
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
   DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
   DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
@@ -104,15 +106,6 @@ Type objective_function<Type>::operator() ()
   vector<Type>      tau2_o  = exp(lntau2_o);
   vector<Type>      Binit   = exp(lnBinit);
   array<Type>       lnqhat_os(nO,nS);
-  // array<Type>       q_os(nO,nS);
-  // for( int o = 0; o < nO; o++ )
-  // {
-  //   for( int s = 0; s < nS; s++ )
-  //   {
-  //     q_os(o,s) = exp(lnq_os(o,s));
-  //   }
-  // }
-
   
   // Prior hyperpars
   vector<Type>      qbar_o  = exp(lnqbar_o);
@@ -135,9 +128,11 @@ Type objective_function<Type>::operator() ()
   Type              nllRE   = 0.0;   // process error likelihood
   Type              pospen  = 0.0;   // posfun penalty
   // Derived variables
-  vector<Type>      msy = Bmsy * Umsy;
+  vector<Type>      MSY = Bmsy * Umsy;
+  vector<Type>      lnMSY = log(MSY);
   array<Type>       Ut(nS,nT);
-  vector<Type>      DnT;
+  vector<Type>      DnT(nS);
+  array<Type>       U_Umsy(nS,nT);
 
   // Procedure Section //
   // First create the correlation matrix for the species effects
@@ -158,7 +153,9 @@ Type objective_function<Type>::operator() ()
     omegat(t) = gammaYr * omegat(t-1) + (1 - gammaYr) * eps_t(t-1);
   }
   
+  // Initialise biomass and log-biomass
   Bt.fill(-1);
+  lnBt.fill(0.0);
   // Now loop over species, reconstruct history from initT
   for( int s = 0; s < nS; s++ )
   {
@@ -168,12 +165,10 @@ Type objective_function<Type>::operator() ()
     lnBt(s,initT(s)) = log(Bt(s,initT(s)));
     for( int t = initT(s)+1; t < nT; t++ )
     {
-      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s));
-      Bt(s,t) *= exp(omegat(t)+zeta_st(s,t-1));
-      Bt(s,t) -= Ct(s,t-1);
-      Bt(s,t) = posfun(Bt(s,t),Type(2e-3),pospen);      
-      
-      lnBt(s,t) = log(Bt(s,t));      
+      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
+      Bt(s,t) = posfun(Bt(s,t),Type(1e-3),pospen);
+      Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
+      lnBt(s,t) = log(Bt(s,t));
     }
 
   }
@@ -192,7 +187,6 @@ Type objective_function<Type>::operator() ()
   // Concentrate species specific obs error likelihood?
   // Initialise arrays for concentrating conditional MLE qhat
   array<Type>   ss_os(nO,nS);
-  vector<Type>  tau2hat_o(nO);
   array<Type>   validObs(nO,nS);
   array<Type>   qhat_os(nO,nS);
   array<Type>   z_ost(nO,nS,nT);
@@ -212,11 +206,11 @@ Type objective_function<Type>::operator() ()
     // species
     for( int s = 0; s < nS; s++ )
     {
-      // times
+      // time
       for( int t = initT(s); t < nT; t++ )
       {
         // only add a contribution if the data exists (Iost < 0 is missing)
-        if (It(o,s,t) > 0) 
+        if( ( It(o,s,t) > 0. ) & ( Bt(s,t) > Type(2e-3) ) ) 
         {
           validObs(o,s) += int(1);
           z_ost(o,s,t) = log( It( o, s, t ) ) - log( Bt( s, t ) );
@@ -230,7 +224,7 @@ Type objective_function<Type>::operator() ()
       // Add contribution of data to obs likelihood
       for( int t = initT(s); t < nT; t++ )
       {
-        if( It(o,s,t) > 0.0 )
+        if( It(o,s,t) > 0.0 & qhat_os(o,s) > 0. )
           nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - log(qhat_os(o,s)), 2 ) / tau2_o(o) );
       }
     }
@@ -246,7 +240,7 @@ Type objective_function<Type>::operator() ()
   for (int s=0; s<nS; s++ )
   {
     nllBprior += Type(0.5) * pow( Bmsy(s) - mBmsy(s), Type(2) ) / sBmsy(s) / sBmsy(s); 
-    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s), 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ; 
+    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s)/2, 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ;
   }
 
   // multispecies shared priors
@@ -313,13 +307,14 @@ Type objective_function<Type>::operator() ()
   
   // Variance IG priors
   // Obs error var
-  Type nllVarPrior = 0.0;
+  Type nllVarPrior = 0.;
   for( int o = 0; o < nO; o++ )
   {
     nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
   }
   // year effect deviations var
-  nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
+  if( kappaPriorCode == 1 | nS == 1)  
+    nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
   // Now multispecies priors
   if (nS > 1)
   {
@@ -366,24 +361,21 @@ Type objective_function<Type>::operator() ()
   // Derive some output variables
   Ut  = Ct / Bt;
   DnT = Bt.col(nT-1)/Bmsy/2;
+  for( int t = 0; t < nT; t ++ )
+  {
+    U_Umsy.col(t) = Ut.col(t) / Umsy;
+  }
 
 
   // Reporting Section //
   // Variables we want SEs for
   ADREPORT(lnBt);
   ADREPORT(lnqhat_os);
-  ADREPORT(msy);
+  ADREPORT(qhat_os);
+  ADREPORT(lnMSY);
   ADREPORT(lnBinit);
-  ADREPORT(tau2_o);
-  ADREPORT(kappa2);
-  if (nS > 1 )
-  {
-    ADREPORT(SigmaDiag);
-    ADREPORT(Umsybar);
-    ADREPORT(sigUmsy2);
-    ADREPORT(lnqbar_o);
-    ADREPORT(tauq2_o);
-  }
+  ADREPORT(lntau2_o);
+  ADREPORT(lnkappa2);
   // ADREPORT(gammaYr);
   
   // Everything else //
@@ -394,11 +386,11 @@ Type objective_function<Type>::operator() ()
   REPORT(omegat);
   REPORT(Binit);
   REPORT(DnT);
+  REPORT(U_Umsy);
   REPORT(qhat_os);
-  REPORT(msy);
+  REPORT(MSY);
   REPORT(Bmsy);
   REPORT(Umsy);
-  REPORT(msy);
   REPORT(tau2_o);
   REPORT(kappa2);
   REPORT(nT);
