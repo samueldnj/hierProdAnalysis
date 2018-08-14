@@ -402,6 +402,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           tauqPriorCode   = obj$assess$tauqPriorCode,
                           lnqPriorCode    = obj$assess$lnqPriorCode,
                           lnUPriorCode    = obj$assess$lnUPriorCode,
+                          BPriorCode      = obj$assess$BPriorCode,
                           initT           = 0,
                           initBioCode     = obj$assess$initBioCode[s],
                           posPenFactor    = obj$assess$posPenFactor )
@@ -428,9 +429,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2IG          = obj$assess$Sigma2IG,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
-                          eps_t             = rep( 0.01, nT[s]-1 ),
+                          eps_t             = rep( 0, nT[s]-1 ),
                           lnkappa2          = ifelse( obj$assess$estYearEff, log( obj$assess$kappa2 ), log( obj$assess$Sigma2 ) ),
-                          zeta_st           = matrix( 0.01, nrow = 1, ncol = nT[s]-1 ),
+                          zeta_st           = matrix( 0, nrow = 1, ncol = nT[s]-1 ),
                           lnSigmaDiag       = 0,
                           SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 ),
@@ -479,6 +480,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   tauqPriorCode   = obj$assess$tauqPriorCode,
                   lnqPriorCode    = obj$assess$lnqPriorCode,
                   lnUPriorCode    = obj$assess$lnUPriorCode,
+                  BPriorCode      = obj$assess$BPriorCode,
                   initT           = as.integer(sT - 1)[1:nS],         # correct for indexing starting at 0 in TMB
                   initBioCode     = as.integer(obj$assess$initBioCode[1:nS]),
                   posPenFactor    = obj$assess$posPenFactor
@@ -505,12 +507,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = obj$assess$Sigma2IG,
                   wishScale         = wishScale,
                   nu                = nS,
-                  eps_t             = rep(0.01, max(nT)-1),
+                  eps_t             = rep(0, max(nT)-1),
                   lnkappa2          = log(obj$assess$kappa2),              
                   zeta_st           = matrix(0, nrow = nS, ncol = max(nT)-1),
                   lnSigmaDiag       = log(obj$assess$Sigma2),
                   SigmaDiagMult     = obj$assess$SigmaDiagMult[1:nS],
-                  logitSigmaOffDiag = rep(0, length = nS*(nS-1)/2),
+                  logitSigmaOffDiag = rep(0.56, length = nS*(nS-1)/2),
                   logit_gammaYr     = obj$assess$logit_gammaYr
                 )
 
@@ -590,75 +592,83 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             RE = c("eps_t"), tracePar = FALSE,
                             profiles = FALSE )
 { 
+  # Set max no of evaluations
+  ctrl = list ( eval.max = maxfn, iter.max = maxfn )
+
+  # Number of species
+  nS <- length(par$lnBmsy)
+
+  # Compute likelihood profiles if asked for
+  if ( profiles )
+  {
+    obj <- MakeADFun (  dat = dat, parameters = par, map = map,
+                        random = RE, silent = quiet )
+    # Trace fixed effect parameter values
+    obj$env$tracepar <- tracePar
+
+    # Set max no of evaluations
+    ctrl = list ( eval.max = maxfn, iter.max = maxfn )
+    if( nS == 1 )
+    {
+      # Calculate SS profiles
+      lnBmsyProfile   <- tmbprofile( obj, "lnBmsy", trace = FALSE )
+      lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE )
+      lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE )
+      # Save to an output list
+      profileList <- list ( lnBmsy    = lnBmsyProfile,
+                            lnUmsy    = lnUmsyProfile,
+                            lnkappa2  = lnkappa2Profile )
+    }
+    if( nS > 1  )
+    {
+      # Calculate profiles for shared prior hyperpars
+      lnUmsybarProfile    <- tmbprofile( obj, "lnUmsybar", trace = FALSE )
+      lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy", trace = FALSE ) 
+      lnkappa2Profile     <- tmbprofile( obj, "lnkappa2", trace = FALSE )
+      # Save to output list
+      profileList <- list ( lnUmsybar   = lnUmsybarProfile,
+                            lnsigUmsy2  = lnsigUmsy2Profile,
+                            lnkappa2    = lnkappa2Profile )
+    }
+  } else profileList <- NA
+  
+  # Start counting estimation attempts
+  nTries <- 1
+
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                       random = NULL, silent = quiet )
   # Trace fixed effect parameter values
   obj$env$tracepar <- tracePar
 
-  # Set max no of evaluations
-  ctrl = list ( eval.max = maxfn, iter.max = maxfn )
-  
-  # Start counting estimation attempts
-  nTries <- 1
-  
-  rep <- obj$report()
-  zSum_os <- rep$zSum_os
-  validObs <- rep$validObs
-  tauq2_o <- rep$tauq2_o
-  qbar_o <- rep$qbar_o
-  tau2_o <- rep$tau2_o
+  convFlag <- 1
+  bestPars <- obj$par
 
-  nO <- length(tau2_o)
-  nS <- length(par$lnBmsy)
-
-  lnqhat_os <- matrix(NA, nrow = nO, ncol = nS )
-
-  for( oIdx in 1:nO )
-    for( sIdx in 1:nS )
-    {
-      if( nS == 1)
-        lnqhat_os[oIdx, sIdx] <- zSum_os[oIdx/sIdx] / validObs[oIdx,sIdx]
-      else
-      {
-        lnqhat_os[oIdx,sIdx] <- ( zSum_os[oIdx,sIdx] / tau2_o[oIdx] + log(qbar_o[oIdx])/tauq2_o[oIdx] ) / ( validObs[oIdx,sIdx] / tau2_o[oIdx] + 1 / tauq2_o[oIdx] )
-      }
-
-    }
-
-
-  # optimise the model with all fixed effects
-  fitFE <- try( nlminb( start = obj$par + rnorm(length(obj$par),sd = 0.1),
-                        objective = obj$fn,
-                        gradient = obj$gr,
-                        control = ctrl,
-                        lower = -Inf,
-                        upper = Inf ) )
-
-
-  convFlag <- fitFE$convergence
-
-  # loop to keep trying to fit if convergence doesn't happen
+  # Loop to keep trying to fit
   while( convFlag > 0 )
   {
-    # Increment counter
     nTries <- nTries + 1
-
-    # Run optimisation from last point in par space
-    fitFE <- try( nlminb( start = fitFE$par,
+    # optimise the model with all fixed effects
+    fitFE <- try( nlminb( start = bestPars,
                           objective = obj$fn,
                           gradient = obj$gr,
                           control = ctrl,
                           lower = -Inf,
-                          upper= Inf ) )
+                          upper = Inf ) )
 
-    convFlag <- fitFE$convergence
-    if( nTries >= fitTrials )
+    if(class(fitFE) != "try-error")
+    {
+      convFlag <- fitFE$convergence  
+      bestPars <- fitFE$par  
+    } else 
+      bestPars <- bestPars + rnorm(length(bestPars),sd=0.2)
+
+    if( nTries >= 2*fitTrials )
       break
   }
 
+  # Reset nTries
   nTries <- 1
-  bestPars <- fitFE$par
 
   if( length(RE) > 0 )
   {
@@ -670,10 +680,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$env$tracepar <- tracePar
 
     # Save the best parameters from the fixed eff model
-    bestPars <- bestPars[names(obj$par)]
+    bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
 
     # optimise the model with REs
-    fit <- try( nlminb( start = bestPars + rnorm(length(bestPars), sd = 0.1),
+    fit <- try( nlminb( start = bestPars + 0.1,
                         objective = obj$fn,
                         gradient = obj$gr,
                         control = ctrl,
@@ -689,6 +699,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   {
     nTries <- nTries + 1
     cat("Optimisation stopped by error, jittering initial parameter values \n" )
+
+    if(obj$report()$pospen > 0)
+      bestPars[1:(2*nS)] <- bestPars[1:(2*nS)] + log(2)
 
     fit <- try( nlminb( start = bestPars + rnorm(length(bestPars), sd = 0.2),
                         objective = obj$fn,
@@ -706,6 +719,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Save best version of parameters so far
   bestPars  <- fit$par
   objFunVal <- fit$objective
+
+  # Reset nTries so we can improve a false convergence
+  nTries <- 1
   
   # Now try to improve if we get false convergence by jittering the
   # best parameters
@@ -714,7 +730,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     
     nTries <- nTries + 1
 
-    cat("False converge with given starting values, jittering previous best parameter values \n" )
+    cat("False convergence with given starting values, jittering previous best parameter values \n" )
 
     fit <- try( nlminb (  start = bestPars + rnorm(length(bestPars), sd = 0.4),
                           objective = obj$fn,
@@ -736,6 +752,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if( nTries >= fitTrials )
       break
   }
+
+
 
 
   # Run SD report on the fit if it works, and get the rep file
@@ -773,34 +791,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                       lCI = val - 1.96 * se,
                       uCI = val + 1.96 * se ) %>%
               dplyr::select( par, val, se, lCI, uCI )
-    if ( profiles )
-    {
-      if( nS == 1 )
-      {
-        # Calculate SS profiles
-        lnBmsyProfile   <- tmbprofile( obj, "lnBmsy", trace = FALSE )
-        lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE )
-        lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE )
-        # Save to an output list
-        profileList <- list ( lnBmsy    = lnBmsyProfile,
-                              lnUmsy    = lnUmsyProfile,
-                              lnkappa2  = lnkappa2Profile )
-      }
-      if( nS > 1  )
-      {
-        # Calculate profiles for shared prior hyperpars
-        lnUmsybarProfile    <- tmbprofile( obj, "lnUmsybar", trace = FALSE )
-        lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy", trace = FALSE ) 
-        lnkappa2Profile     <- tmbprofile( obj, "lnkappa2", trace = FALSE )
-        # Save to output list
-        profileList <- list ( lnUmsybar   = lnUmsybarProfile,
-                              lnsigUmsy2  = lnsigUmsy2Profile,
-                              lnkappa2    = lnkappa2Profile )
-      }
-    }
-  } else profileList <- NA
-
-  browser()
+  }
 
   # Return
   out <- list( sdrep = sdrep, rep=rep, CIs = CIs, nTries = nTries )

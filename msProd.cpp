@@ -24,7 +24,7 @@
 template<class Type>
 Type posfun(Type x, Type eps, Type &pen){
   pen += CppAD::CondExpLt(x, eps, Type(0.01) * pow(x-eps,2), Type(0));
-  return CppAD::CondExpGe(x, eps, x, eps/(Type(1)-x/eps));
+  return CppAD::CondExpGe(x, eps, x, eps/(Type(2)-x/eps));
 }
 
 // invLogit
@@ -57,6 +57,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
   DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
   DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
+  DATA_INTEGER(BPriorCode);     // 0 => normal, 1 => Jeffreys 
   DATA_IVECTOR(initT);          // first year of reconstructed catch hist
   DATA_IVECTOR(initBioCode);    // initial biomass at 0 => unfished, 1=> fished
   DATA_SCALAR(posPenFactor);    // Positive-penalty multiplication factor
@@ -167,7 +168,11 @@ Type objective_function<Type>::operator() ()
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s));
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
-      Bt(s,t) = posfun(Bt(s,t),Ct(s,t-1),pospen);
+      if( Bt(s,t) <= Ct(s,t-1) )
+      {
+        pospen += Type(0.01) * pow(Ct(s,t-1) - Bt(s,t),2);
+        Bt(s,t) = 1.2*Ct(s,t-1);
+      }
       Bt(s,t) -= Ct(s,t-1);
       lnBt(s,t) = log(Bt(s,t));
     }
@@ -180,11 +185,7 @@ Type objective_function<Type>::operator() ()
     nllRE += Type(0.5)*(lnkappa2 + pow( eps_t( t - 1 ), 2 ) / kappa2 + eps_t(t-1) );
     // Add correlated species effects contribution to likelihood
     if( nS > 1 ) 
-      for( int s = 0; s < nS; s++ )
-      {
-        nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));  
-      }
-      
+      nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));  
   }
   // add REs to joint nll
   nllRE += posPenFactor*pospen;
@@ -224,14 +225,14 @@ Type objective_function<Type>::operator() ()
         }       
       }
       // compute conditional MLE q from observation
-      if( nS == 1) qhat_os(o,s) = exp( zSum_os(o,s) / validObs(o,s) );
-      if( nS > 1 ) qhat_os(o,s) = exp( ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) ) );  
-      lnqhat_os(o,s) = log(qhat_os(o,s));
+      if( nS == 1) lnqhat_os(o,s) = zSum_os(o,s) / validObs(o,s);
+      if( nS > 1 ) lnqhat_os(o,s) = ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) );  
+      qhat_os(o,s) = exp(lnqhat_os(o,s));
       // Add contribution of data to obs likelihood
       for( int t = initT(s); t < nT; t++ )
       {
         if( (It(o,s,t) > 0.0) & (qhat_os(o,s) > 0) )
-          nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - log(qhat_os(o,s)), 2 ) / tau2_o(o) );
+          nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - lnqhat_os(o,s), 2 ) / tau2_o(o) );
         if( qhat_os(o,s) < 0 )
           nllObs += 1e3;
       }
@@ -247,8 +248,17 @@ Type objective_function<Type>::operator() ()
   // eqbm biomass
   for (int s=0; s<nS; s++ )
   {
-    nllBprior += Type(0.5) * pow( Bmsy(s) - mBmsy(s), Type(2) ) / sBmsy(s) / sBmsy(s); 
-    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s)/2, 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ;
+    // Normal prior
+    if(BPriorCode == 0)
+    {
+      nllBprior += Type(0.5) * pow( Bmsy(s) - mBmsy(s), Type(2) ) / sBmsy(s) / sBmsy(s); 
+      if(initBioCode(s) == 1) 
+        nllBprior +=  pow( Binit(s) - mBmsy(s)/2, 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ;  
+    }
+    // Jeffreys prior
+    if( BPriorCode == 1 )
+      nllBprior += lnBmsy(s) + lnBinit(s);
+    
   }
 
   // multispecies shared priors
@@ -316,6 +326,7 @@ Type objective_function<Type>::operator() ()
   // Variance IG priors
   // Obs error var
   Type nllVarPrior = 0.;
+  Type nllSigPrior = 0.;
   for( int o = 0; o < nO; o++ )
   {
     nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
@@ -354,17 +365,17 @@ Type objective_function<Type>::operator() ()
     // Apply Sigma Prior
     if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
     {
-      nllVarPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+      nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
     }
     if( SigmaPriorCode == 1 ) // Apply IW prior to Sigma matrix
     {
       matrix<Type> traceMat = wishScale * Sigma.inverse();
       Type trace = 0.0;
       for (int s=0;s<nS;s++) trace += traceMat(s,s);
-      nllVarPrior += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
+      nllSigPrior += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
     }
   }
-  nll += nllVarPrior;
+  nll += nllVarPrior + nllSigPrior;
 
   // Derive some output variables
   Ut  = Ct / Bt;
@@ -424,6 +435,7 @@ Type objective_function<Type>::operator() ()
   REPORT(nllqPrior);
   REPORT(nllUprior);
   REPORT(nllBprior);
+  REPORT(nllSigPrior);
   REPORT(nllVarPrior);
   REPORT(pospen);
   
