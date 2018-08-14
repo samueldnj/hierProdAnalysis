@@ -88,10 +88,10 @@ Type objective_function<Type>::operator() ()
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
   PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
   // Random Effects
-  PARAMETER_VECTOR(eps_t);              // year effect  
   PARAMETER(lnkappa2);                  // year effect uncorrelated variance
-  PARAMETER_ARRAY(zeta_st);             // species effect
   PARAMETER(lnSigmaDiag);               // Species effect cov matrix diag
+  PARAMETER_VECTOR(eps_t);              // year effect  
+  PARAMETER_ARRAY(zeta_st);             // species effect
   PARAMETER_VECTOR(SigmaDiagMult);      // Sigma diagonal mults
   PARAMETER_VECTOR(logitSigmaOffDiag);  // Species effect corr chol factor off diag  
   PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect (eps)
@@ -165,20 +165,26 @@ Type objective_function<Type>::operator() ()
     lnBt(s,initT(s)) = log(Bt(s,initT(s)));
     for( int t = initT(s)+1; t < nT; t++ )
     {
-      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
-      Bt(s,t) = posfun(Bt(s,t),Type(1e-3),pospen);
+      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s));
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
+      Bt(s,t) -= Ct(s,t-1);
+      Bt(s,t) = posfun(Bt(s,t),Type(1e-3),pospen);
       lnBt(s,t) = log(Bt(s,t));
     }
 
   }
   // Loop again to add species and year effects
-  for (int t=1; t<nT; t++)
+  for( int t=1; t<nT; t++ )
   {
     // Add year effect contribution to objective function
-    nllRE += Type(0.5)*(lnkappa2 + pow( eps_t( t - 1 ), 2 ) / kappa2 ) + eps_t(t-1);
+    nllRE += Type(0.5)*(lnkappa2 + pow( eps_t( t - 1 ), 2 ) / kappa2 + eps_t(t-1) );
     // Add correlated species effects contribution to likelihood
-    if (nS > 1) nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
+    if( nS > 1 ) 
+      for( int s = 0; s < nS; s++ )
+      {
+        nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));  
+      }
+      
   }
   // add REs to joint nll
   nllRE += posPenFactor*pospen;
@@ -210,7 +216,7 @@ Type objective_function<Type>::operator() ()
       for( int t = initT(s); t < nT; t++ )
       {
         // only add a contribution if the data exists (Iost < 0 is missing)
-        if( ( It(o,s,t) > 0. ) & ( Bt(s,t) > Type(2e-3) ) ) 
+        if( ( It(o,s,t) > 0. ) & (Bt(s,t) > 1e-3) ) 
         {
           validObs(o,s) += int(1);
           z_ost(o,s,t) = log( It( o, s, t ) ) - log( Bt( s, t ) );
@@ -224,8 +230,10 @@ Type objective_function<Type>::operator() ()
       // Add contribution of data to obs likelihood
       for( int t = initT(s); t < nT; t++ )
       {
-        if( It(o,s,t) > 0.0 & qhat_os(o,s) > 0. )
+        if( (It(o,s,t) > 0.0) & (qhat_os(o,s) > 0) )
           nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - log(qhat_os(o,s)), 2 ) / tau2_o(o) );
+        if( qhat_os(o,s) < 0 )
+          nllObs += 1e3;
       }
     }
   }

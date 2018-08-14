@@ -380,11 +380,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*Sigma2
   }
 
-  if( !is.null(obj$assess$tauq2P1) ) obj$assess$tauq2Prior[1] <- obj$assess$tauq2P1
-  if( !is.null(obj$assess$tauq2P2) ) obj$assess$tauq2Prior[2] <- obj$assess$tauq2P2
-  if( !is.null(obj$assess$sigU2P1) ) obj$assess$sigU2Prior[1] <- obj$assess$sigU2P1
-  if( !is.null(obj$assess$sigU2P2) ) obj$assess$sigU2Prior[2] <- obj$assess$sigU2P2
-
   # Create IW scale matrix
   if( obj$assess$wishType == "diag" ) wishScale <- diag( opMod$SigmaDiag[1:nS] )
   if( obj$assess$wishType == "corr" )
@@ -411,7 +406,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           initBioCode     = obj$assess$initBioCode[s],
                           posPenFactor    = obj$assess$posPenFactor )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]/2),
+    ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]),
                           lnUmsy            = log(obj$assess$Umsy[s]),
                           lntau2_o          = log(obj$assess$tau2[1:nSurv]),
                           lnBinit           = log(sumCat[s]/2),
@@ -433,9 +428,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2IG          = obj$assess$Sigma2IG,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
-                          eps_t             = rep( 0, nT[s]-1 ),
+                          eps_t             = rep( 0.01, nT[s]-1 ),
                           lnkappa2          = ifelse( obj$assess$estYearEff, log( obj$assess$kappa2 ), log( obj$assess$Sigma2 ) ),
-                          zeta_st           = matrix( 0, nrow = 1, ncol = nT[s]-1 ),
+                          zeta_st           = matrix( 0.01, nrow = 1, ncol = nT[s]-1 ),
                           lnSigmaDiag       = 0,
                           SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 ),
@@ -488,7 +483,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   initBioCode     = as.integer(obj$assess$initBioCode[1:nS]),
                   posPenFactor    = obj$assess$posPenFactor
                 )
-  msPar <- list ( lnBmsy            = log(sumCat[1:nS]/2),
+  msPar <- list ( lnBmsy            = log(sumCat[1:nS]),
                   lnUmsy            = log(obj$assess$Umsy[1:nS]),
                   lntau2_o          = log(obj$assess$tau2[1:nSurv]),
                   lnBinit           = log(sumCat[1:nS]/2),
@@ -510,7 +505,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = obj$assess$Sigma2IG,
                   wishScale         = wishScale,
                   nu                = nS,
-                  eps_t             = rep(0, max(nT)-1),
+                  eps_t             = rep(0.01, max(nT)-1),
                   lnkappa2          = log(obj$assess$kappa2),              
                   zeta_st           = matrix(0, nrow = nS, ncol = max(nT)-1),
                   lnSigmaDiag       = log(obj$assess$Sigma2),
@@ -522,8 +517,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   lnBinitMap <- 1:nS
   lnBinitMap[ obj$assess$initBioCode[1:nS] == 0] <- NA
 
-  # zeta_stMap <- matrix(101:(100+nS*max(nT)), nrow = nS, ncol = nT )
-  # for( s in 1:nS ) if( sT[s] > 1) zeta_stMap[s,1:(sT[s]-1)] <- NA
 
   msMap <- list ( mBmsy             = factor( rep( NA, nS ) ),
                   sBmsy             = factor( rep( NA, nS ) ),
@@ -541,7 +534,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   wishScale         = factor( rep( NA, nS*nS ) ),
                   nu                = factor( NA ),
                   lnBinit           = factor( lnBinitMap )
-                  # zeta_st           = factor( zeta_stMap )
                 )
   # Disable autocorrelation in estimation if set.
   if( !obj$assess$msAR1 ) 
@@ -600,7 +592,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 { 
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
-                      random = RE, silent = quiet )
+                      random = NULL, silent = quiet )
   # Trace fixed effect parameter values
   obj$env$tracepar <- tracePar
 
@@ -609,35 +601,114 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   
   # Start counting estimation attempts
   nTries <- 1
-  # optimise the model
-  fit <- try( nlminb (  start = obj$par,
+  # optimise the model with all fixed effects
+  fitFE <- try( nlminb( start = obj$par,
                         objective = obj$fn,
                         gradient = obj$gr,
                         control = ctrl,
                         lower = -Inf,
-                        upper= Inf ) )
+                        upper = Inf ) )
 
-  if(length(par$lnBmsy) > 1) browser()
 
-  while( class(fit) == "try-error" )
+  convFlag <- fitFE$convergence
+
+  # loop to keep trying to fit if convergence doesn't happen
+  while( convFlag > 0 )
   {
-    browser()
-    
+    # Increment counter
     nTries <- nTries + 1
-    cat("Not able to converge with given starting values, jittering \n" )
 
-    fit <- try( nlminb (  start = obj$par + rnorm(length(obj$par), sd = 0.1),
+    # Run optimisation from last point in par space
+    fitFE <- try( nlminb( start = fitFE$par,
                           objective = obj$fn,
                           gradient = obj$gr,
                           control = ctrl,
                           lower = -Inf,
                           upper= Inf ) )
 
-    # Break out if we reach the number of fit trials
-    if( nTries == fitTrials )
-    {
+    convFlag <- fitFE$convergence
+    if( nTries >= fitTrials )
       break
+  }
+
+  nTries <- 1
+  bestPars <- fitFE$par
+
+  if( length(RE) > 0 )
+  {
+    # Add REs
+    obj <- MakeADFun (  dat = dat, parameters = par, map = map,
+                        random = RE, silent = quiet )  
+
+    # Trace fixed effect parameter values
+    obj$env$tracepar <- tracePar
+
+    # Save the best parameters from the fixed eff model
+    bestPars <- bestPars[names(obj$par)]
+
+    # optimise the model with REs
+    fit <- try( nlminb( start = bestPars + rnorm(length(bestPars), sd = 0.1),
+                        objective = obj$fn,
+                        gradient = obj$gr,
+                        control = ctrl,
+                        lower = -Inf,
+                        upper= Inf ) )
+
+
+  } else 
+    fit <- fitFE
+
+  # Now try to improve the fit
+  while( class(fit) == "try-error" )
+  {
+    nTries <- nTries + 1
+    cat("Optimisation stopped by error, jittering initial parameter values \n" )
+
+    fit <- try( nlminb( start = bestPars + rnorm(length(bestPars), sd = 0.2),
+                        objective = obj$fn,
+                        gradient = obj$gr,
+                        control = ctrl,
+                        lower = -Inf,
+                        upper= Inf ) )
+    # Break out if we reach the number of fit trials
+    if( nTries >= 2*fitTrials )
+      break
+  }
+
+  # Check convergence flag
+  convFlag  <- fit$convergence
+  # Save best version of parameters so far
+  bestPars  <- fit$par
+  objFunVal <- fit$objective
+  
+  # Now try to improve if we get false convergence by jittering the
+  # best parameters
+  while( convFlag > 0 )
+  {
+    
+    nTries <- nTries + 1
+
+    cat("False converge with given starting values, jittering previous best parameter values \n" )
+
+    fit <- try( nlminb (  start = bestPars + rnorm(length(bestPars), sd = 0.4),
+                          objective = obj$fn,
+                          gradient = obj$gr,
+                          control = ctrl,
+                          lower = -Inf,
+                          upper= Inf ) )
+
+    if( class(fit) != "try-error" )
+    {
+      # Update convergence flag
+      convFlag <- fit$convergence
+      # Update best pars if obj fun value is lower
+      if( fit$objective < objFunVal )
+        bestPars <- fit$par
     }
+
+    # Break out if we reach the number of fit trials
+    if( nTries >= fitTrials )
+      break
   }
 
 
@@ -929,7 +1000,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         # Now save estimates
         blob$am$ss$Bmsy[i,s]                  <- fitrep$Bmsy
         blob$am$ss$Umsy[i,s]                  <- fitrep$Umsy
-        blob$am$ss$msy[i,s]                   <- fitrep$msy
+        blob$am$ss$msy[i,s]                   <- fitrep$MSY
         blob$am$ss$q_os[i,,s]                 <- fitrep$qhat_os
         blob$am$ss$kappa2[i,s]                <- fitrep$kappa2
         blob$am$ss$tau2_o[i,,s]               <- fitrep$tau2_o
@@ -964,7 +1035,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Now save estimates
       blob$am$ms$Bmsy[i,]                 <- fitrep$Bmsy
       blob$am$ms$Umsy[i,]                 <- fitrep$Umsy
-      blob$am$ms$msy[i,]                  <- fitrep$msy
+      blob$am$ms$msy[i,]                  <- fitrep$MSY
       blob$am$ms$q_os[i,,]                <- fitrep$qhat_os
       blob$am$ms$Sigma2[i,]               <- fitrep$SigmaDiag
       blob$am$ms$kappa2[i,]               <- fitrep$kappa2
