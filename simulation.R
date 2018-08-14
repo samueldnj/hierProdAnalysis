@@ -376,8 +376,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
     # Now change IG parameters so that the prior mode is at the true (mean) value
     obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
-    obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*kappa2
-    obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*Sigma2
+    obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*(kappa2 + Sigma2)
+    obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*(kappa2 + Sigma2)
   }
 
   # Create IW scale matrix
@@ -437,8 +437,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           logitSigmaOffDiag = numeric( length = 0 ),
                           logit_gammaYr     = obj$assess$logit_gammaYr
                         )
-    # modify SS IG parameters to account for sum of REs
-    ssPar[[s]]$kappa2IG[2] <- obj$assess$kappa2IG[2] + obj$assess$Sigma2IG[2]
     
     # Make map list to turn off parameters
     ssMap[[s]]  <-  list( mBmsy             = factor( rep( NA, 1 ) ),
@@ -512,7 +510,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   zeta_st           = matrix(0, nrow = nS, ncol = max(nT)-1),
                   lnSigmaDiag       = log(obj$assess$Sigma2),
                   SigmaDiagMult     = obj$assess$SigmaDiagMult[1:nS],
-                  logitSigmaOffDiag = rep(0.56, length = nS*(nS-1)/2),
+                  logitSigmaOffDiag = rep(0.
+
+                    , length = nS*(nS-1)/2),
                   logit_gammaYr     = obj$assess$logit_gammaYr
                 )
 
@@ -633,7 +633,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   } else profileList <- NA
   
   # Start counting estimation attempts
-  nTries <- 1
+  nTries <- 0
 
   # Make the AD function
   obj <- MakeADFun (  dat = dat, parameters = par, map = map,
@@ -668,7 +668,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   }
 
   # Reset nTries
-  nTries <- 1
+  nTries <- 0
 
   if( length(RE) > 0 )
   {
@@ -680,81 +680,43 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$env$tracepar <- tracePar
 
     # Save the best parameters from the fixed eff model
-    bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
+    bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))] + 0.1
 
-    # optimise the model with REs
-    fit <- try( nlminb( start = bestPars + 0.1,
-                        objective = obj$fn,
-                        gradient = obj$gr,
-                        control = ctrl,
-                        lower = -Inf,
-                        upper= Inf ) )
-
-
-  } else 
-    fit <- fitFE
-
-  # Now try to improve the fit
-  while( class(fit) == "try-error" )
-  {
-    nTries <- nTries + 1
-    cat("Optimisation stopped by error, jittering initial parameter values \n" )
-
-    if(obj$report()$pospen > 0)
-      bestPars[1:(2*nS)] <- bestPars[1:(2*nS)] + log(2)
-
-    fit <- try( nlminb( start = bestPars + rnorm(length(bestPars), sd = 0.2),
-                        objective = obj$fn,
-                        gradient = obj$gr,
-                        control = ctrl,
-                        lower = -Inf,
-                        upper= Inf ) )
-    # Break out if we reach the number of fit trials
-    if( nTries >= 2*fitTrials )
-      break
-  }
-
-  # Check convergence flag
-  convFlag  <- fit$convergence
-  # Save best version of parameters so far
-  bestPars  <- fit$par
-  objFunVal <- fit$objective
-
-  # Reset nTries so we can improve a false convergence
-  nTries <- 1
-  
-  # Now try to improve if we get false convergence by jittering the
-  # best parameters
-  while( convFlag > 0 )
-  {
-    
-    nTries <- nTries + 1
-
-    cat("False convergence with given starting values, jittering previous best parameter values \n" )
-
-    fit <- try( nlminb (  start = bestPars + rnorm(length(bestPars), sd = 0.4),
+    # Set convFlag so that we loop again
+    convFlag <- 1
+    while( convFlag > 0 )
+    {
+      # increment counter
+      nTries <- nTries + 1
+      # optimise the model with REs
+      fit <- try( nlminb( start = bestPars,
                           objective = obj$fn,
                           gradient = obj$gr,
                           control = ctrl,
                           lower = -Inf,
                           upper= Inf ) )
 
-    if( class(fit) != "try-error" )
-    {
-      # Update convergence flag
-      convFlag <- fit$convergence
-      # Update best pars if obj fun value is lower
-      if( fit$objective < objFunVal )
+      # Update convFlag and bestPars
+      if(class(fit) != "try-error")
+      {
+        convFlag <- fit$convergence  
         bestPars <- fit$par
+
+        # Check for PD hessian
+        if(convFlag == 0)
+        {
+          sd <- sdreport(obj)
+          if( !sd$pdHess )
+            convFlag <- 1
+        }
+      } else 
+        bestPars <- bestPars + rnorm(length(bestPars),sd=0.2)
+      
+      if( nTries >= 2*fitTrials )
+        break
     }
-
-    # Break out if we reach the number of fit trials
-    if( nTries >= fitTrials )
-      break
-  }
-
-
-
+  } else 
+    fit <- fitFE
 
   # Run SD report on the fit if it works, and get the rep file
   if( class ( fit ) == "try-error" ) 
@@ -1088,6 +1050,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       hessPD[,s] <- as.logical(ssHess[,s] * msHess)
 
     completed <- apply(X = hessPD, FUN = sum, MARGIN = 2, na.rm = T )
+    cat( completed, "\n" )
     if( all( completed >= obj$ctrl$signifReps ) )
     {
       cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )

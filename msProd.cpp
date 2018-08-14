@@ -193,7 +193,6 @@ Type objective_function<Type>::operator() ()
 
   // Concentrate species specific obs error likelihood?
   // Initialise arrays for concentrating conditional MLE qhat
-  array<Type>   ss_os(nO,nS);
   array<Type>   validObs(nO,nS);
   array<Type>   qhat_os(nO,nS);
   array<Type>   z_ost(nO,nS,nT);
@@ -203,7 +202,6 @@ Type objective_function<Type>::operator() ()
   validObs.fill(0.0);
   zSum_os.fill(0.0);
   z_ost.fill(0.0);
-  ss_os.fill(0.0);
   qhat_os.fill(-1.0);
 
   // Compute observation likelihood
@@ -217,7 +215,7 @@ Type objective_function<Type>::operator() ()
       for( int t = initT(s); t < nT; t++ )
       {
         // only add a contribution if the data exists (Iost < 0 is missing)
-        if( ( It(o,s,t) > 0. ) & (Bt(s,t) > 1e-3) ) 
+        if( ( It(o,s,t) > 0. ) ) 
         {
           validObs(o,s) += int(1);
           z_ost(o,s,t) = log( It( o, s, t ) ) - log( Bt( s, t ) );
@@ -231,7 +229,7 @@ Type objective_function<Type>::operator() ()
       // Add contribution of data to obs likelihood
       for( int t = initT(s); t < nT; t++ )
       {
-        if( (It(o,s,t) > 0.0) & (qhat_os(o,s) > 0) )
+        if( (It(o,s,t) > 0.0) )
           nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - lnqhat_os(o,s), 2 ) / tau2_o(o) );
         if( qhat_os(o,s) < 0 )
           nllObs += 1e3;
@@ -274,7 +272,7 @@ Type objective_function<Type>::operator() ()
         // Shared Prior
         if( lnqPriorCode == 1 )
         {
-          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( log(qhat_os(o,s)) - lnqbar_o(o), 2 ) / tauq2_o(o) ;  
+          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( lnqhat_os(o,s) - lnqbar_o(o), 2 ) / tauq2_o(o) ;  
         }
         // No shared prior (uses the same prior as the SS model)
         if( lnqPriorCode == 0 )
@@ -308,7 +306,7 @@ Type objective_function<Type>::operator() ()
     // End multispecies shared priors
 
     // If not using shared priors, use the hyperpriors for all
-    // species specific
+    // species specific parameters
   } 
   if( nS == 1 ) 
   {
