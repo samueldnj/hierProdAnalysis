@@ -1051,7 +1051,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     cat( completed, "\n" )
 
     converged <- rowSums( x = hessPD, na.rm = T)
-    nConv <- length(which(converged) == nS + 1 )
+    nConv <- length(which(converged == nS + 1 ))
     if( ( nConv >= obj$ctrl$signifReps ) )
     {
       cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )
