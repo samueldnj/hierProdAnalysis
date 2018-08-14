@@ -231,8 +231,6 @@ Type objective_function<Type>::operator() ()
       {
         if( (It(o,s,t) > 0.0) )
           nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - lnqhat_os(o,s), 2 ) / tau2_o(o) );
-        if( qhat_os(o,s) < 0 )
-          nllObs += 1e3;
       }
     }
   }
@@ -351,10 +349,12 @@ Type objective_function<Type>::operator() ()
       }
     }
     // shared U prior variance
+    // IG
     if( sigUPriorCode == 0 )
     {
       nllVarPrior += (sigU2Prior(0)+Type(1))*Type(2.)*lnsigUmsy+sigU2Prior(1)/sigUmsy2;  
     }
+    // Normal
     if( sigUPriorCode == 1 )
     {
       nllVarPrior += Type(0.5) * pow( sigUmsy2 - sigU2Prior(0), 2) / sigU2Prior(1);

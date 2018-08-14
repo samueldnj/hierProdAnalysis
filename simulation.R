@@ -738,8 +738,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     sdrep <- NA
     CIs <- NA
   }
-  # Now we need to check the hessian - is it PD? If 
-  # not, we need to rejitter and try again...
 
 
   # If sdrep exists, compute confidence intervals
@@ -1051,15 +1049,18 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
     completed <- apply(X = hessPD, FUN = sum, MARGIN = 2, na.rm = T )
     cat( completed, "\n" )
-    if( all( completed >= obj$ctrl$signifReps ) )
+
+    converged <- .rowSums( x = hessPD, na.rm = T)
+    nConv <- length(which(converged) == nS + 1 )
+    if( ( nConv >= obj$ctrl$signifReps ) )
     {
       cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )
       break
     } 
   }
-  if(any( completed < obj$ctrl$signifReps ) )
+  if( nConv < obj$ctrl$signifReps )
     cat (   "Completed ", nReps, " replicates without reaching ", 
-            obj$ctrl$signifReps, "for each stock.\n", sep = "" )
+            obj$ctrl$signifReps, " converged replicates for each stock.\n", sep = "" )
 
   blob
 }
