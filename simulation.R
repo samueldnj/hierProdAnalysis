@@ -601,8 +601,34 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   
   # Start counting estimation attempts
   nTries <- 1
+  
+  rep <- obj$report()
+  zSum_os <- rep$zSum_os
+  validObs <- rep$validObs
+  tauq2_o <- rep$tauq2_o
+  qbar_o <- rep$qbar_o
+  tau2_o <- rep$tau2_o
+
+  nO <- length(tau2_o)
+  nS <- length(par$lnBmsy)
+
+  lnqhat_os <- matrix(NA, nrow = nO, ncol = nS )
+
+  for( oIdx in 1:nO )
+    for( sIdx in 1:nS )
+    {
+      if( nS == 1)
+        lnqhat_os[oIdx, sIdx] <- zSum_os[oIdx/sIdx] / validObs[oIdx,sIdx]
+      else
+      {
+        lnqhat_os[oIdx,sIdx] <- ( zSum_os[oIdx,sIdx] / tau2_o[oIdx] + log(qbar_o[oIdx])/tauq2_o[oIdx] ) / ( validObs[oIdx,sIdx] / tau2_o[oIdx] + 1 / tauq2_o[oIdx] )
+      }
+
+    }
+
+
   # optimise the model with all fixed effects
-  fitFE <- try( nlminb( start = obj$par,
+  fitFE <- try( nlminb( start = obj$par + rnorm(length(obj$par),sd = 0.1),
                         objective = obj$fn,
                         gradient = obj$gr,
                         control = ctrl,
@@ -749,36 +775,32 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
               dplyr::select( par, val, se, lCI, uCI )
     if ( profiles )
     {
-      if( dat$nS == 1 )
+      if( nS == 1 )
       {
         # Calculate SS profiles
-        lnqProfile      <- tmbprofile( obj, "lnq_os", trace = FALSE )
+        lnBmsyProfile   <- tmbprofile( obj, "lnBmsy", trace = FALSE )
         lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE )
-        lntau2Profile   <- tmbprofile( obj, "lntau2", trace = FALSE )
         lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE )
         # Save to an output list
-        profileList <- list ( lnq       = lnqProfile,
+        profileList <- list ( lnBmsy    = lnBmsyProfile,
                               lnUmsy    = lnUmsyProfile,
-                              lntau2    = lntau2Profile,
                               lnkappa2  = lnkappa2Profile )
       }
-      if( dat$nS > 1  )
+      if( nS > 1  )
       {
         # Calculate profiles for shared prior hyperpars
-        lnqbarProfile       <- tmbprofile( obj, "lnqbar_o", trace = FALSE )
-        lntauq2Profile      <- tmbprofile( obj, "lntauq_o", trace = FALSE )
         lnUmsybarProfile    <- tmbprofile( obj, "lnUmsybar", trace = FALSE )
         lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy", trace = FALSE ) 
         lnkappa2Profile     <- tmbprofile( obj, "lnkappa2", trace = FALSE )
         # Save to output list
-        profileList <- list ( lnqbar      = lnqbarProfile,
-                              lntauq2     = lntauq2Profile,
-                              lnUmsybar   = lnUmsybarProfile,
+        profileList <- list ( lnUmsybar   = lnUmsybarProfile,
                               lnsigUmsy2  = lnsigUmsy2Profile,
                               lnkappa2    = lnkappa2Profile )
       }
     }
   } else profileList <- NA
+
+  browser()
 
   # Return
   out <- list( sdrep = sdrep, rep=rep, CIs = CIs, nTries = nTries )

@@ -24,7 +24,7 @@
 template<class Type>
 Type posfun(Type x, Type eps, Type &pen){
   pen += CppAD::CondExpLt(x, eps, Type(0.01) * pow(x-eps,2), Type(0));
-  return CppAD::CondExpGe(x, eps, x, eps/(Type(2)-x/eps));
+  return CppAD::CondExpGe(x, eps, x, eps/(Type(1)-x/eps));
 }
 
 // invLogit
@@ -167,8 +167,8 @@ Type objective_function<Type>::operator() ()
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s));
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
+      Bt(s,t) = posfun(Bt(s,t),Ct(s,t-1),pospen);
       Bt(s,t) -= Ct(s,t-1);
-      Bt(s,t) = posfun(Bt(s,t),Type(1e-3),pospen);
       lnBt(s,t) = log(Bt(s,t));
     }
 
@@ -225,7 +225,7 @@ Type objective_function<Type>::operator() ()
       }
       // compute conditional MLE q from observation
       if( nS == 1) qhat_os(o,s) = exp( zSum_os(o,s) / validObs(o,s) );
-      if( nS > 1 ) qhat_os(o,s) = exp( ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq_o(o) ) / ( validObs(s) / tau2_o(o) + 1 / tauq2_o(o) ) );  
+      if( nS > 1 ) qhat_os(o,s) = exp( ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) ) );  
       lnqhat_os(o,s) = log(qhat_os(o,s));
       // Add contribution of data to obs likelihood
       for( int t = initT(s); t < nT; t++ )
@@ -404,6 +404,8 @@ Type objective_function<Type>::operator() ()
   REPORT(nT);
   REPORT(nO);
   REPORT(nS);
+  REPORT(zSum_os);
+  REPORT(validObs);
   if (nS > 1)
   {
     REPORT(zeta_st);
