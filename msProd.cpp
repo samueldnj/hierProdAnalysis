@@ -339,6 +339,7 @@ Type objective_function<Type>::operator() ()
   // year effect deviations var
   if( kappaPriorCode == 1 )  
     nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
+
   // Now multispecies priors
   if (nS > 1)
   {
@@ -380,10 +381,7 @@ Type objective_function<Type>::operator() ()
 
   // Apply Sigma Prior
   if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
-  {
-    for(int s = 0; s < nS; s++ )
-      nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
-  }
+    nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
 
   nll += nllVarPrior + nllSigPrior;
 

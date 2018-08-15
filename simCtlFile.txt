@@ -42,7 +42,7 @@ assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$tracePar FALSE
 assess$estYearEff FALSE
-assess$fitTrials 15
+assess$fitTrials 25
 assess$posPenFactor 1e2
 assess$maxfn 3000
 assess$Umsy rep(.2,10)

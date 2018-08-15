@@ -451,8 +451,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           sq                = factor( NA ),
                           eps_t             = factor( rep( NA, nT[s] - 1 ) ),
                           #zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
-                          #lnkappa2          = factor( NA ),
-                          lnSigmaDiag       = factor( NA ),
+                          lnkappa2          = factor( NA ),
+                          #lnSigmaDiag       = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
                           tau2IGa           = factor( rep(NA,nSurv) ),
                           tau2IGb           = factor( rep(NA,nSurv) ),
@@ -636,7 +636,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     }
   } else profileList <- NA
 
-  
   # Start counting estimation attempts
   nTries <- 0
 
@@ -674,6 +673,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if( nTries >= 2*fitTrials )
       break
   }
+
+
+  browser()
 
   # Reset nTries
   nTries <- 0
@@ -793,7 +795,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   }
 
   # Return
-  out <- list( sdrep = sdrep, rep=rep, nTries = nTries )
+  out <- list( sdrep = sdrep, rep=rep, nTries = nTries, errCount = errCounter )
   if( !is.null(CIs) ) out$CIs <- CIs
   if( profiles ) out$profiles <- profileList
 
@@ -920,6 +922,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   hesspd  = matrix(FALSE,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   maxGrad = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   nTries  = matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
+                  errCount= matrix(NA,nrow=nReps,ncol=nS,dimnames=list(rNames,sNames)),
                   sdrep   = vector( mode = "list", length = nReps ),
                   CIs     = vector( mode = "list", length = nReps ),
                   fitrep  = vector( mode = "list", length = nReps ) )
@@ -950,6 +953,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   hesspd  = matrix(FALSE, nrow = nReps, ncol = 1),
                   maxGrad = matrix(NA, nrow = nReps, ncol = 1),
                   nTries  = matrix(NA, nrow = nReps, ncol = 1),
+                  errCount= matrix(NA, nrow = nReps, ncol = 1),
                   sdrep   = vector( mode = "list", length = nReps ),
                   CIs     = vector( mode = "list", length = nReps ),
                   fitrep  = vector( mode = "list", length = nReps ) )
@@ -1030,6 +1034,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         blob$am$ss$CIs[[i]][[s]]              <- CIs
         blob$am$ss$fitrep[[i]][[s]]           <- fitrep
         blob$am$ss$nTries[i,s]                <- simEst$ssFit[[s]]$nTries              
+        blob$am$ss$errCount[i,s]              <- simEst$ssFit[[s]]$errCount  
 
         if( obj$assess$profiles )
           blob$am$ss$profiles[[i]][[s]] <- simEst$ssFit[[s]]$profiles
@@ -1075,6 +1080,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       blob$am$ms$fitrep[[i]]        <- fitrep
       blob$am$ms$CIs[[i]]           <- CIs
       blob$am$ms$nTries[i]          <- simEst$msFit$nTries
+      blob$am$ms$errCount[i]        <- simEst$msFit$errCount
       
       if( obj$assess$profiles )
         blob$am$ms$profiles[[i]] <- simEst$msFit$profiles
