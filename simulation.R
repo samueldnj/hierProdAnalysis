@@ -674,9 +674,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       break
   }
 
-
-  browser()
-
   # Reset nTries
   nTries <- 0
   # Set flag to indicate that a succesful integration is not yet complete
