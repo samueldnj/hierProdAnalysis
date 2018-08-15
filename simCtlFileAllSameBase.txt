@@ -41,7 +41,9 @@ assess$msCorr "off"
 assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$estYearEff TRUE
-assess$fitTrials 3
+assess$fitTrials 15
+assess$tracePar FALSE
+assess$posPenFactor 1e2
 assess$maxfn 1000
 assess$Umsy rep(.2,10)
 assess$lnq rep(-.51,10)
@@ -52,6 +54,7 @@ assess$kappa2 0.02
 assess$Sigma2 0.1
 assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
+assess$BPriorCode 0
 assess$mBmsy rep(20,10)
 assess$sBmsy rep(20,10)
 assess$lnUPriorCode 1
@@ -72,17 +75,13 @@ assess$mq .6
 assess$sq .6
 assess$sigUPriorCode 0
 assess$sigU2Prior c(0.001,0.2)
-assess$sigU2P1 NULL
-assess$sigU2P2 NULL
 assess$tauqPriorCode 0
 assess$tauq2Prior c(0.001,0.2)
-assess$tauq2P1 NULL
-assess$tauq2P2 NULL
 assess$kappa2IG c(.1,0.5)
 assess$Sigma2IG c(.1,0.5)
 assess$tau2IGa rep(0.1,3)
 assess$tau2IGb rep(0.5,3)
-assess$msRE c("zeta_st","eps_t","lnq_os")
+assess$msRE c("zeta_st","eps_t")
 assess$ssRE c("eps_t")
 assess$TMBlib "msProd"
 assess$wishType "diag"

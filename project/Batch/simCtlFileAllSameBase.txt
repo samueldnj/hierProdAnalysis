@@ -41,7 +41,9 @@ assess$msCorr "off"
 assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$estYearEff TRUE
-assess$fitTrials 3
+assess$fitTrials 15
+assess$tracePar FALSE
+assess$posPenFactor 1e2
 assess$maxfn 1000
 assess$Umsy rep(.2,10)
 assess$lnq rep(-.51,10)
