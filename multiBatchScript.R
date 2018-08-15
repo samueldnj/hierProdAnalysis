@@ -15,7 +15,7 @@ source("control.R")
 # prefix names (for folder naming)
 # vectors must length k.
 batchFiles    <- c("infoScenarios.bch")
-baseCtlFiles  <- c("simCtlFileAllSameBase.txt")
+baseCtlFiles  <- c("simCtlFile.txt")
 expPrefix     <- c("allSame_infoScenarios")
 
 # Now loop over the experiments

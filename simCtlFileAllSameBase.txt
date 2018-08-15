@@ -77,9 +77,9 @@ assess$sigUPriorCode 0
 assess$sigU2Prior c(0.001,0.2)
 assess$tauqPriorCode 0
 assess$tauq2Prior c(0.001,0.2)
-assess$kappa2IG c(.1,0.5)
-assess$Sigma2IG c(.1,0.5)
-assess$tau2IGa rep(0.1,3)
+assess$kappa2IG c(3,0.5)
+assess$Sigma2IG c(3,0.5)
+assess$tau2IGa rep(3,3)
 assess$tau2IGb rep(0.5,3)
 assess$msRE c("zeta_st","eps_t")
 assess$ssRE c("eps_t")
