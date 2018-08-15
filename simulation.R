@@ -429,11 +429,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2IG          = obj$assess$Sigma2IG,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
-                          eps_t             = log(om$epst[(sT[s]+1):max(nT)]),
+                          eps_t             = rep(0,nT[s]-1),
                           lnkappa2          = log(kappa2 + Sigma2),
-                          zeta_st           = matrix(0 , nrow = 1, ncol = nT[s]-1 ),
-                          lnSigmaDiag       = -1e3,
-                          SigmaDiagMult     = 0,
+                          zeta_st           = matrix(log(om$epst[(sT[s]+1):max(nT)]) , nrow = 1, ncol = nT[s]-1 ),
+                          lnSigmaDiag       = log(kappa2 + Sigma2),
+                          SigmaDiagMult     = 1,
                           logitSigmaOffDiag = numeric( length = 0 ),
                           logit_gammaYr     = obj$assess$logit_gammaYr
                         )
@@ -449,8 +449,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lntauq_o          = factor( rep(NA,nSurv) ),
                           mq                = factor( NA ),
                           sq                = factor( NA ),
-                          #eps_t             = factor( rep( NA, nT[s] - 1 ) ),
-                          zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
+                          eps_t             = factor( rep( NA, nT[s] - 1 ) ),
+                          #zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
                           #lnkappa2          = factor( NA ),
                           lnSigmaDiag       = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
@@ -646,6 +646,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Trace fixed effect parameter values
   obj$env$tracepar <- tracePar
 
+  # set optimisation check values
   convFlag  <- 1
   bestPars  <- obj$par
   objFunVal <- obj$fn(obj$par)
@@ -740,10 +741,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         }
       } else 
       {
-        # errCounter <- errCounter + 1
-        bestPars <- initPars
-        # if( errCounter > 5 )
-          # bestPars[1:nS] <- 1.2*par$lnBmsy + rnorm(nS,sd = 0.1)
+        errCounter <- errCounter + 1
+        if( errCounter == 1 )
+          bestPars <- initPars
+        else
+          bestPars <- bestPars + rnorm(length(bestPars), sd = 0.1)
+        if( errCounter > 5 )
+          bestPars[1:nS] <- 1.2*par$lnBmsy + rnorm(nS,sd = 0.02)
 
       }
       

@@ -82,6 +82,6 @@ assess$Sigma2IG c(9,0.1)
 assess$tau2IGa rep(9,3)
 assess$tau2IGb rep(0.5,3)
 assess$msRE c('zeta_st')
-assess$ssRE c('eps_t')
+assess$ssRE c('zeta_st')
 assess$TMBlib "msProd"
 assess$wishType "diag"

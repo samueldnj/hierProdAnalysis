@@ -182,15 +182,14 @@ Type objective_function<Type>::operator() ()
   for( int t=1; t<nT; t++ )
   {
     // Add year effect contribution to objective function
-    if( (nS == 1) | (kappaPriorCode == 1) )
+    if( kappaPriorCode == 1 )
       nllRE -= dnorm( eps_t(t-1),Type(0.),sqrt(kappa2),1);
     // Add correlated species effects contribution to likelihood
-    if( nS > 1 )
-      for( int s = 0; s < nS; s++ )
-      {
-        Type tmpZeta = zeta_st(s,t-1);
-        nllRE -= dnorm(tmpZeta,Type(0.),sqrt(SigmaDiag(s)),1);
-      }
+    for( int s = 0; s < nS; s++ )
+    {
+      Type tmpZeta = zeta_st(s,t-1);
+      nllRE -= dnorm(tmpZeta,Type(0.),sqrt(SigmaDiag(s)),1);
+    }
         
   }
   // add REs to joint nll
@@ -335,11 +334,10 @@ Type objective_function<Type>::operator() ()
   Type nllVarPrior = 0.;
   Type nllSigPrior = 0.;
   for( int o = 0; o < nO; o++ )
-  {
     nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
-  }
+
   // year effect deviations var
-  if( kappaPriorCode == 1 | nS == 1)  
+  if( kappaPriorCode == 1 )  
     nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
   // Now multispecies priors
   if (nS > 1)
@@ -371,11 +369,6 @@ Type objective_function<Type>::operator() ()
       nllVarPrior += Type(0.5) * pow( sigUmsy2 - sigU2Prior(0), 2) / sigU2Prior(1);
     }
     
-    // Apply Sigma Prior
-    if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
-    {
-      nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
-    }
     if( SigmaPriorCode == 1 ) // Apply IW prior to Sigma matrix
     {
       matrix<Type> traceMat = wishScale * Sigma.inverse();
@@ -384,6 +377,14 @@ Type objective_function<Type>::operator() ()
       nllSigPrior += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
     }
   }
+
+  // Apply Sigma Prior
+  if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
+  {
+    for(int s = 0; s < nS; s++ )
+      nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+  }
+
   nll += nllVarPrior + nllSigPrior;
 
   // Derive some output variables
