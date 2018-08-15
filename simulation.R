@@ -407,10 +407,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           initBioCode     = obj$assess$initBioCode[s],
                           posPenFactor    = obj$assess$posPenFactor )
     # make par list
-    ssPar[[s]] <- list (  lnBmsy            = log(sumCat[s]),
-                          lnUmsy            = log(obj$assess$Umsy[s]),
-                          lntau2_o          = log(obj$assess$tau2[1:nSurv]),
-                          lnBinit           = log(sumCat[s]/2),
+    ssPar[[s]] <- list (  lnBmsy            = log(om$Bmsy[s]),
+                          lnUmsy            = log(om$Umsy[s]),
+                          lntau2_o          = log(om$tau2[1:nSurv]),
+                          lnBinit           = log(om$Bt[s,2]),
                           lnqbar_o          = rep(obj$assess$lnqbar_o, nSurv),
                           lntauq_o          = rep(obj$assess$lntauq_o, nSurv),
                           mq                = obj$assess$mq,
@@ -429,10 +429,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2IG          = obj$assess$Sigma2IG,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
-                          eps_t             = rep( 0, nT[s]-1 ),
-                          lnkappa2          = ifelse( obj$assess$estYearEff, log( obj$assess$kappa2 ), log( obj$assess$Sigma2 ) ),
-                          zeta_st           = matrix( 0, nrow = 1, ncol = nT[s]-1 ),
-                          lnSigmaDiag       = 0,
+                          eps_t             = log(om$epst[(sT[s]+1):max(nT)]),
+                          lnkappa2          = log(kappa2 + Sigma2),
+                          zeta_st           = matrix(0 , nrow = 1, ncol = nT[s]-1 ),
+                          lnSigmaDiag       = -1e3,
                           SigmaDiagMult     = 0,
                           logitSigmaOffDiag = numeric( length = 0 ),
                           logit_gammaYr     = obj$assess$logit_gammaYr
@@ -449,7 +449,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lntauq_o          = factor( rep(NA,nSurv) ),
                           mq                = factor( NA ),
                           sq                = factor( NA ),
-                          zeta_st           = factor( rep( NA, nT[s]-1 ) ),
+                          #eps_t             = factor( rep( NA, nT[s] - 1 ) ),
+                          zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
+                          #lnkappa2          = factor( NA ),
                           lnSigmaDiag       = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
                           tau2IGa           = factor( rep(NA,nSurv) ),
@@ -467,7 +469,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if( obj$assess$initBioCode[s] == 0 )
       ssMap[[s]]$lnBinit <- factor(NA)
   }
-  
+
   
   # now make dat, par and map (par masking) lists for the MS model
   msDat <- list ( It              = om$I_ost,
@@ -483,10 +485,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   initBioCode     = as.integer(obj$assess$initBioCode[1:nS]),
                   posPenFactor    = obj$assess$posPenFactor
                 )
-  msPar <- list ( lnBmsy            = log(sumCat[1:nS]),
-                  lnUmsy            = log(obj$assess$Umsy[1:nS]),
-                  lntau2_o          = log(obj$assess$tau2[1:nSurv]),
-                  lnBinit           = log(sumCat[1:nS]/2),
+
+  msPar <- list ( lnBmsy            = log(om$Bmsy[1:nS]),
+                  lnUmsy            = log(om$Umsy[1:nS]),
+                  lntau2_o          = log(om$tau2[1:nSurv]),
+                  lnBinit           = log(om$Bt[,1]),
                   lnqbar_o          = rep(obj$assess$lnqbar_o,nSurv),
                   lntauq_o          = rep(obj$assess$lntauq_o,nSurv),
                   mq                = obj$assess$mq,
@@ -507,12 +510,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   nu                = nS,
                   eps_t             = rep(0, max(nT)-1),
                   lnkappa2          = log(obj$assess$kappa2),              
-                  zeta_st           = matrix(0, nrow = nS, ncol = max(nT)-1),
-                  lnSigmaDiag       = log(obj$assess$Sigma2),
+                  zeta_st           = log(om$zetat[,-1]),
+                  lnSigmaDiag       = log(Sigma2 + kappa2),
                   SigmaDiagMult     = obj$assess$SigmaDiagMult[1:nS],
-                  logitSigmaOffDiag = rep(0.
-
-                    , length = nS*(nS-1)/2),
+                  logitSigmaOffDiag = rep(0., length = nS*(nS-1)/2),
                   logit_gammaYr     = obj$assess$logit_gammaYr
                 )
 
@@ -522,11 +523,14 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   msMap <- list ( mBmsy             = factor( rep( NA, nS ) ),
                   sBmsy             = factor( rep( NA, nS ) ),
+                  #lntau2_o          = factor( rep( NA, nSurv ) ),
                   mUmsy             = factor( NA ),
                   sUmsy             = factor( NA ),
                   mq                = factor( NA ),
                   sq                = factor( NA ),
                   SigmaDiagMult     = factor( rep( NA, nS ) ),
+                  #lnSigmaDiag       = factor( NA ),
+                  #zeta_st           = factor( rep( NA, (max(nT)-1)*nS) ),
                   tau2IGa           = factor( rep( NA, nSurv ) ),
                   tau2IGb           = factor( rep( NA, nSurv ) ),
                   sigU2Prior        = factor( rep( NA, 2 ) ),
@@ -613,11 +617,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       # Calculate SS profiles
       lnBmsyProfile   <- tmbprofile( obj, "lnBmsy", trace = FALSE )
       lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE )
-      lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE )
+      # lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE )
       # Save to an output list
       profileList <- list ( lnBmsy    = lnBmsyProfile,
-                            lnUmsy    = lnUmsyProfile,
-                            lnkappa2  = lnkappa2Profile )
+                            lnUmsy    = lnUmsyProfile ) #,
+                            #lnkappa2  = lnkappa2Profile )
     }
     if( nS > 1  )
     {
@@ -631,6 +635,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                             lnkappa2    = lnkappa2Profile )
     }
   } else profileList <- NA
+
   
   # Start counting estimation attempts
   nTries <- 0
@@ -641,8 +646,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Trace fixed effect parameter values
   obj$env$tracepar <- tracePar
 
-  convFlag <- 1
-  bestPars <- obj$par
+  convFlag  <- 1
+  bestPars  <- obj$par
+  objFunVal <- obj$fn(obj$par)
 
   # Loop to keep trying to fit
   while( convFlag > 0 )
@@ -659,9 +665,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if(class(fitFE) != "try-error")
     {
       convFlag <- fitFE$convergence  
-      bestPars <- fitFE$par  
+      if( fitFE$objective < objFunVal )
+        bestPars <- fitFE$par  
     } else 
-      bestPars <- bestPars + rnorm(length(bestPars),sd=0.2)
+      bestPars <- bestPars + rnorm(length(bestPars),sd=0.1)
 
     if( nTries >= 2*fitTrials )
       break
@@ -669,23 +676,30 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # Reset nTries
   nTries <- 0
+  # Set flag to indicate that a succesful integration is not yet complete
+  integrated <- FALSE
 
   if( length(RE) > 0 )
   {
     # Add REs
     obj <- MakeADFun (  dat = dat, parameters = par, map = map,
-                        random = RE, silent = quiet )  
+                        random = RE, silent = quiet )
+
+    initPars <- obj$par 
 
     # Trace fixed effect parameter values
     obj$env$tracepar <- tracePar
 
     # Save the best parameters from the fixed eff model
-    bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))] + 0.1
+    bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
 
     # Set convFlag so that we loop again
     convFlag <- 1
+    errCounter <- 0
     while( convFlag > 0 )
     {
+      # if(nS > 1) 
+        # browser()
       # increment counter
       nTries <- nTries + 1
       # optimise the model with REs
@@ -696,21 +710,42 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lower = -Inf,
                           upper= Inf ) )
 
+
       # Update convFlag and bestPars
       if(class(fit) != "try-error")
       {
-        convFlag <- fit$convergence  
-        bestPars <- fit$par
+        # If integrated, save the objective function value
+        if( !integrated )
+        {
+          integrated <- TRUE
+          objFunVal <- fit$objective
+          bestPars <- fit$par + 0.2
+        }
+        convFlag <- fit$convergence
+
+        if( fit$objective < objFunVal )
+        {
+          bestPars <- fit$par + 0.1
+          objFunVal <- fit$objective
+        }
 
         # Check for PD hessian
         if(convFlag == 0)
         {
-          sd <- sdreport(obj)
-          if( !sd$pdHess )
+          sd <- try(sdreport(obj))
+          if(class(sd) == "try-error")
+            convFlag <- 1
+          else if( !sd$pdHess )
             convFlag <- 1
         }
       } else 
-        bestPars <- bestPars + rnorm(length(bestPars),sd=0.2)
+      {
+        # errCounter <- errCounter + 1
+        bestPars <- initPars
+        # if( errCounter > 5 )
+          # bestPars[1:nS] <- 1.2*par$lnBmsy + rnorm(nS,sd = 0.1)
+
+      }
       
       if( nTries >= 2*fitTrials )
         break
@@ -754,7 +789,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   }
 
   # Return
-  out <- list( sdrep = sdrep, rep=rep, CIs = CIs, nTries = nTries )
+  out <- list( sdrep = sdrep, rep=rep, nTries = nTries )
+  if( !is.null(CIs) ) out$CIs <- CIs
   if( profiles ) out$profiles <- profileList
 
   out

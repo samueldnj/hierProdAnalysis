@@ -168,7 +168,7 @@ Type objective_function<Type>::operator() ()
     {
       Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s));
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
-      if( Bt(s,t) <= Ct(s,t-1) )
+      if( Bt(s,t) <= 1.2*Ct(s,t-1) )
       {
         pospen += Type(0.01) * pow(Ct(s,t-1) - Bt(s,t),2);
         Bt(s,t) = 1.2*Ct(s,t-1);
@@ -182,10 +182,16 @@ Type objective_function<Type>::operator() ()
   for( int t=1; t<nT; t++ )
   {
     // Add year effect contribution to objective function
-    nllRE += Type(0.5)*(lnkappa2 + pow( eps_t( t - 1 ), 2 ) / kappa2 + eps_t(t-1) );
+    if( (nS == 1) | (kappaPriorCode == 1) )
+      nllRE -= dnorm( eps_t(t-1),Type(0.),sqrt(kappa2),1);
     // Add correlated species effects contribution to likelihood
-    if( nS > 1 ) 
-      nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));  
+    if( nS > 1 )
+      for( int s = 0; s < nS; s++ )
+      {
+        Type tmpZeta = zeta_st(s,t-1);
+        nllRE -= dnorm(tmpZeta,Type(0.),sqrt(SigmaDiag(s)),1);
+      }
+        
   }
   // add REs to joint nll
   nllRE += posPenFactor*pospen;
@@ -223,15 +229,22 @@ Type objective_function<Type>::operator() ()
         }       
       }
       // compute conditional MLE q from observation
-      if( nS == 1) lnqhat_os(o,s) = zSum_os(o,s) / validObs(o,s);
-      if( nS > 1 ) lnqhat_os(o,s) = ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) );  
+      // SS model
+      if( nS == 1) 
+        lnqhat_os(o,s) = zSum_os(o,s) / validObs(o,s);
+
+      // MS model
+      if( nS > 1 ) 
+        lnqhat_os(o,s) = ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) );  
+      
+      // Exponentiate
       qhat_os(o,s) = exp(lnqhat_os(o,s));
+      
       // Add contribution of data to obs likelihood
       for( int t = initT(s); t < nT; t++ )
-      {
-        if( (It(o,s,t) > 0.0) )
-          nllObs += Type(0.5) * ( lntau2_o(o) + pow( z_ost(o,s,t) - lnqhat_os(o,s), 2 ) / tau2_o(o) );
-      }
+        if( (It(o,s,t) > 0.0) & ( Bt(s,t) > 1e-3 ) )
+          nllObs -= dnorm( z_ost(o,s,t), lnqhat_os(o,s), sqrt(tau2_o(o)),1);
+
     }
   }
   nll += nllObs;
@@ -247,17 +260,23 @@ Type objective_function<Type>::operator() ()
     // Normal prior
     if(BPriorCode == 0)
     {
-      nllBprior += Type(0.5) * pow( Bmsy(s) - mBmsy(s), Type(2) ) / sBmsy(s) / sBmsy(s); 
+      // Bmsy
+      nllBprior -= dnorm(Bmsy(s),mBmsy(s), sBmsy(s), 1); 
+
+      // Initial biomass
       if(initBioCode(s) == 1) 
-        nllBprior +=  pow( Binit(s) - mBmsy(s)/2, 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ;  
+        nllBprior -= dnorm( Binit(s), mBmsy(s)/2, sBmsy(s)/2, 1);  
+
     }
     // Jeffreys prior
     if( BPriorCode == 1 )
       nllBprior += lnBmsy(s) + lnBinit(s);
     
-  }
+  } // End biomass prior
 
   // multispecies shared priors
+  // If not using shared priors, use the hyperpriors for all
+  // species specific parameters
   if (nS > 1)
   {
     // 1st level priors
@@ -269,54 +288,46 @@ Type objective_function<Type>::operator() ()
         // catchability
         // Shared Prior
         if( lnqPriorCode == 1 )
-        {
-          nllqPrior +=  lntauq_o(o) + Type(0.5) * pow( lnqhat_os(o,s) - lnqbar_o(o), 2 ) / tauq2_o(o) ;  
-        }
+          nllqPrior -= dnorm( lnqhat_os(o,s), lnqbar_o(o), tauq_o(o), 1);
+
         // No shared prior (uses the same prior as the SS model)
         if( lnqPriorCode == 0 )
-        {
-          nllqPrior += Type(0.5) * pow( qhat_os(o,s) - mq, 2 ) / sq / sq;  
-        }
+          nllqPrior -= dnorm( qhat_os(o,s), mq, sq, 1); 
+
       }
       // productivity
       // Shared Prior
       if( lnUPriorCode == 1 )
-      {
-        nllUprior += lnsigUmsy + Type(0.5) * pow(Umsy(s) - Umsybar, 2 ) / sigUmsy2 ;
-      }
+        nllUprior -= dnorm( Umsy(s), Umsybar, sqrt(sigUmsy2), 1);
+
       // No shared prior (uses SS model prior)
       if( lnUPriorCode == 0 )
-      {
-        nllUprior += Type(0.5) * pow( Umsy(s) - mUmsy, 2 ) / sUmsy / sUmsy;
-      }
+        nllUprior -= dnorm( Umsy(s), mUmsy, sUmsy, 1);
+
     }  
     // Hyperpriors
     // catchability
     if( lnqPriorCode == 1 )
-    {
-      for( int o = 0; o < nO; o++ ) nllqPrior += Type(0.5) * pow( qbar_o(o) - mq, 2 ) / sq / sq;  
-    }
+      for( int o = 0; o < nO; o++ ) 
+        nllqPrior -= dnorm( qbar_o(o), mq, sq, 1); 
+
     // productivity
     if( lnUPriorCode == 1 )
-    {
-      nllUprior += Type(0.5) * pow( Umsybar - mUmsy, 2 ) / sUmsy / sUmsy;
-    }
-    // End multispecies shared priors
-
-    // If not using shared priors, use the hyperpriors for all
-    // species specific parameters
-  } 
+      nllUprior -= dnorm(Umsybar, mUmsy, sUmsy, 1);
+    
+  } // End multispecies shared priors    
+  
+  // Now for single species model
   if( nS == 1 ) 
-  {
-    // Now for single species model
+  { 
+    // catchability
     for (int o=0; o<nO; o++)
-    {
-      // catchability
-      nllqPrior += Type(0.5) * pow( qhat_os(o,0) - mq, 2 ) / sq / sq;
-    }
+      nllqPrior -= dnorm( qhat_os(o,0), mq, sq, 1); 
+    
     // productivity
-    nllUprior += Type(0.5) * pow( Umsy(0) - mUmsy, 2 ) / sUmsy / sUmsy;
+    nllUprior -= dnorm( Umsy(0), mUmsy, sUmsy, 1);
   }
+  // Add all priors
   nll += nllBprior +  nllqPrior + nllUprior;
   
   // Variance IG priors
