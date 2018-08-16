@@ -429,6 +429,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2GP          = obj$assess$Sigma2GP,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
+                          deltat            = obj$assess$deltat,
                           eps_t             = rep(0,nT[s]-1),
                           lnkappa2          = log(kappa2 + Sigma2),
                           zeta_st           = matrix(0, nrow = 1, ncol = nT[s]-1 ),
@@ -462,7 +463,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           kappa2GP          = factor( rep( NA, 2 ) ),
                           Sigma2GP          = factor( rep( NA, 2 ) ),
                           wishScale         = factor( NA ),
-                          nu                = factor( NA ) )
+                          nu                = factor( NA ),
+                          deltat            = factor( NA ) )
     if( !obj$assess$ssAR1 ) 
       ssMap[[s]]$logit_gammaYr <- factor( NA )
     if( obj$assess$fixqss )
@@ -509,6 +511,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2GP          = obj$assess$Sigma2GP,
                   wishScale         = wishScale,
                   nu                = nS,
+                  deltat            = obj$assess$deltat,
                   eps_t             = rep(0, max(nT)-1),
                   lnkappa2          = log(obj$assess$kappa2),              
                   zeta_st           = log(om$zetat[,-1]),
@@ -540,6 +543,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2GP          = factor( rep( NA, 2 ) ),
                   wishScale         = factor( rep( NA, nS*nS ) ),
                   nu                = factor( NA ),
+                  deltat            = factor( NA ),
                   lnBinit           = factor( lnBinitMap )
                 )
   # Disable autocorrelation in estimation if set.

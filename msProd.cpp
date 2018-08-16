@@ -24,7 +24,7 @@
 template<class Type>
 Type posfun(Type x, Type eps, Type &pen){
   pen += CppAD::CondExpLt(x, eps, Type(0.01) * pow(x-eps,2), Type(0));
-  return CppAD::CondExpGe(x, eps, x, eps/(Type(2)-x/eps));
+  return CppAD::CondExpGe(x, eps, x, eps/(Type(1)-x/eps));
 }
 
 // invLogit
@@ -88,6 +88,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(Sigma2GP);           // Gamma Prior parameters for Sigma2 prior
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
   PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
+  PARAMETER(deltat);                    // Fractional time step used in pop dynamics to reduce chaotic behaviour
   // Random Effects
   PARAMETER(lnkappa2);                  // year effect uncorrelated variance
   PARAMETER(lnSigmaDiag);               // Species effect cov matrix diag
@@ -157,6 +158,7 @@ Type objective_function<Type>::operator() ()
   // Initialise biomass and log-biomass
   Bt.fill(-1);
   lnBt.fill(0.0);
+  Type nSteps = 1 / deltat;
   // Now loop over species, reconstruct history from initT
   for( int s = 0; s < nS; s++ )
   {
@@ -166,14 +168,18 @@ Type objective_function<Type>::operator() ()
     lnBt(s,initT(s)) = log(Bt(s,initT(s)));
     for( int t = initT(s)+1; t < nT; t++ )
     {
-      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Type(2.0)*Umsy(s)*(Type(1.0) - Bt(s,t-1)/Type(2.0)/Bmsy(s));
-      Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
-      if( Bt(s,t) <= 1.2*Ct(s,t-1) )
+      Type tmpBt = Bt(s,t-1);
+      for( int dt = 0; dt < nSteps; dt ++ )
       {
-        pospen += Type(0.01) * pow(Ct(s,t-1) - Bt(s,t),2);
-        Bt(s,t) = 1.2*Ct(s,t-1);
+        // Compute the deltat step of biomass (assuming catch is evenly distributed)
+        Type tmpBdt = 0;
+        tmpBdt =  tmpBt + deltat * Umsy(s) * tmpBt * (Type(2.0) - tmpBt / Bmsy(s) ) - deltat*Ct(s,t-1);
+        tmpBdt *= exp(deltat * (omegat(t) + zeta_st(s,t-1)));
+        // Now update tmpBt
+        tmpBt = posfun(tmpBdt, Type(1e-3), pospen);
       }
-      Bt(s,t) -= Ct(s,t-1);
+      Bt(s,t) = tmpBt;
+      lnBt(s,t) = log(Bt(s,t));
       lnBt(s,t) = log(Bt(s,t));
     }
 
