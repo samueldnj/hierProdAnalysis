@@ -14,9 +14,9 @@ source("control.R")
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("randProcCorr.bch")
+batchFiles    <- c("infoScenarios.bch")
 baseCtlFiles  <- c("simCtlFileAllSameBase.txt")
-expPrefix     <- c("allSame_randProcCorr")
+expPrefix     <- c("allSame_infoScenarios")
 
 # Now loop over the experiments
 
@@ -34,7 +34,7 @@ for( i in 1:length(batchFiles))
   .statTables(1:nSims,expPrefix[i],par=T)
 
   # Now copy the project folder to dropbox
-  copyDest <- file.path("/Volumes/home/thesisStuff/cwMSexperiments/TMB/",expPrefix[i])
+  copyDest <- file.path("/Volumes/SDNJ_home/thesisStuff/cwMSexperiments/TMB/",paste(expPrefix[i]),Sys.Date,sep = "_")
   dir.create( copyDest )
 
   # Copy project folder contents recursively to copyDest
