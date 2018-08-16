@@ -367,7 +367,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   sumCat <- as.numeric(sumCat)
 
   # change IG parameters for tau, kappa and Sigma if autoIG is on
-  if (obj$assess$autoIG)
+  if (obj$assess$autoGP)
   {
     # recover true variances (use om, may be modified by kappaMult)
     tau2Surv    <- obj$om$tau2Surv
@@ -375,9 +375,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     Sigma2      <- mean(obj$om$Sigma2)
 
     # Now change IG parameters so that the prior mode is at the true (mean) value
-    obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
-    obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*(kappa2 + Sigma2)
-    obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*(kappa2 + Sigma2)
+    obj$assess$tau2GPb[1:nSurv] <- 1/(obj$assess$tau2GPa[1:nSurv]-1)/tau2Surv[1:nSurv]
+    obj$assess$kappa2GP[2]      <- 1/(obj$assess$kappa2GP[1]-1)/(kappa2 + Sigma2)
+    obj$assess$Sigma2GP[2]      <- 1/(obj$assess$Sigma2GP[1]-1)/(kappa2 + Sigma2)
   }
 
   # Create IW scale matrix
@@ -421,12 +421,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           sUmsy             = obj$assess$sUmsy,
                           mBmsy             = obj$assess$mBmsy[s],
                           sBmsy             = obj$assess$sBmsy[s],
-                          tau2IGa           = obj$assess$tau2IGa[1:nSurv],
-                          tau2IGb           = obj$assess$tau2IGb[1:nSurv],
+                          tau2GPa           = obj$assess$tau2GPa[1:nSurv],
+                          tau2GPb           = obj$assess$tau2GPb[1:nSurv],
                           tauq2Prior        = obj$assess$tauq2Prior,
                           sigU2Prior        = obj$assess$sigU2Prior,
-                          kappa2IG          = obj$assess$kappa2IG,
-                          Sigma2IG          = obj$assess$Sigma2IG,
+                          kappa2GP          = obj$assess$kappa2GP,
+                          Sigma2GP          = obj$assess$Sigma2GP,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
                           eps_t             = rep(0,nT[s]-1),
@@ -454,12 +454,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lnkappa2          = factor( NA ),
                           #lnSigmaDiag       = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
-                          tau2IGa           = factor( rep(NA,nSurv) ),
-                          tau2IGb           = factor( rep(NA,nSurv) ),
+                          tau2GPa           = factor( rep(NA,nSurv) ),
+                          tau2GPb           = factor( rep(NA,nSurv) ),
                           sigU2Prior        = factor( rep( NA, 2 ) ),
                           tauq2Prior        = factor( rep( NA, 2 ) ),
-                          kappa2IG          = factor( rep( NA, 2 ) ),
-                          Sigma2IG          = factor( rep( NA, 2 ) ),
+                          kappa2GP          = factor( rep( NA, 2 ) ),
+                          Sigma2GP          = factor( rep( NA, 2 ) ),
                           wishScale         = factor( NA ),
                           nu                = factor( NA ) )
     if( !obj$assess$ssAR1 ) 
@@ -500,12 +500,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   sUmsy             = obj$assess$sUmsy,
                   mBmsy             = obj$assess$mBmsy[1:nS],
                   sBmsy             = obj$assess$sBmsy[1:nS],
-                  tau2IGa           = obj$assess$tau2IGa[1:nSurv],
-                  tau2IGb           = obj$assess$tau2IGb[1:nSurv],
+                  tau2GPa           = obj$assess$tau2GPa[1:nSurv],
+                  tau2GPb           = obj$assess$tau2GPb[1:nSurv],
                   tauq2Prior        = obj$assess$tauq2Prior,
                   sigU2Prior        = obj$assess$sigU2Prior,
-                  kappa2IG          = obj$assess$kappa2IG,
-                  Sigma2IG          = obj$assess$Sigma2IG,
+                  kappa2GP          = obj$assess$kappa2GP,
+                  Sigma2GP          = obj$assess$Sigma2GP,
                   wishScale         = wishScale,
                   nu                = nS,
                   eps_t             = rep(0, max(nT)-1),
@@ -531,12 +531,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   SigmaDiagMult     = factor( rep( NA, nS ) ),
                   #lnSigmaDiag       = factor( NA ),
                   #zeta_st           = factor( rep( NA, (max(nT)-1)*nS) ),
-                  tau2IGa           = factor( rep( NA, nSurv ) ),
-                  tau2IGb           = factor( rep( NA, nSurv ) ),
+                  tau2GPa           = factor( rep( NA, nSurv ) ),
+                  tau2GPb           = factor( rep( NA, nSurv ) ),
                   sigU2Prior        = factor( rep( NA, 2 ) ),
                   tauq2Prior        = factor( rep( NA, 2 ) ),
-                  kappa2IG          = factor( rep( NA, 2 ) ),
-                  Sigma2IG          = factor( rep( NA, 2 ) ),
+                  kappa2GP          = factor( rep( NA, 2 ) ),
+                  Sigma2GP          = factor( rep( NA, 2 ) ),
                   wishScale         = factor( rep( NA, nS*nS ) ),
                   nu                = factor( NA ),
                   lnBinit           = factor( lnBinitMap )
@@ -615,24 +615,25 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if( nS == 1 )
     {
       # Calculate SS profiles
-      lnBmsyProfile   <- tmbprofile( obj, "lnBmsy", trace = FALSE )
-      lnUmsyProfile   <- tmbprofile( obj, "lnUmsy", trace = FALSE )
-      # lnkappa2Profile <- tmbprofile( obj, "lnkappa2", trace = FALSE )
+      lnBmsyProfile       <- tmbprofile( obj, "lnBmsy", trace = FALSE )
+      lnUmsyProfile       <- tmbprofile( obj, "lnUmsy", trace = FALSE )
+      lnSigmaDiagProfile  <- tmbprofile( obj, "lnSigmaDiag", trace = FALSE )
+      
       # Save to an output list
-      profileList <- list ( lnBmsy    = lnBmsyProfile,
-                            lnUmsy    = lnUmsyProfile ) #,
-                            #lnkappa2  = lnkappa2Profile )
+      profileList <- list ( lnBmsy      = lnBmsyProfile,
+                            lnUmsy      = lnUmsyProfile,
+                            lnSigmaDiag = lnSigmaDiagProfile )
     }
     if( nS > 1  )
     {
       # Calculate profiles for shared prior hyperpars
       lnUmsybarProfile    <- tmbprofile( obj, "lnUmsybar", trace = FALSE )
       lnsigUmsy2Profile   <- tmbprofile( obj, "lnsigUmsy", trace = FALSE ) 
-      lnkappa2Profile     <- tmbprofile( obj, "lnkappa2", trace = FALSE )
+      lnSigmaDiagProfile  <- tmbprofile( obj, "lnSigmaDiag", trace = FALSE )
       # Save to output list
       profileList <- list ( lnUmsybar   = lnUmsybarProfile,
                             lnsigUmsy2  = lnsigUmsy2Profile,
-                            lnkappa2    = lnkappa2Profile )
+                            lnSigmaDiag = lnSigmaDiagProfile )
     }
   } else profileList <- NA
 
@@ -660,7 +661,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           gradient = obj$gr,
                           control = ctrl,
                           lower = -Inf,
-                          upper = Inf ) )
+                          upper = Inf ),
+                  silent = TRUE )
 
     if(class(fitFE) != "try-error")
     {
@@ -693,6 +695,19 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Save the best parameters from the fixed eff model
     bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
 
+    # Counter for changin behaviour
+    incCount <- 0
+    while( !is.finite(obj$fn(bestPars) ) & incCount < 20 )
+    {
+      incCount <- incCount + 1
+      bestPars <- bestPars + 0.2
+
+      if( incCount == 10 )
+      {
+        bestPars <- initPars
+      }
+    }
+
     # Set convFlag so that we loop again
     convFlag <- 1
     errCounter <- 0
@@ -708,7 +723,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           gradient = obj$gr,
                           control = ctrl,
                           lower = -Inf,
-                          upper= Inf ) )
+                          upper= Inf ),
+                  silent = TRUE )
 
 
       # Update convFlag and bestPars
@@ -729,24 +745,31 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           objFunVal <- fit$objective
         }
 
-        # Check for PD hessian
-        if(convFlag == 0)
-        {
-          sd <- try(sdreport(obj))
-          if(class(sd) == "try-error")
-            convFlag <- 1
-          else if( !sd$pdHess )
-            convFlag <- 1
-        }
+        # # Check for PD hessian
+        # if(convFlag == 0)
+        # {
+        #   sd <- try(sdreport(obj), silent = TRUE)
+        #   if(class(sd) == "try-error")
+        #     convFlag <- 1
+        #   else if( !sd$pdHess )
+        #     convFlag <- 1
+        # }
       } else 
       {
+        # browser()
         errCounter <- errCounter + 1
         if( errCounter == 1 )
           bestPars <- initPars
         else
-          bestPars <- bestPars + rnorm(length(bestPars), sd = 0.1)
-        if( errCounter > 5 )
-          bestPars[1:nS] <- 1.2*par$lnBmsy + rnorm(nS,sd = 0.02)
+        {
+          tmpPars <- bestPars + rnorm(length(bestPars), sd = 1)
+          tmpObj  <- obj$fn(tmpPars)
+          while( !is.finite(tmpObj) )
+          {
+            tmpPars <- bestPars + rnorm(length(bestPars), sd = 1)
+            tmpObj <- obj$fn(tmpPars)
+          }
+        }
 
       }
       

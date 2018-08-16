@@ -80,12 +80,12 @@ Type objective_function<Type>::operator() ()
   PARAMETER(sUmsy);                     // hyperprior Umsy sd
   PARAMETER_VECTOR(mBmsy);              // prior mean eqbm biomass
   PARAMETER_VECTOR(sBmsy);              // prior eqbm biomass var
-  PARAMETER_VECTOR(tau2IGa);            // IG parameters for tau2 prior
-  PARAMETER_VECTOR(tau2IGb);            // IG parameters for tau2 prior
-  PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (IGa,IGb) or (mean,var)
-  PARAMETER_VECTOR(sigU2Prior);         // Hyperparameters for sigU2 prior - (IGa,IGb) or (mean,var)
-  PARAMETER_VECTOR(kappa2IG);           // IG parameters for kappa2 prior
-  PARAMETER_VECTOR(Sigma2IG);           // IG parameters for Sigma2 prior
+  PARAMETER_VECTOR(tau2GPa);            // Gamma Prior parameters for tau2 prior
+  PARAMETER_VECTOR(tau2GPb);            // Gamma Prior parameters for tau2 prior
+  PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (GPa,GPb) or (mean,var)
+  PARAMETER_VECTOR(sigU2Prior);         // Hyperparameters for sigU2 prior - (GPa,GPb) or (mean,var)
+  PARAMETER_VECTOR(kappa2GP);           // Gamma Prior parameters for kappa2 prior
+  PARAMETER_VECTOR(Sigma2GP);           // Gamma Prior parameters for Sigma2 prior
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
   PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
   // Random Effects
@@ -220,7 +220,7 @@ Type objective_function<Type>::operator() ()
       for( int t = initT(s); t < nT; t++ )
       {
         // only add a contribution if the data exists (Iost < 0 is missing)
-        if( ( It(o,s,t) > 0. ) ) 
+        if( ( It(o,s,t) > 0. ) & (Bt(s,t) > 1e-3) ) 
         {
           validObs(o,s) += int(1);
           z_ost(o,s,t) = log( It( o, s, t ) ) - log( Bt( s, t ) );
@@ -334,11 +334,11 @@ Type objective_function<Type>::operator() ()
   Type nllVarPrior = 0.;
   Type nllSigPrior = 0.;
   for( int o = 0; o < nO; o++ )
-    nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
+    nllVarPrior -= dgamma( 1/tau2_o(o), tau2GPa(o), tau2GPb(o), 1);
 
   // year effect deviations var
   if( kappaPriorCode == 1 )  
-    nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
+    nllVarPrior -= dgamma( 1/kappa2, kappa2GP(0), kappa2GP(1), 1);
 
   // Now multispecies priors
   if (nS > 1)
@@ -348,7 +348,7 @@ Type objective_function<Type>::operator() ()
     {
       for( int o = 0; o < nO; o++)
       {
-        nllVarPrior += (tauq2Prior(0)+Type(1))*Type(2)*lntauq_o(o)+tauq2Prior(1)/tauq2_o(o);    
+        nllVarPrior -= dgamma(1/tauq2_o(o), tauq2Prior(0), tauq2Prior(1), 1); 
       }
     }
     if( tauqPriorCode == 1 )
@@ -362,7 +362,7 @@ Type objective_function<Type>::operator() ()
     // IG
     if( sigUPriorCode == 0 )
     {
-      nllVarPrior += (sigU2Prior(0)+Type(1))*Type(2.)*lnsigUmsy+sigU2Prior(1)/sigUmsy2;  
+      nllVarPrior -= dgamma( 1/sigUmsy2, sigU2Prior(0), sigU2Prior(1), 1); 
     }
     // Normal
     if( sigUPriorCode == 1 )
@@ -381,7 +381,7 @@ Type objective_function<Type>::operator() ()
 
   // Apply Sigma Prior
   if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
-    nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+    nllSigPrior -= dgamma(exp(-lnSigmaDiag), Sigma2GP(0), Sigma2GP(1),1);
 
   nll += nllVarPrior + nllSigPrior;
 
@@ -425,12 +425,12 @@ Type objective_function<Type>::operator() ()
   REPORT(nS);
   REPORT(zSum_os);
   REPORT(validObs);
+  REPORT(zeta_st);
+  REPORT(Sigma);
+  REPORT(SigmaDiag);
   if (nS > 1)
   {
-    REPORT(zeta_st);
-    REPORT(Sigma);
     REPORT(SigmaCorr);
-    REPORT(SigmaDiag);
     REPORT(Umsybar);
     REPORT(sigUmsy2);
     REPORT(qbar_o);
