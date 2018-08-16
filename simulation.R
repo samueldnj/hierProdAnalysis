@@ -431,7 +431,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           nu                = 0,
                           eps_t             = rep(0,nT[s]-1),
                           lnkappa2          = log(kappa2 + Sigma2),
-                          zeta_st           = matrix(log(om$epst[(sT[s]+1):max(nT)]) , nrow = 1, ncol = nT[s]-1 ),
+                          zeta_st           = matrix(0, nrow = 1, ncol = nT[s]-1 ),
+                          # zeta_st           = matrix(log(om$epst[(sT[s]+1):max(nT)]) , nrow = 1, ncol = nT[s]-1 ),
                           lnSigmaDiag       = log(kappa2 + Sigma2),
                           SigmaDiagMult     = 1,
                           logitSigmaOffDiag = numeric( length = 0 ),
@@ -450,9 +451,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           mq                = factor( NA ),
                           sq                = factor( NA ),
                           eps_t             = factor( rep( NA, nT[s] - 1 ) ),
-                          #zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
+                          # zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
                           lnkappa2          = factor( NA ),
-                          #lnSigmaDiag       = factor( NA ),
+                          # lnSigmaDiag       = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
                           tau2GPa           = factor( rep(NA,nSurv) ),
                           tau2GPb           = factor( rep(NA,nSurv) ),
@@ -576,6 +577,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                     msPar = msPar,
                     msMap = msMap 
                   )
+
+  if( obj$assess$saveDatPar )
+    save( outlist, file = "./simDatPar.RData" )
+
   return(outlist)
 }
 
@@ -676,6 +681,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       break
   }
 
+  errCounter <- 0
+
   # Reset nTries
   nTries <- 0
   # Set flag to indicate that a succesful integration is not yet complete
@@ -696,18 +703,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
 
     # Counter for changin behaviour
-    incCount <- 0
-    while( !is.finite(obj$fn(bestPars) ) & incCount < 20 )
-    {
-      incCount <- incCount + 1
-      bestPars <- bestPars + 0.2
-
-      if( incCount == 10 )
-      {
-        bestPars <- initPars
-      }
-    }
-
+    if( !is.finite(obj$fn(bestPars)) )
+      bestPars <- bestPars + 1
+    
     # Set convFlag so that we loop again
     convFlag <- 1
     errCounter <- 0
@@ -745,15 +743,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           objFunVal <- fit$objective
         }
 
-        # # Check for PD hessian
-        # if(convFlag == 0)
-        # {
-        #   sd <- try(sdreport(obj), silent = TRUE)
-        #   if(class(sd) == "try-error")
-        #     convFlag <- 1
-        #   else if( !sd$pdHess )
-        #     convFlag <- 1
-        # }
+        # Check for PD hessian
+        if(convFlag == 0)
+        {
+          sd <- try(sdreport(obj), silent = TRUE)
+          if(class(sd) == "try-error")
+            convFlag <- 1
+          else if( !sd$pdHess )
+            convFlag <- 1
+        }
       } else 
       {
         # browser()
@@ -766,8 +764,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           tmpObj  <- obj$fn(tmpPars)
           while( !is.finite(tmpObj) )
           {
+            errCounter <- errCounter + 1
             tmpPars <- bestPars + rnorm(length(bestPars), sd = 1)
             tmpObj <- obj$fn(tmpPars)
+
+            if( errCounter > fitTrials )
+              break
           }
         }
 
@@ -817,7 +819,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Return
   out <- list( sdrep = sdrep, rep=rep, nTries = nTries, errCount = errCounter )
   if( !is.null(CIs) ) out$CIs <- CIs
-  if( profiles ) out$profiles <- profileList
+  # if( profiles ) out$profiles <- profileList
 
   out
 }

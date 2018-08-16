@@ -166,7 +166,7 @@ Type objective_function<Type>::operator() ()
     lnBt(s,initT(s)) = log(Bt(s,initT(s)));
     for( int t = initT(s)+1; t < nT; t++ )
     {
-      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s));
+      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Type(2.0)*Umsy(s)*(Type(1.0) - Bt(s,t-1)/Type(2.0)/Bmsy(s));
       Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
       if( Bt(s,t) <= 1.2*Ct(s,t-1) )
       {
@@ -204,7 +204,7 @@ Type objective_function<Type>::operator() ()
   array<Type>   zSum_os(nO,nS);
   // Fill with 0s
   Type nllObs = 0.0;
-  validObs.fill(0.0);
+  validObs.fill(1e-6);
   zSum_os.fill(0.0);
   z_ost.fill(0.0);
   qhat_os.fill(-1.0);
@@ -407,6 +407,7 @@ Type objective_function<Type>::operator() ()
   
   // Everything else //
   REPORT(Bt);
+  REPORT(It);
   REPORT(Ut);
   REPORT(Ct);
   REPORT(eps_t);

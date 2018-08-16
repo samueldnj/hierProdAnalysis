@@ -35,6 +35,7 @@ opMod$tauSurv c(0.2,0.4,0.5)
 opMod$gammaYr 0.0
 opMod$kappaMult 1
 assess$profiles FALSE
+assess$saveDatPar TRUE
 assess$autoGP TRUE
 assess$msAR1 FALSE
 assess$msCorr "off"
@@ -42,7 +43,7 @@ assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$tracePar FALSE
 assess$estYearEff FALSE
-assess$fitTrials 15
+assess$fitTrials 25
 assess$posPenFactor 1e2
 assess$maxfn 3000
 assess$Umsy rep(.2,10)
@@ -54,7 +55,7 @@ assess$kappa2 0.00001
 assess$Sigma2 0.05
 assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
-assess$BPriorCode 0
+assess$BPriorCode 1
 assess$mBmsy rep(20,10)
 assess$sBmsy rep(5,10)
 assess$lnUPriorCode 0
@@ -74,13 +75,13 @@ assess$fixqss FALSE
 assess$mq .61
 assess$sq .15
 assess$sigUPriorCode 0
-assess$sigU2Prior c(11,10)
+assess$sigU2Prior c(21,5)
 assess$tauqPriorCode 0
-assess$tauq2Prior c(11,10)
-assess$kappa2GP c(10,0.1)
-assess$Sigma2GP c(10,0.1)
-assess$tau2GPa rep(10,3)
-assess$tau2GPb rep(0.5,3)
+assess$tauq2Prior c(21,5)
+assess$kappa2GP c(14,0.1)
+assess$Sigma2GP c(14,0.1)
+assess$tau2GPa rep(14,3)
+assess$tau2GPb rep(3,3)
 assess$msRE c('zeta_st')
 assess$ssRE c('zeta_st')
 assess$TMBlib "msProd"
