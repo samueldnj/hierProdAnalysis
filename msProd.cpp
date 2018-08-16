@@ -24,7 +24,7 @@
 template<class Type>
 Type posfun(Type x, Type eps, Type &pen){
   pen += CppAD::CondExpLt(x, eps, Type(0.01) * pow(x-eps,2), Type(0));
-  return CppAD::CondExpGe(x, eps, x, eps/(Type(1)-x/eps));
+  return CppAD::CondExpGe(x, eps, x, eps/(Type(2)-x/eps));
 }
 
 // invLogit
