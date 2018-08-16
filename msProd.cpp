@@ -24,7 +24,7 @@
 template<class Type>
 Type posfun(Type x, Type eps, Type &pen){
   pen += CppAD::CondExpLt(x, eps, Type(0.01) * pow(x-eps,2), Type(0));
-  return CppAD::CondExpGe(x, eps, x, eps/(Type(2)-x/eps));
+  return CppAD::CondExpGe(x, eps, x, eps/(Type(1)-x/eps));
 }
 
 // invLogit
@@ -86,7 +86,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(kappa2IG);           // IG parameters for kappa2 prior
   PARAMETER_VECTOR(Sigma2IG);           // IG parameters for Sigma2 prior
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
-  PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
+  PARAMETER(nu);                        // IW degrees of freedom for Sigma prior
+  PARAMETER(deltat);                    // Rational (fractional) time step used to reduce chaos
   // Random Effects
   PARAMETER_VECTOR(eps_t);              // year effect  
   PARAMETER(lnkappa2);                  // year effect uncorrelated variance
@@ -99,6 +100,7 @@ Type objective_function<Type>::operator() ()
 
   // State variables
   array<Type>       Bt(nS,nT);
+  array<Type>       lnBt(nS,nT);
   // Leading parameters
   vector<Type>      Bmsy    = exp(lnBmsy);
   vector<Type>      Umsy    = exp(lnUmsy);
@@ -159,6 +161,7 @@ Type objective_function<Type>::operator() ()
   }
   
   Bt.fill(-1);
+  Type nSteps = 1 / deltat;
   // Now loop over species, reconstruct history from initT
   for( int s = 0; s < nS; s++ )
   {
@@ -167,21 +170,32 @@ Type objective_function<Type>::operator() ()
     if( initBioCode(s) == 1 ) Bt(s,initT(s)) = Binit(s);
     for( int t = initT(s)+1; t < nT; t++ )
     {
-      Bt(s,t) = Bt(s,t-1) + Bt(s,t-1)*Umsy(s) * (Type(2.0) - Bt(s,t-1)/Bmsy(s)) - Ct(s,t-1);
-      Bt(s,t) = posfun(Bt(s,t),Type(2e-3),pospen);
-      Bt(s,t) *= exp(omegat(t) + zeta_st(s,t-1));
-      nllRE += Type(10000.0)*pospen;      
+      Type tmpBt = Bt(s,t-1);
+      for( int dt = 0; dt < nSteps; dt ++ )
+      {
+        // Compute the deltat step of biomass (assuming catch is evenly distributed)
+        Type tmpBdt = 0;
+        tmpBdt =  tmpBt + deltat * Umsy(s) * tmpBt * (Type(2.0) - tmpBt / Bmsy(s) ) - deltat*Ct(s,t-1);
+        tmpBdt *= exp(deltat * (omegat(t) + zeta_st(s,t-1)));
+        // Now update tmpBt
+        tmpBt = posfun(tmpBdt, Type(1e-3), pospen);
+      }
+      Bt(s,t) = tmpBt;
+      lnBt(s,t) = log(Bt(s,t));
     }
   }
   // Loop again to add species and year effects
   for (int t=1; t<nT; t++)
   {
     // Add year effect contribution to objective function
-    nllRE += Type(0.5)*(lnkappa2 + pow( eps_t( t - 1 ), 2 ) / kappa2 ) + eps_t(t-1);
+    if( kappaPriorCode == 1 )
+      nllRE += Type(0.5)*(lnkappa2 + pow( eps_t( t - 1 ), 2 ) / kappa2 + eps_t(t-1) );
     // Add correlated species effects contribution to likelihood
-    if (nS > 1) nllRE += VECSCALE(specEffCorr,sqrt(SigmaDiag))(zeta_st.col(t-1));
+    for( int s = 0; s < nS; s++ )
+      nllRE += Type(0.5)*(lnSigmaDiag + pow( zeta_st( s,  t - 1 ), 2 ) / SigmaDiag(s) + zeta_st(s,t-1) );
   }
   // add REs to joint nll
+  nll += Type(100) * pospen;
   nll += nllRE;
 
   // Concentrate species specific obs error likelihood?
@@ -228,7 +242,8 @@ Type objective_function<Type>::operator() ()
   for (int s=0; s<nS; s++ )
   {
     nllBprior += Type(0.5) * pow( Bmsy(s) - mBmsy(s), Type(2) ) / sBmsy(s) / sBmsy(s); 
-    if(initBioCode(s) == 1) nllBprior +=  pow( Binit(s) - mBmsy(s)/2, 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ;
+    if(initBioCode(s) == 1) 
+      nllBprior +=  pow( Binit(s) - mBmsy(s)/2, 2 ) / pow(sBmsy(s)/Type(2.0),Type(2.0)) ;
   }
 
   // multispecies shared priors
@@ -300,8 +315,15 @@ Type objective_function<Type>::operator() ()
     nll += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
   }
   // year effect deviations var
-  if( kappaPriorCode == 1 | nS == 1)  
+  if( kappaPriorCode == 1 )  
     nll += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
+
+  // species effect deviations var
+  if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
+  {
+    nll += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+  }
+
   // Now multispecies priors
   if (nS > 1)
   {
@@ -330,11 +352,6 @@ Type objective_function<Type>::operator() ()
       nll += Type(0.5) * pow( sigUmsy2 - sigU2Prior(0), 2) / sigU2Prior(1);
     }
     
-    // Apply Sigma Prior
-    if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
-    {
-      nll += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
-    }
     if( SigmaPriorCode == 1 ) // Apply IW prior to Sigma matrix
     {
       matrix<Type> traceMat = wishScale * Sigma.inverse();
@@ -355,30 +372,16 @@ Type objective_function<Type>::operator() ()
 
   // Reporting Section //
   // Variables we want SEs for
-  ADREPORT(Bt);
-  ADREPORT(q_os);
-  ADREPORT(Bmsy);
-  ADREPORT(Umsy);
-  ADREPORT(msy);
-  ADREPORT(Binit);
-  ADREPORT(tau2_o);
-  ADREPORT(kappa2);
+  ADREPORT(lnBt);
   ADREPORT(DnT);
   ADREPORT(U_Umsy);
-  if( nS > 1 )
-  {
-    ADREPORT(Umsybar);
-    ADREPORT(sigUmsy2);
-    ADREPORT(qbar_o);
-    ADREPORT(tauq2_o);
-  }
 
   // MLEs of everything  //
   REPORT(Bt);
   REPORT(Ut);
   REPORT(Binit);
   REPORT(DnT);
-  REPORT(U_Umsy)
+  REPORT(U_Umsy);
   REPORT(q_os);
   REPORT(msy);
   REPORT(Bmsy);
@@ -389,17 +392,19 @@ Type objective_function<Type>::operator() ()
   REPORT(nT);
   REPORT(nO);
   REPORT(nS);
+  REPORT(Sigma);
+  REPORT(SigmaDiag);
+  REPORT(zeta_st);
   if (nS > 1)
   {
-    REPORT(Sigma);
     REPORT(SigmaCorr);
-    REPORT(SigmaDiag);
     REPORT(Umsybar);
     REPORT(sigUmsy2);
     REPORT(qbar_o);
     REPORT(tauq2_o);
   }
   REPORT(gammaYr);
+  REPORT(pospen);
   REPORT(nll);
   REPORT(nllRE);
   REPORT(nllObs);

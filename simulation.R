@@ -433,11 +433,12 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           Sigma2IG          = obj$assess$Sigma2IG,
                           wishScale         = matrix(0,nrow=1,ncol=1),
                           nu                = 0,
+                          deltat            = obj$assess$deltat,
                           eps_t             = rep( 0, nT[s]-1 ),
-                          lnkappa2          = ifelse( obj$assess$estYearEff, log( obj$assess$kappa2 ), log( obj$assess$Sigma2 ) ),
+                          lnkappa2          = -10,
                           zeta_st           = matrix( 0, nrow = 1, ncol = nT[s]-1 ),
-                          lnSigmaDiag       = 0,
-                          SigmaDiagMult     = 0,
+                          lnSigmaDiag       = -2,
+                          SigmaDiagMult     = 1,
                           logitSigmaOffDiag = numeric( length = 0 ),
                           logit_gammaYr     = obj$assess$logit_gammaYr
                         )
@@ -455,8 +456,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lntauq_o          = factor( rep(NA,nSurv) ),
                           mq                = factor( NA ),
                           sq                = factor( NA ),
-                          zeta_st           = factor( rep( NA, nT[s]-1 ) ),
-                          lnSigmaDiag       = factor( NA ),
+                          eps_t             = factor( rep( NA, nT[s]-1 ) ),
+                          lnkappa2          = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
                           tau2IGa           = factor( rep(NA,nSurv) ),
                           tau2IGb           = factor( rep(NA,nSurv) ),
@@ -465,7 +466,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           kappa2IG          = factor( rep( NA, 2 ) ),
                           Sigma2IG          = factor( rep( NA, 2 ) ),
                           wishScale         = factor( NA ),
-                          nu                = factor( NA ) )
+                          nu                = factor( NA ),
+                          deltat            = factor( NA ) )
     if( !obj$assess$ssAR1 ) 
       ssMap[[s]]$logit_gammaYr <- factor( NA )
     if( obj$assess$fixqss )
@@ -510,6 +512,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = obj$assess$Sigma2IG,
                   wishScale         = wishScale,
                   nu                = nS,
+                  deltat            = obj$assess$deltat,
                   eps_t             = rep(0, max(nT)-1),
                   lnkappa2          = log(obj$assess$kappa2),              
                   zeta_st           = matrix(0, nrow = nS, ncol = max(nT)-1),
@@ -540,7 +543,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   Sigma2IG          = factor( rep( NA, 2 ) ),
                   wishScale         = factor( rep( NA, nS*nS ) ),
                   nu                = factor( NA ),
-                  lnBinit           = factor( lnBinitMap )
+                  lnBinit           = factor( lnBinitMap ),
+                  deltat            = factor( NA )
                   # zeta_st           = factor( zeta_stMap )
                 )
   # Disable autocorrelation in estimation if set.
@@ -604,29 +608,40 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Set max no of evaluations
   ctrl = list ( eval.max = maxfn, iter.max = maxfn )
 
+  initPars <- obj$par
+  objFunVal <- obj$fn(initPars)
+
   # optimise the model
-  fit <- try( nlminb (  start = obj$par,
+  fit <- try( nlminb (  start = initPars,
                         objective = obj$fn,
                         gradient = obj$gr,
                         control = ctrl,
                         lower = -Inf,
-                        upper= Inf ) )
-  convFit <- NULL
+                        upper= Inf ),
+              silent = quiet )
+    
+  nTries <- 1
 
-  if(length(RE) > 1) browser()
+  # if(length(par$lnBmsy)>1) browser()
 
-  
-  if( !is.null(convFit) ) fit <- convFit
-
-  if( class(fit) == "try-error" )
+  while( class(fit) == "try-error" )
   {
-    fit <- try( nlminb (  start = 2*obj$par,
+
+    fit <- try( nlminb (  start = initPars + rnorm(length(initPars)),
                           objective = obj$fn,
                           gradient = obj$gr,
                           control = ctrl,
                           lower = -Inf,
-                          upper= Inf ) )    
+                          upper= Inf ),
+                silent = quiet )    
+
+    nTries <- nTries + 1
+
+    if( nTries >= fitTrials)
+      break
   }
+
+
 
   # Run SD report on the fit if it works, and get the rep file
   if( class ( fit ) == "try-error" ) 
@@ -981,6 +996,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       hessPD[,s] <- as.logical(ssHess[,s] * msHess)
 
     completed <- apply(X = hessPD, FUN = sum, MARGIN = 2, na.rm = T )
+    cat( completed, "\n" )
     if( all( completed >= obj$ctrl$signifReps ) )
     {
       cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )
