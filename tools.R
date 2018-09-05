@@ -948,7 +948,7 @@ doBatchRun <- function( arg )
 
     # Now set # of cores and make a cluster
     nCores  <- min(length(parBatchArgList),detectCores()-1)
-    cl      <- makePSOCKcluster(nCores)
+    cl      <- makeCluster(nCores, outFile = "./parBatchMsg.txt")
     # Run parallel batch
     cat ("Running ", nSims, " simulations in parallel on ",
           nCores, " cores.\n", sep = "" )
