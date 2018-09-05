@@ -695,6 +695,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   if( length(RE) > 0 )
   {
+    browser()
     # Add REs
     obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                         random = RE, silent = quiet )
@@ -738,7 +739,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         {
           integrated <- TRUE
           objFunVal <- fit$objective
-          bestPars <- fit$par + 0.2
+          bestPars <- fit$par
         }
         convFlag <- fit$convergence
 
