@@ -57,6 +57,7 @@ assess$Sigma2 0.05
 assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
 assess$BPriorCode 1
+assess$randomPriors TRUE
 assess$mBmsy rep(20,10)
 assess$sBmsy rep(5,10)
 assess$lnUPriorCode 0
@@ -64,8 +65,8 @@ assess$lnUmsybar -1.23
 assess$lnsigUmsy2 -4
 assess$fixsigU2 TRUE
 assess$fixUbar TRUE
-assess$mUmsy .21
-assess$sUmsy 0.05
+assess$mUmsy .05
+assess$sUmsy 0.0125
 assess$lnqPriorCode 0
 assess$lnqbar_o -.53
 assess$lntauq_o -1

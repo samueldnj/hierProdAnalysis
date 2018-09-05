@@ -342,7 +342,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 #           msPar=multispecies initial parameter value list
 #           ssDat=nS-list of single species data lists
 #           ssPar=nS-list of single species init. par lists
-.makeDataLists <- function ( obj )
+.makeDataLists <- function ( obj, rIdx = 1 )
 {
   
   om    <- obj$om
@@ -415,11 +415,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lnBinit           = log(om$Bt[s,2]),
                           lnqbar_o          = rep(obj$assess$lnqbar_o, nSurv),
                           lntauq_o          = rep(obj$assess$lntauq_o, nSurv),
-                          mq                = obj$assess$mq,
+                          mq                = obj$assess$mq[rIdx],
                           sq                = obj$assess$sq,
                           lnUmsybar         = obj$assess$lnUmsybar,
                           lnsigUmsy         = obj$assess$lnsigUmsy,
-                          mUmsy             = obj$assess$mUmsy,
+                          mUmsy             = obj$assess$mUmsy[rIdx],
                           sUmsy             = obj$assess$sUmsy,
                           mBmsy             = obj$assess$mBmsy[s],
                           sBmsy             = obj$assess$sBmsy[s],
@@ -496,11 +496,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   lnBinit           = log(om$Bt[,1]),
                   lnqbar_o          = rep(obj$assess$lnqbar_o,nSurv),
                   lntauq_o          = rep(obj$assess$lntauq_o,nSurv),
-                  mq                = obj$assess$mq,
+                  mq                = obj$assess$mq[rIdx],
                   sq                = obj$assess$sq,
                   lnUmsybar         = obj$assess$lnUmsybar,
                   lnsigUmsy         = obj$assess$lnsigUmsy,
-                  mUmsy             = obj$assess$mUmsy,
+                  mUmsy             = obj$assess$mUmsy[rIdx],
                   sUmsy             = obj$assess$sUmsy,
                   mBmsy             = obj$assess$mBmsy[1:nS],
                   sBmsy             = obj$assess$sBmsy[1:nS],
@@ -839,7 +839,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 #           ssFit=nS-list of ss model outputs
 #           msFit=list of ms model outputs
 # usage:    to be lapplied over seed values as part of a monte-carlo trial
-.seedFit <- function ( seed = 1, obj, quiet = FALSE )
+.seedFit <- function ( seed = 1, obj, quiet = FALSE, rIdx = 1 )
 {
 
   # Run operating model to generate data
@@ -848,7 +848,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
 
   # Create data objects for AMs
-  datPar <- .makeDataLists ( obj )
+  datPar <- .makeDataLists ( obj, rIdx = rIdx )
 
   # Call EMs
   ssFit <- list()
@@ -919,6 +919,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   sNames <- obj$ctrl$specNames[1:nS]
   survNames <- paste("Survey",1:nSurv,sep = "" )
 
+  if( obj$assess$randomPriors )
+  {
+    sq    <- obj$assess$sq
+    sUmsy <- obj$assess$sUmsy
+  } else {
+    sq    <- 0
+    sUmsy <- 0
+  }
+
   # Create list object to store all simulated values
   om <- list  ( Bt        = array( NA, dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 Ct        = array( NA, dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -928,8 +937,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 delta_ost = array( NA, dim=c(nReps,nSurv,nS,nT),dimnames=list(rNames,survNames,sNames,1:nT)),
                 I_ost     = array( NA, dim=c(nReps,nSurv,nS,nT),dimnames=list(rNames,survNames,sNames,1:nT)),
                 dep       = array( NA, dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
-                q_os      = array( NA, dim=c(nReps,nSurv,nS),dimnames=list(rNames,survNames,sNames))
+                q_os      = array( NA, dim=c(nReps,nSurv,nS),dimnames=list(rNames,survNames,sNames)),
+                mq        = rnorm(n = nReps, mean = obj$assess$mq, sd = sq),
+                mUmsy      = rnorm(n = nReps, mean = obj$assess$mUmsy, sd = sUmsy)
               )
+
+  obj$assess$mq     <- om$mq
+  obj$assess$mUmsy  <- om$mUmsy
 
   # Now create a list object to ss and ms assessment model outputs
   am <- list ( ss=NULL, ms=NULL)
@@ -1005,7 +1019,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   for ( i in 1:length(seeds) )
   {
     # Run sim-est procedure
-    simEst <- .seedFit ( seed = seeds[i], obj=obj, quiet = quiet)
+    simEst <- .seedFit ( seed = seeds[i], obj=obj, quiet = quiet, rIdx = i )
 
 
     # Save OM values

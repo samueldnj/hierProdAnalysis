@@ -3120,6 +3120,8 @@ plotCIbio <- function ( rep = 1, sim=1)
   nT <- blob$opMod$nT
   species <- blob$ctrl$speciesNames[1:nS]
 
+  browser()
+
   # load biomass trajectories
   omBio <- blob$om$Bt[rep,,]
   msBio <- array( NA, dim = c( nS, nT, 3 ), 
@@ -3930,10 +3932,10 @@ plotBCfit <- function(  sims=1, legend=TRUE,
     # Populate CIs
     if( !any(is.na(msCIs)) )
     {
-      Btrows <- which( msCIs$par == "Bt" )
-      msBio[ , , 1 ] <- matrix( msCIs[ Btrows, "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 2 ] <- matrix( msCIs[ Btrows, "val" ], nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 3 ] <- matrix( msCIs[ Btrows, "lCI" ], nrow = nS, ncol = nT, byrow = FALSE ) 
+      Btrows <- which( msCIs$par == "lnBt" )
+      msBio[ , , 1 ] <- matrix( exp(msCIs[ Btrows, "uCI" ]), nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 2 ] <- matrix( exp(msCIs[ Btrows, "val" ]), nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 
     }
 
     msBio[ msBio == -1 ] <- NA
@@ -3943,10 +3945,10 @@ plotBCfit <- function(  sims=1, legend=TRUE,
 
       if( is.null( ssCIs[[ s ]] ) ) next
       if( any(is.na( ssCIs[[ s ]] )) ) next
-      Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
-      ssBio[ s, sT[s]:nT, 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT-sT[s]+1 )
-      ssBio[ s, sT[s]:nT, 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT-sT[s]+1 )
-      ssBio[ s, sT[s]:nT, 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT-sT[s]+1 )  
+      Btrows <- which( ssCIs[[ s ]]$par == "lnBt" )
+      ssBio[ s, sT[s]:nT, 1 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "uCI" ]), nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 2 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "val" ]), nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 3 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "lCI" ]), nrow = 1, ncol = nT-sT[s]+1 )  
     }
 
     if( MPtitles ) titles[simIdx+1] <- mp
@@ -4173,10 +4175,10 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
     # Populate CIs
     if( !any(is.na(msCIs)) )
     {
-      Btrows <- which( msCIs$par == "Bt" )
-      msBio[ , , 1 ] <- matrix( msCIs[ Btrows, "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 2 ] <- matrix( msCIs[ Btrows, "val" ], nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 3 ] <- matrix( msCIs[ Btrows, "lCI" ], nrow = nS, ncol = nT, byrow = FALSE ) 
+      Btrows <- which( msCIs$par == "lnBt" )
+      msBio[ , , 1 ] <- matrix( exp(msCIs[ Btrows, "uCI" ]), nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 2 ] <- matrix( exp(msCIs[ Btrows, "val" ]), nrow = nS, ncol = nT, byrow = FALSE )
+      msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 
     }
 
     msBio[ msBio == -1 ] <- NA
@@ -4186,10 +4188,10 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
 
       if( is.null( ssCIs[[ s ]] ) ) next
       if( any(is.na( ssCIs[[ s ]] )) ) next
-      Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
-      ssBio[ s, sT[s]:nT, 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT-sT[s]+1 )
-      ssBio[ s, sT[s]:nT, 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT-sT[s]+1 )
-      ssBio[ s, sT[s]:nT, 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT-sT[s]+1 )  
+      Btrows <- which( ssCIs[[ s ]]$par == "lnBt" )
+      ssBio[ s, sT[s]:nT, 1 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "uCI" ]), nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 2 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "val" ]), nrow = 1, ncol = nT-sT[s]+1 )
+      ssBio[ s, sT[s]:nT, 3 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "lCI" ]), nrow = 1, ncol = nT-sT[s]+1 )  
     }
 
     if( MPtitles ) titles[simIdx+1] <- mp
