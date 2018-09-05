@@ -3142,18 +3142,18 @@ plotCIbio <- function ( rep = 1, sim=1)
       msCIs <-  msStdErr %>%
                 as.data.frame() %>%
                 mutate( par = rownames(msStdErr),
-                        lCI = val - 1.645*se,
-                        uCI = val + 1.645*se ) %>%
+                        lCI = val - 1.96*se,
+                        uCI = val + 1.96*se ) %>%
                 dplyr::select( par, val, se, lCI, uCI )
     }
   }
   # browser()
   if( !is.na(msCIs) )
   {
-    Btrows <- which( msCIs$par == "Bt" )
-    msBio[ , , 1 ] <- matrix( msCIs[ Btrows , "uCI" ], nrow = nS, ncol = nT, byrow = FALSE )
-    msBio[ , , 2 ] <- matrix( msCIs[ Btrows, "val" ], nrow = nS, ncol = nT, byrow = FALSE )
-    msBio[ , , 3 ] <- matrix( msCIs[ Btrows, "lCI" ], nrow = nS, ncol = nT, byrow = FALSE ) 
+    Btrows <- which( msCIs$par == "lnBt" )
+    msBio[ , , 1 ] <- matrix( exp(msCIs[ Btrows , "uCI" ]), nrow = nS, ncol = nT, byrow = FALSE )
+    msBio[ , , 2 ] <- matrix( exp(msCIs[ Btrows, "val" ]), nrow = nS, ncol = nT, byrow = FALSE )
+    msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 
   }
 
   # Now fill SS model biomas
@@ -3177,11 +3177,11 @@ plotCIbio <- function ( rep = 1, sim=1)
       else {
       ssStdErr <- summary( ssStdErr )
       colnames( ssStdErr ) <- c("val","se")
-      ssCIs[[ s ]] <-   msStdErr %>%
+      ssCIs[[ s ]] <-   ssStdErr %>%
                         as.data.frame() %>%
-                        mutate( par = rownames(msStdErr),
-                                lCI = val - 1.645*se,
-                                uCI = val + 1.645*se ) %>%
+                        mutate( par = rownames(ssStdErr),
+                                lCI = val - 1.96*se,
+                                uCI = val + 1.96*se ) %>%
                                 dplyr::select( par, val, se, lCI, uCI )    
       }
     }
@@ -3190,10 +3190,10 @@ plotCIbio <- function ( rep = 1, sim=1)
   {
     if( is.null( ssCIs[[ s ]] ) ) next
     if( is.na( ssCIs[[ s ]] ) ) next
-    Btrows <- which( ssCIs[[ s ]]$par == "Bt" )
-    ssBio[ s, , 1 ] <- matrix( ssCIs[[ s ]][ Btrows, "uCI" ], nrow = 1, ncol = nT )
-    ssBio[ s, , 2 ] <- matrix( ssCIs[[ s ]][ Btrows, "val" ], nrow = 1, ncol = nT )
-    ssBio[ s, , 3 ] <- matrix( ssCIs[[ s ]][ Btrows, "lCI" ], nrow = 1, ncol = nT )  
+    Btrows <- which( ssCIs[[ s ]]$par == "lnBt" )
+    ssBio[ s, , 1 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "uCI" ]), nrow = 1, ncol = nT )
+    ssBio[ s, , 2 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "val" ]), nrow = 1, ncol = nT )
+    ssBio[ s, , 3 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "lCI" ]), nrow = 1, ncol = nT )  
   }
   
 

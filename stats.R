@@ -1107,6 +1107,226 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   statTable
 }
 
+# .calcIntervalCoverage()
+# This function takes a blob object produced by a sim-est procedure
+# and produces distributions of absolute and relative errors
+# inputs:   blob=list object output of simEstProc
+# ouputs:   blob=list object with error distributions appended
+# usage:    to create output that is saved for later analysis
+.calcIntervalCoverage <- function ( blob )
+{
+  # recover control list, OM and AMs
+  ctrl  <- blob$ctrl
+  om    <- blob$om
+  opMod <- blob$opMod
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+
+  # Get control constants
+  nReps <- ctrl$nReps
+  nS    <- opMod$nS
+  nSurv <- opMod$nSurv
+  fYear <- opMod$fYear
+  lYear <- opMod$lYear
+  nT    <- lYear - min(fYear) + 1
+
+  # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
+  ssHess <- ss$hesspd
+  msHess <- ms$hesspd
+  hessPD <- ssHess
+  for( s in 1:ncol(hessPD) )
+    hessPD[,s] <- as.logical(ssHess[,s] * msHess)
+
+  # Create a list to hold error values
+  ssIC <- list ( 
+                Bmsy  = matrix( NA, nrow = nReps, ncol = nS ),
+                Umsy  = matrix( NA, nrow = nReps, ncol = nS ),
+                q_os  = array(  NA, dim = c(nReps,nSurv,nS) ),
+                dep   = matrix( NA, nrow = nReps, ncol = nS ),
+                BnT   = matrix( NA, nrow = nReps, ncol = nS )
+              )
+  # Slightly different structure for MS model
+  msIC <- list ( 
+                Bmsy    = matrix( NA, nrow = nReps, ncol = nS ),
+                Umsy    = matrix( NA, nrow = nReps, ncol = nS ),
+                q_os    = array(  NA, dim = c( nReps, nSurv, nS ) ),
+                dep     = matrix( NA, nrow = nReps, ncol = nS ),
+                BnT     = matrix( NA, nrow = nReps, ncol = nS )
+              )
+
+  # append IC lists to blob
+  ss$intCov <- ssIC
+  ms$intCov <- msIC
+
+  # Fill in ss MLE relative errors
+  for( rIdx in 1:nReps )
+  {
+    # Skip if no PD hessian
+    if( !any( hessPD[ rIdx, ] ) ) next
+    
+    # Save MS sdreport
+    sdrep.ms <- summary(ms$sdrep[[rIdx]])
+
+    sdrep.ms <- data.frame( var = rownames(sdrep.ms),
+                              est = sdrep.ms[,1],
+                              sd  = sdrep.ms[,2] ) %>%
+                  dplyr::mutate(  lbCI50 = est - .67*sd,
+                                  ubCI50 = est + .67*sd)
+
+    
+    for ( s in 1:nS )
+    {
+      if( ! hessPD[ rIdx, s ] ) next
+
+      sdrep.ss <- summary(ss$sdrep[[rIdx]][[s]]) 
+
+      sdrep.ss <- data.frame( var = rownames(sdrep.ss),
+                              est = sdrep.ss[,1],
+                              sd  = sdrep.ss[,2] ) %>%
+                  dplyr::mutate(  lbCI50 = est - .67*sd,
+                                  ubCI50 = est + .67*sd)
+
+
+      # SS interval coverage on management parameters
+      ss$intCov$Bmsy[rIdx,s]    <- (log(opMod$Bmsy[s]) < sdrep.ss[sdrep.ss$var == "lnBmsy","ubCI50"]) & (log(opMod$Bmsy[s]) > sdrep.ss[sdrep.ss$var == "lnBmsy","lbCI50"])
+      ss$intCov$Umsy[rIdx,s]    <- (log(opMod$Umsy[s]) < sdrep.ss[sdrep.ss$var == "lnUmsy","ubCI50"]) & (log(opMod$Umsy[s]) > sdrep.ss[sdrep.ss$var == "lnUmsy","lbCI50"])
+      ss$intCov$q_os[rIdx,,s]   <- (log(om$q_os[rIdx,,s]) < sdrep.ss[sdrep.ss$var == "lnqhat_os","ubCI50"]) & (log(om$q_os[rIdx,,s]) > sdrep.ss[sdrep.ss$var == "lnqhat_os","lbCI50"])
+      ss$intCov$dep[rIdx,s]     <- (log(om$dep[rIdx,s,nT]) < sdrep.ss[sdrep.ss$var == "lnDnT","ubCI50"]) & (log(om$dep[rIdx,s,nT]) > sdrep.ss[sdrep.ss$var == "lnDnT","lbCI50"])
+      ss$intCov$BnT[rIdx,s]     <- (log(om$Bt[rIdx,s,nT]) < sdrep.ss[sdrep.ss$var == "lnBnT","ubCI50"]) & (log(om$Bt[rIdx,s,nT]) > sdrep.ss[sdrep.ss$var == "lnBnT","lbCI50"])
+
+      # Now fill in ms interval coverage
+      ms$intCov$Bmsy[rIdx,s]    <- (log(opMod$Bmsy[s]) < sdrep.ms[sdrep.ms$var == "lnBmsy","ubCI50"][s]) & (log(opMod$Bmsy[s]) > sdrep.ms[sdrep.ms$var == "lnBmsy","lbCI50"][s])
+      ms$intCov$Umsy[rIdx,s]    <- (log(opMod$Umsy[s]) < sdrep.ms[sdrep.ms$var == "lnUmsy","ubCI50"][s]) & (log(opMod$Umsy[s]) > sdrep.ms[sdrep.ms$var == "lnUmsy","lbCI50"][s])
+      ms$intCov$dep[rIdx,s]     <- (log(om$dep[rIdx,s,nT]) < sdrep.ms[sdrep.ms$var == "lnDnT","ubCI50"][s]) & (log(om$dep[rIdx,s,nT]) > sdrep.ms[sdrep.ms$var == "lnDnT","lbCI50"][s])
+      ms$intCov$BnT[rIdx,s]     <- (log(om$Bt[rIdx,s,nT]) < sdrep.ms[sdrep.ms$var == "lnBnT","ubCI50"][s]) & (log(om$Bt[rIdx,s,nT]) > sdrep.ms[sdrep.ms$var == "lnBnT","lbCI50"][s])
+
+      # Catchability takes some work cos we need to figure out what the order is
+      repRows_qs <- 1:nSurv + nSurv * (s - 1) 
+      ms$intCov$q_os[rIdx,,s]   <- (log(om$q_os[rIdx,,s]) < sdrep.ms[sdrep.ms$var == "lnqhat_os","ubCI50"][repRows_qs]) & (log(om$q_os[rIdx,,s]) > sdrep.ms[sdrep.ms$var == "lnqhat_os","lbCI50"][repRows_qs])
+     
+    }
+  }
+  # Append these to blob
+  blob$am$ss <- ss
+  blob$am$ms <- ms
+
+  # Now save the good replicates
+  blob$goodReps <- hessPD
+
+  blob
+}
+
+# .calcIntervalCoverage()
+# This function takes a blob object produced by a sim-est procedure
+# and produces distributions of absolute and relative errors
+# inputs:   blob=list object output of simEstProc
+# ouputs:   blob=list object with error distributions appended
+# usage:    to create output that is saved for later analysis
+.calcPredictiveInt <- function ( blob )
+{
+  # recover control list, OM and AMs
+  ctrl  <- blob$ctrl
+  om    <- blob$om
+  opMod <- blob$opMod
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+
+  # Get control constants
+  nReps <- ctrl$nReps
+  nS    <- opMod$nS
+  nSurv <- opMod$nSurv
+  fYear <- opMod$fYear
+  lYear <- opMod$lYear
+  nT    <- lYear - min(fYear) + 1
+
+  # First get the replicate numbers for succesful fits (MCMC runs) in BOTH models
+  ssHess <- ss$hesspd
+  msHess <- ms$hesspd
+  hessPD <- ssHess
+  for( s in 1:ncol(hessPD) )
+    hessPD[,s] <- as.logical(ssHess[,s] * msHess)
+
+  # Create a list to hold error values
+  ssPI <- list ( 
+                Bmsy  = matrix( NA, nrow = nReps, ncol = nS ),
+                Umsy  = matrix( NA, nrow = nReps, ncol = nS ),
+                q_os  = array(  NA, dim = c(nReps,nSurv,nS) ),
+                dep   = matrix( NA, nrow = nReps, ncol = nS ),
+                BnT   = matrix( NA, nrow = nReps, ncol = nS )
+              )
+  # Slightly different structure for MS model
+  msPI <- list ( 
+                Bmsy    = matrix( NA, nrow = nReps, ncol = nS ),
+                Umsy    = matrix( NA, nrow = nReps, ncol = nS ),
+                q_os    = array(  NA, dim = c( nReps, nSurv, nS ) ),
+                dep     = matrix( NA, nrow = nReps, ncol = nS ),
+                BnT     = matrix( NA, nrow = nReps, ncol = nS )
+              )
+
+  # append IC lists to blob
+  ss$predInt <- ssPI
+  ms$predInt <- msPI
+
+  # Fill in ss MLE relative errors
+  for( rIdx in 1:nReps )
+  {
+    # Skip if no PD hessian
+    if( !any( hessPD[ rIdx, ] ) ) next
+    
+    # Save MS sdreport
+    sdrep.ms <- summary(ms$sdrep[[rIdx]])
+
+    sdrep.ms <- data.frame( var = rownames(sdrep.ms),
+                              est = sdrep.ms[,1],
+                              sd  = sdrep.ms[,2] )
+
+    
+    for ( s in 1:nS )
+    {
+      if( ! hessPD[ rIdx, s ] ) next
+
+      sdrep.ss <- summary(ss$sdrep[[rIdx]][[s]]) 
+
+      sdrep.ss <- data.frame( var = rownames(sdrep.ss),
+                              est = sdrep.ss[,1],
+                              sd  = sdrep.ss[,2] )
+
+
+      # SS interval coverage on management parameters
+      ss$predInt$Bmsy[rIdx,s]    <- pnorm(log(opMod$Bmsy[s]), mean = sdrep.ss[sdrep.ss$var == "lnBmsy","est"], sd = sdrep.ss[sdrep.ss$var == "lnBmsy","sd"])
+      ss$predInt$Umsy[rIdx,s]    <- pnorm(log(opMod$Umsy[s]), mean = sdrep.ss[sdrep.ss$var == "lnUmsy","est"], sd = sdrep.ss[sdrep.ss$var == "lnUmsy","sd"])      
+      ss$predInt$dep[rIdx,s]     <- pnorm(log(om$dep[rIdx,s,nT]), mean = sdrep.ss[sdrep.ss$var == "lnDnT","est"], sd = sdrep.ss[sdrep.ss$var == "lnDnT","sd"])
+      ss$predInt$BnT[rIdx,s]     <- pnorm(log(om$Bt[rIdx,s,nT]), mean = sdrep.ss[sdrep.ss$var == "lnBnT","est"], sd = sdrep.ss[sdrep.ss$var == "lnBnT","sd"])
+      for( oIdx in 1:nSurv)
+        ss$predInt$q_os[rIdx,oIdx,s] <- pnorm(log(om$q_os[rIdx,oIdx,s]), mean = sdrep.ss[sdrep.ss$var == "lnqhat_os","est"][oIdx], sd =  sdrep.ss[sdrep.ss$var == "lnqhat_os","sd"][oIdx])
+
+      # Now fill in ms interval coverage
+      ms$predInt$Bmsy[rIdx,s]    <- pnorm(log(opMod$Bmsy[s]), mean = sdrep.ms[sdrep.ms$var == "lnBmsy","est"][s], sd = sdrep.ms[sdrep.ms$var == "lnBmsy","sd"][s])
+      ms$predInt$Umsy[rIdx,s]    <- pnorm(log(opMod$Umsy[s]), mean = sdrep.ms[sdrep.ms$var == "lnUmsy","est"][s], sd = sdrep.ms[sdrep.ms$var == "lnUmsy","sd"][s])
+      ms$predInt$dep[rIdx,s]     <- pnorm(log(om$dep[rIdx,s,nT]), mean = sdrep.ms[sdrep.ms$var == "lnDnT","est"][s], sd = sdrep.ms[sdrep.ms$var == "lnDnT","sd"][s])
+      ms$predInt$BnT[rIdx,s]     <- pnorm(log(om$Bt[rIdx,s,nT]), mean = sdrep.ms[sdrep.ms$var == "lnBnT","est"][s], sd = sdrep.ms[sdrep.ms$var == "lnBnT","sd"][s])
+
+      # Catchability takes some work cos we need to figure out what the order is
+      repRows_qs <- 1:nSurv + nSurv * (s - 1) 
+      for( oIdx in 1:nSurv )
+        ms$predInt$q_os[rIdx,oIdx,s]   <- pnorm(log(om$q_os[rIdx,oIdx,s]), mean = sdrep.ms[sdrep.ms$var == "lnqhat_os","est"][repRows_qs[oIdx]], sd = sdrep.ms[sdrep.ms$var == "lnqhat_os","sd"][repRows_qs[oIdx]])
+     
+    }
+  }
+  # Append these to blob
+  blob$am$ss <- ss
+  blob$am$ms <- ms
+
+  # Now save the good replicates
+  blob$goodReps <- hessPD
+
+  blob
+}
+
+
+
+
+
 # makeErrorDists()
 # This function takes a blob object produced by a sim-est procedure
 # and produces distributions of absolute and relative errors

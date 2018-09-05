@@ -134,7 +134,11 @@ Type objective_function<Type>::operator() ()
   vector<Type>      lnMSY = log(MSY);
   array<Type>       Ut(nS,nT);
   vector<Type>      DnT(nS);
+  vector<Type>      lnDnT(nS);
+  vector<Type>      BnT(nS);
+  vector<Type>      lnBnT(nS);
   array<Type>       U_Umsy(nS,nT);
+  array<Type>       lnU_Umsy(nS,nT);
 
   // Procedure Section //
   // First create the correlation matrix for the species effects
@@ -392,11 +396,14 @@ Type objective_function<Type>::operator() ()
   nll += nllVarPrior + nllSigPrior;
 
   // Derive some output variables
-  Ut  = Ct / Bt;
-  DnT = Bt.col(nT-1)/Bmsy/2;
+  Ut      = Ct / Bt;
+  DnT     = Bt.col(nT-1)/Bmsy/2;
+  lnDnT   = log(DnT);
+  lnBnT   = log(Bt.col(nT-1));
   for( int t = 0; t < nT; t ++ )
   {
     U_Umsy.col(t) = Ut.col(t) / Umsy;
+    lnU_Umsy.col(t) = log(U_Umsy.col(t));
   }
 
 
@@ -404,12 +411,14 @@ Type objective_function<Type>::operator() ()
   // Variables we want SEs for
   ADREPORT(lnBt);
   ADREPORT(lnqhat_os);
-  ADREPORT(qhat_os);
   ADREPORT(lnMSY);
   ADREPORT(lnBinit);
   ADREPORT(lntau2_o);
   ADREPORT(lnkappa2);
-  // ADREPORT(gammaYr);
+  ADREPORT(lnDnT);
+  ADREPORT(lnBnT);
+  ADREPORT(lnU_Umsy.col(nT - 1));
+
   
   // Everything else //
   REPORT(Bt);

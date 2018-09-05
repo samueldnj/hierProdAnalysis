@@ -26,7 +26,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   # Run simEst Procedure
   blob <- .simEstProc( obj = controlList, quiet )
   # Make error distributions
-  blob <- .makeRelErrorDists ( blob )
+  blob <- .makeRelErrorDists( blob )
+  blob <- .calcIntervalCoverage( blob )
+  blob <- .calcPredictiveInt( blob )
   
   # save output to project folder
   # First, if a folder name isn't nominated, create a default sim folder
