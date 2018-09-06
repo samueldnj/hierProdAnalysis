@@ -674,12 +674,31 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           upper = Inf ),
                   silent = TRUE )
 
+    # Check for fit error
     if(class(fitFE) != "try-error")
     {
-      convFlag <- fitFE$convergence  
-      if( fitFE$objective < objFunVal )
-        bestPars <- fitFE$par  
-    } else 
+      # If relative convergence, take it
+      if( fitFE$message == "relative convergence (4)")
+      {
+        convFlag <- fitFE$convergence  
+        if( fitFE$objective < objFunVal )
+          bestPars <- fitFE$par  
+      } else 
+      {
+        # If function evaluation limit reached, start again
+        if(grepl(pattern = "limit reached", x = fitFE$message))
+        {
+          if(fitFE$objective < objFunVal)
+          {
+            bestPars <- fitFE$par
+            objFunVal <- fitFE$par
+          } else
+            bestPars <- bestPars + rnorm(length(bestPars),sd=.1)
+        }
+        else # If not converged (or false or X convergence), rejitter starting values
+          bestPars <- bestPars + rnorm(length(bestPars),sd=0.1)
+      }
+    } else # jitter starting values if AM throws an error
       bestPars <- bestPars + rnorm(length(bestPars),sd=0.1)
 
     if( nTries >= 2*fitTrials )
@@ -707,7 +726,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Save the best parameters from the fixed eff model
     bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
 
-    # Counter for changin behaviour
+    # check for infinite/Nan behaviour when integrating over REs
     if( !is.finite(obj$fn(bestPars)) )
       bestPars <- bestPars + 1
     
@@ -720,6 +739,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         # browser()
       # increment counter
       nTries <- nTries + 1
+      if(length(par$Bmsy) > 1) browser()
       # optimise the model with REs
       fit <- try( nlminb( start = bestPars,
                           objective = obj$fn,
