@@ -695,7 +695,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   if( length(RE) > 0 )
   {
-    browser()
     # Add REs
     obj <- MakeADFun (  dat = dat, parameters = par, map = map,
                         random = RE, silent = quiet )
@@ -754,9 +753,25 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
         {
           sd <- try(sdreport(obj), silent = TRUE)
           if(class(sd) == "try-error")
+          {
+            browser()
             convFlag <- 1
+            # Reduce deltat by half
+            par$deltat  <- par$deltat/2
+            bestPars    <- bestPars + .2
+            obj <- MakeADFun (  dat = dat, parameters = par, map = map,
+                        random = RE, silent = quiet )
+          }
           else if( !sd$pdHess )
+          {
+            browser()
             convFlag <- 1
+            # reduce deltat by half
+            par$deltat <- par$deltat/2
+            bestPars    <- bestPars + .2
+            obj <- MakeADFun (  dat = dat, parameters = par, map = map,
+                        random = RE, silent = quiet )
+          }
         }
       } else 
       {

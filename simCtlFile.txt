@@ -40,12 +40,12 @@ assess$autoGP TRUE
 assess$msAR1 FALSE
 assess$msCorr "off"
 assess$ssAR1 FALSE
-assess$quiet FALSE
+assess$quiet TRUE
 assess$tracePar FALSE
 assess$estYearEff FALSE
-assess$fitTrials 5
-assess$posPenFactor 1e2
-assess$deltat .5
+assess$fitTrials 10
+assess$posPenFactor 5e2
+assess$deltat 1
 assess$maxfn 3000
 assess$Umsy rep(.2,10)
 assess$lnq rep(-.51,10)
