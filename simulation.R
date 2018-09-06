@@ -732,7 +732,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       gc()
       # increment counter
       nTries <- nTries + 1
-      if(length(par$Bmsy) > 1) browser()
       # optimise the model with REs
       fit <- try( nlminb( start = bestPars,
                           objective = obj$fn,
