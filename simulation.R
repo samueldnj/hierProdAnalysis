@@ -756,7 +756,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
         if( fit$objective < objFunVal )
         {
-          browser()
           bestPars <- fit$par
           objFunVal <- fit$objective
         }

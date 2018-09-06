@@ -640,11 +640,38 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 .statTables <- function(  sims=1,tabNameRoot = "statTable", par = F,
                           nCores = detectCores()-1 )
 { 
+  if(!dir.exists("./project/Statistics"))
+    dir.create("./project/Statistics")
   if( par ) cluster <- makeCluster(nCores)
   # raw RE distributions
   REtable <- .statTableRE(  sims,paste(tabNameRoot,"_RE.csv", sep = ""),
                             par = par, clust = cluster )
+
+  # raw RE distributions
+  ICtable <- .statTableIC(  sims,paste(tabNameRoot,"_ICraw.csv", sep = ""),
+                            par = par, clust = cluster )
+
+  # raw RE distributions
+  PItable <- .statTablePI(  sims,paste(tabNameRoot,"_PI.csv", sep = ""),
+                            par = par, clust = cluster )
+
   if( par ) stopCluster( cluster )
+
+  ICtable <-  ICtable %>%
+              dplyr::select(  scenario, mp,
+                              species,
+                              ssBnT, msBnT,
+                              ssBmsy, msBmsy,
+                              ssDep, msDep,
+                              ssq_1, ssq_2,
+                              msq_1, msq_2 ) %>%
+              group_by( scenario, mp, species ) %>%
+              summarise_if(is.logical, .funs = funs(mean) ) %>%
+              ungroup()
+
+  ICtabName <- paste( tabNameRoot, "_IC.csv", sep = "" )
+  ICpath    <- file.path(getwd(),"project","Statistics",ICtabName)
+  write.csv( ICtable, file = ICpath )
   
   # MRE - summarised from RE
   MREtable <- REtable %>%
@@ -675,7 +702,7 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 # usage:    to produce output for a project and create .csv tables of 
 #           performance statistics
 # side-eff: creates tables of statistics in ./project/stats/
-.statTableRE <- function (sims=1,tabName = "statTable.csv", par = FALSE, clust )
+.statTableRE <- function (sims=1,tabName = "REstatTable.csv", par = FALSE, clust )
 { 
   # call function
   if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatRE )
@@ -683,6 +710,49 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 
   # now make the table and return
   statTable <-  do.call("rbind",tableList)
+  savePath <- file.path(getwd(),"project","Statistics",tabName)
+  write.csv ( statTable, file = savePath )
+  statTable
+}
+
+#.statTableIC()
+# Wrapper for .simStatIC, produces stacked tables of relative errors 
+# for a group of simulations.
+# inputs:   sims=integer vector indicating simulations in ./project/
+# outputs:  statTable=table of statistics for a project/group
+# usage:    to produce output for a project and create .csv tables of 
+#           performance statistics
+# side-eff: creates tables of statistics in ./project/stats/
+.statTableIC <- function (sims=1,tabName = "ICstatTable.csv", par = FALSE, clust )
+{ 
+  # call function
+  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatIC )
+  else tableList <- lapply ( X = sims, FUN = .simStatIC )
+
+  # now make the table and return
+  statTable <-  do.call("rbind",tableList)
+  savePath <- file.path(getwd(),"project","Statistics",tabName)
+  write.csv ( statTable, file = savePath )
+  statTable
+}
+
+#.statTablePI()
+# Wrapper for .simStatPI, produces stacked tables of relative errors 
+# for a group of simulations.
+# inputs:   sims=integer vector indicating simulations in ./project/
+# outputs:  statTable=table of statistics for a project/group
+# usage:    to produce output for a project and create .csv tables of 
+#           performance statistics
+# side-eff: creates tables of statistics in ./project/stats/
+.statTablePI <- function (sims=1,tabName = "PIstatTable.csv", par = FALSE, clust )
+{ 
+  # call function
+  if( par ) tableList <- parLapply ( cl = clust, X = sims, fun = .simStatPI )
+  else tableList <- lapply ( X = sims, FUN = .simStatPI )
+
+  # now make the table and return
+  statTable <-  do.call("rbind",tableList)
+
   savePath <- file.path(getwd(),"project","Statistics",tabName)
   write.csv ( statTable, file = savePath )
   statTable
@@ -1008,6 +1078,10 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
   success <- blob$goodReps
 
+  goodReps  <- apply( X = success, FUN = prod, MARGIN = 1)
+  goodReps  <- which(goodReps == 1)
+  nGood     <- length(goodReps)
+
   # First, create a data.frame of NAs with a row for each of MRE,MARE
   colLabels <- c( "scenario","mp","species","kappaTrue",
                   "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
@@ -1037,7 +1111,7 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                   qbar_surv, qbar_survOM,
                   tauq2_surv, tauq2_survOM )
   
-  statTable <- matrix( NA, nrow = nS*nReps, ncol = length( colLabels ) )
+  statTable <- matrix( NA, nrow = nS*nGood, ncol = length( colLabels ) )
   
 
   colnames(statTable)   <- colLabels
@@ -1071,35 +1145,261 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
 
   # Now values that change with the replicate
-  for (r in 1:nReps)
+  for(gIdx in 1:nGood)
   {
+    r <- goodReps[gIdx]
     for( survIdx in 1:nSurv )
     {
-      statTable[ (r-1)*nS+(1:nS), q_survOM[survIdx] ]      <- blob$om$q_os[r,survIdx,1:nS] 
-      statTable[ (r-1)*nS+(1:nS), qbar_survOM[survIdx] ]   <- blob$opMod$qSurvM[survIdx]
-      statTable[ (r-1)*nS+(1:nS), tauq2_survOM[survIdx] ]  <- blob$opMod$qSurvSD[survIdx]^2
-      statTable[ (r-1)*nS+(1:nS), tau2_survOM[survIdx] ]   <- blob$opMod$tauSurv[survIdx]^2
+      statTable[ (gIdx-1)*nS+(1:nS), q_survOM[survIdx] ]      <- blob$om$q_os[r,survIdx,1:nS] 
+      statTable[ (gIdx-1)*nS+(1:nS), qbar_survOM[survIdx] ]   <- blob$opMod$qSurvM[survIdx]
+      statTable[ (gIdx-1)*nS+(1:nS), tauq2_survOM[survIdx] ]  <- blob$opMod$qSurvSD[survIdx]^2
+      statTable[ (gIdx-1)*nS+(1:nS), tau2_survOM[survIdx] ]   <- blob$opMod$tauSurv[survIdx]^2
     }
     
-    statTable[(r-1)*nS+(1:nS),"rep"]          <- r
-    statTable[(r-1)*nS+(1:nS),"ssBnT"]        <- (ss$err.mle$BnT[r,] )
-    statTable[(r-1)*nS+(1:nS),"msBnT"]        <- (ms$err.mle$BnT[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssUmsy"]       <- (ss$err.mle$Umsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"msUmsy"]       <- (ms$err.mle$Umsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssBmsy"]       <- (ss$err.mle$Bmsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"msBmsy"]       <- (ms$err.mle$Bmsy[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssDep"]        <- (ss$err.mle$dep[r,] )
-    statTable[(r-1)*nS+(1:nS),"msDep"]        <- (ms$err.mle$dep[r,] )
-    statTable[(r-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
-    statTable[(r-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
-    statTable[(r-1)*nS+(1:nS),"sigU2"]        <- ( blob$am$ms$sigU2[r])
-    statTable[(r-1)*nS+(1:nS),"Umsybar"]      <- ( blob$am$ms$Umsybar[r])
-    statTable[(r-1)*nS+(1:nS), q_survSS]      <- ss$err.mle$q_os[r,,]
-    statTable[(r-1)*nS+(1:nS), q_survMS]      <- ms$err.mle$q_os[r,,]
-    statTable[(r-1)*nS+(1:nS), tau2_survSS]   <- ( ss$err.mle$tau2_o[r,,])
-    statTable[(r-1)*nS+(1:nS), tau2_survMS]   <- ( ms$err.mle$tau2_o[r,,])
-    statTable[(r-1)*nS+(1:nS), qbar_surv]     <- ( ms$err.mle$qbar_o[r,])
-    statTable[(r-1)*nS+(1:nS), tauq2_surv]    <- ( ms$err.mle$tauq2_o[r,])
+    statTable[(gIdx-1)*nS+(1:nS),"rep"]          <- r
+    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]        <- (ss$err.mle$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]        <- (ms$err.mle$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]       <- (ss$err.mle$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]       <- (ms$err.mle$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]       <- (ss$err.mle$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]       <- (ms$err.mle$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]        <- (ss$err.mle$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msDep"]        <- (ms$err.mle$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
+    statTable[(gIdx-1)*nS+(1:nS),"sigU2"]        <- ( blob$am$ms$sigU2[r])
+    statTable[(gIdx-1)*nS+(1:nS),"Umsybar"]      <- ( blob$am$ms$Umsybar[r])
+    statTable[(gIdx-1)*nS+(1:nS), q_survSS]      <- ss$err.mle$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), q_survMS]      <- ms$err.mle$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), tau2_survSS]   <- ( ss$err.mle$tau2_o[r,,])
+    statTable[(gIdx-1)*nS+(1:nS), tau2_survMS]   <- ( ms$err.mle$tau2_o[r,,])
+    statTable[(gIdx-1)*nS+(1:nS), qbar_surv]     <- ( ms$err.mle$qbar_o[r,])
+    statTable[(gIdx-1)*nS+(1:nS), tauq2_surv]    <- ( ms$err.mle$tauq2_o[r,])
+
+  }
+  
+  # return
+  statTable
+}
+
+# .simStatIC()
+# Produces a statistics table for leading pars in a simulation from
+# the output produced by a runSimEst() call
+# inputs:   sim=int indicating which simulation to compute stats for
+# outputs:  statTable=data.frame of interval coverage
+# usage:    in lapply to produce stats for a group of simulations
+.simStatIC <- function ( sim=1 )
+{
+  # First, load blob
+  source("tools.R")
+  .loadSim(sim)
+
+  om    <- blob$om
+  opMod <- blob$opMod
+  pars  <- blob$opMod$pars
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+  
+  # Control info
+  nS      <- blob$opMod$nS
+  nT      <- blob$opMod$nT
+  nSurv   <- blob$opMod$nSurv
+  species <- blob$ctrl$speciesName[1:nS]
+  nReps   <- blob$ctrl$nReps
+
+  # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
+  success <- blob$goodReps
+
+  goodReps  <- apply( X = success, FUN = prod, MARGIN = 1)
+  goodReps  <- which(goodReps == 1)
+  nGood     <- length(goodReps)
+
+  # First, create a data.frame of NAs with a row for each of MRE,MARE
+  colLabels <- c( "scenario","mp","species","kappaTrue",
+                  "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
+                  "ssBmsy","msBmsy","ssDep","msDep",
+                  "msHessPD", "ssHessPD","nReps",
+                  "Umax", "tUpeak", 
+                  "nS", "nSurv",
+                  "UmsyOM", "BmsyOM", "rep")
+
+  q_surv        <- paste( "q_", 1:nSurv, sep = "" )
+  q_survOM      <- paste( q_surv, "OM", sep = "" )
+  q_survSS      <- paste( c("ss"), q_surv, sep = "" )
+  q_survMS      <- paste( c("ms"), q_surv, sep = "" )
+
+
+  colLabels <- c( colLabels, 
+                  q_survSS, q_survMS, q_survOM )
+  
+  statTable <- matrix( NA, nrow = nS*nGood, ncol = length( colLabels ) )
+  
+
+  colnames(statTable)   <- colLabels
+  statTable             <- as.data.frame(statTable)
+
+  # get multiplier for shared effects
+  kappaMult <- opMod$kappaMult
+  if (is.null(opMod$kappaMult)) kappaMult <- 1
+
+  # Start filling stat table
+  # First, OM pars and labels
+  statTable$scenario        <- blob$ctrl$scenarioName
+  statTable$mp              <- blob$ctrl$mpLabel
+  statTable$species         <- species[1:nS]
+  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
+  statTable$kappaMult       <- kappaMult
+  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
+  statTable$nReps           <- apply(X = success, FUN = sum, MARGIN = 2)
+  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUpeak          <- opMod$tUpeak
+  statTable$nS              <- opMod$nS
+  statTable$UmsyOM          <- opMod$Umsy[1:nS]
+  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
+  statTable$fYear           <- opMod$fYear[1:nS]
+  statTable$initDep         <- opMod$initDep[1:nS]
+  statTable$nSurv           <- nSurv
+  statTable$fixProc         <- blob$ctrl$fixProc
+  statTable$corrTargVar     <- blob$opMod$corrTargVar
+  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
+  statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
+
+  # Now values that change with the replicate
+  for(gIdx in 1:nGood)
+  {
+    r <- goodReps[gIdx]
+    for( survIdx in 1:nSurv )
+    {
+      statTable[ (gIdx-1)*nS+(1:nS), q_survOM[survIdx] ]      <- blob$om$q_os[r,survIdx,1:nS] 
+    }
+    
+    statTable[(gIdx-1)*nS+(1:nS),"rep"]          <- r
+    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]        <- (ss$intCov$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]        <- (ms$intCov$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]       <- (ss$intCov$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]       <- (ms$intCov$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]       <- (ss$intCov$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]       <- (ms$intCov$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]        <- (ss$intCov$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msDep"]        <- (ms$intCov$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
+    statTable[(gIdx-1)*nS+(1:nS), q_survSS]      <- ss$intCov$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), q_survMS]      <- ms$intCov$q_os[r,,]
+
+  }
+  
+  # return
+  statTable
+}
+
+
+# .simStatIC()
+# Produces a statistics table for leading pars in a simulation from
+# the output produced by a runSimEst() call
+# inputs:   sim=int indicating which simulation to compute stats for
+# outputs:  statTable=data.frame of interval coverage
+# usage:    in lapply to produce stats for a group of simulations
+.simStatPI <- function ( sim=1 )
+{
+  # First, load blob
+  source("tools.R")
+  .loadSim(sim)
+
+  om    <- blob$om
+  opMod <- blob$opMod
+  pars  <- blob$opMod$pars
+  ss    <- blob$am$ss
+  ms    <- blob$am$ms
+  
+  # Control info
+  nS      <- blob$opMod$nS
+  nT      <- blob$opMod$nT
+  nSurv   <- blob$opMod$nSurv
+  species <- blob$ctrl$speciesName[1:nS]
+  nReps   <- blob$ctrl$nReps
+
+  # get the replicate numbers for succesful fits (MCMC runs) in BOTH models
+  success <- blob$goodReps
+
+  goodReps  <- apply( X = success, FUN = prod, MARGIN = 1)
+  goodReps  <- which(goodReps == 1)
+  nGood     <- length(goodReps)
+
+  # First, create a data.frame of NAs with a row for each of MRE,MARE
+  colLabels <- c( "scenario","mp","species","kappaTrue",
+                  "SigmaTrue", "kappaMult", "corr","ssBnT","msBnT","ssUmsy","msUmsy",
+                  "ssBmsy","msBmsy","ssDep","msDep",
+                  "msHessPD", "ssHessPD","nReps",
+                  "Umax", "tUpeak", 
+                  "nS", "nSurv",
+                  "UmsyOM", "BmsyOM", "rep")
+
+  q_surv        <- paste( "q_", 1:nSurv, sep = "" )
+  q_survOM      <- paste( q_surv, "OM", sep = "" )
+  q_survSS      <- paste( c("ss"), q_surv, sep = "" )
+  q_survMS      <- paste( c("ms"), q_surv, sep = "" )
+
+
+  colLabels <- c( colLabels, 
+                  q_survSS, q_survMS, q_survOM )
+  
+  statTable <- matrix( NA, nrow = nS*nGood, ncol = length( colLabels ) )
+  
+
+  colnames(statTable)   <- colLabels
+  statTable             <- as.data.frame(statTable)
+
+  # get multiplier for shared effects
+  kappaMult <- opMod$kappaMult
+  if (is.null(opMod$kappaMult)) kappaMult <- 1
+
+  # Start filling stat table
+  # First, OM pars and labels
+  statTable$scenario        <- blob$ctrl$scenarioName
+  statTable$mp              <- blob$ctrl$mpLabel
+  statTable$species         <- species[1:nS]
+  statTable$kappaTrue       <- ifelse(is.null(opMod$kappa2),sqrt(opMod$pars$kappa2),sqrt(opMod$kappa2))*kappaMult
+  statTable$SigmaTrue       <- ifelse(is.null(opMod$SigmaDiag),sqrt(opMod$pars$Sigma2[1:nS]),sqrt(opMod$SigmaDiag[1:nS]))
+  statTable$kappaMult       <- kappaMult
+  statTable$corr            <- ifelse(is.null(opMod$corrOffDiag),opMod$corrMult,opMod$corrOffDiag)
+  statTable$nReps           <- apply(X = success, FUN = sum, MARGIN = 2)
+  statTable$Umax            <- ifelse(is.null(opMod$Umax),opMod$Umult[2],opMod$Umax)
+  statTable$tUpeak          <- opMod$tUpeak
+  statTable$nS              <- opMod$nS
+  statTable$UmsyOM          <- opMod$Umsy[1:nS]
+  statTable$BmsyOM          <- opMod$Bmsy[1:nS]
+  statTable$fYear           <- opMod$fYear[1:nS]
+  statTable$initDep         <- opMod$initDep[1:nS]
+  statTable$nSurv           <- nSurv
+  statTable$fixProc         <- blob$ctrl$fixProc
+  statTable$corrTargVar     <- blob$opMod$corrTargVar
+  statTable$sigmaPriorCode  <- blob$assess$sigmaPriorCode
+  statTable$initBioCode     <- blob$assess$initBioCode[1:nS]
+
+  # Now values that change with the replicate
+  for(gIdx in 1:nGood)
+  {
+    r <- goodReps[gIdx]
+    for( survIdx in 1:nSurv )
+    {
+      statTable[ (gIdx-1)*nS+(1:nS), q_survOM[survIdx] ]      <- blob$om$q_os[r,survIdx,1:nS] 
+    }
+    
+    statTable[(gIdx-1)*nS+(1:nS),"rep"]          <- r
+    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]        <- (ss$predInt$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]        <- (ms$predInt$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]       <- (ss$predInt$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]       <- (ms$predInt$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]       <- (ss$predInt$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]       <- (ms$predInt$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]        <- (ss$predInt$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msDep"]        <- (ms$predInt$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
+    statTable[(gIdx-1)*nS+(1:nS), q_survSS]      <- ss$predInt$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), q_survMS]      <- ms$predInt$q_os[r,,]
 
   }
   
