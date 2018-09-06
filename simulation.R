@@ -528,14 +528,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   msMap <- list ( mBmsy             = factor( rep( NA, nS ) ),
                   sBmsy             = factor( rep( NA, nS ) ),
-                  #lntau2_o          = factor( rep( NA, nSurv ) ),
                   mUmsy             = factor( NA ),
                   sUmsy             = factor( NA ),
                   mq                = factor( NA ),
                   sq                = factor( NA ),
                   SigmaDiagMult     = factor( rep( NA, nS ) ),
-                  #lnSigmaDiag       = factor( NA ),
-                  #zeta_st           = factor( rep( NA, (max(nT)-1)*nS) ),
                   tau2GPa           = factor( rep( NA, nSurv ) ),
                   tau2GPb           = factor( rep( NA, nSurv ) ),
                   sigU2Prior        = factor( rep( NA, 2 ) ),
@@ -562,10 +559,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     msMap$lnUmsybar <- factor( NA )
   if( obj$assess$fixqbar )
     msMap$lnqbar_o <- factor( rep(NA, nSurv) )
-  if( obj$assess$estqms == "fix" )
-    msMap$lnq_os <- factor( rep( NA, nS*nSurv ) )
-  if( obj$assess$estqms == "ident" )
-    msMap$lnq_os <- factor( rep( 11, nS*nSurv ) )
   if( !obj$assess$estYearEff )
   {
     msMap$lnkappa2 <- factor( NA )
@@ -658,12 +651,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # set optimisation check values
   convFlag  <- 1
-  bestPars  <- obj$par
+  bestPars  <- obj$par + 1
   objFunVal <- obj$fn(obj$par)
 
   # Loop to keep trying to fit
   while( convFlag > 0 )
   {
+    gc()
     nTries <- nTries + 1
     # optimise the model with all fixed effects
     fitFE <- try( nlminb( start = bestPars,
@@ -691,15 +685,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           if(fitFE$objective < objFunVal)
           {
             bestPars <- fitFE$par
-            objFunVal <- fitFE$par
+            objFunVal <- fitFE$objective
           } else
-            bestPars <- bestPars + rnorm(length(bestPars),sd=.1)
+            bestPars <- fitFE$par + rnorm(length(bestPars),sd=.2)
         }
         else # If not converged (or false or X convergence), rejitter starting values
-          bestPars <- bestPars + rnorm(length(bestPars),sd=0.1)
+          bestPars <- bestPars + rnorm(length(bestPars),sd=0.2)
       }
     } else # jitter starting values if AM throws an error
-      bestPars <- bestPars + rnorm(length(bestPars),sd=0.1)
+      bestPars <- bestPars + rnorm(length(bestPars),sd=0.2)
 
     if( nTries >= 2*fitTrials )
       break
@@ -726,7 +720,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # Save the best parameters from the fixed eff model
     bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
 
-    # check for infinite/Nan behaviour when integrating over REs
+    # Counter for changin behaviour
     if( !is.finite(obj$fn(bestPars)) )
       bestPars <- bestPars + 1
     
@@ -735,8 +729,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     errCounter <- 0
     while( convFlag > 0 )
     {
-      # if(nS > 1) 
-        # browser()
+      gc()
       # increment counter
       nTries <- nTries + 1
       if(length(par$Bmsy) > 1) browser()
@@ -764,7 +757,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
         if( fit$objective < objFunVal )
         {
-          bestPars <- fit$par + 0.1
+          browser()
+          bestPars <- fit$par
           objFunVal <- fit$objective
         }
 
@@ -774,23 +768,15 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           sd <- try(sdreport(obj), silent = TRUE)
           if(class(sd) == "try-error")
           {
-            browser()
             convFlag <- 1
             # Reduce deltat by half
-            par$deltat  <- par$deltat/2
-            bestPars    <- bestPars + .2
-            obj <- MakeADFun (  dat = dat, parameters = par, map = map,
-                        random = RE, silent = quiet )
+            bestPars    <- bestPars + rnorm(length(bestPars), sd = .2)
           }
           else if( !sd$pdHess )
           {
-            browser()
             convFlag <- 1
             # reduce deltat by half
-            par$deltat <- par$deltat/2
-            bestPars    <- bestPars + .2
-            obj <- MakeADFun (  dat = dat, parameters = par, map = map,
-                        random = RE, silent = quiet )
+            bestPars    <- bestPars + rnorm(length(bestPars), sd = .2)
           }
         }
       } else 

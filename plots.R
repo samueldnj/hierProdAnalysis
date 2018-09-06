@@ -4216,6 +4216,8 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
     polyCol <- alpha("grey70", alpha = .5)
     msPolyCol <- "grey70"
     ssPolyCol <- "grey70"
+
+
   
     if( data ) 
     {
@@ -4225,12 +4227,16 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
       legLty  <- c(legLty,NA,NA)
       legLwd  <- c(legLwd,NA,NA)
     }
+    if(is.null(maxBt))
+      maxBt <- rep(NA, nS)
 
     # Plot SS model if first sim
     if( simIdx == 1 )
     { 
       for ( s in 1:nStocks )
       {
+        if(is.na(maxBt[s]))
+          maxBt[s] <- max(ssBio[s,sT[s]:nT,], msBio[s,sT[s]:nT,], omBt[s,sT[s]:nT], na.rm = T)
         plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
               ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
               main = "" )
@@ -4315,7 +4321,7 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
       # Plot OM Bt
       lines( x = years[sT[s]:nT], y = omBt[s,sT[s]:nT], lwd = 3 )
       # Add point estimates
-      lines( x = years, y = msBio[s,,2], lwd = 3, col = msCol, lty = 2 )
+      lines( x = years[sT[s]:nT], y = msBio[s,sT[s]:nT,2], lwd = 3, col = msCol, lty = 2 )
 
       
     }
