@@ -58,6 +58,7 @@ assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
 assess$BPriorCode 1
 assess$randomPriors TRUE
+assess$randPriorCV .5
 assess$mBmsy rep(20,10)
 assess$sBmsy rep(5,10)
 assess$lnUPriorCode 0
@@ -66,7 +67,7 @@ assess$lnsigUmsy2 -4
 assess$fixsigU2 TRUE
 assess$fixUbar TRUE
 assess$mUmsy .05
-assess$sUmsy 0.0125
+assess$sUmsy 0.025
 assess$lnqPriorCode 0
 assess$lnqbar_o -.53
 assess$lntauq_o -1
@@ -74,8 +75,8 @@ assess$fixtauq2 TRUE
 assess$fixqbar TRUE
 assess$estqms 'unique'
 assess$fixqss FALSE
-assess$mq .61
-assess$sq .15
+assess$mq .6
+assess$sq .3
 assess$sigUPriorCode 0
 assess$sigU2Prior c(21,5)
 assess$tauqPriorCode 0

@@ -941,12 +941,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   if( obj$assess$randomPriors )
   {
-    sq    <- obj$assess$sq
-    sUmsy <- obj$assess$sUmsy
+    sRP <- sqrt(log(obj$assess$randPriorCV^2 + 1))
   } else {
-    sq    <- 0
-    sUmsy <- 0
+    sRP <- 0
   }
+
 
   # Create list object to store all simulated values
   om <- list  ( Bt        = array( NA, dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -958,8 +957,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                 I_ost     = array( NA, dim=c(nReps,nSurv,nS,nT),dimnames=list(rNames,survNames,sNames,1:nT)),
                 dep       = array( NA, dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
                 q_os      = array( NA, dim=c(nReps,nSurv,nS),dimnames=list(rNames,survNames,sNames)),
-                mq        = rnorm(n = nReps, mean = obj$assess$mq, sd = sq),
-                mUmsy      = rnorm(n = nReps, mean = obj$assess$mUmsy, sd = sUmsy)
+                mq        = exp(rnorm(n = nReps, mean = log(obj$assess$mq), sd = sRP) - 0.5*sRP^2),
+                mUmsy     = exp(rnorm(n = nReps, mean = log(obj$assess$mUmsy), sd = sRP) - 0.5*sRP^2)
               )
 
   obj$assess$mq     <- om$mq
