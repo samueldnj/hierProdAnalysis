@@ -58,7 +58,7 @@ assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
 assess$BPriorCode 0
 assess$randomPriors TRUE
-assess$randPriorCV .1
+assess$randPriorCV .25
 assess$mBmsy rep(10,10)
 assess$sBmsy rep(10,10)
 assess$lnUPriorCode 0
@@ -70,7 +70,7 @@ assess$mUmsy .05
 assess$sUmsy 0.0125
 assess$lnqPriorCode 0
 assess$lnqbar_o -.53
-assess$lntauq_o -4
+assess$lntauq_o -2
 assess$fixtauq2 TRUE
 assess$fixqbar TRUE
 assess$estqms 'unique'
@@ -78,12 +78,12 @@ assess$fixqss FALSE
 assess$mq .55
 assess$sq .1375
 assess$sigUPriorCode 0
-assess$sigU2Prior c(19,0.125)
+assess$sigU2Prior c(19,0.01)
 assess$tauqPriorCode 0
-assess$tauq2Prior c(19,0.125)
-assess$kappa2IG c(2,0.1)
-assess$Sigma2IG c(2,0.1)
-assess$tau2IGa rep(2,3)
+assess$tauq2Prior c(19,0.05)
+assess$kappa2IG c(4,0.1)
+assess$Sigma2IG c(4,0.1)
+assess$tau2IGa rep(4,3)
 assess$tau2IGb rep(.1,3)
 assess$msRE c('zeta_st')
 assess$ssRE c('zeta_st')
