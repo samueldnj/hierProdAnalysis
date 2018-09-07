@@ -175,7 +175,7 @@ Type objective_function<Type>::operator() ()
       Type tmpBt = Bt(s,t-1);
       for( int dt = 0; dt < nSteps; dt ++ )
       {
-        // Compute the deltat step of biomass (assuming catch is evenly distributed)
+        // Compute the deltat step of biomass (assuming catch is evenly distributed across the year)
         Type tmpBdt = 0;
         tmpBdt =  tmpBt + deltat * Umsy(s) * tmpBt * (Type(2.0) - tmpBt / Bmsy(s) ) - deltat*Ct(s,t-1);
         tmpBdt *= exp(deltat * (omegat(t) + zeta_st(s,t-1)));

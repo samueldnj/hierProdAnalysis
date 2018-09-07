@@ -377,9 +377,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     Sigma2      <- mean(obj$om$Sigma2)
 
     # Now change IG parameters so that the prior mode is at the true (mean) value
-    obj$assess$tau2GPb[1:nSurv] <- 1/(obj$assess$tau2GPa[1:nSurv]-1)/tau2Surv[1:nSurv]
-    obj$assess$kappa2GP[2]      <- 1/(obj$assess$kappa2GP[1]-1)/(kappa2 + Sigma2)
-    obj$assess$Sigma2GP[2]      <- 1/(obj$assess$Sigma2GP[1]-1)/(kappa2 + Sigma2)
+    obj$assess$tau2GPb[1:nSurv] <- (obj$assess$tau2GPa[1:nSurv]-1)/tau2Surv[1:nSurv]
+    obj$assess$kappa2GP[2]      <- (obj$assess$kappa2GP[1]-1)/(kappa2 + Sigma2)
+    obj$assess$Sigma2GP[2]      <- (obj$assess$Sigma2GP[1]-1)/(kappa2 + Sigma2)
   }
 
   # Create IW scale matrix
