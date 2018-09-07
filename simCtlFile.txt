@@ -56,7 +56,7 @@ assess$kappa2 0.00001
 assess$Sigma2 0.05
 assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
-assess$BPriorCode 1
+assess$BPriorCode 0
 assess$randomPriors TRUE
 assess$randPriorCV .5
 assess$mBmsy rep(10,10)
