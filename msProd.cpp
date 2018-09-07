@@ -80,12 +80,12 @@ Type objective_function<Type>::operator() ()
   PARAMETER(sUmsy);                     // hyperprior Umsy sd
   PARAMETER_VECTOR(mBmsy);              // prior mean eqbm biomass
   PARAMETER_VECTOR(sBmsy);              // prior eqbm biomass var
-  PARAMETER_VECTOR(tau2GPa);            // Gamma Prior parameters for tau2 prior
-  PARAMETER_VECTOR(tau2GPb);            // Gamma Prior parameters for tau2 prior
-  PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (GPa,GPb) or (mean,var)
-  PARAMETER_VECTOR(sigU2Prior);         // Hyperparameters for sigU2 prior - (GPa,GPb) or (mean,var)
-  PARAMETER_VECTOR(kappa2GP);           // Gamma Prior parameters for kappa2 prior
-  PARAMETER_VECTOR(Sigma2GP);           // Gamma Prior parameters for Sigma2 prior
+  PARAMETER_VECTOR(tau2IGa);            // Inverse Gamma Prior parameters for tau2 prior
+  PARAMETER_VECTOR(tau2IGb);            // Inverse Gamma Prior parameters for tau2 prior
+  PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (IGa,IGb) or (mean,var)
+  PARAMETER_VECTOR(sigU2Prior);         // Hyperparameters for sigU2 prior - (IGa,IGb) or (mean,var)
+  PARAMETER_VECTOR(kappa2IG);           // Inverse Gamma Prior parameters for kappa2 prior
+  PARAMETER_VECTOR(Sigma2IG);           // Inverse Gamma Prior parameters for Sigma2 prior
   PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
   PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
   PARAMETER(deltat);                    // Fractional time step used in pop dynamics to reduce chaotic behaviour
@@ -391,7 +391,7 @@ Type objective_function<Type>::operator() ()
 
   // Apply Sigma Prior
   if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
-    nllSigPrior -= dgamma(exp(-lnSigmaDiag), Sigma2GP(0), Sigma2GP(1),1);
+    nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
 
   nll += nllVarPrior + nllSigPrior;
 
