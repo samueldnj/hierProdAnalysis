@@ -344,11 +344,11 @@ Type objective_function<Type>::operator() ()
   Type nllVarPrior = 0.;
   Type nllSigPrior = 0.;
   for( int o = 0; o < nO; o++ )
-    nllVarPrior -= dgamma( 1/tau2_o(o), tau2GPa(o), tau2GPb(o), 1);
+    nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_o(o)+tau2IGb(o)/tau2_o(o);  
 
   // year effect deviations var
   if( kappaPriorCode == 1 )  
-    nllVarPrior -= dgamma( 1/kappa2, kappa2GP(0), kappa2GP(1), 1);
+    nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
 
   // Now multispecies priors
   if (nS > 1)
@@ -358,7 +358,7 @@ Type objective_function<Type>::operator() ()
     {
       for( int o = 0; o < nO; o++)
       {
-        nllVarPrior -= dgamma(1/tauq2_o(o), tauq2Prior(0), tauq2Prior(1), 1); 
+        nllVarPrior += (tauq2Prior(0)+Type(1))*Type(2)*lntauq_o(o)+tauq2Prior(1)/tauq2_o(o);
       }
     }
     if( tauqPriorCode == 1 )
@@ -372,7 +372,7 @@ Type objective_function<Type>::operator() ()
     // IG
     if( sigUPriorCode == 0 )
     {
-      nllVarPrior -= dgamma( 1/sigUmsy2, sigU2Prior(0), sigU2Prior(1), 1); 
+      nllVarPrior += (sigU2Prior(0)+Type(1))*Type(2.)*lnsigUmsy+sigU2Prior(1)/sigUmsy2;
     }
     // Normal
     if( sigUPriorCode == 1 )
