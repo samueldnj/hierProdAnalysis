@@ -51,12 +51,12 @@ for( i in 1:length(batchFiles))
 
   # Copy out sims to dropbox, tidy up
   cat("Removing simulations from ./project/ \n", sep="")
-  for(k in 1:length(simsPath))
-    system(command=paste("rm -d -R ",simsPath[k],sep=""))
+  # for(k in 1:length(simsPath))
+  #   system(command=paste("rm -d -R ",simsPath[k],sep=""))
 
   cat("Removing batch files from ./project/batch folder\n", sep="")
-  # for(k in 1:length(batchContentsPath))
-    # system(command=paste("rm -d -R ",batchContentsPath[k],sep=""))
+  for(k in 1:length(batchContentsPath))
+    system(command=paste("rm -d -R ",batchContentsPath[k],sep=""))
 
   cat("Experiment and tidy-up complete, ready to start next experiment.\n")
 }
