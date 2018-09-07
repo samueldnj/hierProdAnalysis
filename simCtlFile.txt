@@ -36,7 +36,7 @@ opMod$gammaYr 0.0
 opMod$kappaMult 1
 assess$profiles FALSE
 assess$saveDatPar TRUE
-assess$autoGP TRUE
+assess$autoIG TRUE
 assess$msAR1 FALSE
 assess$msCorr "off"
 assess$ssAR1 FALSE

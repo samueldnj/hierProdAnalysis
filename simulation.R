@@ -368,8 +368,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   }
   sumCat <- as.numeric(sumCat)
 
-  # change IG parameters for tau, kappa and Sigma if autoIG is on
-  if (obj$assess$autoGP)
+   # change IG parameters for tau, kappa and Sigma if autoIG is on
+  if (obj$assess$autoIG)
   {
     # recover true variances (use om, may be modified by kappaMult)
     tau2Surv    <- obj$om$tau2Surv
@@ -377,9 +377,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     Sigma2      <- mean(obj$om$Sigma2)
 
     # Now change IG parameters so that the prior mode is at the true (mean) value
-    obj$assess$tau2GPb[1:nSurv] <- (obj$assess$tau2GPa[1:nSurv]-1)/tau2Surv[1:nSurv]
-    obj$assess$kappa2GP[2]      <- (obj$assess$kappa2GP[1]-1)/(kappa2 + Sigma2)
-    obj$assess$Sigma2GP[2]      <- (obj$assess$Sigma2GP[1]-1)/(kappa2 + Sigma2)
+    obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
+    obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*(Sigma2 + kappa2)
+    obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*(Sigma2 + kappa2)
   }
 
   # Create IW scale matrix
