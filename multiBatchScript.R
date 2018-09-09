@@ -34,13 +34,26 @@ for( i in 1:length(batchFiles))
   .statTables(1:nSims,expPrefix[i],par=T)
 
   # Now copy the project folder to dropbox
-  copyDest <- file.path("/Volumes/SDNJ_home/thesisStuff/cwMSexperiments/TMB",paste(expPrefix[i],Sys.Date(),sep = "_") )
+  copyDest <- file.path("/Volumes/home/thesisStuff/cwMSexperiments/TMB",paste(expPrefix[i],Sys.Date(),sep = "_") )
   dir.create( copyDest )
 
   # Copy project folder contents recursively to copyDest
   cat( "Copying project folder contents to ", copyDest, "\n", sep = "" )
-  file.copy(  from = file.path( getwd(),"/project"), to = copyDest, 
-              recursive = TRUE )
+  x <- file.copy( from = file.path( getwd(),"project"), to = copyDest, 
+                  recursive = TRUE )
+
+  if(!x)
+  {
+    cat(  "Error copying project folder contents to remote server,\n", 
+          "using local dir instead" )
+    copyDest <- file.path("../",paste(expPrefix[i],Sys.Date(),sep = "_") )
+    dir.create( copyDest )
+
+    # Copy project folder contents recursively to copyDest
+    cat( "Copying project folder contents to ", copyDest, "\n", sep = "" )
+    x <- file.copy( from = file.path( getwd(),"project"), to = copyDest, 
+                    recursive = TRUE )
+  }
 
   # Now remove the simulation folders and the contents of the batch sub-dir
   # from the project folder
@@ -51,8 +64,8 @@ for( i in 1:length(batchFiles))
 
   # Copy out sims to dropbox, tidy up
   cat("Removing simulations from ./project/ \n", sep="")
-  # for(k in 1:length(simsPath))
-  #   system(command=paste("rm -d -R ",simsPath[k],sep=""))
+  for(k in 1:length(simsPath))
+    system(command=paste("rm -d -R ",simsPath[k],sep=""))
 
   cat("Removing batch files from ./project/batch folder\n", sep="")
   for(k in 1:length(batchContentsPath))
