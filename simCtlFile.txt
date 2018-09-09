@@ -67,7 +67,7 @@ assess$lnsigUmsy2 -4
 assess$fixsigU2 TRUE
 assess$fixUbar TRUE
 assess$mUmsy .05
-assess$sUmsy 0.0125
+assess$sUmsy 0.025
 assess$lnqPriorCode 0
 assess$lnqbar_o -.53
 assess$lntauq_o -2
@@ -76,7 +76,7 @@ assess$fixqbar TRUE
 assess$estqms 'unique'
 assess$fixqss FALSE
 assess$mq .55
-assess$sq .1375
+assess$sq .275
 assess$sigUPriorCode 0
 assess$sigU2Prior c(9,0.01)
 assess$tauqPriorCode 0
