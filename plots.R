@@ -3832,7 +3832,6 @@ plotBenv <- function(  sims=1, legend=TRUE,
 corrTitles <- c("corr(Bt) = 0.1", "corr(Bt) = 0.9", "corr(Ct) = 0.1", "corr(Ct) = 0.9" )
 
 mpTitles <- expression("Single-stock", q, U, q/U)
-baseTitles <- expression("Single-stock", q/U/epsilon[t])
 
 
 
@@ -4089,13 +4088,13 @@ plotBCfit <- function(  sims=1, legend=TRUE,
 #                   and biomass is scaled by estimated B0
 # output:   NULL
 # usage:    post-simulation run, plotting performance
-plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
+plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
                         data = FALSE,
                         CIs = FALSE,
                         scale = FALSE,
-                        titles = baseTitles, MPtitles = FALSE,
+                        titles = baseTitles, MPtitles = TRUE,
                         labSize = 2, tickSize = 2, 
-                        devLabels = TRUE, maxBt = c(70,30,30) )
+                        devLabels = TRUE, maxBt = NULL )
 {
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
@@ -4111,7 +4110,7 @@ plotBCsim <- function(  sims=1, rep = 1, legend=TRUE,
   par ( mfcol = c(nStocks,length(sims)+1), mar = c(1,2,2,2), oma = c(4.5,4.5,2,0.5),
         las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
 
-  if( MPtitles ) titles <- numeric( length = length(sims)+1 )
+  if( MPtitles ) titles <- character( length = length(sims)+1 )
 
   titles[1] <- "Single-Stock"
 
@@ -4706,7 +4705,7 @@ plotBCU <- function ( rep = 1, sim=1, legend=TRUE,
         colnames( ssStdErr ) <- c("val","se")
         ssCIs[[ s ]] <-   msStdErr %>%
                           as.data.frame() %>%
-                          mutate( par = rownames(msStdErr),
+                          mutate( par = rownames(ssStdErr),
                                   lCI = val - 1.645*se,
                                   uCI = val + 1.645*se ) %>%
                                   dplyr::select( par, val, se, lCI, uCI )    
