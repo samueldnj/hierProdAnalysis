@@ -32,6 +32,7 @@ for( i in 1:length(batchFiles))
   sims <- grep(pattern = "sim", x = list.files("./project/"), value = T)
   nSims <- length(sims)
   .statTables(1:nSims,expPrefix[i],par=T)
+  .makeMetaModelTables(expPrefix[i])
 
   # Now copy the project folder to dropbox
   copyDest <- file.path("/Volumes/home/thesisStuff/cwMSexperiments/TMB",paste(expPrefix[i],Sys.Date(),sep = "_") )

@@ -629,6 +629,32 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                   medTab = medTab ) )
 }
 
+.makeMetaModelTables <- function(tabNameRoot)
+{
+  makeNewTabCols( tableRoot = "allSame_infoScenarios" )
+  tabName <- paste(tabNameRoot,"_MARE",sep = "")
+  .makeDeltaCols( tabName = tabName)
+
+  # Complex level pars
+  metaModels( tabName = paste(tabName,"_cplx",sep = ""),
+              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+              spec = c("Stock1"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+              sig = .05, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE )
+
+  # Then stock level pars for stock1, with Delta values
+  metaModels( tabName = paste(tabName,"_Delta",sep = ""),
+              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+              spec = c("Stock1"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+              sig = .05, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE )
+}
+
+
 #.statTables()
 # Wrapper for .statTableXXX functions, produces stacked tables of stats 
 # for a group of simulations.
@@ -638,11 +664,16 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 # side-eff: creates tables of statistics in ./project/stats/
 # returns:  NULL
 .statTables <- function(  sims=1,tabNameRoot = "statTable", par = F,
-                          nCores = detectCores()-1 )
+                          nCores = detectCores()-1)
 { 
+
   if(!dir.exists("./project/Statistics"))
     dir.create("./project/Statistics")
+
   if( par ) cluster <- makeCluster(nCores)
+
+  
+
   # raw RE distributions
   REtable <- .statTableRE(  sims,paste(tabNameRoot,"_RE.csv", sep = ""),
                             par = par, clust = cluster )
@@ -657,17 +688,30 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 
   if( par ) stopCluster( cluster )
 
+  # Calculate run stats ( number of failed reps, number of repeated tries
+  # for convergence on good reps )
+  runStats <- PItable %>%
+              group_by(scenario, mp, species) %>%
+              summarise(  totReps = max(rep),
+                          msTries = mean(msTries),
+                          ssTries = mean(ssTries) ) %>%
+              ungroup()
+
+
+  # Summarise interval coverage table
   ICtable <-  ICtable %>%
               dplyr::select(  scenario, mp,
                               species,
                               ssBnT, msBnT,
                               ssBmsy, msBmsy,
+                              ssUmsy, msUmsy,
                               ssDep, msDep,
                               ssq_1, ssq_2,
                               msq_1, msq_2 ) %>%
               group_by( scenario, mp, species ) %>%
               summarise_if(is.logical, .funs = funs(mean) ) %>%
-              ungroup()
+              ungroup() %>%
+              left_join( runStats )
 
   ICtabName <- paste( tabNameRoot, "_IC.csv", sep = "" )
   ICpath    <- file.path(getwd(),"project","Statistics",ICtabName)
@@ -675,8 +719,17 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   
   # MRE - summarised from RE
   MREtable <- REtable %>%
+              dplyr::select(  scenario, mp,
+                              species,
+                              ssBnT, msBnT,
+                              ssBmsy, msBmsy,
+                              ssUmsy, msUmsy,
+                              ssDep, msDep,
+                              ssq_1, ssq_2,
+                              msq_1, msq_2 ) %>%
               group_by(scenario, mp, species ) %>%
-              summarise_all( .funs = .statTableSummarise )
+              summarise_all( .funs = .statTableSummarise ) %>%
+              left_join( runStats )
 
   MREname   <- paste(tabNameRoot,"_MRE.csv", sep = "" )
   MREpath   <- file.path(getwd(),"project","Statistics",MREname)
@@ -684,13 +737,22 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   
   # MARE - summarised from RE
   MAREtable <-  REtable %>%
+                dplyr::select(  scenario, mp,
+                                species,
+                                ssBnT, msBnT,
+                                ssBmsy, msBmsy,
+                                ssUmsy, msUmsy,
+                                ssDep, msDep,
+                                ssq_1, ssq_2,
+                                msq_1, msq_2 ) %>%
                 group_by( scenario, mp, species ) %>%
-                summarise_all( .funs = .statTableSummariseAbs )
+                summarise_all( .funs = .statTableSummariseAbs )%>%
+                left_join( runStats )
 
   MAREname   <- paste(tabNameRoot,"_MARE.csv", sep = "" )
   MAREpath   <- file.path(getwd(),"project","Statistics",MAREname)
   write.csv( MAREtable, file = MAREpath )
-  
+
   return(NULL)
 }
 
@@ -1089,7 +1151,8 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                   "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", 
                   "nS", "nSurv",
-                  "UmsyOM", "BmsyOM", "rep")
+                  "UmsyOM", "BmsyOM", "rep",
+                  "ssTries","msTries")
 
   q_surv        <- paste( "q_", 1:nSurv, sep = "" )
   q_survOM      <- paste( q_surv, "OM", sep = "" )
@@ -1156,25 +1219,27 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
       statTable[ (gIdx-1)*nS+(1:nS), tau2_survOM[survIdx] ]   <- blob$opMod$tauSurv[survIdx]^2
     }
     
-    statTable[(gIdx-1)*nS+(1:nS),"rep"]          <- r
-    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]        <- (ss$err.mle$BnT[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]        <- (ms$err.mle$BnT[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]       <- (ss$err.mle$Umsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]       <- (ms$err.mle$Umsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]       <- (ss$err.mle$Bmsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]       <- (ms$err.mle$Bmsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]        <- (ss$err.mle$dep[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msDep"]        <- (ms$err.mle$dep[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
-    statTable[(gIdx-1)*nS+(1:nS),"sigU2"]        <- ( blob$am$ms$sigU2[r])
-    statTable[(gIdx-1)*nS+(1:nS),"Umsybar"]      <- ( blob$am$ms$Umsybar[r])
-    statTable[(gIdx-1)*nS+(1:nS), q_survSS]      <- ss$err.mle$q_os[r,,]
-    statTable[(gIdx-1)*nS+(1:nS), q_survMS]      <- ms$err.mle$q_os[r,,]
-    statTable[(gIdx-1)*nS+(1:nS), tau2_survSS]   <- ( ss$err.mle$tau2_o[r,,])
-    statTable[(gIdx-1)*nS+(1:nS), tau2_survMS]   <- ( ms$err.mle$tau2_o[r,,])
-    statTable[(gIdx-1)*nS+(1:nS), qbar_surv]     <- ( ms$err.mle$qbar_o[r,])
-    statTable[(gIdx-1)*nS+(1:nS), tauq2_surv]    <- ( ms$err.mle$tauq2_o[r,])
+    statTable[(gIdx-1)*nS+(1:nS),"rep"]           <- r
+    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]         <- (ss$err.mle$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]         <- (ms$err.mle$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]        <- (ss$err.mle$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]        <- (ms$err.mle$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]        <- (ss$err.mle$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]        <- (ms$err.mle$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]         <- (ss$err.mle$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msDep"]         <- (ms$err.mle$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]      <- (ss$hesspd[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]      <-  ms$hesspd[r]
+    statTable[(gIdx-1)*nS+(1:nS),"sigU2"]         <- ( blob$am$ms$sigU2[r])
+    statTable[(gIdx-1)*nS+(1:nS),"Umsybar"]       <- ( blob$am$ms$Umsybar[r])
+    statTable[(gIdx-1)*nS+(1:nS), q_survSS]       <- ss$err.mle$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), q_survMS]       <- ms$err.mle$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), tau2_survSS]    <- ( ss$err.mle$tau2_o[r,,])
+    statTable[(gIdx-1)*nS+(1:nS), tau2_survMS]    <- ( ms$err.mle$tau2_o[r,,])
+    statTable[(gIdx-1)*nS+(1:nS), qbar_surv]      <- ( ms$err.mle$qbar_o[r,])
+    statTable[(gIdx-1)*nS+(1:nS), tauq2_surv]     <- ( ms$err.mle$tauq2_o[r,])
+    statTable[(gIdx-1)*nS+(1:nS),"ssTries"]       <- (ss$nTries[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msTries"]       <-  ms$nTries[r]
 
   }
   
@@ -1221,7 +1286,8 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                   "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", 
                   "nS", "nSurv",
-                  "UmsyOM", "BmsyOM", "rep")
+                  "UmsyOM", "BmsyOM", "rep",
+                  "msTries","ssTries")
 
   q_surv        <- paste( "q_", 1:nSurv, sep = "" )
   q_survOM      <- paste( q_surv, "OM", sep = "" )
@@ -1274,19 +1340,21 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
       statTable[ (gIdx-1)*nS+(1:nS), q_survOM[survIdx] ]      <- blob$om$q_os[r,survIdx,1:nS] 
     }
     
-    statTable[(gIdx-1)*nS+(1:nS),"rep"]          <- r
-    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]        <- (ss$intCov$BnT[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]        <- (ms$intCov$BnT[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]       <- (ss$intCov$Umsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]       <- (ms$intCov$Umsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]       <- (ss$intCov$Bmsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]       <- (ms$intCov$Bmsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]        <- (ss$intCov$dep[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msDep"]        <- (ms$intCov$dep[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
-    statTable[(gIdx-1)*nS+(1:nS), q_survSS]      <- ss$intCov$q_os[r,,]
-    statTable[(gIdx-1)*nS+(1:nS), q_survMS]      <- ms$intCov$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS),"rep"]           <- r
+    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]         <- (ss$intCov$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]         <- (ms$intCov$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]        <- (ss$intCov$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]        <- (ms$intCov$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]        <- (ss$intCov$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]        <- (ms$intCov$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]         <- (ss$intCov$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msDep"]         <- (ms$intCov$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]      <- (ss$hesspd[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]      <-  ms$hesspd[r]
+    statTable[(gIdx-1)*nS+(1:nS),"ssTries"]       <- (ss$nTries[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msTries"]       <-  ms$nTries[r]
+    statTable[(gIdx-1)*nS+(1:nS), q_survSS]       <- ss$intCov$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), q_survMS]       <- ms$intCov$q_os[r,,]
 
   }
   
@@ -1334,7 +1402,7 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                   "msHessPD", "ssHessPD","nReps",
                   "Umax", "tUpeak", 
                   "nS", "nSurv",
-                  "UmsyOM", "BmsyOM", "rep")
+                  "UmsyOM", "BmsyOM", "rep","msTries","ssTries")
 
   q_surv        <- paste( "q_", 1:nSurv, sep = "" )
   q_survOM      <- paste( q_surv, "OM", sep = "" )
@@ -1387,19 +1455,21 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
       statTable[ (gIdx-1)*nS+(1:nS), q_survOM[survIdx] ]      <- blob$om$q_os[r,survIdx,1:nS] 
     }
     
-    statTable[(gIdx-1)*nS+(1:nS),"rep"]          <- r
-    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]        <- (ss$predInt$BnT[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]        <- (ms$predInt$BnT[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]       <- (ss$predInt$Umsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]       <- (ms$predInt$Umsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]       <- (ss$predInt$Bmsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]       <- (ms$predInt$Bmsy[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]        <- (ss$predInt$dep[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msDep"]        <- (ms$predInt$dep[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]     <- (ss$hesspd[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]     <-  ms$hesspd[r]
-    statTable[(gIdx-1)*nS+(1:nS), q_survSS]      <- ss$predInt$q_os[r,,]
-    statTable[(gIdx-1)*nS+(1:nS), q_survMS]      <- ms$predInt$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS),"rep"]           <- r
+    statTable[(gIdx-1)*nS+(1:nS),"ssBnT"]         <- (ss$predInt$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBnT"]         <- (ms$predInt$BnT[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssUmsy"]        <- (ss$predInt$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msUmsy"]        <- (ms$predInt$Umsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssBmsy"]        <- (ss$predInt$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msBmsy"]        <- (ms$predInt$Bmsy[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssDep"]         <- (ss$predInt$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msDep"]         <- (ms$predInt$dep[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"ssHessPD"]      <- (ss$hesspd[r,] )
+    statTable[(gIdx-1)*nS+(1:nS),"msHessPD"]      <-  ms$hesspd[r]
+    statTable[(gIdx-1)*nS+(1:nS),"msTries"]       <-  ms$nTries[r]
+    statTable[(gIdx-1)*nS+(1:nS),"ssTries"]       <-  ss$nTries[r,]
+    statTable[(gIdx-1)*nS+(1:nS), q_survSS]       <- ss$predInt$q_os[r,,]
+    statTable[(gIdx-1)*nS+(1:nS), q_survMS]       <- ms$predInt$q_os[r,,]
 
   }
   
