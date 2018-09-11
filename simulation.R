@@ -1216,8 +1216,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   )
 
     Bt[t] <- Bt[t]*epst[t]*zetat[t] # Process error
-    ## THIS IS BOGUS ##
-    Bt[t] <- max(Bt[t], Ut[t]*Bt[t] + 1)
+   
+    Ct[t] <- Bt[t] * Ut[t]
   }  # End loop for biomass
   # Generate catch for nT
   Ct[nT] <- Ut[nT] * Bt[nT]

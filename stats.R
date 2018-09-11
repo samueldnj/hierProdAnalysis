@@ -566,13 +566,13 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   # Scale inputs
   if( scaled )
   {
+
     table <-  table %>%
               mutate( nS = scaleNum(nS),
                       Umax = scaleNum(Umax),
-                      kappaMult = scaleNum(kappaMult),
-                      corr = scaleNum(corr),
                       fYear = scaleNum(fYear),
-                      initDep = scaleNum(initDep) )
+                      initDep = scaleNum(initDep),
+                      nDiff = scaleNum(nDiff) )
   }
 
   # Function to fit GLMs given...
@@ -701,7 +701,8 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   # Summarise interval coverage table
   ICtable <-  ICtable %>%
               dplyr::select(  scenario, mp,
-                              species,
+                              species, nS,
+                              fYear, Umax, initDep,
                               ssBnT, msBnT,
                               ssBmsy, msBmsy,
                               ssUmsy, msUmsy,
@@ -720,7 +721,8 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   # MRE - summarised from RE
   MREtable <- REtable %>%
               dplyr::select(  scenario, mp,
-                              species,
+                              species, nS,
+                              fYear, Umax, initDep,
                               ssBnT, msBnT,
                               ssBmsy, msBmsy,
                               ssUmsy, msUmsy,
@@ -738,7 +740,8 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   # MARE - summarised from RE
   MAREtable <-  REtable %>%
                 dplyr::select(  scenario, mp,
-                                species,
+                                species, nS,
+                                fYear, Umax, initDep,
                                 ssBnT, msBnT,
                                 ssBmsy, msBmsy,
                                 ssUmsy, msUmsy,

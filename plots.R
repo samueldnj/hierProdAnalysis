@@ -3828,10 +3828,282 @@ plotBenv <- function(  sims=1, legend=TRUE,
   }
 }
 
+makeSimNumTable <- function()
+{
+  simList <- list.files("./project/", full.names = TRUE)
+  simList <- simList[grepl(pattern = "sim", x = simList)]
+  # Count simulations, make a table of scenarios/MPs
+  nSims <- length(simList)
+  simNumTable <- matrix(NA, nrow = nSims, ncol = 3 )
+  colnames(simNumTable) <- c("simNum","scenario","mp")
+
+  simNumTable <- as.data.frame(simNumTable)
+  simNumTable$simNum <- 1:nSims
+
+  for( i in 1:nSims )
+  {
+    .loadSim(i)
+    simNumTable[i,"scenario"] <- blob$ctrl$scenarioName
+    simNumTable[i,"mp"] <- blob$ctrl$mpLabel
+  }
+  simNumTable
+}
+
+dumpBCsim <- function(  simPath = "./project/pubBase_2018-09-10/project",
+                        prefix = "pubBase",
+                        MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                        MPlabels = expression("Single Stock","None", q, r, q/r ) )
+{
+  # Need to read in all the sims in the folder, and then
+  # tabulate so we can plot out the sets of MPs
+  # List directories
+  simList <- list.files(simPath, full.names = TRUE)
+  simList <- simList[grepl(pattern = "sim", x = simList)]
+  if(simPath != "./project")
+  {
+    file.copy( from = simList, to = "./project/", recursive = TRUE)
+  }
+
+  plotPath <- file.path("./project/figs",prefix)
+  if(!dir.exists(plotPath))
+    dir.create(plotPath)
+
+  simNumTable <- makeSimNumTable()
+
+  scenarios <- unique(simNumTable$scenario)
+  if(is.null(MPs))
+    MPs     <- unique(simNumTable$mp)
+
+  for( sIdx in 1:length(scenarios) )
+  {
+    scenLabel <- scenarios[sIdx]
+    scenPath <- file.path(plotPath, scenLabel)
+    if(!dir.exists(scenPath))
+      dir.create(scenPath)
+
+    subTable <- simNumTable %>%
+                filter( scenario == scenLabel )
+
+    mpOrder <- numeric(length(MPs))
+    for( mIdx in 1:length(MPs))
+      mpOrder[mIdx] <- subTable[which(subTable[,"mp"] == MPs[mIdx] ),"simNum"]
+
+    # Now, loop over rep numbers and plot
+    for( rIdx in 1:100 )
+    {
+      plotFile <- file.path(scenPath, paste("BCsim_rep",rIdx,".png",sep = ""))
+      png(plotFile, width = 1600, height = 900 )
+      plotBCsim(  sims = mpOrder, rep = rIdx,
+                  legend=FALSE,
+                  data = FALSE,
+                  CIs = TRUE,
+                  scale = FALSE,
+                  titles = MPlabels, MPtitles = FALSE,
+                  labSize = 2, tickSize = 2, 
+                  devLabels = TRUE, maxBt = NULL )
+      dev.off()
+    }
+
+  }
+
+
+}
+
+dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
+                              vars = c("Umsy","BnT","Bmsy","Dep","q_1","q_2"),
+                              varLabels = expression(U[MSY], B[T], B[MSY], D[T], q[11], q[21]),
+                              MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                              MPlabels = expression("None", q, r, q/r ) )                              
+{
+  graphics.off()
+  # First, create a directory to dump out all the plots
+  batchPlotPath <- file.path("./project/figs",tabNameRoot)
+  if(!dir.exists(batchPlotPath) )
+    dir.create(batchPlotPath)
+
+  # Read in tables
+  tablePath <- "./project/statistics" 
+
+  # Pred Interval
+  PItab     <- paste(tabNameRoot,"_PI.csv", sep = "" )
+  PItab     <- read.csv(file.path(tablePath,PItab), header = T, stringsAsFactors = FALSE)
+
+  # Interval Coverage
+  ICtab     <- paste(tabNameRoot,"_IC.csv", sep = "" )
+  ICtab     <- read.csv(file.path(tablePath,ICtab), header = T, stringsAsFactors = FALSE)
+
+  # MREs
+  MREtab     <- paste(tabNameRoot,"_MRE.csv", sep = "" )
+  MREtab     <- read.csv(file.path(tablePath,MREtab), header = T, stringsAsFactors = FALSE)
+
+  # MAREs
+  MAREtab     <- paste(tabNameRoot,"_MARE.csv", sep = "" )
+  MAREtab     <- read.csv(file.path(tablePath,MAREtab), header = T, stringsAsFactors = FALSE)
+
+  scenarios <- unique(PItab$scenario)
+  if(is.null(MPs))
+    MPs       <- unique(PItab$mp)
+
+  perfPlotPath <- file.path(batchPlotPath, "perfMetrics" )
+  if(!dir.exists(perfPlotPath) )
+    dir.create(perfPlotPath)
+
+  # Loop over scenarios, plot 1 for each scenario
+  for( scenIdx in 1:length(scenarios) )
+  {
+    scenLabel <- scenarios[scenIdx]
+    scenPlotPath <- file.path(perfPlotPath,paste(scenLabel,".png",sep = ""))
+    png( file = scenPlotPath, width = 1600, height = 900 )
+    par(mfrow = c(length(vars), length(MPs) ), oma =c(3,3,2,2), mar = c(2,2,2,2) )
+    # MPs are columns, and vars are rows
+    # we are going row by row, so loop over vars first
+    for( vIdx in 1:length(vars) )
+    {
+      varName <- vars[vIdx]
+      for(mpIdx in 1:length(MPs))
+      {
+        plotPerfMetrics(  scenLabel = scenLabel,
+                          tabNameRoot = tabNameRoot,
+                          mpLabel = MPs[mpIdx],
+                          variable = varName,
+                          stockLabel = stockLabel,
+                          PItab = PItab,
+                          ICtab = ICtab,
+                          MREtab = MREtab,
+                          MAREtab = MAREtab,
+                          axisLabs = FALSE )
+        mfg <- par("mfg")
+        # Plot column header if in top row
+        if(mfg[1] == 1)
+          mtext(side = 3, line = 2, text = MPlabels[mpIdx])
+        # Plot variable label in right hand margin
+        if(mfg[2] == mfg[4])
+          mtext(side = 4, line = 1, text = varLabels[vIdx] )
+      }
+    }
+    dev.off()
+  }
+  cat("Perf metrics for ", tabNameRoot," complete\n", sep = "")
+}
+
+plotPerfMetrics <- function(  scenLabel = "base_1way", tabNameRoot = "pubBase",
+                              mpLabel = "UmsyPriorOnly", variable = "Bmsy", 
+                              stockLabel = "Stock1", axisLabs = TRUE,
+                              PItab = NULL,
+                              ICtab = NULL,
+                              MREtab = NULL,
+                              MAREtab = NULL )
+{
+  tablePath <- "./project/statistics"
+
+  # Read in various perf tables if required, filter to given scenario
+  if(is.null(PItab))
+  {
+    PItab     <- paste(tabNameRoot,"_PI.csv", sep = "" )
+    PItab     <- read.csv(file.path(tablePath,PItab), header = T, stringsAsFactors = FALSE)
+  }
+  # Filter to scenario/stock/MP
+  PItab <-  PItab %>%
+            dplyr::filter(  scenario == scenLabel,
+                            mp == mpLabel,
+                            species == stockLabel ) 
+
+  if(is.null(ICtab))
+  {
+    ICtab     <- paste(tabNameRoot,"_IC.csv", sep = "" )
+    ICtab     <- read.csv(file.path(tablePath,ICtab), header = T, stringsAsFactors = FALSE) 
+  }
+  # Filter to scenario/stock/MP
+  ICtab <-  ICtab %>%
+            dplyr::filter(  scenario == scenLabel,
+                            mp == mpLabel,
+                            species == stockLabel ) 
+
+  if(is.null(MREtab))
+  {
+    MREtab    <- paste(tabNameRoot,"_MRE.csv", sep = "" )
+    MREtab    <- read.csv(file.path(tablePath,MREtab), header = T, stringsAsFactors = FALSE )
+  }
+  # Filter to scenario/stock/MP
+  MREtab <- MREtab %>%
+            dplyr::filter(  scenario == scenLabel,
+                            mp == mpLabel,
+                            species == stockLabel ) 
+  if(is.null(PItab))
+  {
+    MAREtab   <- paste(tabNameRoot,"_MARE.csv", sep = "" )
+    MAREtab   <- read.csv(file.path(tablePath,MAREtab), header = T, stringsAsFactors = FALSE)
+  }
+  MAREtab <-  MAREtab %>%
+              dplyr::filter(  scenario == scenLabel,
+                              mp == mpLabel,
+                              species == stockLabel ) 
+
+  
+  ssVar <- paste("ss",variable, sep = "")
+  msVar <- paste("ms",variable, sep = "")
+
+  cols <- brewer.pal(3, "Dark2")
+
+
+  # get prediction integral values
+  ssPIhist <- hist(PItab[,ssVar], plot = FALSE, breaks = seq(0,1,length = 21), na.rm = T )
+  msPIhist <- hist(PItab[,msVar], plot = FALSE, breaks = seq(0,1,length = 21), na.rm = T )
+  ssPIdens <- density(PItab[,ssVar], na.rm = T )
+  msPIdens <- density(PItab[,msVar], na.rm = T )
+
+  # Get IC
+  ssIC <- ICtab[,ssVar]
+  msIC <- ICtab[,msVar]
+
+  # Get MARE values
+  ssMARE <- round(MAREtab[,ssVar],3)
+  msMARE <- round(MAREtab[,msVar],3)
+
+  # Get MRE values
+  ssMRE <- round(MREtab[,ssVar], 3)
+  msMRE <- round(MREtab[,msVar], 3)
+
+  # get total reps
+  totReps <- ICtab[,"totReps"]
+  msTries <- round(ICtab[,"msTries"],2)
+  ssTries <- round(ICtab[,"ssTries"],2)
+
+
+  plot( x = c(0,1), y = c(0,3),
+        type = "n", axes = F, xlab = "",
+        ylab = "" )
+    if(axisLabs)
+    {
+      mtext( side = 1, line = 2, text = "P(X|hat(x),se(X))")
+      mtext( side = 2, line = 2, text = "Density")
+    }
+    axis(side = 1)
+    axis(side = 2, las = 1)
+    box()
+    plot(ssPIhist, add =T, col = alpha(cols[1],alpha = .5), freq = FALSE)
+    plot(msPIhist, add =T, col = alpha(cols[2],alpha = .5), freq =FALSE)
+    lines(ssPIdens, col = cols[1], lwd = 3 )
+    lines(msPIdens, col = cols[2], lwd = 3 )
+    # Plot performance metrics
+    text( x = 0.1, y = 2.8, label = "     SS    MS " )
+    text( x = 0.1, y = 2.6, label = paste("  IC ", ssIC, "   ", msIC, sep = "") )
+    text( x = 0.1, y = 2.4, label = paste("MARE ", ssMARE, "   ", msMARE, sep = "") )
+    text( x = 0.1, y = 2.2, label = paste(" MRE ", ssMRE, "   ", msMRE, sep = "") )
+
+    # Plot number of tries
+    text(x = 0.8, y = 2.8, label = paste( "totReps = ", totReps, sep = ""))
+    text(x = 0.8, y = 2.6, label = paste( "msTries = ", msTries, sep = ""))
+    text(x = 0.8, y = 2.4, label = paste( "ssTries = ", ssTries, sep = ""))
+
+
+}
 
 corrTitles <- c("corr(Bt) = 0.1", "corr(Bt) = 0.9", "corr(Ct) = 0.1", "corr(Ct) = 0.9" )
 
 mpTitles <- expression("Single-stock", q, U, q/U)
+
+
 
 
 
@@ -4172,9 +4444,11 @@ plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
     msCIs <- blob$am$ms$CIs[[ rep ]]
     ssCIs <- blob$am$ss$CIs[[ rep ]]
     # Populate CIs
-    if( !any(is.na(msCIs)) )
+    if( !is.null(msCIs) )
     {
-      Btrows <- which( msCIs$par == "lnBt" )
+      if( any(is.na( msCIs )) ) break
+      Btrows <- which( msCIs$par == "lnBt" )    
+      
       msBio[ , , 1 ] <- matrix( exp(msCIs[ Btrows, "uCI" ]), nrow = nS, ncol = nT, byrow = FALSE )
       msBio[ , , 2 ] <- matrix( exp(msCIs[ Btrows, "val" ]), nrow = nS, ncol = nT, byrow = FALSE )
       msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 

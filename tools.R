@@ -139,7 +139,7 @@ makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
 # makeInfoScenarioDesign()
 # Creates the .bch file for a historical fishing intensity experiment,
 # without the MP section underneath.
-makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,2,1)","c(1,1,1)"),
+makeInfoScenarioDesign <- function ( levels = list( Uhist = c("c(0.2,4,1)","c(1,1,1)"),
                                                     initYear = c(1984,2003),
                                                     nS = c(4,7,10),
                                                     initDep = c(.4,.7,1.0),
@@ -291,31 +291,6 @@ makeFixedProcREDesign <- function ( levels = list(  m = c(0.5,1,1.5,2),
   write.csv(x = treatments, file = paste(bchName,"LHrD.csv",sep="_"))
 
   treatments
-}
-
-makeMetaModelTables <- function(tabNameRoot)
-{
-  makeNewTabCols( tableRoot = "allSame_infoScenarios" )
-  tabName <- paste(tabNameRoot,"_MARE",sep = "")
-  .makeDeltaCols( tabName = tabName)
-
-  # Complex level pars
-  metaModels( tabName = paste(tabName,"_cplx",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
-              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
-              spec = c("Stock1"),
-              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
-              sig = .05, intercept = TRUE,
-              scaled = TRUE, saveOut = TRUE, interactions = FALSE )
-
-  # Then stock level pars for stock1, with Delta values
-  metaModels( tabName = paste(tabName,"_Delta",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
-              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
-              spec = c("Stock1"),
-              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
-              sig = .05, intercept = TRUE,
-              scaled = TRUE, saveOut = TRUE, interactions = FALSE )
 }
 
 # makeFhistDesign()
