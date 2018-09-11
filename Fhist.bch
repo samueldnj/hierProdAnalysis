@@ -14,7 +14,7 @@ scenario$scenario1$opMod$initDep c(1,.7,.4)
 #
 scenario$scenario2$ctrl$scenarioName 'base_2way'
 scenario$scenario2$opMod$nS 5
-scenario$scenario2$opMod$Umult c(.2,2,1)
+scenario$scenario2$opMod$Umult c(.2,4,1)
 scenario$scenario2$opMod$initDep c(1,.7,.4)
 #
 # Management Procedures 

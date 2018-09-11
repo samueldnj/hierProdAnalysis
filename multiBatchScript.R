@@ -17,6 +17,7 @@ source("control.R")
 batchFiles    <- c("infoScenarios.bch","infoScenarios.bch","pubBase4MPs.bch")
 baseCtlFiles  <- c("simCtlFileRP.txt","simCtlFile.txt","simCtlFile.txt")
 expPrefix     <- c("allSame_infoScenarios_RP","allSame_infoScenarios","pubBase")
+plots         <- c(TRUE,TRUE,TRUE)
 
 # Now loop over the experiments
 
@@ -32,7 +33,26 @@ for( i in 1:length(batchFiles))
   sims <- grep(pattern = "sim", x = list.files("./project/"), value = T)
   nSims <- length(sims)
   .statTables(1:nSims,expPrefix[i],par=T)
-  .makeMetaModelTables(expPrefix[i])
+  if(plots)
+  {
+    dumpPerfMetrics(  tabNameRoot = expPrefix[i], stockLabel = "Stock1",
+                      vars = c("Umsy","BnT","Bmsy","Dep","q_1","q_2"),
+                      varLabels = expression(U[MSY], B[T], B[MSY], B[T]/B[0], q[11], q[21]),
+                      MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                      MPlabels = expression("None", q, r, q/r ) ) 
+    dumpBCsim(  simPath = file.path("./project"),
+                prefix = expPrefix[i],
+                MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                MPlabels = expression("Single Stock","None", q, r, q/r ) )  
+    dumpStockPerf(  simPath = file.path("./project"),
+                    prefix = expPrefix[i],
+                    MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                    MPlabels = c( noJointPriors = "None", 
+                                  qPriorOnly = expression(q), 
+                                  UmsyPriorOnly = expression(r), 
+                                  qUpriors = expression(q/r) ) )
+  }
+  
 
   # Now copy the project folder to dropbox
   copyDest <- file.path("/Volumes/home/thesisStuff/cwMSexperiments/TMB",paste(expPrefix[i],Sys.Date(),sep = "_") )

@@ -3849,7 +3849,7 @@ makeSimNumTable <- function()
   simNumTable
 }
 
-dumpBCsim <- function(  simPath = "./project/pubBase_2018-09-10/project",
+dumpBCsim <- function(  simPath = "./project",
                         prefix = "pubBase",
                         MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
                         MPlabels = expression("Single Stock","None", q, r, q/r ) )
@@ -5137,6 +5137,64 @@ mpNamesPerfPlot <- c( noJointPriors ="None",
                       qYEpriors = expression(q / epsilon[t]),
                       UmsyYEpriors = expression(r / epsilon[t]), 
                       allJointPriors = expression(q / r / epsilon[t]) )
+
+
+
+dumpStockPerf <- function(  simPath = file.path("./project/pubBase_2018-09-10/project"),
+                            prefix = "pubBase",
+                            MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                            MPlabels = c( noJointPriors = "None", 
+                                          qPriorOnly = expression(q), 
+                                          UmsyPriorOnly = expression(r), 
+                                          qUpriors = expression(q/r) ) )
+{
+  # Need to read in all the sims in the folder, and then
+  # tabulate so we can plot out the sets of MPs
+  # List directories
+  simList <- list.files(simPath, full.names = TRUE)
+  simList <- simList[grepl(pattern = "sim", x = simList)]
+  if(simPath != "./project")
+  {
+    file.copy( from = simList, to = "./project/", recursive = TRUE)
+  }
+
+  plotPath <- file.path("./project/figs",prefix)
+  if(!dir.exists(plotPath))
+    dir.create(plotPath)
+
+  plotPath <- file.path(plotPath,"stockPerf")
+  if(!dir.exists(plotPath))
+    dir.create(plotPath)
+
+  simNumTable <- makeSimNumTable()
+
+  scenarios <- unique(simNumTable$scenario)
+  if(is.null(MPs))
+    MPs     <- unique(simNumTable$mp)
+
+  for( sIdx in 1:length(scenarios) )
+  {
+    scenLabel <- scenarios[sIdx]
+    plotFile <- file.path(plotPath, paste(scenLabel,".png",sep = "") )
+
+    subTable <- simNumTable %>%
+                filter( scenario == scenLabel )
+
+    mpOrder <- numeric(length(MPs))
+    for( mIdx in 1:length(MPs))
+      mpOrder[mIdx] <- subTable[which(subTable[,"mp"] == MPs[mIdx] ),"simNum"]
+
+    png(plotFile, width = 500, height = 800 )
+    plotStockPerfMultiSim(  pars = c("Umsy","BnT","Bmsy","dep","q_os"), 
+                            sims = mpOrder, spec = 1, nSurv = 2,
+                            devLabels = TRUE,
+                            title = TRUE, plotMARE = FALSE,
+                            mpNames = MPlabels,
+                            labSize = 1 )
+    dev.off()
+  }
+  cat("Completed plotting stock performance plot for ", prefix, "\n", sep = "" )
+}
 
 # plotSimPerf()
 # A function to plot simulation-estimation performance for a whole
