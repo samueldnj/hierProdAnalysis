@@ -33,24 +33,32 @@ for( i in 1:length(batchFiles))
   sims <- grep(pattern = "sim", x = list.files("./project/"), value = T)
   nSims <- length(sims)
   .statTables(1:nSims,expPrefix[i],par=T)
+  # Create plots if asked for
   if(plots)
   {
+    # Perf metric summaries of each scenario
     dumpPerfMetrics(  tabNameRoot = expPrefix[i], stockLabel = "Stock1",
                       vars = c("Umsy","BnT","Bmsy","Dep","q_1","q_2"),
                       varLabels = expression(U[MSY], B[T], B[MSY], B[T]/B[0], q[11], q[21]),
                       MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
                       MPlabels = expression("None", q, r, q/r ) ) 
+    # Now get the folder order numbering so we can plot the BCsim
+    # and stockPerf
+    simNumTable <- makeSimNumTable()
     dumpBCsim(  simPath = file.path("./project"),
                 prefix = expPrefix[i],
                 MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
-                MPlabels = expression("Single Stock","None", q, r, q/r ) )  
+                MPlabels = expression("Single Stock","None", q, r, q/r ),
+                simNumTable = simNumTable )  
+    
     dumpStockPerf(  simPath = file.path("./project"),
                     prefix = expPrefix[i],
                     MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
                     MPlabels = c( noJointPriors = "None", 
                                   qPriorOnly = expression(q), 
                                   UmsyPriorOnly = expression(r), 
-                                  qUpriors = expression(q/r) ) )
+                                  qUpriors = expression(q/r) ),
+                    simNumTable = simNumTable )
   }
   
 

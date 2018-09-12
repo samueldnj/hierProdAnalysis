@@ -78,7 +78,7 @@ makeParEstTablePub <- function( tables = c("DoverBase", "DoverLoPE"),
 }
 
 
-makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
+makeNewTabCols <- function( tableRoot = "allSame_infoScenarios", IC = FALSE )
 {
   ## Path specific function - needs updating in mutate arguments ##
   # Cretes new column(s) in stats tables from the scenario label, 
@@ -90,20 +90,28 @@ makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
   # Side-eff: rewrites stat tables (MARE, MRE and RE versions) with
   #           new cols
 
-  MAREtabRoot  <- paste(tableRoot,"_MARE", sep = "")
-  MAREtabFile  <- paste(tableRoot,"_MARE.csv", sep = "")
-  MAREtabPath <- file.path(getwd(),"project","Statistics",MAREtabFile)
-  MAREtab     <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
+  MAREtabRoot   <- paste(tableRoot,"_MARE", sep = "")
+  MAREtabFile   <- paste(tableRoot,"_MARE.csv", sep = "")
+  MAREtabPath   <- file.path(getwd(),"project","Statistics",MAREtabFile)
+  MAREtab       <- read.csv( MAREtabPath, header=TRUE, stringsAsFactors=FALSE )
 
   MREtabRoot  <- paste(tableRoot,"_MRE", sep = "")
   MREtabFile  <- paste(tableRoot,"_MRE.csv", sep = "")
-  MREtabPath <- file.path(getwd(),"project","Statistics",MREtabFile)
-  MREtab     <- read.csv( MREtabPath, header=TRUE, stringsAsFactors=FALSE )
+  MREtabPath  <- file.path(getwd(),"project","Statistics",MREtabFile)
+  MREtab      <- read.csv( MREtabPath, header=TRUE, stringsAsFactors=FALSE )
 
-  REtabRoot  <- paste(tableRoot,"_RE", sep = "")
-  REtabFile  <- paste(tableRoot,"_RE.csv", sep = "")
-  REtabPath <- file.path(getwd(),"project","Statistics",REtabFile)
-  REtab     <- read.csv( REtabPath, header=TRUE, stringsAsFactors=FALSE )
+  if(IC)
+  {
+    ICtabRoot   <- paste(tableRoot,"_IC", sep = "")
+    ICtabFile   <- paste(tableRoot,"_IC.csv", sep = "")
+    ICtabPath   <- file.path(getwd(),"project","Statistics",ICtabFile)
+    ICtab       <- read.csv( ICtabPath, header=TRUE, stringsAsFactors=FALSE )
+  }
+
+  REtabRoot   <- paste(tableRoot,"_RE", sep = "")
+  REtabFile   <- paste(tableRoot,"_RE.csv", sep = "")
+  REtabPath   <- file.path(getwd(),"project","Statistics",REtabFile)
+  REtab       <- read.csv( REtabPath, header=TRUE, stringsAsFactors=FALSE )
 
 
   splitScenLabel <- function ( scenLabel, match = "CVhi" )
@@ -124,6 +132,11 @@ makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
             group_by( scenario, mp, species, rep ) %>%
             mutate( nDiff  = splitScenLabel(scenario,match = "nDiff") )
 
+  if(IC)
+    ICtab <-  ICtab %>%
+              group_by( scenario, mp, species ) %>%
+              mutate( nDiff  = splitScenLabel(scenario,match = "nDiff") )
+
 
   MREtab <- MREtab %>%
             group_by( scenario, mp, species ) %>%
@@ -133,6 +146,8 @@ makeNewTabCols <- function( tableRoot = "allSame_infoScenarios" )
   write.csv( REtab, REtabPath )
   write.csv( MREtab, MREtabPath )
   write.csv( MAREtab, MAREtabPath )
+  if(IC)
+    write.csv( ICtab, ICtabPath )
 }
 
 

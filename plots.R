@@ -3873,6 +3873,10 @@ dumpBCsim <- function(  simPath = "./project",
   if(!dir.exists(plotPath))
     dir.create(plotPath)
 
+  plotPath <- file.path(plotPath,"BCsim")
+  if(!dir.exists(plotPath))
+    dir.create(plotPath)  
+
   if(is.null(simNumTable))
     simNumTable <- makeSimNumTable()
 
@@ -3895,20 +3899,15 @@ dumpBCsim <- function(  simPath = "./project",
       mpOrder[mIdx] <- subTable[which(subTable[,"mp"] == MPs[mIdx] ),"simNum"]
 
     # Now, loop over rep numbers and plot
-    for( rIdx in 1:100 )
-    {
-      plotFile <- file.path(scenPath, paste("BCsim_rep",rIdx,".png",sep = ""))
-      png(plotFile, width = 1600, height = 900 )
-      plotBCsim(  sims = mpOrder, rep = rIdx,
-                  legend=FALSE,
-                  data = FALSE,
-                  CIs = TRUE,
-                  scale = FALSE,
-                  titles = MPlabels, MPtitles = FALSE,
-                  labSize = 2, tickSize = 2, 
-                  devLabels = TRUE, maxBt = NULL )
-      dev.off()
-    }
+    plotBCsimReps(  sims = mpOrder,
+                    saveFileRoot = file.path(scenPath,"BCsim"),
+                    legend=FALSE,
+                    data = FALSE,
+                    CIs = TRUE,
+                    scale = FALSE,
+                    titles = MPlabels, MPtitles = FALSE,
+                    labSize = 2, tickSize = 2, 
+                    devLabels = TRUE, maxBt = NULL )
 
   }
 
@@ -3919,7 +3918,7 @@ dumpBCsim <- function(  simPath = "./project",
     for(k in 1:length(simList))
       system( paste("rm -r ", simList[k], sep = "") )
   }
-    cat("BCsim() plots completed for ", tabNameRoot," complete\n", sep = "")
+    cat("BCsim() plots for ", prefix," complete\n", sep = "")
 }
 
 dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
@@ -4626,6 +4625,283 @@ plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
 }
 
 
+# plotBCfit()
+# Plot fit, CIs and data for a set of simulations. This is made for sim objects 
+# that were run on realData, so some of the code is a little path specific.
+# Single stock fits are plotted as the first column, taken from the first
+# sim object. Takes the first replicate.
+# inputs:   sims=numeric indicating blobs to load (alpha order in project folder)
+#           data=logical indicating plotting data scaled by estimated q
+#           CIs=logical indicating plotting CIs (1se) as polygons around estimate
+#           scale= logical indicating whether catch is scaled by estimated MSY
+#                   and biomass is scaled by estimated B0
+# output:   NULL
+# usage:    post-simulation run, plotting performance
+plotBCsimReps <- function(  sims=1, legend=FALSE,
+                            saveFileRoot = "BCsim",
+                            data = FALSE,
+                            CIs = TRUE,
+                            scale = FALSE,
+                            titles = expression("Single Stock","None", q, r, q/r ), 
+                            MPtitles = FALSE,
+                            labSize = 2, tickSize = 2, 
+                            devLabels = TRUE, maxBt = NULL )
+{
+  blobList <- vector(mode = "list", length = length(sims))
+
+  # Blob should be loaded in global environment automatically,
+  # if not, load first one by default (or whatever is nominated)
+  for( simIdx in 1:length(sims))
+  {
+    .loadSim(sims[simIdx])
+    blobList[[simIdx]] <- blob
+  }
+  
+  # Recover blob elements for plotting
+  nStocks <- blobList[[1]]$opMod$nS
+  nS <- nStocks
+  nO <- blobList[[1]]$opMod$nSurv
+
+
+  # Set up plot window
+  for(rep in 1:100)
+  {
+    saveFile <- paste(saveFileRoot,"_rep", rep,".png",sep = "")
+    png(saveFile, width = 1600, height = 900)
+    par ( mfcol = c(nStocks,length(sims)+1), mar = c(1,2,2,2), oma = c(4.5,4.5,2,0.5),
+          las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
+
+    if( MPtitles ) titles <- character( length = length(sims)+1 )
+
+    titles[1] <- "Single-Stock"
+
+    for( simIdx in 1:length(sims) )
+    {
+      blob <- blobList[[simIdx]]
+      # Create a stamp from scenario and mp name
+      scenario  <- blob$ctrl$scenario
+      mp        <- blob$ctrl$mp
+      stamp     <- paste(scenario,":",mp,sep="")
+
+      # Species names
+      specNames <- paste("Stock ", 1:nS, sep = "" )
+
+      # True OM quantities
+      Ct    <- blob$om$Ct[rep,,]
+      I_ost <- blob$om$I_ost[rep,,,]
+
+      # Year indexing
+      if(!is.null(blob$opMod$fYear)) 
+      {
+        nT <- blob$opMod$lYear - min(blob$opMod$fYear) + 1
+        fYear <- min(blob$opMod$fYear)
+      } else nT <- blob$opMod$nT
+
+      sT <- blob$opMod$fYear - fYear + 1
+      years <- fYear:(fYear + nT - 1)
+
+      # Groom I_ost to remove unused data
+      I_ost[I_ost < 0] <- NA
+      for( s in 1:nS ) 
+      { 
+        fYear_s <- blob$opMod$fYear[s]
+        I_ost[,s,1:(fYear_s-fYear)] <- NA
+      }
+
+      omBt    <- blob$om$Bt[rep,,] 
+
+      # Leading par estimates
+      # Single Stock
+      ssBmsy  <- blob$am$ss$Bmsy[rep,]
+      ssUmsy  <- blob$am$ss$Umsy[rep,]
+      ssq     <- blob$am$ss$q_os[rep,,]
+      ssMSY   <- blob$am$ss$msy[rep,]
+
+      # Multi-stock
+      msBmsy  <- blob$am$ms$Bmsy[rep,]
+      msUmsy  <- blob$am$ms$Umsy[rep,]
+      msq     <- blob$am$ms$q_os[rep,,]  
+      msMSY   <- blob$am$ms$msy[rep,]
+
+
+      # arrays to hold CIs
+      ssBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+      msBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
+
+      msCIs <- blob$am$ms$CIs[[ rep ]]
+      ssCIs <- blob$am$ss$CIs[[ rep ]]
+      # Populate CIs
+      if( !is.null(msCIs) )
+      {
+        if( !any(is.na( msCIs )) )
+        {
+          Btrows <- which( msCIs$par == "lnBt" )    
+          
+          msBio[ , , 1 ] <- matrix( exp(msCIs[ Btrows, "uCI" ]), nrow = nS, ncol = nT, byrow = FALSE )
+          msBio[ , , 2 ] <- matrix( exp(msCIs[ Btrows, "val" ]), nrow = nS, ncol = nT, byrow = FALSE )
+          msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 
+        }
+      }
+
+      msBio[ msBio == -1 ] <- NA
+      
+      for( s in 1:nS )
+      {
+
+        if( is.null( ssCIs[[ s ]] ) ) next
+        if( any(is.na( ssCIs[[ s ]] )) ) next
+        Btrows <- which( ssCIs[[ s ]]$par == "lnBt" )
+        ssBio[ s, sT[s]:nT, 1 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "uCI" ]), nrow = 1, ncol = nT-sT[s]+1 )
+        ssBio[ s, sT[s]:nT, 2 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "val" ]), nrow = 1, ncol = nT-sT[s]+1 )
+        ssBio[ s, sT[s]:nT, 3 ] <- matrix( exp(ssCIs[[ s ]][ Btrows, "lCI" ]), nrow = 1, ncol = nT-sT[s]+1 )  
+      }
+
+      if( MPtitles ) titles[simIdx+1] <- mp
+      
+      
+      # Recover diagnostics for the fits
+      hpdSS <- blob$am$ss$hesspd[rep,]
+      grdSS <- blob$am$ss$maxGrad[rep,]
+      hpdMS <- blob$am$ms$hesspd[rep]
+      grdMS <- blob$am$ms$maxGrad[rep]
+
+      # Set colours for each model
+      ssCol <- "grey50"
+      msCol <- "grey50"
+      legText <- c()
+      legPch  <- c()
+      legCol <- c()
+      legLty  <- c()
+      legLwd  <- c()
+
+      require(scales)
+      polyCol <- alpha("grey70", alpha = .5)
+      msPolyCol <- "grey70"
+      ssPolyCol <- "grey70"
+
+
+    
+      if( data ) 
+      {
+        legText <- c(legText,"Survey 1", "Survey 2")
+        legPch  <- c(legPch,1,2)
+        legCol <- c(legCol,"grey50","grey50")
+        legLty  <- c(legLty,NA,NA)
+        legLwd  <- c(legLwd,NA,NA)
+      }
+      if(is.null(maxBt))
+        maxBt <- rep(NA, nS)
+
+      # Plot SS model if first sim
+      if( simIdx == 1 )
+      { 
+        for ( s in 1:nStocks )
+        {
+          if(is.na(maxBt[s]))
+            maxBt[s] <- max(ssBio[s,sT[s]:nT,], msBio[s,sT[s]:nT,], omBt[s,sT[s]:nT], na.rm = T)
+          if(is.na(maxBt[s]))
+            browser()
+          plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+                ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
+                main = "" )
+            if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+            # Plot confidence intervals
+            if( CIs )
+            {
+              yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
+              polygon(  x = yearsPoly, y = c(ssBio[s,sT[s]:nT,1],rev(ssBio[s,sT[s]:nT,3])),
+                        col = ssPolyCol, border = NA )
+            }
+            # plot catch
+            rect( xleft = years-.4, xright = years+.4,
+                  ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
+            if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
+            axis( side = 2, las = 1, cex.axis = tickSize )
+          if (s == 2 & legend) 
+            panLegend ( x=0.2,y=1,legTxt=legText,
+                        col=legCol, lty = legLty, 
+                        lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
+            panLab( x = .2, y = .9, txt = specNames[s],
+                    cex = labSize )
+         
+          # Add developer labels
+          if( devLabels )
+          {
+            if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",cex=1.1)
+          }
+          # Add confidence intervals
+          # Plot OM Bt
+          lines( x = years[sT[s]:nT], y = omBt[s,sT[s]:nT], lwd = 3 )
+          # Add point estimates
+          lines( x = years[sT[s]:nT], y = ssBio[s,sT[s]:nT,2], lwd = 3, col = ssCol, lty = 2 )
+
+           # Plot data
+          if( data )
+          {
+            for( o in 1:nO ) 
+              points( x = years, y = I_ost[o,s,]/ssq[o,s], pch = o, cex = 1.5, col = "grey10" )
+          }
+        }
+      }
+
+      # Plot biomass, actual and estimated, including 2 index series,
+      # scaled by model estimated q
+      for ( s in 1:nStocks )
+      {
+        if(is.na(maxBt[s]))
+            browser()
+        plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+              ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
+              main = "" )
+          if( !is.null(titles) & s == 1 ) title( main = titles[simIdx+1] )
+          # plot catch
+          rect( xleft = years-.4, xright = years+.4,
+                ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
+          if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
+          axis( side = 2, las = 1, cex.axis = tickSize )
+        if (s == 2 & legend) 
+          panLegend ( x=0.2,y=1,legTxt=legText,
+                      col=legCol, lty = legLty, 
+                      lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
+          # panLab( x = .8, y = .9, txt = specNames[s],
+          #         cex = labSize )
+        
+        # Add developer labels
+        if( devLabels )
+        {
+          if ( hpdMS & !is.na(hpdMS) ) panLab (x=0.9,y=0.85,txt="h",cex=1.1)  
+        }
+        # Add confidence intervals
+        if( CIs )
+        {
+          yearsPoly <- c(years[sT[s]:nT],rev(years[sT[s]:nT]))
+          polygon(  x = yearsPoly, y = c(msBio[s,sT[s]:nT,1],rev(msBio[s,sT[s]:nT,3])),
+                    col = msPolyCol, border = NA )
+        }
+        # Plot data
+        if( data )
+        {
+          for( o in 1:nO ) 
+            points( x = years, y = I_ost[o,s,]/msq[o,s], pch = o, cex = 1.5, col = "grey10" )
+        }
+        # Plot OM Bt
+        lines( x = years[sT[s]:nT], y = omBt[s,sT[s]:nT], lwd = 3 )
+        # Add point estimates
+        lines( x = years[sT[s]:nT], y = msBio[s,sT[s]:nT,2], lwd = 3, col = msCol, lty = 2 )
+
+        
+      }
+      mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize)
+      mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 2, las = 0, cex = labSize )
+      
+    }
+    if( devLabels )
+      mtext ( text = c(stamp),side=1, outer = TRUE, 
+              at = c(0.9),padj=2,col="grey50",cex=0.8 )
+    dev.off()
+  }
+}
+
 
 
 # plotBC()
@@ -5184,8 +5460,8 @@ dumpStockPerf <- function(  simPath = file.path("./project/pubBase_2018-09-10/pr
   plotPath <- file.path(plotPath,"stockPerf")
   if(!dir.exists(plotPath))
     dir.create(plotPath)
-
-  simNumTable <- makeSimNumTable()
+  if(is.null(simNumTable))
+    simNumTable <- makeSimNumTable()
 
   scenarios <- unique(simNumTable$scenario)
   if(is.null(MPs))

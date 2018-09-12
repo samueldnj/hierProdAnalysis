@@ -194,7 +194,7 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                         singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
                         spec = c("Stock1"),
                         expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
-                        sig = .05, intercept = TRUE,
+                        sig = .1, intercept = TRUE,
                         scaled = TRUE, saveOut = TRUE, interactions = FALSE, dropTest = TRUE )
 {
   # Create an rDataFile output name
@@ -508,6 +508,9 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
     table <-  table %>%
               filter( species %in% spec )
 
+  # HACK: reducing to the four MPs we want (throw away YE)
+  table <-  table %>%
+            filter( mp %in% c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors"))
 
   
 
@@ -664,7 +667,9 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 # side-eff: creates tables of statistics in ./project/stats/
 # returns:  NULL
 .statTables <- function(  sims=1,tabNameRoot = "statTable", par = F,
-                          nCores = detectCores()-1)
+                          nCores = detectCores()-1,
+                          IC = TRUE,
+                          PI = TRUE)
 { 
 
   if(!dir.exists("./project/Statistics"))
@@ -679,45 +684,36 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                             par = par, clust = cluster )
 
   # raw RE distributions
-  ICtable <- .statTableIC(  sims,paste(tabNameRoot,"_ICraw.csv", sep = ""),
-                            par = par, clust = cluster )
+  if(IC)
+    ICtable <- .statTableIC(  sims,paste(tabNameRoot,"_ICraw.csv", sep = ""),
+                              par = par, clust = cluster )
 
   # raw RE distributions
-  PItable <- .statTablePI(  sims,paste(tabNameRoot,"_PI.csv", sep = ""),
-                            par = par, clust = cluster )
+  if(PI)
+    PItable <- .statTablePI(  sims,paste(tabNameRoot,"_PI.csv", sep = ""),
+                              par = par, clust = cluster )
 
   if( par ) stopCluster( cluster )
 
   # Calculate run stats ( number of failed reps, number of repeated tries
   # for convergence on good reps )
-  runStats <- PItable %>%
+  
+  runStats <- REtable %>%
               group_by(scenario, mp, species) %>%
-              summarise(  totReps = max(rep),
-                          msTries = mean(msTries),
-                          ssTries = mean(ssTries) ) %>%
+              summarise(  totReps = max(rep) ) %>%
               ungroup()
 
+  if(PI)
+  {
+    runStats2 <-  PItable %>%
+                  group_by(scenario, mp, species) %>%
+                  summarise(  msTries = mean(msTries),
+                              ssTries = mean(ssTries) ) %>%
+                  ungroup() %>%
+    runStats <- runStats %>%
+                left_join(runStats2)
+  }
 
-  # Summarise interval coverage table
-  ICtable <-  ICtable %>%
-              dplyr::select(  scenario, mp,
-                              species, nS,
-                              fYear, Umax, initDep,
-                              ssBnT, msBnT,
-                              ssBmsy, msBmsy,
-                              ssUmsy, msUmsy,
-                              ssDep, msDep,
-                              ssq_1, ssq_2,
-                              msq_1, msq_2 ) %>%
-              group_by( scenario, mp, species ) %>%
-              summarise_if(is.logical, .funs = funs(mean) ) %>%
-              ungroup() %>%
-              left_join( runStats )
-
-  ICtabName <- paste( tabNameRoot, "_IC.csv", sep = "" )
-  ICpath    <- file.path(getwd(),"project","Statistics",ICtabName)
-  write.csv( ICtable, file = ICpath )
-  
   # MRE - summarised from RE
   MREtable <- REtable %>%
               dplyr::select(  scenario, mp,
@@ -736,6 +732,37 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   MREname   <- paste(tabNameRoot,"_MRE.csv", sep = "" )
   MREpath   <- file.path(getwd(),"project","Statistics",MREname)
   write.csv( MREtable, file = MREpath )
+
+  expVarsTable <- MREtable %>%
+                  dplyr::select( initDep,fYear,nDiff,Umax )
+
+
+  # Summarise interval coverage table
+  if(IC)
+  {
+    ICtable <-  ICtable %>%
+                    dplyr::select(  scenario, mp,
+                                    species, nS,
+                                    fYear, Umax, initDep,
+                                    ssBnT, msBnT,
+                                    ssBmsy, msBmsy,
+                                    ssUmsy, msUmsy,
+                                    ssDep, msDep,
+                                    ssq_1, ssq_2,
+                                    msq_1, msq_2 ) %>%
+                    group_by( scenario, mp, species ) %>%
+                    summarise_if(is.logical, .funs = funs(mean) ) %>%
+                    mutate(nS = n()) %>%
+                    ungroup() %>%
+                    left_join( runStats ) %>%
+                    left_join( expVarsTable)
+
+    
+    ICtabName <- paste( tabNameRoot, "_IC.csv", sep = "" )
+    ICpath    <- file.path(getwd(),"project","Statistics",ICtabName)
+    write.csv( ICtable, file = ICpath )
+  }
+
   
   # MARE - summarised from RE
   MAREtable <-  REtable %>%
@@ -1241,8 +1268,10 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
     statTable[(gIdx-1)*nS+(1:nS), tau2_survMS]    <- ( ms$err.mle$tau2_o[r,,])
     statTable[(gIdx-1)*nS+(1:nS), qbar_surv]      <- ( ms$err.mle$qbar_o[r,])
     statTable[(gIdx-1)*nS+(1:nS), tauq2_surv]     <- ( ms$err.mle$tauq2_o[r,])
-    statTable[(gIdx-1)*nS+(1:nS),"ssTries"]       <- (ss$nTries[r,] )
-    statTable[(gIdx-1)*nS+(1:nS),"msTries"]       <-  ms$nTries[r]
+    if(!is.null(ss$nTries) )
+      statTable[(gIdx-1)*nS+(1:nS),"ssTries"]       <- (ss$nTries[r,] )
+    if(!is.null(ms$nTries) ) 
+      statTable[(gIdx-1)*nS+(1:nS),"msTries"]       <-  ms$nTries[r]
 
   }
   
