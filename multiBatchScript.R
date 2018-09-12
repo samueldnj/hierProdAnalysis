@@ -50,7 +50,7 @@ for( i in 1:length(batchFiles))
                 MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
                 MPlabels = expression("Single Stock","None", q, r, q/r ),
                 simNumTable = simNumTable )  
-    
+
     dumpStockPerf(  simPath = file.path("./project"),
                     prefix = expPrefix[i],
                     MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
@@ -62,7 +62,7 @@ for( i in 1:length(batchFiles))
   }
   
 
-  # Now copy the project folder to dropbox
+  # Now copy the project folder to Landmark NAS
   copyDest <- file.path("/Volumes/home/thesisStuff/cwMSexperiments/TMB",paste(expPrefix[i],Sys.Date(),sep = "_") )
   dir.create( copyDest )
 

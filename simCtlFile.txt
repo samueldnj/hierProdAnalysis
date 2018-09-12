@@ -82,9 +82,9 @@ assess$sigUPriorCode 0
 assess$sigU2Prior c(4,0.002)
 assess$tauqPriorCode 0
 assess$tauq2Prior c(4,0.1)
-assess$kappa2IG c(2,0.1)
-assess$Sigma2IG c(2,0.1)
-assess$tau2IGa rep(2,3)
+assess$kappa2IG c(3,0.1)
+assess$Sigma2IG c(3,0.1)
+assess$tau2IGa rep(3,3)
 assess$tau2IGb rep(.1,3)
 assess$msRE c('zeta_st')
 assess$ssRE c('zeta_st')
