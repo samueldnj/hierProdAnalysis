@@ -184,7 +184,6 @@ Type objective_function<Type>::operator() ()
       }
       Bt(s,t) = tmpBt;
       lnBt(s,t) = log(Bt(s,t));
-      lnBt(s,t) = log(Bt(s,t));
     }
 
   }

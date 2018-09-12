@@ -4471,6 +4471,8 @@ plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
       }
     }
 
+    browser()
+
     msBio[ msBio == -1 ] <- NA
     
     for( s in 1:nS )

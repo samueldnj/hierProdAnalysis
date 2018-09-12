@@ -767,13 +767,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           if(class(sd) == "try-error")
           {
             convFlag <- 1
-            # Reduce deltat by half
             bestPars    <- bestPars + rnorm(length(bestPars), sd = .2)
           }
           else if( !sd$pdHess )
           {
             convFlag <- 1
-            # reduce deltat by half
             bestPars    <- bestPars + rnorm(length(bestPars), sd = .2)
           }
         }
