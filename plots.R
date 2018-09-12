@@ -1143,6 +1143,7 @@ plotFhist <- function ( sims = 1:2,
                         save = FALSE,
                         fileName = "depPlot.pdf",
                         reverse = TRUE,
+                        nS = NULL,
                         ... )
 {
   # plotFhist()
@@ -1158,9 +1159,10 @@ plotFhist <- function ( sims = 1:2,
   Bmsy  <- blob$opMod$Bmsy
   nT    <- max( blob$opMod$lYear - blob$opMod$fYear + 1 )
   nReps <- blob$ctrl$signifReps
-  nS    <- blob$opMod$nS
+  if( is.null(nS) )
+    nS    <- blob$opMod$nS
 
-  if( reverse ) sIndices <- rev(1:nS)
+  if( reverse ) sIndices <- nS:1
   else sIndices <- 1:nS
 
   # create an array for holding biomass
@@ -1186,6 +1188,8 @@ plotFhist <- function ( sims = 1:2,
     Fblob[ 1, sIdx,  ]       <- blob$om$Ut[ 1, sIdx, ]
   }
   Umax[ 1 ]         <- blob$opMod$Umult[2]
+
+
   
 
   # Now loop over the other three and collect the info
@@ -3852,7 +3856,8 @@ makeSimNumTable <- function()
 dumpBCsim <- function(  simPath = "./project",
                         prefix = "pubBase",
                         MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
-                        MPlabels = expression("Single Stock","None", q, r, q/r ) )
+                        MPlabels = expression("Single Stock","None", q, r, q/r ),
+                        simNumTable = NULL )
 {
   # Need to read in all the sims in the folder, and then
   # tabulate so we can plot out the sets of MPs
@@ -3868,7 +3873,8 @@ dumpBCsim <- function(  simPath = "./project",
   if(!dir.exists(plotPath))
     dir.create(plotPath)
 
-  simNumTable <- makeSimNumTable()
+  if(is.null(simNumTable))
+    simNumTable <- makeSimNumTable()
 
   scenarios <- unique(simNumTable$scenario)
   if(is.null(MPs))
@@ -3906,7 +3912,14 @@ dumpBCsim <- function(  simPath = "./project",
 
   }
 
-
+  if(simPath != "./project")
+  {
+    simList <- list.files("./project", full.names = FALSE)
+    simList <- simList[grepl(pattern = "sim", x = simList)]
+    for(k in 1:length(simList))
+      system( paste("rm -r ", simList[k], sep = "") )
+  }
+    cat("BCsim() plots completed for ", tabNameRoot," complete\n", sep = "")
 }
 
 dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
@@ -3983,6 +3996,7 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
     }
     dev.off()
   }
+
   cat("Perf metrics for ", tabNameRoot," complete\n", sep = "")
 }
 
@@ -4364,7 +4378,8 @@ plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
                         data = FALSE,
                         CIs = FALSE,
                         scale = FALSE,
-                        titles = baseTitles, MPtitles = TRUE,
+                        titles = expression("Single Stock","None", q, r, q/r ), 
+                        MPtitles = FALSE,
                         labSize = 2, tickSize = 2, 
                         devLabels = TRUE, maxBt = NULL )
 {
@@ -4388,6 +4403,7 @@ plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
 
   for( simIdx in 1:length(sims) )
   {
+
     .loadSim( sims[simIdx] )
   
 
@@ -4446,12 +4462,14 @@ plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
     # Populate CIs
     if( !is.null(msCIs) )
     {
-      if( any(is.na( msCIs )) ) break
-      Btrows <- which( msCIs$par == "lnBt" )    
-      
-      msBio[ , , 1 ] <- matrix( exp(msCIs[ Btrows, "uCI" ]), nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 2 ] <- matrix( exp(msCIs[ Btrows, "val" ]), nrow = nS, ncol = nT, byrow = FALSE )
-      msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 
+      if( !any(is.na( msCIs )) )
+      {
+        Btrows <- which( msCIs$par == "lnBt" )    
+        
+        msBio[ , , 1 ] <- matrix( exp(msCIs[ Btrows, "uCI" ]), nrow = nS, ncol = nT, byrow = FALSE )
+        msBio[ , , 2 ] <- matrix( exp(msCIs[ Btrows, "val" ]), nrow = nS, ncol = nT, byrow = FALSE )
+        msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 
+      }
     }
 
     msBio[ msBio == -1 ] <- NA
@@ -5146,7 +5164,8 @@ dumpStockPerf <- function(  simPath = file.path("./project/pubBase_2018-09-10/pr
                             MPlabels = c( noJointPriors = "None", 
                                           qPriorOnly = expression(q), 
                                           UmsyPriorOnly = expression(r), 
-                                          qUpriors = expression(q/r) ) )
+                                          qUpriors = expression(q/r) ),
+                            simNumTable = NULL )
 {
   # Need to read in all the sims in the folder, and then
   # tabulate so we can plot out the sets of MPs

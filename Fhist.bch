@@ -6,15 +6,15 @@ parameter value
 # Scenario 4 : DERPA_1way
 #
 scenario$scenario1$ctrl$scenarioName 'base_1way'
-scenario$scenario1$opMod$nS 5
+scenario$scenario1$opMod$nS 3
 scenario$scenario1$opMod$Umult c(1,1,1)
 scenario$scenario1$opMod$initDep c(1,.7,.4)
 #
 # Scenario 4 : DERPA_2way
 #
 scenario$scenario2$ctrl$scenarioName 'base_2way'
-scenario$scenario2$opMod$nS 5
-scenario$scenario2$opMod$Umult c(.2,4,1)
+scenario$scenario2$opMod$nS 3
+scenario$scenario2$opMod$Umult c(.2,4,1.2)
 scenario$scenario2$opMod$initDep c(1,.7,.4)
 #
 # Management Procedures 
