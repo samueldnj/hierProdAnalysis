@@ -54,7 +54,7 @@ assess$logit_gammaYr 0
 assess$tau2 rep(0.1,10)
 assess$initBioCode rep(0,10)
 assess$kappa2 0.00001
-assess$Sigma2 0.02
+assess$Sigma2 0.05
 assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
 assess$BPriorCode 0

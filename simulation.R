@@ -325,6 +325,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   om$I_ost  <- data$indices[,,as.character(minYear:maxYear),1]
   om$Ct     <- data$katch[,as.character(minYear:maxYear)]
 
+  om$Bmsy     <- apply(X = om$Ct, FUN = sum, MARGIN = 1, na.rm = T)/2
+  om$Umsy     <- 2*apply(X = om$Ct, FUN = sd, MARGIN = 1, na.rm = T)
+  om$tau2     <- (apply(X = om$I_ost, FUN = sd, MARGIN = 1, na.rm = T)/4)^2
+  om$Bt       <- 20*abs( apply( X = om$I_ost, FUN = sum, MARGIN = c(2,3) ) )
+
+  browser()
+
   om$sT <- fYear - minYear + 1
   om$nT <- lYear - fYear + 1
 
@@ -380,6 +387,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
     obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*(Sigma2 + kappa2)
     obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*(Sigma2 + kappa2)
+  } else {
+    kappa2  <- obj$assess$kappa2
+    Sigma2  <- obj$assess$Sigma2
   }
 
   # Create IW scale matrix
@@ -412,7 +422,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssPar[[s]] <- list (  lnBmsy            = log(om$Bmsy[s]),
                           lnUmsy            = log(om$Umsy[s]),
                           lntau2_o          = log(om$tau2[1:nSurv]),
-                          lnBinit           = log(om$Bt[s,2]),
+                          lnBinit           = log(om$Bt[s,1]),
                           lnqbar_o          = rep(obj$assess$lnqbar_o, nSurv),
                           lntauq_o          = rep(obj$assess$lntauq_o, nSurv),
                           mq                = obj$assess$mq[rIdx],
@@ -651,7 +661,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   # set optimisation check values
   convFlag  <- 1
-  bestPars  <- obj$par + 1
+  bestPars  <- obj$par + 1e-3
   objFunVal <- obj$fn(obj$par)
 
   # Loop to keep trying to fit
@@ -672,10 +682,10 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     if(class(fitFE) != "try-error")
     {
       # If relative convergence, take it
-      if( fitFE$message == "relative convergence (4)")
+      if( grepl(pattern = "relative convergence", x = fitFE$message))
       {
         convFlag <- fitFE$convergence  
-        if( fitFE$objective < objFunVal )
+        if( fitFE$objective <= objFunVal )
           bestPars <- fitFE$par  
       } else 
       {
@@ -718,11 +728,11 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$env$tracepar <- tracePar
 
     # Save the best parameters from the fixed eff model
-    bestPars <- bestPars[which(names(bestPars) %in% names(obj$par))]
+    bestPars <- bestPars[which(names(bestPars) %in% names(initPars))] 
 
     # Counter for changin behaviour
     if( !is.finite(obj$fn(bestPars)) )
-      bestPars <- bestPars + 1
+      bestPars <- initPars
     
     # Set convFlag so that we loop again
     convFlag <- 1
@@ -759,6 +769,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           bestPars <- fit$par
           objFunVal <- fit$objective
         }
+
+        if(convFlag != 0 )
+          bestPars <- bestPars + rnorm(length(bestPars), sd = .2)
 
         # Check for PD hessian
         if(convFlag == 0)
@@ -943,7 +956,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   } else {
     sRP <- 0
   }
-
 
   # Create list object to store all simulated values
   om <- list  ( Bt        = array( NA, dim=c(nReps,nS,nT),dimnames=list(rNames,sNames,1:nT)),
@@ -1156,7 +1168,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
     allConverged <- apply( X = hessPD, FUN = prod, MARGIN = 1, na.rm = T)
     nConv <- sum(allConverged)
-    if( all( completed >= obj$ctrl$signifReps ) )
+    if( all( nConv >= obj$ctrl$signifReps ) )
     {
       cat("Successfuly completed ", obj$ctrl$signifReps, " replicates for each stock, ending simulation.\n" )
       break
