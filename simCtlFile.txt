@@ -3,7 +3,7 @@ parameter value
 ctrl$scenarioName 'Uhistc(1,1,1)_initYear2003_nS7_initDep0.4_nDiff0'
 ctrl$mpLabel 'noJointPriors'
 ctrl$nReps 400
-ctrl$signifReps 20
+ctrl$signifReps 100
 ctrl$rSeed 1
 ctrl$fixProc FALSE
 ctrl$speciesNames paste('Stock',1:10,sep='')
