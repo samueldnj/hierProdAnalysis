@@ -80,8 +80,10 @@ assess$mq .55
 assess$sq .55
 assess$sigUPriorCode 0
 assess$sigU2Prior c(4,0.002)
+assess$UmsyCV .20
 assess$tauqPriorCode 0
 assess$tauq2Prior c(4,0.1)
+assess$qCV .20
 assess$kappa2IG c(3,0.1)
 assess$Sigma2IG c(3,0.1)
 assess$tau2IGa rep(3,3)

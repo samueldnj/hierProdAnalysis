@@ -387,6 +387,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$tau2IGb[1:nSurv] <- (obj$assess$tau2IGa[1:nSurv]+1)*tau2Surv[1:nSurv]
     obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*(Sigma2 + kappa2)
     obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*(Sigma2 + kappa2)
+
+    tauq2_mode <- log(obj$assess$qCV^2 + 1)
+    sigU2_mode <- log(obj$assess$UmsyCV^2 + 1)
+
+    obj$assess$tauq2Prior[2]    <- (obj$assess$tauq2Prior[1]+1)*tauq2_mode
+    obj$assess$sigU2Prior[2]    <- (obj$assess$sigU2Prior[1]+1)*sigU2_mode
+
   } else {
     kappa2  <- obj$assess$kappa2
     Sigma2  <- obj$assess$Sigma2

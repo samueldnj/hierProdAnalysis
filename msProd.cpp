@@ -306,7 +306,7 @@ Type objective_function<Type>::operator() ()
       // productivity
       // Shared Prior
       if( lnUPriorCode == 1 )
-        nllUprior -= dnorm( Umsy(s), Umsybar, sqrt(sigUmsy2), 1);
+        nllUprior -= dnorm( lnUmsy(s), lnUmsybar, sqrt(sigUmsy2), 1);
 
       // No shared prior (uses SS model prior)
       if( lnUPriorCode == 0 )
