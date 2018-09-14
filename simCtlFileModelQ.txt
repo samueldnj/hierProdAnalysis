@@ -44,6 +44,7 @@ assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$tracePar FALSE
 assess$estYearEff FALSE
+assess$estZetaSS TRUE
 assess$fitTrials 10
 assess$posPenFactor 5e2
 assess$maxfn 3000
