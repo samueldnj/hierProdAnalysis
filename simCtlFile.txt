@@ -9,8 +9,8 @@ ctrl$fixProc FALSE
 ctrl$speciesNames paste('Stock',1:10,sep='')
 opMod$Bmsy rep(20,10)
 opMod$Umsy rep(0.08,10)
-opMod$kappa2 0.01
-opMod$SigmaDiag rep(0.01,10)
+opMod$kappa2 0.005
+opMod$SigmaDiag rep(0.005,10)
 opMod$corrOffDiag 0.5
 opMod$initDep c(rep(0.4,0),rep(1,10))
 opMod$nS 3
@@ -67,7 +67,7 @@ assess$lnsigUmsy2 -2.4
 assess$fixsigU2 TRUE
 assess$fixUbar TRUE
 assess$mUmsy .08
-assess$sUmsy 0.08
+assess$sUmsy 0.04
 assess$lnqPriorCode 0
 assess$lnqbar_o -.51
 assess$lntauq_o -1
@@ -76,7 +76,7 @@ assess$fixqbar TRUE
 assess$estqms 'unique'
 assess$fixqss FALSE
 assess$mq .55
-assess$sq .55
+assess$sq .275
 assess$sigUPriorCode 0
 assess$sigU2Prior c(1,0.0004)
 assess$UmsyCV .10

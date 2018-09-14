@@ -1,6 +1,7 @@
-# job1.txt: mseR parameter file written Tue Aug 15 10:03:59 2017.
+# Base control file for random prior treatment,
+# modified from batch for original paper submission
 parameter value
-ctrl$scenarioName 'Uhistc(1,1,1)_initYear2003_nS7_initDep0.4_nDiff0'
+ctrl$scenarioName 'AllSameBase_FromOldBatch'
 ctrl$mpLabel 'noJointPriors'
 ctrl$nReps 400
 ctrl$signifReps 100
@@ -9,8 +10,8 @@ ctrl$fixProc FALSE
 ctrl$speciesNames paste('Stock',1:10,sep='')
 opMod$Bmsy rep(20,10)
 opMod$Umsy rep(0.08,10)
-opMod$kappa2 0.01
-opMod$SigmaDiag rep(0.01,10)
+opMod$kappa2 0.005
+opMod$SigmaDiag rep(0.005,10)
 opMod$corrOffDiag 0.5
 opMod$initDep c(rep(0.4,0),rep(1,10))
 opMod$nS 3

@@ -3966,14 +3966,25 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
     scenLabel <- scenarios[scenIdx]
     scenPlotPath <- file.path(perfPlotPath,paste(scenLabel,".png",sep = ""))
     png( file = scenPlotPath, width = 1600, height = 900 )
-    par(mfrow = c(length(vars), length(MPs) ), oma =c(3,3,2,2), mar = c(2,2,2,2) )
+    par(mfcol = c(length(vars), length(MPs) ), oma =c(3,3,2,2), mar = c(2,2,2,2) )
     # MPs are columns, and vars are rows
     # we are going row by row, so loop over vars first
-    for( vIdx in 1:length(vars) )
-    {
-      varName <- vars[vIdx]
-      for(mpIdx in 1:length(MPs))
+    for( mpIdx in 1:length(MPs) )
+    { 
+      for(varIdx in 1:length(vars))
       {
+        varName <- vars[varIdx]
+
+        # Check if run finished
+        subTab <- PItab %>%
+                  filter( mp == MPs[mpIdx], scenario == scenLabel)
+        if( nrow(subTab) < 2 )
+        {
+          plot( x = c(0,1), y = c(0,1),
+                type = "n", axes = F )
+          next
+        }
+
         plotPerfMetrics(  scenLabel = scenLabel,
                           tabNameRoot = tabNameRoot,
                           mpLabel = MPs[mpIdx],
@@ -3990,7 +4001,7 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
           mtext(side = 3, line = 2, text = MPlabels[mpIdx])
         # Plot variable label in right hand margin
         if(mfg[2] == mfg[4])
-          mtext(side = 4, line = 1, text = varLabels[vIdx] )
+          mtext(side = 4, line = 1, text = varLabels[varIdx] )
       }
     }
     dev.off()
@@ -4470,8 +4481,6 @@ plotBCsim <- function(  sims=1, rep = 1, legend=FALSE,
         msBio[ , , 3 ] <- matrix( exp(msCIs[ Btrows, "lCI" ]), nrow = nS, ncol = nT, byrow = FALSE ) 
       }
     }
-
-    browser()
 
     msBio[ msBio == -1 ] <- NA
     

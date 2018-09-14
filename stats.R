@@ -705,11 +705,13 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 
   if(PI)
   {
+    browser()
     runStats2 <-  PItable %>%
                   group_by(scenario, mp, species) %>%
                   summarise(  msTries = mean(msTries),
                               ssTries = mean(ssTries) ) %>%
-                  ungroup() %>%
+                  ungroup()
+
     runStats <- runStats %>%
                 left_join(runStats2)
   }
@@ -734,7 +736,7 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   write.csv( MREtable, file = MREpath )
 
   expVarsTable <- MREtable %>%
-                  dplyr::select( initDep,fYear,nDiff,Umax )
+                  dplyr::select( initDep,fYear,Umax )
 
 
   # Summarise interval coverage table
