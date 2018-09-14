@@ -68,7 +68,7 @@ assess$fixsigU2 TRUE
 assess$fixUbar TRUE
 assess$mUmsy .08
 assess$sUmsy 0.04
-assess$condMLEq TRUE
+assess$condMLEq FALSE
 assess$lnqPriorCode 0
 assess$lnqbar_o -.51
 assess$lntauq_o -1
@@ -80,10 +80,10 @@ assess$mq .55
 assess$sq .275
 assess$sigUPriorCode 0
 assess$sigU2Prior c(1,0.0004)
-assess$UmsyCV .10
+assess$UmsyCV .20
 assess$tauqPriorCode 0
 assess$tauq2Prior c(1,0.02)
-assess$qCV .10
+assess$qCV .20
 assess$kappa2IG c(1,0.5)
 assess$Sigma2IG c(1,0.5)
 assess$tau2IGa rep(1,3)

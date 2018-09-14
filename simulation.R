@@ -419,6 +419,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           kappaPriorCode  = as.integer(obj$assess$estYearEff),
                           sigUPriorCode   = obj$assess$sigUPriorCode,
                           tauqPriorCode   = obj$assess$tauqPriorCode,
+                          condMLEq        = as.integer(obj$assess$condMLEq),
                           lnqPriorCode    = obj$assess$lnqPriorCode,
                           lnUPriorCode    = obj$assess$lnUPriorCode,
                           BPriorCode      = obj$assess$BPriorCode,
@@ -428,6 +429,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     # make par list
     ssPar[[s]] <- list (  lnBmsy            = log(om$Bmsy[s]),
                           lnUmsy            = log(om$Umsy[s]),
+                          lnq_os            = matrix(obj$assess$lnqbar_o, nrow = nSurv, ncol = 1),
                           lntau2_o          = log(om$tau2[1:nSurv]),
                           lnBinit           = log(om$Bt[s,1]),
                           lnqbar_o          = rep(obj$assess$lnqbar_o, nSurv),
@@ -485,7 +487,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           deltat            = factor( NA ) )
     if( !obj$assess$ssAR1 ) 
       ssMap[[s]]$logit_gammaYr <- factor( NA )
-    if( obj$assess$fixqss )
+    if( obj$assess$fixqss | obj$assess$condMLEq )
       ssMap[[s]]$lnq_os <- factor( rep(NA,nSurv) )
     if( obj$assess$initBioCode[s] == 0 )
       ssMap[[s]]$lnBinit <- factor(NA)
@@ -499,6 +501,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                   kappaPriorCode  = as.integer(obj$assess$estYearEff),
                   sigUPriorCode   = obj$assess$sigUPriorCode,
                   tauqPriorCode   = obj$assess$tauqPriorCode,
+                  condMLEq        = as.integer(obj$assess$condMLEq),
                   lnqPriorCode    = obj$assess$lnqPriorCode,
                   lnUPriorCode    = obj$assess$lnUPriorCode,
                   BPriorCode      = obj$assess$BPriorCode,
@@ -509,6 +512,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
 
   msPar <- list ( lnBmsy            = log(om$Bmsy[1:nS]),
                   lnUmsy            = log(om$Umsy[1:nS]),
+                  lnq_os            = matrix(obj$assess$lnqbar_o, nrow = nSurv, ncol = nS),
                   lntau2_o          = log(om$tau2[1:nSurv]),
                   lnBinit           = log(om$Bt[,1]),
                   lnqbar_o          = rep(obj$assess$lnqbar_o,nSurv),
@@ -576,6 +580,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     msMap$lnUmsybar <- factor( NA )
   if( obj$assess$fixqbar )
     msMap$lnqbar_o <- factor( rep(NA, nSurv) )
+  if( obj$assess$condMLEq )
+    msMap$lnq_os <- factor( rep(NA, nSurv*nS) )
   if( !obj$assess$estYearEff )
   {
     msMap$lnkappa2 <- factor( NA )

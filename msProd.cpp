@@ -55,6 +55,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
   DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
   DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
+  DATA_INTEGER(condMLEq);       // 0 => q leading par, 1 => q concentrated
   DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
   DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
   DATA_INTEGER(BPriorCode);     // 0 => normal, 1 => Jeffreys 
@@ -67,6 +68,7 @@ Type objective_function<Type>::operator() ()
   // Leading Parameters
   PARAMETER_VECTOR(lnBmsy);             // Biomass at MSY
   PARAMETER_VECTOR(lnUmsy);             // Optimal exploitation rate            
+  PARAMETER_ARRAY(lnq_os);              // Survey-species catchability
   PARAMETER_VECTOR(lntau2_o);           // survey obs error var
   PARAMETER_VECTOR(lnBinit);            // Non-equilibrium initial biomass
   // Priors
@@ -236,17 +238,21 @@ Type objective_function<Type>::operator() ()
           zSum_os(o,s) += z_ost(o,s,t);
         }       
       }
-      // compute conditional MLE q from observation
-      // SS model
-      if( nS == 1) 
-        lnqhat_os(o,s) = zSum_os(o,s) / validObs(o,s);
+      if(condMLEq == 1)
+      {
+        // compute conditional MLE q from observation
+        // SS model
+        if( nS == 1) 
+          lnqhat_os(o,s) = zSum_os(o,s) / validObs(o,s);
 
-      // MS model
-      if( nS > 1 ) 
-        lnqhat_os(o,s) = ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) );  
-      
-      // Exponentiate
-      qhat_os(o,s) = exp(lnqhat_os(o,s));
+        // MS model
+        if( nS > 1 ) 
+          lnqhat_os(o,s) = ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) );  
+      } else
+        lnqhat_os(o,s) = lnq_os(o,s);
+
+        // Exponentiate
+        qhat_os(o,s) = exp(lnqhat_os(o,s));
       
       // Add contribution of data to obs likelihood
       for( int t = initT(s); t < nT; t++ )

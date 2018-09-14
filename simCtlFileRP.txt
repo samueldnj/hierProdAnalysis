@@ -1,11 +1,10 @@
-# Base control file for random prior treatment,
-# modified from batch for original paper submission
+# job1.txt: mseR parameter file written Tue Aug 15 10:03:59 2017.
 parameter value
-ctrl$scenarioName 'AllSameBase_FromOldBatch'
+ctrl$scenarioName 'allSame'
 ctrl$mpLabel 'noJointPriors'
 ctrl$nReps 400
-ctrl$signifReps 100
-ctrl$rSeed 1
+ctrl$signifReps 10
+ctrl$rSeed 2
 ctrl$fixProc FALSE
 ctrl$speciesNames paste('Stock',1:10,sep='')
 opMod$Bmsy rep(20,10)
@@ -24,8 +23,8 @@ opMod$corrTargVar "Ct"
 opMod$depOpt FALSE
 opMod$targDep rep(0.5,10)
 opMod$targYr rep(2017,10)
-opMod$tUpeak 10
-opMod$tUtrough 25
+opMod$tUpeak 5
+opMod$tUtrough 15
 opMod$nSurv 2
 opMod$surveyFreq c(1,1,1)
 opMod$fYearSurv c(1984,2003,1954)
@@ -68,7 +67,8 @@ assess$lnsigUmsy2 -2.4
 assess$fixsigU2 TRUE
 assess$fixUbar TRUE
 assess$mUmsy .08
-assess$sUmsy 0.08
+assess$sUmsy 0.04
+assess$condMLEq TRUE
 assess$lnqPriorCode 0
 assess$lnqbar_o -.51
 assess$lntauq_o -1
@@ -77,7 +77,7 @@ assess$fixqbar TRUE
 assess$estqms 'unique'
 assess$fixqss FALSE
 assess$mq .55
-assess$sq .55
+assess$sq .275
 assess$sigUPriorCode 0
 assess$sigU2Prior c(1,0.0004)
 assess$UmsyCV .10
