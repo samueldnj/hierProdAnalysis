@@ -1,4 +1,5 @@
-# job1.txt: mseR parameter file written Tue Aug 15 10:03:59 2017.
+# Base simCtlFile.txt with condMLEq, written Friday, Sep 14, 2018
+# for testing why the results changed
 parameter value
 ctrl$scenarioName 'allSame'
 ctrl$mpLabel 'noJointPriors'
@@ -43,6 +44,7 @@ assess$ssAR1 FALSE
 assess$quiet TRUE
 assess$tracePar FALSE
 assess$estYearEff FALSE
+assess$estZetaSS TRUE
 assess$fitTrials 10
 assess$posPenFactor 5e2
 assess$maxfn 3000
@@ -89,6 +91,6 @@ assess$Sigma2IG c(1,0.5)
 assess$tau2IGa rep(1,3)
 assess$tau2IGb rep(0.5,3)
 assess$msRE c('zeta_st')
-assess$ssRE c('zeta_st')
+assess$ssRE c('zeta_st','eps_t')
 assess$TMBlib "msProd"
 assess$wishType "diag"

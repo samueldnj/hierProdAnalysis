@@ -380,7 +380,7 @@ mp$mp1$assess$fixqbar TRUE
 mp$mp1$assess$estqms 'unique'
 mp$mp1$assess$fixqss FALSE
 mp$mp1$assess$msRE c('zeta_st')
-mp$mp1$assess$ssRE c('zeta_st')
+mp$mp1$assess$ssRE c('zeta_st','eps_t')
 #
 # MP 3: qPriorOnly
 # 
@@ -398,7 +398,7 @@ mp$mp2$assess$fixqbar FALSE
 mp$mp2$assess$estqms 'unique'
 mp$mp2$assess$fixqss FALSE
 mp$mp2$assess$msRE c('zeta_st')
-mp$mp2$assess$ssRE c('zeta_st')
+mp$mp2$assess$ssRE c('zeta_st','eps_t')
 #
 # MP 4: UmsyPriorOnly
 # 
@@ -416,7 +416,7 @@ mp$mp3$assess$fixqbar TRUE
 mp$mp3$assess$estqms 'unique'
 mp$mp3$assess$fixqss FALSE
 mp$mp3$assess$msRE c('zeta_st')
-mp$mp3$assess$ssRE c('zeta_st')
+mp$mp3$assess$ssRE c('zeta_st','eps_t')
 #
 # MP 5: qUpriors
 # 
@@ -434,7 +434,7 @@ mp$mp4$assess$fixqbar FALSE
 mp$mp4$assess$estqms 'unique'
 mp$mp4$assess$fixqss FALSE
 mp$mp4$assess$msRE c('zeta_st')
-mp$mp4$assess$ssRE c('zeta_st')
+mp$mp4$assess$ssRE c('zeta_st','eps_t')
 #
 # File ends <not run>
 

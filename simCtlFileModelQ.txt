@@ -1,4 +1,5 @@
-# job1.txt: mseR parameter file written Tue Aug 15 10:03:59 2017.
+# Base simCtlFile.txt with explicitly modeled catchability,
+# written Friday, Sep 14, 2018 for testing why the results changed
 parameter value
 ctrl$scenarioName 'allSame'
 ctrl$mpLabel 'noJointPriors'

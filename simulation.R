@@ -416,7 +416,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssDat[[s]] <- list (  It              = array(om$I_ost[,s,sT[s]:max(nT)], dim = c(nSurv,1,nT[s])),
                           Ct              = matrix(om$Ct[s,sT[s]:max(nT)], nrow=1),
                           SigmaPriorCode  = obj$assess$SigmaPriorCode,
-                          kappaPriorCode  = as.integer(obj$assess$estYearEff),
+                          kappaPriorCode  = as.integer((obj$assess$estYearEff | !obj$assess$estZetaSS) ),
                           sigUPriorCode   = obj$assess$sigUPriorCode,
                           tauqPriorCode   = obj$assess$tauqPriorCode,
                           condMLEq        = as.integer(obj$assess$condMLEq),
@@ -471,9 +471,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lntauq_o          = factor( rep(NA,nSurv) ),
                           mq                = factor( NA ),
                           sq                = factor( NA ),
-                          eps_t             = factor( rep( NA, nT[s] - 1 ) ),
+                          # eps_t             = factor( rep( NA, nT[s] - 1 ) ),
                           # zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
-                          lnkappa2          = factor( NA ),
+                          # lnkappa2          = factor( NA ),
                           # lnSigmaDiag       = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
                           tau2IGa           = factor( rep(NA,nSurv) ),
@@ -491,6 +491,16 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       ssMap[[s]]$lnq_os <- factor( rep(NA,nSurv) )
     if( obj$assess$initBioCode[s] == 0 )
       ssMap[[s]]$lnBinit <- factor(NA)
+    if( !obj$assess$estZetaSS )
+    {
+      ssMap[[s]]$zeta_st <- factor( rep( NA, nT[s] - 1 ) )
+      ssMap[[s]]$lnSigmaDiag <- factor(NA)
+    }
+    if( obj$assess$estZetaSS )
+    {
+      ssMap[[s]]$eps_t <- factor( rep( NA, nT[s] - 1 ) )
+      ssMap[[s]]$lnkappa2 <- factor(NA)
+    }
   }
 
   
@@ -754,6 +764,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     {
       gc()
       # increment counter
+      browser()
       nTries <- nTries + 1
       # optimise the model with REs
       fit <- try( nlminb( start = bestPars,
