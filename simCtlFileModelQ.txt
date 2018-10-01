@@ -59,7 +59,7 @@ assess$Sigma2 0.1
 assess$SigmaDiagMult rep(1,10)
 assess$SigmaPriorCode 0
 assess$BPriorCode 0
-assess$randomPriors FALSE
+assess$randomPriors TRUE
 assess$randPriorCV .2
 assess$mBmsy rep(20,10)
 assess$sBmsy rep(20,10)
