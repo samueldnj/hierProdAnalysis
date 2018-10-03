@@ -77,6 +77,113 @@ makeParEstTablePub <- function( tables = c("DoverBase", "DoverLoPE"),
   aggTab
 }
 
+# Makes the metamodel ranking tables for
+# factor effects
+makeMetaModelTables <- function(  tabNameRoot, IC =TRUE,
+                                  tabSavePath = "./Project/Statistics" )
+{
+  makeNewTabCols( tableRoot = tabNameRoot, IC = IC )
+  tabName <- paste(tabNameRoot,"_MARE",sep = "")
+  .makeDeltaCols( tabName = tabName)
+
+  tabSavePath <- file.path( tabSavePath, tabNameRoot )
+  if(!dir.exists(tabSavePath))
+    dir.create(tabSavePath)
+
+  # Complex level pars
+  metaModels( tabName = paste(tabName,"_cplx",sep = ""),
+              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+              spec = c("Stock1"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+              sig = .1, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE,
+              tabSavePath = tabSavePath )
+
+  # Then stock level pars for stock1, with Delta values
+  metaModels( tabName = paste(tabName,"_Delta",sep = ""),
+              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+              spec = c("Stock1"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+              sig = .1, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE,
+              tabSavePath = tabSavePath )
+  
+  metaModels( tabName = paste(tabNameRoot,"_IC",sep = ""),
+              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              singleResp = NULL,
+              spec = c("Stock1"),
+              expVars = c("initDep","fYear","nDiff","Umax","mp"),
+              sig = .1, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE,
+              tabSavePath = tabSavePath )
+
+  metaModels( tabName = paste(tabNameRoot,"_MRE",sep = ""),
+              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              singleResp = NULL,
+              spec = c("Stock1"),
+              expVars = c("initDep","fYear","nDiff","Umax","mp"),
+              sig = .1, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE,
+              tabSavePath = tabSavePath )
+}
+
+# Converts the meta-model tables to the publication format
+# Needs updating now that we're moving the SEs to a second row
+makePubTableDF <- function( tableRoot = "test_epstSS",
+                            tabPath = "./" )
+{
+
+  tables <- list.files(file.path(tabPath,tableRoot))
+  tables <- tables[grepl(x = tables, pattern = ".csv") ]
+
+  # OK, we have the two tables, one is cplx level and the other is
+  # for stock 1
+  stock1        <- tables[grepl(x = tables, pattern = paste(tableRoot,"_MARE_Delta",sep = ""))]
+  stock1.int    <- stock1[grepl(x = stock1, pattern = "interleaved")]
+  stock1.inline <- stock1[!grepl(x = stock1, pattern = "interleaved")]
+  stock1.int    <- read.csv(stock1.int, header = T, stringsAsFactors =FALSE)
+  stock1.inline <- read.csv(stock1.inline, header = T, stringsAsFactors =FALSE)
+
+  cplx          <- tables[grepl(x = tables, paste(tableRoot,"_MARE_cplx",sep = ""))]
+  cplx.int      <- cplx[grepl(x = cplx, pattern = "interleaved")]
+  cplx.inline   <- cplx[!grepl(x = cplx, pattern = "interleaved")]
+  cplx.int      <- read.csv(cplx.int, header = T, stringsAsFactors =FALSE)
+  cplx.inline   <- read.csv(cplx.inline, header = T, stringsAsFactors =FALSE)
+
+  # pull table row numbers for each section of table we're interested
+  # in
+  # Complex
+  cplx.DeltaRows <- grepl(x = cplx.tbl$par, pattern = "Delta")
+  # Stock1
+  ssPars <- c("ssBnT","ssUmsy","ssq_1","ssq_2","ssDep","ssBmsy")
+  msPars <- c("msBnT","msUmsy","msq_1","msq_2","msDep","msBmsy")
+  stock1.DeltaRows <- grepl(x = stock1.tbl$par, pattern = "Delta")
+  stock1.ssRows <- which(stock1.tbl$par %in% ssPars)
+  stock1.msRows <- which(stock1.tbl$par %in% msPars)
+
+  # now rbind and tidy up
+  outTable <- rbind(  stock1.tbl[stock1.DeltaRows,], cplx.tbl[cplx.DeltaRows,],
+                      stock1.tbl[c(stock1.ssRows,stock1.msRows),] ) %>%
+              dplyr::select(  par,               # Response
+                              beta0 = X.Intercept.,
+                              q = mpqPriorOnly,      # 
+                              r = mpUmsyPriorOnly,
+                              qr = mpqUpriors,
+                              D0 = initDep,
+                              Tinit = fYear,
+                              L = nDiff,
+                              S = nS,
+                              Fhist = Umax )
+
+  outTableFileName  <- paste(tableRoot,"pubTable.csv",sep = "")
+  outTablePath      <- file.path(tabPath,tableRoot)
+  write.csv(outTable, file = file.path(outTablePath, outTableFileName) )
+
+  return(outTable)
+}
+
 
 makeNewTabCols <- function( tableRoot = "allSame_infoScenarios", IC = FALSE )
 {

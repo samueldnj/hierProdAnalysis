@@ -242,11 +242,11 @@ Type objective_function<Type>::operator() ()
       {
         // compute conditional MLE q from observation
         // SS model
-        if( nS == 1) 
+        if( nS == 1 | lnqPriorCode == 0) 
           lnqhat_os(o,s) = zSum_os(o,s) / validObs(o,s);
 
         // MS model
-        if( nS > 1 ) 
+        if( nS > 1 & lnqPriorCode == 1 ) 
           lnqhat_os(o,s) = ( zSum_os(o,s) / tau2_o(o) + lnqbar_o(o)/tauq2_o(o) ) / ( validObs(o,s) / tau2_o(o) + 1 / tauq2_o(o) );  
       } else
         lnqhat_os(o,s) = lnq_os(o,s);
@@ -301,7 +301,7 @@ Type objective_function<Type>::operator() ()
       {
         // catchability
         // Shared Prior
-        if( lnqPriorCode == 1 )
+        if( lnqPriorCode == 1 & condMLEq == 0 )
           nllqPrior -= dnorm( lnqhat_os(o,s), lnqbar_o(o), tauq_o(o), 1);
 
         // No shared prior (uses the same prior as the SS model)

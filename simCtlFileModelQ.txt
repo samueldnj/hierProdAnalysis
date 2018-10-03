@@ -69,7 +69,7 @@ assess$lnsigUmsy2 -2.4
 assess$fixsigU2 TRUE
 assess$fixUbar TRUE
 assess$mUmsy .08
-assess$sUmsy 0.04
+assess$sUmsy 0.08
 assess$condMLEq FALSE
 assess$lnqPriorCode 0
 assess$lnqbar_o -.51
@@ -79,7 +79,7 @@ assess$fixqbar TRUE
 assess$estqms 'unique'
 assess$fixqss FALSE
 assess$mq .55
-assess$sq .275
+assess$sq .55
 assess$sigUPriorCode 0
 assess$sigU2Prior c(1,0.0004)
 assess$UmsyCV .20

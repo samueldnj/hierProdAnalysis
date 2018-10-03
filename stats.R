@@ -195,7 +195,8 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                         spec = c("Stock1"),
                         expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
                         sig = .1, intercept = TRUE,
-                        scaled = TRUE, saveOut = TRUE, interactions = FALSE, dropTest = TRUE )
+                        scaled = TRUE, saveOut = TRUE, interactions = FALSE, dropTest = FALSE,
+                        tabSavePath = "./project/Statistics/" )
 {
   # Create an rDataFile output name
   rDataName <- tabName
@@ -259,7 +260,7 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                                                     spec = spec )
     }  
   } 
-  savePath <- file.path( getwd(), "project", "Statistics", rDataName ) 
+  savePath <- file.path( tabSavePath, rDataName ) 
   dir.create( savePath )
   if(saveOut) save( fitList, 
                     file = file.path( savePath,
@@ -303,22 +304,79 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
     out
   }
 
+  # Now organise the top ranked models into a single table
+  # pulling the SEs this time
+  pull1AIC.se <- function(par, list, prefix = "")
+  {
+    out <- list[[par]]$AICrank.se[1,]
+    out$par <- paste(prefix,par,sep = "")
+
+    out
+  }
+
+  # Now organise the top ranked models into a single table
+  # pulling the SEs this time
+  pull1AIC.eff <- function(par, list, prefix = "")
+  {
+    out <- list[[par]]$AICrank.eff[1,]
+    out$par <- paste(prefix,par,sep = "")
+
+    out
+  }
+
   ssTop <- lapply(X = multiResp, FUN = pull1AIC, list = fitList$ss, prefix = "ss" )
   ssTop <- do.call(what = "rbind", args = ssTop )
+
+  ssTop.se <- lapply(X = multiResp, FUN = pull1AIC.se, list = fitList$ss, prefix = "ss" )
+  ssTop.se <- do.call(what = "rbind", args = ssTop.se )
+
+  ssTop.eff <- lapply(X = multiResp, FUN = pull1AIC.eff, list = fitList$ss, prefix = "ss" )
+  ssTop.eff <- do.call(what = "rbind", args = ssTop.eff )
+
   msTop <- lapply(X = multiResp, FUN = pull1AIC, list = fitList$ms, prefix = "ms" )
   msTop <- do.call(what = "rbind", args = msTop )
 
-  topRank <- rbind( ssTop, msTop )
+  msTop.se <- lapply(X = multiResp, FUN = pull1AIC.se, list = fitList$ms, prefix = "ms" )
+  msTop.se <- do.call(what = "rbind", args = msTop.se )
+
+  msTop.eff <- lapply(X = multiResp, FUN = pull1AIC.eff, list = fitList$ms, prefix = "ms" )
+  msTop.eff <- do.call(what = "rbind", args = msTop.eff )
+
+  topRank       <- rbind( ssTop, msTop )
+  topRank.se    <- rbind( ssTop.se, msTop.se )
+  topRank.eff   <- rbind( ssTop.eff, msTop.eff )
 
   if( !is.null(singleResp) )
   {
     groupTop <- lapply(X = singleResp, FUN = pull1AIC, list = fitList$group, prefix = "" )
     groupTop <- do.call(what = "rbind", args = groupTop )
-    topRank <- rbind( topRank, groupTop )
+
+    groupTop.se <- lapply(X = singleResp, FUN = pull1AIC.se, list = fitList$group, prefix = "" )
+    groupTop.se <- do.call(what = "rbind", args = groupTop.se )
+
+    groupTop.efff <- lapply(X = singleResp, FUN = pull1AIC.efff, list = fitList$group, prefix = "" )
+    groupTop.efff <- do.call(what = "rbind", args = groupTop.efff )
+
+    topRank     <- rbind( topRank, groupTop )
+    topRank.se  <- rbind( topRank.se, groupTop.se )
+    topRank.eff <- rbind( topRank.eff, groupTop.eff )
   }
+
+  # Add an se tag to each parameter name
+  topRank.se$par <- paste(topRank.se$par,"se",sep = "")
+
+  # Now interleave them
+  idx <- rbind( 1:nrow(topRank.eff), (nrow(topRank.se)+1):(2*nrow(topRank.se)) )
+  topRank.interleave <- rbind(topRank.eff,topRank.se)[idx,]
+
   # Save
+  # Interleaved SEs version
+  topRankFile <- paste( rDataName, "topRank_interleave.csv", sep = "" )
+  write.csv( x = topRank.interleave, file = file.path(tabSavePath,topRankFile) )
+
+  # Inline SEs version
   topRankFile <- paste( rDataName, "topRank.csv", sep = "" )
-  write.csv( x = topRank, file = topRankFile )
+  write.csv( x = topRank, file = file.path(tabSavePath,topRankFile) )
 
   fitList
   
@@ -431,45 +489,68 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   colnames(rank.df) <- c( "Number", "AICc", "deltaAICc", "maxPr" )
   rank.df           <- as.data.frame(rank.df)
 
-  # Make effect size df
-  effect.df             <- matrix ( 0, ncol = nrow( coefFSumm ) + 1, nrow = nModels )
+  # Make effect size df with nModels rows, and a matching df for standard errors
+  effect.df             <- matrix ( NA, ncol = nrow( coefFSumm ) + 1, nrow = nModels )
+  combined.df           <- matrix ( NA, ncol = nrow( coefFSumm ) + 1, nrow = nModels )
   colnames(effect.df)   <- c("Number", dimnames(coefFSumm)[[1]])
   effect.df             <- as.data.frame(effect.df)
+  se.df                 <- effect.df
   
   # Add an idenitifying number (useful for looking through model objects)
-  rank.df[,1] <- 1:nModels
-  effect.df[,1] <- 1:nModels
+  rank.df[,"Number"] <- 1:nModels
+  effect.df[,"Number"] <- 1:nModels
+  se.df[,"Number"] <- 1:nModels
   for(k in 1:nModels)
   {
     nPar <- nrow(summList[[k]]$coefficients)
     nObs <- length(summList[[k]]$deviance.resid)
     rank.df[k,"AICc"] <- summList[[k]]$aic + nPar*(nPar + 1) / (nObs - nPar - 1)
-    if( drop )
+    if(drop)
       rank.df[k,"maxPr"] <- max(dropList[[k]][-1,5])
     coefSumm <- coef(summList[[k]])
     coefSumm[,1:2] <- round(coefSumm[,1:2] * scale,2)
-    effects <- paste( coefSumm[,1], " (", coefSumm[,2],")", sep = "" )
+    effects <- coefSumm[,1]
+    effects.se <- coefSumm[,2]
     for( eIdx in 1:nrow( coefSumm ) )
     {
       effName <- dimnames(coefSumm)[[1]][eIdx]
       effect.df[k,effName] <- effects[eIdx]
+      se.df[k,effName] <- effects.se[eIdx]
+      combined.df[k,effName] <- paste( effects[eIdx], " (", effects.se[eIdx],")", sep = "")
     }
-  } 
+  }
 
-  effect.df[is.na(effect.df)] <- 0
-
-  # Join effect sizes to ranks, and remove insignificant models
-  rank.df <-  rank.df %>% 
-              left_join( y = effect.df, by = "Number" ) 
+  # Remove insignificant models if desired
   if( drop )
     rank.df <- rank.df  %>%
                filter( maxPr < sig )
 
+  # Join effect sizes to ranks, and remove insignificant models
+  rank.comb.df <- rank.df %>% 
+                  left_join( y = combined.df, by = "Number" ) 
 
-  rank.df[,"deltaAICc"] <- rank.df[,"AICc"] - min(rank.df[,"AICc"])
-  rank.df <- rank.df[ order(rank.df[,"deltaAICc"]), ]
+  rank.eff.df <-  rank.df %>%
+                  left_join( y = effect.df, by = "Number" )                  
+
+  rank.se.df <- rank.df %>% 
+                left_join( y = se.df, by = "Number" ) 
+
+
   
-  return( list( AICrank = rank.df,
+
+
+  rank.comb.df[,"deltaAICc"] <- rank.comb.df[,"AICc"] - min(rank.comb.df[,"AICc"])
+  rank.comb.df <- rank.comb.df[ order(rank.comb.df[,"deltaAICc"]), ]
+
+  rank.eff.df[,"deltaAICc"] <- rank.eff.df[,"AICc"] - min(rank.eff.df[,"AICc"])
+  rank.eff.df <- rank.eff.df[ order(rank.eff.df[,"deltaAICc"]), ]
+
+  rank.se.df[,"deltaAICc"]  <- rank.se.df[,"AICc"] - min(rank.se.df[,"AICc"])
+  rank.se.df                <- rank.se.df[ order(rank.se.df[,"deltaAICc"]), ]
+  
+  return( list( AICrank = rank.comb.df,
+                AICrank.se = rank.se.df,
+                AICrank.eff = rank.eff.df,
                 models = modelList[ rank.df[ , "Number" ] ] )
         )
 }
