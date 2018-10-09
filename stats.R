@@ -517,7 +517,7 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
       effName <- dimnames(coefSumm)[[1]][eIdx]
       effect.df[k,effName] <- effects[eIdx]
       se.df[k,effName] <- effects.se[eIdx]
-      combined.df[k,effName] <- paste( effects[eIdx], " (", effects.se[eIdx],")", sep = "")
+      combined.df[k,effName] <- paste( format(effects[eIdx],nsmall = 2), " (", format(effects.se[eIdx],nsmall = 2),")", sep = "")
     }
   }
 
