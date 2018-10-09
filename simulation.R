@@ -330,8 +330,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
   om$tau2     <- (apply(X = om$I_ost, FUN = sd, MARGIN = 1, na.rm = T)/4)^2
   om$Bt       <- 20*abs( apply( X = om$I_ost, FUN = sum, MARGIN = c(2,3) ) )
 
-  browser()
-
   om$sT <- fYear - minYear + 1
   om$nT <- lYear - fYear + 1
 
@@ -764,7 +762,6 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     {
       gc()
       # increment counter
-      browser()
       nTries <- nTries + 1
       # optimise the model with REs
       fit <- try( nlminb( start = bestPars,

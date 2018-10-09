@@ -80,6 +80,7 @@ assess$fixtauq2 FALSE
 assess$fixqbar FALSE
 assess$estqms 'unique'
 assess$fixqss FALSE
+assess$condMLEq FALSE
 assess$mq .55
 assess$sq .55
 assess$sigUPriorCode 0
