@@ -14,7 +14,7 @@ source("control.R")
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("pubBase_4MPs.bch","DoverAssess.bch")
+batchFiles    <- c("pubBase4MPs.bch","DoverAssess.bch")
 baseCtlFiles  <- c("simCtlFile.txt","simCtlFileDoverAssess.txt")
 expPrefix     <- c("pubBase","DoverAssess")
 plots         <- c(TRUE,TRUE,FALSE,FALSE)
