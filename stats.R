@@ -354,8 +354,8 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
     groupTop.se <- lapply(X = singleResp, FUN = pull1AIC.se, list = fitList$group, prefix = "" )
     groupTop.se <- do.call(what = "rbind", args = groupTop.se )
 
-    groupTop.efff <- lapply(X = singleResp, FUN = pull1AIC.efff, list = fitList$group, prefix = "" )
-    groupTop.efff <- do.call(what = "rbind", args = groupTop.efff )
+    groupTop.eff <- lapply(X = singleResp, FUN = pull1AIC.eff, list = fitList$group, prefix = "" )
+    groupTop.eff <- do.call(what = "rbind", args = groupTop.eff )
 
     topRank     <- rbind( topRank, groupTop )
     topRank.se  <- rbind( topRank.se, groupTop.se )
@@ -491,15 +491,16 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 
   # Make effect size df with nModels rows, and a matching df for standard errors
   effect.df             <- matrix ( NA, ncol = nrow( coefFSumm ) + 1, nrow = nModels )
-  combined.df           <- matrix ( NA, ncol = nrow( coefFSumm ) + 1, nrow = nModels )
   colnames(effect.df)   <- c("Number", dimnames(coefFSumm)[[1]])
   effect.df             <- as.data.frame(effect.df)
   se.df                 <- effect.df
+  combined.df           <- effect.df
   
   # Add an idenitifying number (useful for looking through model objects)
   rank.df[,"Number"] <- 1:nModels
   effect.df[,"Number"] <- 1:nModels
   se.df[,"Number"] <- 1:nModels
+  combined.df[,"Number"] <- 1:nModels
   for(k in 1:nModels)
   {
     nPar <- nrow(summList[[k]]$coefficients)
@@ -537,8 +538,6 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 
 
   
-
-
   rank.comb.df[,"deltaAICc"] <- rank.comb.df[,"AICc"] - min(rank.comb.df[,"AICc"])
   rank.comb.df <- rank.comb.df[ order(rank.comb.df[,"deltaAICc"]), ]
 
@@ -713,30 +712,30 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                   medTab = medTab ) )
 }
 
-.makeMetaModelTables <- function(tabNameRoot)
-{
-  makeNewTabCols( tableRoot = "allSame_infoScenarios" )
-  tabName <- paste(tabNameRoot,"_MARE",sep = "")
-  .makeDeltaCols( tabName = tabName)
+# .makeMetaModelTables <- function(tabNameRoot)
+# {
+#   makeNewTabCols( tableRoot = "allSame_infoScenarios" )
+#   tabName <- paste(tabNameRoot,"_MARE",sep = "")
+#   .makeDeltaCols( tabName = tabName)
 
-  # Complex level pars
-  metaModels( tabName = paste(tabName,"_cplx",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
-              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
-              spec = c("Stock1"),
-              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
-              sig = .05, intercept = TRUE,
-              scaled = TRUE, saveOut = TRUE, interactions = FALSE )
+#   # Complex level pars
+#   metaModels( tabName = paste(tabName,"_cplx",sep = ""),
+#               multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+#               singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+#               spec = c("Stock1"),
+#               expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+#               sig = .05, intercept = TRUE,
+#               scaled = TRUE, saveOut = TRUE, interactions = FALSE )
 
-  # Then stock level pars for stock1, with Delta values
-  metaModels( tabName = paste(tabName,"_Delta",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
-              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
-              spec = c("Stock1"),
-              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
-              sig = .05, intercept = TRUE,
-              scaled = TRUE, saveOut = TRUE, interactions = FALSE )
-}
+#   # Then stock level pars for stock1, with Delta values
+#   metaModels( tabName = paste(tabName,"_Delta",sep = ""),
+#               multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+#               singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+#               spec = c("Stock1"),
+#               expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+#               sig = .05, intercept = TRUE,
+#               scaled = TRUE, saveOut = TRUE, interactions = FALSE )
+# }
 
 
 #.statTables()

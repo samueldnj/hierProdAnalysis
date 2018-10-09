@@ -132,40 +132,39 @@ makeMetaModelTables <- function(  tabNameRoot, IC =TRUE,
 # Converts the meta-model tables to the publication format
 # Needs updating now that we're moving the SEs to a second row
 makePubTableDF <- function( tableRoot = "test_epstSS",
-                            tabPath = "./" )
+                            tabPath = "./Project/Statistics" )
 {
-
-  tables <- list.files(file.path(tabPath,tableRoot))
+  tables <- list.files(file.path(tabPath,tableRoot), full.names = TRUE)
   tables <- tables[grepl(x = tables, pattern = ".csv") ]
 
   # OK, we have the two tables, one is cplx level and the other is
   # for stock 1
   stock1        <- tables[grepl(x = tables, pattern = paste(tableRoot,"_MARE_Delta",sep = ""))]
-  stock1.int    <- stock1[grepl(x = stock1, pattern = "interleaved")]
-  stock1.inline <- stock1[!grepl(x = stock1, pattern = "interleaved")]
+  stock1.int    <- stock1[grepl(x = stock1, pattern = "interleave")]
+  stock1.inline <- stock1[!grepl(x = stock1, pattern = "interleave")]
   stock1.int    <- read.csv(stock1.int, header = T, stringsAsFactors =FALSE)
   stock1.inline <- read.csv(stock1.inline, header = T, stringsAsFactors =FALSE)
 
   cplx          <- tables[grepl(x = tables, paste(tableRoot,"_MARE_cplx",sep = ""))]
-  cplx.int      <- cplx[grepl(x = cplx, pattern = "interleaved")]
-  cplx.inline   <- cplx[!grepl(x = cplx, pattern = "interleaved")]
+  cplx.int      <- cplx[grepl(x = cplx, pattern = "interleave")]
+  cplx.inline   <- cplx[!grepl(x = cplx, pattern = "interleave")]
   cplx.int      <- read.csv(cplx.int, header = T, stringsAsFactors =FALSE)
   cplx.inline   <- read.csv(cplx.inline, header = T, stringsAsFactors =FALSE)
 
   # pull table row numbers for each section of table we're interested
   # in
   # Complex
-  cplx.DeltaRows <- grepl(x = cplx.tbl$par, pattern = "Delta")
+  cplx.DeltaRows <- grepl(x = cplx.inline$par, pattern = "Delta")
   # Stock1
   ssPars <- c("ssBnT","ssUmsy","ssq_1","ssq_2","ssDep","ssBmsy")
   msPars <- c("msBnT","msUmsy","msq_1","msq_2","msDep","msBmsy")
-  stock1.DeltaRows <- grepl(x = stock1.tbl$par, pattern = "Delta")
-  stock1.ssRows <- which(stock1.tbl$par %in% ssPars)
-  stock1.msRows <- which(stock1.tbl$par %in% msPars)
+  stock1.DeltaRows <- grepl(x = stock1.inline$par, pattern = "Delta")
+  stock1.ssRows <- which(stock1.inline$par %in% ssPars)
+  stock1.msRows <- which(stock1.inline$par %in% msPars)
 
   # now rbind and tidy up
-  outTable <- rbind(  stock1.tbl[stock1.DeltaRows,], cplx.tbl[cplx.DeltaRows,],
-                      stock1.tbl[c(stock1.ssRows,stock1.msRows),] ) %>%
+  outTable <- rbind(  stock1.inline[stock1.DeltaRows,], cplx.inline[cplx.DeltaRows,],
+                      stock1.inline[c(stock1.ssRows,stock1.msRows),] ) %>%
               dplyr::select(  par,               # Response
                               beta0 = X.Intercept.,
                               q = mpqPriorOnly,      # 

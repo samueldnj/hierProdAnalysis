@@ -14,10 +14,10 @@ source("control.R")
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("infoScenarios_qREs.bch","infoScenarios.bch")
-baseCtlFiles  <- c("simCtlFileModelQ.txt","simCtlFile.txt")
-expPrefix     <- c("test_qREs_RP","test_condMLEq_RP")
-plots         <- c(FALSE,FALSE,FALSE,FALSE)
+batchFiles    <- c("pubBase_4MPs.bch","DoverAssess.bch")
+baseCtlFiles  <- c("simCtlFile.txt","simCtlFileDoverAssess.txt")
+expPrefix     <- c("pubBase","DoverAssess")
+plots         <- c(TRUE,TRUE,FALSE,FALSE)
 
 # Now loop over the experiments
 

@@ -50,7 +50,7 @@ mp$mp2$assess$lntauq2 -2.4
 mp$mp2$assess$fixqbar FALSE
 mp$mp2$assess$estqms 'unique'
 mp$mp2$assess$fixqss FALSE
-mp$mp2$assess$msRE c('zeta_st')
+mp$mp2$assess$msRE c('zeta_st','lnq_os')
 mp$mp2$assess$ssRE c('zeta_st')
 #
 # MP 4: UmsyPriorOnly
@@ -86,7 +86,7 @@ mp$mp4$assess$lntauq2 -2.4
 mp$mp4$assess$fixqbar FALSE
 mp$mp4$assess$estqms 'unique'
 mp$mp4$assess$fixqss FALSE
-mp$mp4$assess$msRE c('zeta_st')
+mp$mp4$assess$msRE c('zeta_st','lnq_os')
 mp$mp4$assess$ssRE c('zeta_st')
 #
 # End of batch file

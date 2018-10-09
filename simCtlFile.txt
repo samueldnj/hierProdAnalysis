@@ -1,5 +1,5 @@
-# Base simCtlFile.txt with condMLEq, written Friday, Sep 14, 2018
-# for testing why the results changed
+# Base simCtlFile.txt with explicitly modeled catchability,
+# written Friday, Sep 14, 2018 for testing why the results changed
 parameter value
 ctrl$scenarioName 'allSame'
 ctrl$mpLabel 'noJointPriors'
@@ -70,7 +70,7 @@ assess$fixsigU2 TRUE
 assess$fixUbar TRUE
 assess$mUmsy .08
 assess$sUmsy 0.08
-assess$condMLEq TRUE
+assess$condMLEq FALSE
 assess$lnqPriorCode 0
 assess$lnqbar_o -.51
 assess$lntauq_o -1
