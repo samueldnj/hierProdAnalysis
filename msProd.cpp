@@ -33,6 +33,14 @@ Type invLogit(Type x, Type scale, Type trans){
   return scale/(Type(1.0) + exp(-Type(1.0)*x)) - trans;
 }
 
+// invLogit
+template<class Type>
+Type square(Type x)
+{
+  return pow(x,2);
+}
+
+
 
 // objective function
 template<class Type>
@@ -110,6 +118,7 @@ Type objective_function<Type>::operator() ()
   vector<Type>      tau2_o  = exp(lntau2_o);
   vector<Type>      Binit   = exp(lnBinit);
   array<Type>       lnqhat_os(nO,nS);
+  vector<Type>      tau2hat_o(nO);
   
   // Prior hyperpars
   vector<Type>      qbar_o  = exp(lnqbar_o);
@@ -141,6 +150,7 @@ Type objective_function<Type>::operator() ()
   vector<Type>      lnBnT(nS);
   array<Type>       U_Umsy(nS,nT);
   array<Type>       lnU_Umsy(nS,nT);
+  vector<Type>      lnU_UmsyT(nS);
 
   // Procedure Section //
   // First create the correlation matrix for the species effects
@@ -198,8 +208,7 @@ Type objective_function<Type>::operator() ()
     // Add correlated species effects contribution to likelihood
     for( int s = 0; s < nS; s++ )
     {
-      Type tmpZeta = zeta_st(s,t-1);
-      nllRE -= dnorm(tmpZeta,Type(0.),sqrt(SigmaDiag(s)),1);
+      nllRE += 0.5*(lnSigmaDiag + pow(zeta_st(s,t-1),2)/SigmaDiag(s) );
     }
         
   }
@@ -210,15 +219,22 @@ Type objective_function<Type>::operator() ()
   // Concentrate species specific obs error likelihood?
   // Initialise arrays for concentrating conditional MLE qhat
   array<Type>   validObs(nO,nS);
+  vector<Type>  totObs_o(nO);
   array<Type>   qhat_os(nO,nS);
   array<Type>   z_ost(nO,nS,nT);
   array<Type>   zSum_os(nO,nS);
+  array<Type>   SS_os(nO,nS);
+  vector<Type>  totSS_o(nO);
   // Fill with 0s
   Type nllObs = 0.0;
   validObs.fill(1e-6);
+  totObs_o.fill(0);
   zSum_os.fill(0.0);
   z_ost.fill(0.0);
   qhat_os.fill(-1.0);
+  SS_os.fill(0.);
+  totSS_o.fill(0.);
+
 
   // Compute observation likelihood
   // Loop over surveys
@@ -231,7 +247,7 @@ Type objective_function<Type>::operator() ()
       for( int t = initT(s); t < nT; t++ )
       {
         // only add a contribution if the data exists (Iost < 0 is missing)
-        if( ( It(o,s,t) > 0. ) & (Bt(s,t) > 1e-3) ) 
+        if( ( It(o,s,t) > 0. ) ) 
         {
           validObs(o,s) += int(1);
           z_ost(o,s,t) = log( It( o, s, t ) ) - log( Bt( s, t ) );
@@ -251,15 +267,26 @@ Type objective_function<Type>::operator() ()
       } else
         lnqhat_os(o,s) = lnq_os(o,s);
 
-        // Exponentiate
-        qhat_os(o,s) = exp(lnqhat_os(o,s));
-      
-      // Add contribution of data to obs likelihood
-      for( int t = initT(s); t < nT; t++ )
-        if( (It(o,s,t) > 0.0) & ( Bt(s,t) > 1e-3 ) )
-          nllObs -= dnorm( z_ost(o,s,t), lnqhat_os(o,s), sqrt(tau2_o(o)),1);
+      // Exponentiate
+      qhat_os(o,s) = exp(lnqhat_os(o,s));
 
+      // Subtract lnq_os from the resids
+      for( int t = initT(s); t < nT; t++ )
+        if( (It(o,s,t) > 0.0) )
+          z_ost(o,s,t) -= lnqhat_os(o,s);
+
+      // Calculate sum of squared resids
+      for( int t = initT(s); t < nT; t++ ) 
+        SS_os(o,s) += square(z_ost(o,s,t));
+      
+      // Add to likelihood
+      nllObs += 0.5 * ( validObs(o,s)*lntau2_o(o) + SS_os(o,s)/tau2_o(o));
+
+      // Add valid Obs and SS to a total for each survey
+      totObs_o(o) += validObs(o,s);
+      totSS_o(o) += SS_os(o,s);
     }
+    tau2hat_o(o) = totSS_o(o) / totObs_o(o);
   }
   nll += nllObs;
 
@@ -306,7 +333,7 @@ Type objective_function<Type>::operator() ()
 
         // No shared prior (uses the same prior as the SS model)
         if( lnqPriorCode == 0 )
-          nllqPrior -= dnorm( qhat_os(o,s), mq, sq, 1); 
+          nllqPrior += 0.5 * pow((qhat_os(0,s) - mq)/sq,2);
 
       }
       // productivity
@@ -316,7 +343,7 @@ Type objective_function<Type>::operator() ()
 
       // No shared prior (uses SS model prior)
       if( lnUPriorCode == 0 )
-        nllUprior -= dnorm( Umsy(s), mUmsy, sUmsy, 1);
+        nllUprior += pow( (Umsy(s) - mUmsy)/ sUmsy, 2);
 
     }  
     // Hyperpriors
@@ -410,7 +437,7 @@ Type objective_function<Type>::operator() ()
     U_Umsy.col(t) = Ut.col(t) / Umsy;
     lnU_Umsy.col(t) = log(U_Umsy.col(t));
   }
-
+  lnU_UmsyT = lnU_Umsy.col(nT-1);
 
   // Reporting Section //
   // Variables we want SEs for
@@ -422,7 +449,7 @@ Type objective_function<Type>::operator() ()
   ADREPORT(lnkappa2);
   ADREPORT(lnDnT);
   ADREPORT(lnBnT);
-  ADREPORT(lnU_Umsy.col(nT - 1));
+  ADREPORT(lnU_UmsyT);
 
   
   // Everything else //
@@ -445,6 +472,7 @@ Type objective_function<Type>::operator() ()
   REPORT(nO);
   REPORT(nS);
   REPORT(zSum_os);
+  REPORT(z_ost);
   REPORT(validObs);
   REPORT(zeta_st);
   REPORT(Sigma);

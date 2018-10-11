@@ -14,9 +14,9 @@ source("control.R")
 # List batch file names, base control file names and experiment
 # prefix names (for folder naming)
 # vectors must length k.
-batchFiles    <- c("DoverAssess.bch")
-baseCtlFiles  <- c("simCtlFileDoverAssess.txt")
-expPrefix     <- c("DoverAssess")
+batchFiles    <- c("DoverAssess.bch","infoScenarios.bch","pubBase.bch")
+baseCtlFiles  <- c("simCtlFileDoverAssess.txt","simCtlFile.txt","simCtlFile.txt")
+expPrefix     <- c("DoverAssess","info_qREs_RP","pubBase")
 plots         <- c(FALSE,FALSE,FALSE)
 
 # Now loop over the experiments
@@ -41,24 +41,28 @@ for( i in 1:length(batchFiles))
                       vars = c("Umsy","BnT","Bmsy","Dep","q_1","q_2"),
                       varLabels = expression(U[MSY], B[T], B[MSY], B[T]/B[0], q[11], q[21]),
                       MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
-                      MPlabels = expression("None", q, r, q/r ) ) 
+                      MPlabels = expression("None", q, U[MSY], q/U[MSY] ) ) 
     # Now get the folder order numbering so we can plot the BCsim
     # and stockPerf
-    simNumTable <- makeSimNumTable()
-    dumpBCsim(  simPath = file.path("./project"),
-                prefix = expPrefix[i],
-                MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
-                MPlabels = expression("Single Stock","None", q, r, q/r ),
-                simNumTable = simNumTable )  
+    simNumTable <- makeSimNumTable()  
 
-    dumpStockPerf(  simPath = file.path("./project"),
-                    prefix = expPrefix[i],
-                    MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
-                    MPlabels = c( noJointPriors = "None", 
-                                  qPriorOnly = expression(q), 
-                                  UmsyPriorOnly = expression(r), 
-                                  qUpriors = expression(q/r) ),
-                    simNumTable = simNumTable )
+    # Now do rep by rep biomass plots
+    dumpBCsim(  simPath = "./project",
+                prefix = batchName,
+                MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                MPlabels = expression("Single Stock","None", q, U[MSY], q/U[MSY] ),
+                simNumTable = simNumTable )
+
+
+    # Now do relative error distributions
+    dumpStockPerf( simPath = "./project",
+                  prefix = batchName,
+                  MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
+                  MPlabels = c( noJointPriors = "None", 
+                                qPriorOnly = expression(q), 
+                                UmsyPriorOnly = expression(U[MSY]), 
+                                qUpriors = expression(q/U[MSY]) ),
+                  simNumTable = simNumTable )
   }
   
 

@@ -3838,8 +3838,8 @@ makeSimNumTable <- function()
   simList <- simList[grepl(pattern = "sim", x = simList)]
   # Count simulations, make a table of scenarios/MPs
   nSims <- length(simList)
-  simNumTable <- matrix(NA, nrow = nSims, ncol = 3 )
-  colnames(simNumTable) <- c("simNum","scenario","mp")
+  simNumTable <- matrix(NA, nrow = nSims, ncol = 4 )
+  colnames(simNumTable) <- c("simNum","scenario","mp","nS")
 
   simNumTable <- as.data.frame(simNumTable)
   simNumTable$simNum <- 1:nSims
@@ -3849,6 +3849,7 @@ makeSimNumTable <- function()
     .loadSim(i)
     simNumTable[i,"scenario"] <- blob$ctrl$scenarioName
     simNumTable[i,"mp"] <- blob$ctrl$mpLabel
+    simNumTable[i,"nS"] <- blob$opMod$nS
   }
   simNumTable
 }
@@ -3857,7 +3858,7 @@ dumpBCsim <- function(  simPath = "./project",
                         prefix = "pubBase",
                         MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
                         MPlabels = expression("Single Stock","None", q, r, q/r ),
-                        simNumTable = NULL )
+                        simNumTable = NULL, devLabels = TRUE )
 {
   # Need to read in all the sims in the folder, and then
   # tabulate so we can plot out the sets of MPs
@@ -3898,6 +3899,8 @@ dumpBCsim <- function(  simPath = "./project",
     for( mIdx in 1:length(MPs))
       mpOrder[mIdx] <- subTable[which(subTable[,"mp"] == MPs[mIdx] ),"simNum"]
 
+    nS <- unique(subTable$nS)
+
     # Now, loop over rep numbers and plot
     plotBCsimReps(  sims = mpOrder,
                     saveFileRoot = file.path(scenPath,"BCsim"),
@@ -3907,7 +3910,7 @@ dumpBCsim <- function(  simPath = "./project",
                     scale = FALSE,
                     titles = MPlabels, MPtitles = FALSE,
                     labSize = 2, tickSize = 2, 
-                    devLabels = TRUE, maxBt = NULL )
+                    devLabels = devLabels, maxBt = rep(45, nS) )
 
   }
 
@@ -3965,8 +3968,8 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
   {
     scenLabel <- scenarios[scenIdx]
     scenPlotPath <- file.path(perfPlotPath,paste(scenLabel,".png",sep = ""))
-    png( file = scenPlotPath, width = 1600, height = 900 )
-    par(mfcol = c(length(vars), length(MPs) ), oma =c(3,3,2,2), mar = c(2,2,2,2) )
+    png( file = scenPlotPath, width = 1600, height = round(1600/1.3) )
+    par(mfcol = c(length(vars), length(MPs) ), oma =c(4,4,4,4), mar = c(2,2,2,2) )
     # MPs are columns, and vars are rows
     # we are going row by row, so loop over vars first
     for( mpIdx in 1:length(MPs) )
@@ -4004,8 +4007,13 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
           mtext(side = 4, line = 1, text = varLabels[varIdx] )
       }
     }
+    mtext( side = 1, text = expression(Q(theta)), outer = T, line = 1, font = 2, cex = 1.2)
+    mtext( side = 2, text = "Density", outer = T, line = 1, font = 2, cex = 1.2 )
+    mtext( side = 3, text = "AM Configuration", outer = T, line = 1, font = 2, cex = 1.2 )
+    mtext( side = 4, text = "Variable", outer = T, line = 1, font = 2, cex = 1.2 )
     dev.off()
   }
+
 
   cat("Perf metrics for ", tabNameRoot," complete\n", sep = "")
 }
@@ -4053,7 +4061,7 @@ plotPerfMetrics <- function(  scenLabel = "base_1way", tabNameRoot = "pubBase",
             dplyr::filter(  scenario == scenLabel,
                             mp == mpLabel,
                             species == stockLabel ) 
-  if(is.null(PItab))
+  if(is.null(MAREtab))
   {
     MAREtab   <- paste(tabNameRoot,"_MARE.csv", sep = "" )
     MAREtab   <- read.csv(file.path(tablePath,MAREtab), header = T, stringsAsFactors = FALSE)
@@ -4077,21 +4085,21 @@ plotPerfMetrics <- function(  scenLabel = "base_1way", tabNameRoot = "pubBase",
   msPIdens <- density(PItab[,msVar], na.rm = T )
 
   # Get IC
-  ssIC <- ICtab[,ssVar]
-  msIC <- ICtab[,msVar]
+  ssIC <- format(round(ICtab[1,ssVar],3),nsmall = 3)
+  msIC <- format(round(ICtab[1,msVar],3),nsmall = 3)
 
   # Get MARE values
-  ssMARE <- round(MAREtab[,ssVar],3)
-  msMARE <- round(MAREtab[,msVar],3)
+  ssMARE <- format(round(MAREtab[,ssVar],3),nsmall = 3)
+  msMARE <- format(round(MAREtab[,msVar],3),nsmall = 3)
 
   # Get MRE values
-  ssMRE <- round(MREtab[,ssVar], 3)
-  msMRE <- round(MREtab[,msVar], 3)
+  ssMRE <- format(round(MREtab[,ssVar], 3),nsmall = 3)
+  msMRE <- format(round(MREtab[,msVar], 3),nsmall = 3)
 
   # get total reps
   totReps <- ICtab[,"totReps"]
-  msTries <- round(ICtab[,"msTries"],2)
-  ssTries <- round(ICtab[,"ssTries"],2)
+  msTries <- format(signif(ICtab[,"msTries"],2),nsmall = 3)
+  ssTries <- format(signif(ICtab[,"ssTries"],2),nsmall = 3)
 
 
   plot( x = c(0,1), y = c(0,3),
@@ -4110,15 +4118,18 @@ plotPerfMetrics <- function(  scenLabel = "base_1way", tabNameRoot = "pubBase",
     lines(ssPIdens, col = cols[1], lwd = 3 )
     lines(msPIdens, col = cols[2], lwd = 3 )
     # Plot performance metrics
-    text( x = 0.1, y = 2.8, label = "     SS    MS " )
-    text( x = 0.1, y = 2.6, label = paste("  IC ", ssIC, "   ", msIC, sep = "") )
-    text( x = 0.1, y = 2.4, label = paste("MARE ", ssMARE, "   ", msMARE, sep = "") )
-    text( x = 0.1, y = 2.2, label = paste(" MRE ", ssMRE, "   ", msMRE, sep = "") )
+    rect( xleft = 0.68, xright = 1.2, ybottom = 1.85, ytop = 3.2,
+          col = "white", border = "black" )
+    text( x = c(0.855,0.985), y = 2.9, label = c("SS","MS"), font = 2, cex = 1.5 )
+    text( x = c(0.74,0.855,0.985), y = 2.6, font = 2, label = c("IC", ssIC, msIC), cex = 1.5)
+    text( x = c(0.74,0.855,0.985), y = 2.3, font = 2, label = c("MARE", ssMARE, msMARE), cex = 1.5 )
+    text( x = c(0.74,0.855,0.985), y = 2.0, font = 2, label = c("MRE", ssMRE, msMRE), cex = 1.5 )
+    box()
 
     # Plot number of tries
-    text(x = 0.8, y = 2.8, label = paste( "totReps = ", totReps, sep = ""))
-    text(x = 0.8, y = 2.6, label = paste( "msTries = ", msTries, sep = ""))
-    text(x = 0.8, y = 2.4, label = paste( "ssTries = ", ssTries, sep = ""))
+    # text(x = 0.8, y = 2.8, label = paste( "totReps = ", totReps, sep = ""))
+    # text(x = 0.8, y = 2.6, label = paste( "msTries = ", msTries, sep = ""))
+    # text(x = 0.8, y = 2.4, label = paste( "ssTries = ", ssTries, sep = ""))
 
 
 }
@@ -4151,9 +4162,15 @@ plotBCfit <- function(  sims=1, legend=TRUE,
                         labSize = 2, tickSize = 2, 
                         devLabels = TRUE, maxBt = c(70,30,30) )
 {
+
+  blobs <- vector( mode = "list", length = length(sims))
   # Blob should be loaded in global environment automatically,
   # if not, load first one by default (or whatever is nominated)
-  .loadSim(sims[1])
+  for( simIdx in 1:length(sims) )
+  {
+    .loadSim(sims[simIdx])
+    blobs[[simIdx]] <- blob
+  }
 
   # Recover blob elements for plotting
   nStocks <- blob$opMod$nS
@@ -4171,8 +4188,7 @@ plotBCfit <- function(  sims=1, legend=TRUE,
 
   for( simIdx in 1:length(sims) )
   {
-    .loadSim( sims[simIdx] )
-  
+    blob <- blobs[[simIdx]]
 
     # Create a stamp from scenario and mp name
     scenario  <- blob$ctrl$scenario
@@ -4217,11 +4233,13 @@ plotBCfit <- function(  sims=1, legend=TRUE,
     msq     <- blob$am$ms$q_os[1,,]  
     msMSY   <- blob$am$ms$msy
 
+    ssfitRep <- blob$am$ss$fitrep[[1]]
+    msfitRep <- blob$am$ms$fitrep[[1]]
 
     # arrays to hold CIs
     ssBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
     msBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
-
+    
     msCIs <- blob$am$ms$CIs[[ 1 ]]
     ssCIs <- blob$am$ss$CIs[[1]]
     # Populate CIs
@@ -5671,7 +5689,7 @@ plotStockPerfMultiSim <- function ( pars = c("Umsy","BnT","Bmsy","dep","q_os"),
   if( title )
   {
     mtext ( text = "Relative Error", side = 1, outer = TRUE, line = 3, cex = 1.5)
-    # mtext ( text = "AM configuration", side = 2, outer = TRUE, line = 5, cex = 1.5)
+    mtext ( text = "AM configuration", side = 2, outer = TRUE, line = 5, cex = 1.5)
     # mtext ( text = "Parameter", side = 4, outer = TRUE, line =  cex = 1.5, las = 0)
   }
 

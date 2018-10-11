@@ -816,6 +816,7 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   write.csv( MREtable, file = MREpath )
 
   expVarsTable <- MREtable %>%
+                  filter(species == MREtable[1,"species"] ) %>%
                   dplyr::select( initDep,fYear,Umax )
 
 
@@ -1129,24 +1130,24 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
     if( !is.na(ssCI) )
     {
       # First, pull BnT
-      ssBtrows <- which( ssCI$par == "Bt" )
+      ssBtrows <- which( ssCI$par == "lnBnT" )
       ssBnTrow <- max(ssBtrows)   
       fitTable[sIdx,c("ssBnT","ssBnTse")]        <- ssCI[ssBnTrow,c("val","se")]
       
       # Productivity
-      ssUmsyRow <- which( ssCI$par == "Umsy" )
+      ssUmsyRow <- which( ssCI$par == "lnUmsy" )
       fitTable[sIdx,c("ssUmsy","ssUmsyse")]        <- ssCI[ssUmsyRow,c("val","se")]
       
       # Optimal Biomass
-      ssBmsyRow <- which( ssCI$par == "Bmsy" )
+      ssBmsyRow <- which( ssCI$par == "lnBmsy" )
       fitTable[sIdx,c("ssBmsy","ssBmsyse")]        <- ssCI[ssBmsyRow,c("val","se")]
       
       # Current depletion
-      ssDnTRow <- which( ssCI$par == "DnT" )
+      ssDnTRow <- which( ssCI$par == "lnDnT" )
       fitTable[sIdx,c("ssDnT","ssDnTse")]        <- ssCI[ssDnTRow,c("val","se")]
 
       # Current U_Umsy
-      relUrows <- which( ssCI$par == "U_Umsy" )
+      relUrows <- which( ssCI$par == "lnU_UmsyT" )
       ssrelUrow <- max( relUrows )
       fitTable[sIdx,c("ssU_Umsy","ssU_Umsyse")]        <- ssCI[ssrelUrow,c("val","se")]      
     }
@@ -1157,20 +1158,20 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
     {
       # MS model
       # biomass
-      msBtrows <- which( msCI$par == "Bt" )
+      msBtrows <- which( msCI$par == "lnBnT" )
       msBnTrow <- max(msBtrows) - nS + sIdx
       fitTable[sIdx,c("msBnT","msBnTse")]        <- msCI[msBnTrow,c("val","se")]
       # Prod
-      msUmsyRow <- max(which( msCI$par == "Umsy" )) - nS + sIdx
+      msUmsyRow <- max(which( msCI$par == "lnUmsy" )) - nS + sIdx
       fitTable[sIdx,c("msUmsy","msUmsyse")]        <- msCI[msUmsyRow,c("val","se")]
       # opt biomass
-      msBmsyRow <- max(which( msCI$par == "Bmsy" )) - nS + sIdx    
+      msBmsyRow <- max(which( msCI$par == "lnBmsy" )) - nS + sIdx    
       fitTable[sIdx,c("msBmsy","msBmsyse")]        <- msCI[msBmsyRow,c("val","se")]
       # current depletion
-      msDnTRow <- max(which( msCI$par == "DnT" )) - nS + sIdx
+      msDnTRow <- max(which( msCI$par == "lnDnT" )) - nS + sIdx
       fitTable[sIdx,c("msDnT","msDnTse")]        <- msCI[msDnTRow,c("val","se")] 
       # relative fishing mortality (U/Umsy)
-      relUrows <- which( msCI$par == "U_Umsy" )
+      relUrows <- which( msCI$par == "lnU_UmsyT" )
       msrelUrow <- max(relUrows) - nS + sIdx
       fitTable[sIdx,c("msU_Umsy","msU_Umsyse")]        <- msCI[msrelUrow,c("val","se")]
 
@@ -1187,12 +1188,12 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
 
       if( !is.na(ssCI) )
       {
-        ssqRow  <- which(ssCI$par == "q_os" )[oIdx]
+        ssqRow  <- which(ssCI$par == "lnq_os" )[oIdx]
         fitTable[sIdx, c(sscolPar,sscolSE)]      <- ssCI[ssqRow, c("val","se")]  
       }
       if( !is.na(msCI) )
       {
-        msqRow  <- max(which(msCI$par == "q_os" ) ) - nS * nSurv + (sIdx-1)*nSurv + oIdx
+        msqRow  <- max(which(msCI$par == "lnq_os" ) ) - nS * nSurv + (sIdx-1)*nSurv + oIdx
         fitTable[sIdx, c(mscolPar,mscolSE)]      <- msCI[msqRow, c("val","se")]  
       }
     } 

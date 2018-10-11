@@ -386,16 +386,17 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     obj$assess$kappa2IG[2]      <- (obj$assess$kappa2IG[1]+1)*(Sigma2 + kappa2)
     obj$assess$Sigma2IG[2]      <- (obj$assess$Sigma2IG[1]+1)*(Sigma2 + kappa2)
 
-    tauq2_mode <- log(obj$assess$qCV^2 + 1)
-    sigU2_mode <- log(obj$assess$UmsyCV^2 + 1)
-
-    obj$assess$tauq2Prior[2]    <- (obj$assess$tauq2Prior[1]+1)*tauq2_mode
-    obj$assess$sigU2Prior[2]    <- (obj$assess$sigU2Prior[1]+1)*sigU2_mode
-
   } else {
     kappa2  <- obj$assess$kappa2
     Sigma2  <- obj$assess$Sigma2
   }
+
+  # Set tauq2 and sig2U modes for input CV
+  tauq2_mode <- log(obj$assess$qCV^2 + 1)
+  sigU2_mode <- log(obj$assess$UmsyCV^2 + 1)
+
+  obj$assess$tauq2Prior[2]    <- (obj$assess$tauq2Prior[1]+1)*tauq2_mode
+  obj$assess$sigU2Prior[2]    <- (obj$assess$sigU2Prior[1]+1)*sigU2_mode
 
   # Create IW scale matrix
   if( obj$assess$wishType == "diag" ) wishScale <- diag( opMod$SigmaDiag[1:nS] )
@@ -469,9 +470,9 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
                           lntauq_o          = factor( rep(NA,nSurv) ),
                           mq                = factor( NA ),
                           sq                = factor( NA ),
-                          # eps_t             = factor( rep( NA, nT[s] - 1 ) ),
+                          eps_t             = factor( rep( NA, nT[s] - 1 ) ),
                           # zeta_st           = factor( rep( NA, nT[s] - 1 ) ),
-                          # lnkappa2          = factor( NA ),
+                          lnkappa2          = factor( NA ),
                           # lnSigmaDiag       = factor( NA ),
                           SigmaDiagMult     = factor( NA ),
                           tau2IGa           = factor( rep(NA,nSurv) ),
@@ -489,16 +490,8 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
       ssMap[[s]]$lnq_os <- factor( rep(NA,nSurv) )
     if( obj$assess$initBioCode[s] == 0 )
       ssMap[[s]]$lnBinit <- factor(NA)
-    if( !obj$assess$estZetaSS )
-    {
-      ssMap[[s]]$zeta_st <- factor( rep( NA, nT[s] - 1 ) )
-      ssMap[[s]]$lnSigmaDiag <- factor(NA)
-    }
-    if( obj$assess$estZetaSS )
-    {
-      ssMap[[s]]$eps_t <- factor( rep( NA, nT[s] - 1 ) )
-      ssMap[[s]]$lnkappa2 <- factor(NA)
-    }
+    if( obj$assess$condMLEq )
+      ssMap$lnq_os <- factor( rep(NA, nSurv) )
   }
 
   
@@ -817,13 +810,13 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
           bestPars <- initPars
         else
         {
-          tmpPars <- bestPars + rnorm(length(bestPars), sd = 1)
-          tmpObj  <- obj$fn(tmpPars)
+          bestPars <- bestPars + rnorm(length(bestPars), sd = 1)
+          tmpObj  <- obj$fn(bestPars)
           while( !is.finite(tmpObj) )
           {
             errCounter <- errCounter + 1
-            tmpPars <- bestPars + rnorm(length(bestPars), sd = 1)
-            tmpObj <- obj$fn(tmpPars)
+            bestPars <- bestPars + rnorm(length(bestPars), sd = 1)
+            tmpObj <- obj$fn(bestPars)
 
             if( errCounter > fitTrials )
               break
