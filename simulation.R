@@ -415,7 +415,7 @@ runSimEst <- function ( ctlFile = "simCtlFile.txt", folder=NULL, quiet=TRUE )
     ssDat[[s]] <- list (  It              = array(om$I_ost[,s,sT[s]:max(nT)], dim = c(nSurv,1,nT[s])),
                           Ct              = matrix(om$Ct[s,sT[s]:max(nT)], nrow=1),
                           SigmaPriorCode  = obj$assess$SigmaPriorCode,
-                          kappaPriorCode  = as.integer(obj$assess$estYearEff ),
+                          kappaPriorCode  = as.integer(0),
                           sigUPriorCode   = obj$assess$sigUPriorCode,
                           tauqPriorCode   = obj$assess$tauqPriorCode,
                           condMLEq        = as.integer(obj$assess$condMLEq),
