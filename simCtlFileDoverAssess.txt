@@ -41,7 +41,6 @@ assess$autoIG FALSE
 assess$msAR1 FALSE
 assess$msCorr "off"
 assess$ssAR1 FALSE
-assess$estZetaSS TRUE
 assess$quiet TRUE
 assess$tracePar FALSE
 assess$estYearEff FALSE
