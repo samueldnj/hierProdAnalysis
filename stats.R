@@ -260,8 +260,13 @@ metaModels <- function( tabName = "allSame_infoScenarios_MARE_cplx",
                                                     spec = spec )
     }  
   } 
+  # Create directories if needed
+  if(!dir.exists(tabSavePath))
+    dir.create(tabSavePath)
+  
   savePath <- file.path( tabSavePath, rDataName ) 
-  dir.create( savePath )
+  if(!dir.exists(savePath))
+    dir.create( savePath )
   if(saveOut) save( fitList, 
                     file = file.path( savePath,
                                       paste(rDataName,".RData", sep = "" ) ) )
@@ -1031,6 +1036,9 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
   fYear   <- blob$opMod$fYear
   lYear   <- blob$opMod$lYear
 
+  goodReps <- blob$goodReps
+  goodReps <- which(as.logical(apply(X =goodReps, FUN = prod, MARGIN = 1)))
+
   nT <- lYear - fYear + 1
   sT <- fYear - min(fYear) + 1
   maxT <- max(nT)
@@ -1064,7 +1072,7 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
                   qbar_surv,
                   tauq2_surv )
   
-  fitTable <- matrix( NA, nrow = nS*nReps, ncol = length( colLabels ) )
+  fitTable <- matrix( NA, nrow = nS*(length(goodReps)), ncol = length( colLabels ) )
   
 
   colnames(fitTable)    <- colLabels
@@ -1199,26 +1207,26 @@ AICrank <- function ( modelList, sig, scale, drop = TRUE )
     } 
 
     # Avoid the uncertainty in these estimates - these aren't really meaningful
-    fitTable[sIdx, "msHessPD"]    <- ms$hesspd
-    fitTable[sIdx, "ssHessPD"]    <- ss$hesspd[,sIdx]
-    fitTable[sIdx, tau2_survSS]   <- ss$tau2_o[,,sIdx]
-    fitTable[sIdx, tau2_survMS]   <- ms$tau2_o
-    fitTable[sIdx, qbar_surv]     <- ms$qbar_o
-    fitTable[sIdx, tauq2_surv]    <- ms$tauq2_o
+    fitTable[seq(sIdx,nS*length(goodReps),by = nS), "msHessPD"]    <- ms$hesspd[goodReps]
+    fitTable[seq(sIdx,nS*length(goodReps),by = nS), "ssHessPD"]    <- ss$hesspd[goodReps,sIdx]
+    fitTable[seq(sIdx,nS*length(goodReps),by = nS), tau2_survSS]   <- ss$tau2_o[goodReps,,sIdx]
+    fitTable[seq(sIdx,nS*length(goodReps),by = nS), tau2_survMS]   <- ms$tau2_o[goodReps,]
+    fitTable[seq(sIdx,nS*length(goodReps),by = nS), qbar_surv]     <- ms$qbar_o[goodReps,]
+    fitTable[seq(sIdx,nS*length(goodReps),by = nS), tauq2_surv]    <- ms$tauq2_o[goodReps,]
 
   }
 
   fitTable <- fitTable %>%
               group_by( mp ) %>%
               mutate( ssAICcSum = sum(ssAICc),
-                      ssBnTCV = ssBnTse / ssBnT * ssHessPD,
-                      msBnTCV = msBnTse / msBnT * msHessPD,
-                      ssUmsyCV = ssUmsyse / ssUmsy * ssHessPD,
-                      msUmsyCV = msUmsyse / msUmsy * msHessPD,
-                      ssBmsyCV = ssBmsyse / ssBmsy * ssHessPD,
-                      msBmsyCV = msBmsyse / msBmsy * msHessPD,
-                      ssDnTCV = ssDnTse / ssDnT * ssHessPD,
-                      msDnTCV = msDnTse / msDnT * msHessPD)
+                      ssBnTCV = sqrt(exp(ssBnTse^2) - 1) * ssHessPD,
+                      msBnTCV = sqrt( exp(msBnTse^2) - 1 )* msHessPD,
+                      ssUmsyCV = sqrt( exp(ssUmsyse^2) - 1 )* ssHessPD,
+                      msUmsyCV = sqrt( exp(msUmsyse^2) - 1 )* msHessPD,
+                      ssBmsyCV = sqrt( exp(ssBmsyse^2) - 1 )* ssHessPD,
+                      msBmsyCV = sqrt( exp(msBmsyse^2) - 1 )* msHessPD,
+                      ssDnTCV = sqrt( exp(ssDnTse^2) - 1 )* ssHessPD,
+                      msDnTCV = sqrt( exp(msDnTse^2) - 1 )* msHessPD)
   
   # return
   fitTable

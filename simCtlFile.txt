@@ -88,7 +88,7 @@ assess$qCV .20
 assess$kappa2IG c(1,0.5)
 assess$Sigma2IG c(1,0.5)
 assess$tau2IGa rep(1,3)
-assess$tau2IGb rep(0.3,3)
+assess$tau2IGb rep(0.2,3)
 assess$msRE c('zeta_st')
 assess$ssRE c('zeta_st')
 assess$TMBlib "msProd"

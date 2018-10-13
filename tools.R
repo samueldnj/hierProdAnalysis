@@ -20,9 +20,9 @@
 # --------------------------------------------------------------------------
 
 
-makeParEstTablePub <- function( tables = c("DoverBase", "DoverLoPE"),
-                                models = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors"),
-                                pars = c("Umsy","BnT","Bmsy","DnT","AICc"),
+makeParEstTablePub <- function( tables = c("DoverAssessHigh","DoverAssessLow"),
+                                models = c("qPriorOnly","qUpriors"),
+                                pars = c("Umsy","BnT","DnT","U_Umsy","Bmsy","AICc"),
                                 nStocks = 3,
                                 saveName = "DoverStrongWeak.csv" )
 {
@@ -53,20 +53,43 @@ makeParEstTablePub <- function( tables = c("DoverBase", "DoverLoPE"),
         if( mIdx == 1 )
         {
           ssPar <- paste( "ss", pars[pIdx], sep = "" )
+          ssParSE <- paste(ssPar,"se",sep = "")
           parTab[1,2] <- "Single-Stock"
-          parTab[1,3:5] <- as.numeric(tmpTab[,ssPar])
+          if(pars[pIdx] != "AICc")
+          {
+            lCI     <- format(round(exp(tmpTab[,ssPar] - tmpTab[,ssParSE]),3),nsmall = 3)
+            uCI     <- format(round(exp(tmpTab[,ssPar] + tmpTab[,ssParSE]),3),nsmall = 3)
+            CV      <- format(round(sqrt(exp(tmpTab[,ssParSE]) - 1),2),nsmall = 2)
+            parEst  <- format(as.numeric(round(exp(tmpTab[,ssPar]),3)),nsmall = 3)
+
+            parTab[1,3:5] <- paste( parEst, " (", CV,")", sep = "")
+          } else 
+            parTab[1,3:5] <- format(round(as.numeric(tmpTab[,ssPar]),3),nsmall = 3)
+
         }
         # Now save the MS results
         msPar <- paste( "ms", pars[pIdx], sep = "" )
+        msParSE <- paste( msPar, "se", sep = "" )
         parTab[1+mIdx,2] <- models[mIdx]
-        parTab[1+mIdx,3:5] <- as.numeric(tmpTab[,msPar])
+        if(pars[pIdx] != "AICc")
+        {
+          lCI     <- format(round(exp(tmpTab[,msPar] - tmpTab[,msParSE]),3),nsmall = 3)
+          uCI     <- format(round(exp(tmpTab[,msPar] + tmpTab[,msParSE]),3),nsmall = 3)
+          CV      <- format(round(sqrt(exp(tmpTab[,msParSE]) - 1),2),nsmall = 2)
+          parEst  <- format(as.numeric(round(exp(tmpTab[,msPar]),3)),nsmall = 3)
+
+          parTab[1+mIdx,3:5] <- paste( parEst, " (", CV ,")", sep = "")
+        } else 
+          parTab[1+mIdx,3:5] <- format(round(as.numeric(tmpTab[,msPar]),3),nsmall = 3)
       }
       parTab <- as.data.frame(parTab)
       parTabList[[pIdx]] <- parTab
     } 
     # Now bind the specific parameter tables together
     tabList[[tIdx]] <- do.call("rbind",parTabList)
+    # tabList[[tIdx]]$tabName <- tabName
   }
+
   # And now the cbind each table
   aggTab <- do.call("cbind",tabList)
 
@@ -92,8 +115,8 @@ makeMetaModelTables <- function(  tabNameRoot, IC =TRUE,
 
   # Complex level pars
   metaModels( tabName = paste(tabName,"_cplx",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
-              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+              multiResp = c("Umsy","BnT","Bmsy","Dep", "q_1","q_2"),
+              singleResp = c("DeltaUmsy","DeltaBnT","DeltaBmsy","DeltaDep","Deltaq_1","Deltaq_2"),
               spec = c("Stock1"),
               expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
               sig = .1, intercept = TRUE,
@@ -102,8 +125,8 @@ makeMetaModelTables <- function(  tabNameRoot, IC =TRUE,
 
   # Then stock level pars for stock1, with Delta values
   metaModels( tabName = paste(tabName,"_Delta",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
-              singleResp = c("DeltaBnT","DeltaUmsy","Deltaq_1","Deltaq_2","DeltaDep","DeltaBmsy"),
+              multiResp = c("Umsy","BnT","Bmsy","Dep", "q_1","q_2"),
+              singleResp = c("DeltaUmsy","DeltaBnT","DeltaBmsy","DeltaDep","Deltaq_1","Deltaq_2"),
               spec = c("Stock1"),
               expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
               sig = .1, intercept = TRUE,
@@ -111,22 +134,50 @@ makeMetaModelTables <- function(  tabNameRoot, IC =TRUE,
               tabSavePath = tabSavePath )
   
   metaModels( tabName = paste(tabNameRoot,"_IC",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              multiResp = c("Umsy","BnT","Bmsy","Dep", "q_1","q_2"),
               singleResp = NULL,
               spec = c("Stock1"),
-              expVars = c("initDep","fYear","nDiff","Umax","mp"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
               sig = .1, intercept = TRUE,
               scaled = TRUE, saveOut = TRUE, interactions = FALSE,
               tabSavePath = tabSavePath )
 
   metaModels( tabName = paste(tabNameRoot,"_MRE",sep = ""),
-              multiResp = c("BnT", "Umsy","q_1","q_2","Dep","Bmsy"),
+              multiResp = c("Umsy","BnT","Bmsy","Dep", "q_1","q_2"),
               singleResp = NULL,
               spec = c("Stock1"),
-              expVars = c("initDep","fYear","nDiff","Umax","mp"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
               sig = .1, intercept = TRUE,
               scaled = TRUE, saveOut = TRUE, interactions = FALSE,
               tabSavePath = tabSavePath )
+
+  # Then stock level pars for stock1, with Delta values
+  metaModels( tabName = paste(tabName,"_Delta",sep = ""),
+              multiResp = c("Umsy","BnT","Bmsy","Dep", "q_1","q_2"),
+              singleResp = c("DeltaUmsy","DeltaBnT","DeltaBmsy","DeltaDep","Deltaq_1","Deltaq_2"),
+              spec = c("Stock4"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+              sig = .1, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE,
+              tabSavePath = file.path(tabSavePath,"Stock4") )
+  
+  metaModels( tabName = paste(tabNameRoot,"_IC",sep = ""),
+              multiResp = c("Umsy","BnT","Bmsy","Dep", "q_1","q_2"),
+              singleResp = NULL,
+              spec = c("Stock4"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+              sig = .1, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE,
+              tabSavePath = file.path(tabSavePath,"Stock4") )
+
+  metaModels( tabName = paste(tabNameRoot,"_MRE",sep = ""),
+              multiResp = c("Umsy","BnT","Bmsy","Dep", "q_1","q_2"),
+              singleResp = NULL,
+              spec = c("Stock4"),
+              expVars = c("initDep","fYear","nDiff","Umax","nS","mp"),
+              sig = .1, intercept = TRUE,
+              scaled = TRUE, saveOut = TRUE, interactions = FALSE,
+              tabSavePath = file.path(tabSavePath,"Stock4") )
 }
 
 # Converts the meta-model tables to the publication format
@@ -156,8 +207,9 @@ makePubTableDF <- function( tableRoot = "test_epstSS",
   # Complex
   cplx.DeltaRows <- grepl(x = cplx.inline$par, pattern = "Delta")
   # Stock1
-  ssPars <- c("ssBnT","ssUmsy","ssq_1","ssq_2","ssDep","ssBmsy")
-  msPars <- c("msBnT","msUmsy","msq_1","msq_2","msDep","msBmsy")
+  Pars <- c("Umsy","BnT","Bmsy","Dep", "q_1","q_2")
+  ssPars <- paste("ss",Pars,sep = "")
+  msPars <- paste("ms",Pars,sep = "")
   stock1.DeltaRows <- grepl(x = stock1.inline$par, pattern = "Delta")
   stock1.ssRows <- which(stock1.inline$par %in% ssPars)
   stock1.msRows <- which(stock1.inline$par %in% msPars)

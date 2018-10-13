@@ -7,13 +7,13 @@ parameter value
 #
 scenario$scenario1$ctrl$scenarioName 'Dover_Strong'
 scenario$scenario1$assess$kappa2IG c(100,0.001)
-scenario$scenario1$assess$Sigma2IG c(3,0.16)
+scenario$scenario1$assess$Sigma2IG c(1,0.2)
 #
 # Scenario 2 : DoverAssess_Weak
 #
 scenario$scenario2$ctrl$scenarioName 'Dover_Weak'
 scenario$scenario2$assess$kappa2IG c(100,0.0001)
-scenario$scenario2$assess$Sigma2IG c(3,0.01)
+scenario$scenario2$assess$Sigma2IG c(1,0.02)
 #
 # Management Procedures 
 #

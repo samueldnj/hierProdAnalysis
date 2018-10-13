@@ -483,24 +483,25 @@ plotGroupPars <- function(  tableName = "rKq_msInc__MRE",
 }
 
 
-plotRastersPub <- function( saveName = "corrRastersRand.png",
-                            tabRoot = "allSame_randProcCorr_MARE",
-                            axes = c("corr","kappaMult"),
-                            titles = c("Correlation","Relative Magnitude of\nShared Effect"),
+plotRastersPub <- function( saveName = "LSrasters.png",
+                            tabRoot = "info_qREs_RP_MARE",
+                            axes = c("nS","nDiff"),
+                            titles = c("Complex Size","Number of Low Information Stocks"),
                             breakRange = c(-1,1),
                             MP = NULL,
                             resp = c("DeltaBnT","DeltaUmsy","DeltaDep"),
-                            save = F )
+                            respTitles = expression( B[T], U[MSY], B[T]/B[0]),
+                            save = T )
 {
   saveFile <- file.path(".","project","figs",saveName)
 
-  if(save) png( filename = saveFile, width = 10, height = 20,
-                res = 300, type = "quartz")
+  if(save) png( filename = saveFile, width = 1100, height = 850,
+                type = "quartz")
 
-  par( mfrow = c(2,length(resp)), mar = c(2,1.5,1,1), oma = c(4,6,3,1) )
+  par( mfrow = c(2,length(resp)), mar = c(2,1.5,2,1), oma = c(4,6,3,1) )
   plotRasters(  tableName = paste(tabRoot,"Delta",sep = "_"),
                 axes = axes, breakRange = breakRange, MP = MP, resp = resp,
-                setPar = F, titles = c("B_T","U_MSY","B_T/B_0") )
+                setPar = F, titles = respTitles )
 
   plotRasters(  tableName = paste(tabRoot,"Cplx",sep = "_"),
                 axes = axes, breakRange = breakRange, MP = MP, resp = resp,
@@ -508,8 +509,8 @@ plotRastersPub <- function( saveName = "corrRastersRand.png",
 
   mtext( outer = T, text  = c("(a)", "(b)"), side = 2, line = 1,
           at = c(0.75, 0.25), las = 1)
-  mtext( outer = T, side = 1, line = 2, text = titles[1] )
-  mtext( outer = T, side = 2, line = 3, text = titles[2], las = 0 )
+  mtext( outer = T, side = 1, line = 2, text = titles[1], cex = 2 )
+  mtext( outer = T, side = 2, line = 3, text = titles[2], las = 0, cex = 2 )
   if(save) dev.off()
   cat("Done!\n")
 }
@@ -556,7 +557,7 @@ plotRasters <- function(  tableName = "allSame_fixedProcRE_MARE_Cplx",
   }
   tab <- table
   # Restrict to subtables if requested
-  if(!is.null(MP))    tab  <-   tab %>% filter( mp == MP ) 
+  if(!is.null(MP))    tab  <-   tab %>% filter( mp %in% MP ) 
   if(!is.null(spec))  tab  <-   tab %>% filter( species %in% spec ) 
   if(!is.null(nSp))   tab  <-   tab %>% filter( nS %in% nSp )
 
@@ -587,9 +588,10 @@ plotRasters <- function(  tableName = "allSame_fixedProcRE_MARE_Cplx",
         mtext( text = names(brickObj$brick)[k], side = 3, line = 1, cex = 1.5)
         else mtext( text = titles[k], side = 3, line = 1, cex = 1.5)
       # if( k == 1 ) mtext ( text = "(a)", side = 2, las = 1, line = 2 )
-      text( brickObj$brick[[k]], digits = 2, halo = T, cex = 1.5, axes = FALSE )
-      axis( side = 2, at = 1:length(brickObj$y) - 0.5, labels = brickObj$y, las = 1 )
-      axis( side = 1, at = 1:length(brickObj$x) - 0.5, labels = brickObj$x ) 
+      text( brickObj$brick[[k]], digits = 2, halo = T, cex = 2, axes = FALSE )
+      axis( side = 2, at = 1:length(brickObj$y) - 0.5, labels = brickObj$y, las = 1, cex.axis = 1.5 )
+      axis( side = 1, at = 1:length(brickObj$x) - 0.5, labels = brickObj$x, cex.axis = 1.5 ) 
+      box(lwd = 2)
   }  
 
   if(save) dev.off()
@@ -2072,9 +2074,9 @@ plotObsCompContour <- function (  tableName   = "obsErr_MARE.csv",
 
 }
 
-plotComplexPubRasters <- function(  tableRoot = "allSame_RE_msIncr_",
-                                    axes = c("corr","kappaMult"),
-                                    pars = c("BnT","Umsy","q","Dep"),
+plotComplexPubRasters <- function(  tableRoot = "info_qREs_RP",
+                                    axes = c("nDiff","nS"),
+                                    pars = c("Umsy","BnT","Dep"),
                                     wdh = 14, hgt = 18,
                                     breakRange = c(-1,1),
                                     tcex = 1.5,
@@ -2088,8 +2090,8 @@ plotComplexPubRasters <- function(  tableRoot = "allSame_RE_msIncr_",
                                     save      = FALSE
                                   )
 {
-  # Load in MARE and MRE tables
-  # browser()
+  # Load in MARE and MRE table
+  browser()
   MAREfile  <- paste( tableRoot, "_MARE.csv", sep = "" )
   MREfile   <- paste( tableRoot, "_MRE.csv", sep = "" )
 
@@ -3968,8 +3970,9 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
   {
     scenLabel <- scenarios[scenIdx]
     scenPlotPath <- file.path(perfPlotPath,paste(scenLabel,".png",sep = ""))
-    png( file = scenPlotPath, width = 1600, height = round(1600/1.3) )
-    par(mfcol = c(length(vars), length(MPs) ), oma =c(4,4,4,4), mar = c(2,2,2,2) )
+    png( file = scenPlotPath, width = 850, height = round(850*1.3/2) )
+    par(mfcol = c(length(vars), length(MPs) ), oma =c(4,4,4,4), mar = c(2,2,2,2),
+        lab.cex = 1.5, cex.axis = 1.5 )
     # MPs are columns, and vars are rows
     # we are going row by row, so loop over vars first
     for( mpIdx in 1:length(MPs) )
@@ -4001,16 +4004,16 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
         mfg <- par("mfg")
         # Plot column header if in top row
         if(mfg[1] == 1)
-          mtext(side = 3, line = 2, text = MPlabels[mpIdx])
+          mtext(side = 3, line = 2, text = MPlabels[mpIdx],cex = 2)
         # Plot variable label in right hand margin
         if(mfg[2] == mfg[4])
-          mtext(side = 4, line = 1, text = varLabels[varIdx] )
+          mtext(side = 4, line = 2, text = varLabels[varIdx], cex = 2 )
       }
     }
-    mtext( side = 1, text = expression(Q(theta)), outer = T, line = 1, font = 2, cex = 1.2)
-    mtext( side = 2, text = "Density", outer = T, line = 1, font = 2, cex = 1.2 )
-    mtext( side = 3, text = "AM Configuration", outer = T, line = 1, font = 2, cex = 1.2 )
-    mtext( side = 4, text = "Variable", outer = T, line = 1, font = 2, cex = 1.2 )
+    mtext( side = 1, text = expression(Q(theta)), outer = T, line = 1, font = 2, cex = 1.5)
+    mtext( side = 2, text = "Density", outer = T, line = 1, font = 2, cex = 1.5 )
+    # mtext( side = 3, text = "AM Configuration", outer = T, line = 1, font = 2, cex = 1.2 )
+    mtext( side = 4, text = "Variable", outer = T, line = 1.5, font = 2, cex = 1.5 )
     dev.off()
   }
 
@@ -4154,13 +4157,16 @@ mpTitles <- expression("Single-stock", q, U, q/U)
 #                   and biomass is scaled by estimated B0
 # output:   NULL
 # usage:    post-simulation run, plotting performance
-plotBCfit <- function(  sims=1, legend=TRUE,
+plotBCfit <- function(  sims=1, legend=FALSE,
                         data = FALSE,
                         CIs = FALSE,
                         scale = FALSE,
-                        titles = mpTitles, MPtitles = FALSE,
-                        labSize = 2, tickSize = 2, 
-                        devLabels = TRUE, maxBt = c(70,30,30) )
+                        titles = expression("","None",q,U[MSY],q/U[MSY]), 
+                        MPtitles = FALSE,
+                        labSize = 1.5, tickSize = 1.5, 
+                        devLabels = TRUE, maxBt = c(80,40,40),
+                        saveName = "BCfit_largePE.png",
+                        savePlot = FALSE )
 {
 
   blobs <- vector( mode = "list", length = length(sims))
@@ -4177,14 +4183,18 @@ plotBCfit <- function(  sims=1, legend=TRUE,
   nS <- nStocks
   nO <- blob$opMod$nSurv
 
-  # Set up plot window
-
-  par ( mfcol = c(nStocks,length(sims)+1), mar = c(1,2,2,2), oma = c(4.5,4.5,2,0.5),
-        las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
-
   if( MPtitles ) titles <- numeric( length = length(sims)+1 )
 
   titles[1] <- "Single-Stock"
+  
+  # Set up plot window
+  if(savePlot)
+    png( file.path("./project/figs",saveName), width = 1100, height = 850 )
+
+  par ( mfcol = c(nStocks,length(sims)+1), 
+        mar = c(0,0,0,0), oma = c(5,5,4,2),
+        las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
+
 
   for( simIdx in 1:length(sims) )
   {
@@ -4239,7 +4249,7 @@ plotBCfit <- function(  sims=1, legend=TRUE,
     # arrays to hold CIs
     ssBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
     msBio <- array( NA, dim = c(nS,nT,3), dimnames = list(1:nS,1:nT,c("uCI","Bst","lCI")) )
-    
+
     msCIs <- blob$am$ms$CIs[[ 1 ]]
     ssCIs <- blob$am$ss$CIs[[1]]
     # Populate CIs
@@ -4284,6 +4294,9 @@ plotBCfit <- function(  sims=1, legend=TRUE,
 
     require(scales)
     polyCol <- alpha("grey70", alpha = .5)
+    rectCol <- "grey40"
+    lineCol <- "black"
+    pointCol <- "grey30"
   
     if( data ) 
     {
@@ -4294,26 +4307,36 @@ plotBCfit <- function(  sims=1, legend=TRUE,
       legLwd  <- c(legLwd,NA,NA)
     }
 
+
+    vertLines <- seq(fYear,max(years),by = 10)
+
     # Plot SS model if first sim
     if( simIdx == 1 )
     { 
       for ( s in 1:nStocks )
       {
-        plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+        plot( x = c(fYear,max(years) + 2), y = c(0,maxBt[s]), type = "n",
               ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
               main = "" )
-          if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+          mfg <- par("mfg")
+          if( !is.null(titles) & mfg[1] == 1 ) 
+            mtext( side = 3, text = titles[simIdx], line = 1, cex = 1.2 )
+          
           # plot catch
-          rect( xleft = years-.4, xright = years+.4,
-                ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
-          if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
-          axis( side = 2, las = 1, cex.axis = tickSize )
+          rect( xleft = years-.3, xright = years+.3,
+                ybottom = 0, ytop = Ct[s,], col = rectCol, border = NA )
+          if( mfg[1] == mfg[3])
+            axis( side = 1, las = 0, cex.axis = 1.5, at = vertLines )
+          if( mfg[2] == 1 )
+            axis( side = 2, las = 1, cex.axis = 1.5 )
+          abline(v = vertLines, lty = 2, lwd = .8)
+          box()
+
         if (s == 2 & legend) 
           panLegend ( x=0.2,y=1,legTxt=legText,
                       col=legCol, lty = legLty, 
                       lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
-          panLab( x = .2, y = .9, txt = specNames[s],
-                  cex = labSize )
+          
        
         # Add developer labels
         if( devLabels )
@@ -4327,14 +4350,16 @@ plotBCfit <- function(  sims=1, legend=TRUE,
           polygon(  x = yearsPoly, y = c(ssBio[s,sT[s]:nT,1],rev(ssBio[s,sT[s]:nT,3])),
                     col = polyCol, border = NA )
         }
-        # Add point estimates
-        lines( x = years[sT[s]:nT], y = ssBio[s,sT[s]:nT,2], lwd = 3 )
-         # Plot data
+        panLab( x = .2, y = .9, txt = specNames[s],
+                  cex = labSize )
+        # Plot data
         if( data )
-        {
           for( o in 1:nO ) 
-            points( x = years, y = I_ost[o,s,]/ssq[o,s], pch = o, cex = 1.5, col = "grey10" )
-        }
+            points( x = years, y = I_ost[o,s,]/ssq[o,s], pch = o + 15, 
+                    cex = 3, col = pointCol )
+        
+        # Add point estimates
+        lines( x = years[sT[s]:nT], y = ssBio[s,sT[s]:nT,2], lwd = 4 )
       }
     }
 
@@ -4342,15 +4367,21 @@ plotBCfit <- function(  sims=1, legend=TRUE,
     # scaled by model estimated q
     for ( s in 1:nStocks )
     {
-      plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
+      plot( x = c(fYear,max(years) + 2), y = c(0,maxBt[s]), type = "n",
             ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
             main = "" )
-        if( !is.null(titles) & s == 1 ) title( main = titles[simIdx+1] )
+        mfg <- par("mfg")
+        if( !is.null(titles) & mfg[1] == 1 ) 
+          mtext( side = 3, text = titles[simIdx+1], line = 1, cex = 1.2 )
         # plot catch
         rect( xleft = years-.4, xright = years+.4,
-              ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
-        if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
-        axis( side = 2, las = 1, cex.axis = tickSize )
+              ybottom = 0, ytop = Ct[s,], col = rectCol, border = NA )
+        if( mfg[1] == mfg[3])
+            axis( side = 1, las = 0, cex.axis = 1.5, at = vertLines )
+          if( mfg[2] == 1 )
+            axis( side = 2, las = 1, cex.axis = 1.5 )
+        abline(v = vertLines, lty = 2, lwd = .8)
+        box()
       if (s == 2 & legend) 
         panLegend ( x=0.2,y=1,legTxt=legText,
                     col=legCol, lty = legLty, 
@@ -4372,22 +4403,27 @@ plotBCfit <- function(  sims=1, legend=TRUE,
       }
       # Plot data
       if( data )
-      {
         for( o in 1:nO ) 
-          points( x = years, y = I_ost[o,s,]/msq[o,s], pch = o, cex = 1.5, col = "grey10" )
-      }
+          points( x = years, y = I_ost[o,s,]/msq[o,s], pch = o+15, 
+                  cex = 3, col = pointCol )
+      
+
       # Add point estimates
-      lines( x = years, y = msBio[s,,2], lwd = 3 )
+      lines( x = years[sT[s]:nT], y = msBio[s,sT[s]:nT,2], lwd = 4 )
 
       
     }
-    mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize)
-    mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 2, las = 0, cex = labSize )
+    mtext ( text = "Year", outer = TRUE, side = 1, cex = labSize, line = 3)
+    mtext ( text = "Catch and Biomass (kt)", outer = TRUE, side = 2, line = 3, 
+            las = 0, cex = labSize )
     
   }
   if( devLabels )
     mtext ( text = c(stamp),side=1, outer = TRUE, 
             at = c(0.9),padj=2,col="grey50",cex=0.8 )
+
+  if(savePlot)
+    dev.off()
 }
 
 # plotBCfit()
@@ -5509,7 +5545,7 @@ dumpStockPerf <- function(  simPath = file.path("./project/pubBase_2018-09-10/pr
       mpOrder[mIdx] <- subTable[which(subTable[,"mp"] == MPs[mIdx] ),"simNum"]
 
     png(plotFile, width = 500, height = 800 )
-    plotStockPerfMultiSim(  pars = c("Umsy","BnT","Bmsy","dep","q_os"), 
+    plotStockPerfMultiSim(  pars = c("Umsy","BnT","dep","Bmsy","q_os"), 
                             sims = mpOrder, spec = 1, nSurv = 2,
                             devLabels = TRUE,
                             title = TRUE, plotMARE = FALSE,
