@@ -1967,12 +1967,14 @@ makeLHRfromList <- function(  levels = list(  Uhist = c("c(0.2,2,1)","c(1,1,1)")
                                               nS = c(4,7,10),
                                               initDep = c(0.4,0.7,1.0),
                                               nDiff = c(0,2,4) ),
-                              nPoints = 1
-                            )
+                              nPoints = 1,
+                              seed = 123 )
 {
   # Creates a Latin Hyper Rectangle experimental design from a list of factor levels
   # inputs:     levels = list of factor levels
   #             nPoints = number of points to sample from the LHR design
+
+  set.seed(seed)
 
   # First, create an array to hold the design
   # First, we need the number of factors and their levels to make dimensions
