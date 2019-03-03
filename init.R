@@ -1,25 +1,41 @@
-# --------------------------------------------------------------------------
-# packages.R
+# <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+# init.R
 # 
-# Script for loading packages for coastwide multispecies hierarchical
-# assessment simulation estimation procedure
+# Checks if required packages are installed. If not, installs them.
+# Then loads all required packages.
 # 
-# Author: Samuel D N Johnson
-# Date: October 19, 2016
-#
-# --------------------------------------------------------------------------
+# 
+# <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-# Load packages
-library( "coda" )
-library( "dplyr" )
-library( "TMB" )
-library( "raster" )
-library( "grid" )
-library( "RColorBrewer" )
-library( "HapEstXXR" )
-library( "parallel" )
-library( "stringr" )
-library( "scales" )
+cranPackages <- c("coda",
+                  "tidyverse",
+                  "reshape2",
+                  "ggforce",
+                  "ggplot2",
+                  "GGally",
+                  "TMB",
+                  "raster",
+                  "grid",
+                  "RColorBrewer",
+                  "HapEstXXR",
+                  "parallel",
+                  "stringr",
+                  "wesanderson",
+                  "scales",
+                  "beepr" )
+
+
+for( pkg in cranPackages )
+  while(!require(pkg, character.only = TRUE) )
+    install.packages( pkg )
+
+
+githubPackages <- c(ggsidekick = "seananderson/ggsidekick")
+
+for( pkgIdx in 1:length(githubPackages) )
+  while(!require(names(githubPackages)[pkgIdx], character.only = TRUE))
+    devtools::install_github(githubPackages[pkgIdx])
+
 
 # compile and load msProd objective function.
 compile ("msProd.cpp")

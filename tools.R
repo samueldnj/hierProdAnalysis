@@ -1010,9 +1010,9 @@ makeBatch <- function ( batchCtlFile = "batchControlFile.bch", prjFld = "project
 {
   .subChar <<- "__"
   # First, load the batch control file
-  batchCtl <- .readParFile ( batchCtlFile )
+  batchCtl <- .readParFile ( file.path(prjFld,batchFld,batchCtlFile) )
   # Now load the base control file
-  baseCtl  <- .readParFile ( baseCtlFile )
+  baseCtl  <- .readParFile ( file.path(prjFld,batchFld,baseCtlFile) )
 
   # Set globals 
   #(THIS SHOULD BE MOVED TO ANOTHER FILE, OR DIFFERENT APPROACH FOUND)
