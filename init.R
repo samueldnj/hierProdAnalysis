@@ -8,11 +8,8 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 cranPackages <- c("coda",
-                  "tidyverse",
+                  "dplyr"
                   "reshape2",
-                  "ggforce",
-                  "ggplot2",
-                  "GGally",
                   "TMB",
                   "raster",
                   "grid",
