@@ -1144,8 +1144,8 @@ plotFhist <- function ( sims = 1:2,
                         seed = 2,
                         save = FALSE,
                         fileName = "depPlot.pdf",
-                        reverse = TRUE,
-                        nS = NULL,
+                        reverse = FALSE,
+                        nS = 3,
                         ... )
 {
   # plotFhist()
@@ -1229,7 +1229,7 @@ plotFhist <- function ( sims = 1:2,
   years <- c(years,2017)
 
 
-  par( mfrow = c( nrows, ncols ), mar = c(1.5,1.5,1,1.5), oma = c(3,4,1,3) )
+  par( mfrow = c( nrows, ncols ), mar = c(0,0,0,0), oma = c(5,6,3,5) )
   # Loop over U and t values
   for( U in ordUmax )
   {
@@ -1239,24 +1239,29 @@ plotFhist <- function ( sims = 1:2,
       sim <- which ( Umax == U )
       plot( x = c(1984,2017), y = c(0,1.2), type = "n", axes = FALSE,
             xlab = "", ylab = "" )
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1, at = years )
+      if( mfg[2] == mfg[4] )
+        axis( side = 4, las = 1 )
+      if( mfg[2] == 1 )
+        axis( side = 2, las = 1 )
+      box()
       if( length(sim) == 0 ) next
         for( traj in 1:nTraj ) 
           lines( x = 1984:2017, 
                  y = depBlob[ sim, traj, sIdx, ],
-                 col = "grey80", lwd = 0.5 )
-        lines( x = 1984:2017, y = medDep[ sim, sIdx, ], lwd = 2, lty = 2 )
-        lines( x = 1984:2017, y = Fblob[ sim, sIdx, ], lty = 1, lwd = 2)
-        axis( side = 1, at = years )
-        axis( side = 2, las = 1 )
-        if( sIdxNum < length(sIndices) ) axis( side = 4, las = 1, labels = FALSE )
-        else axis( side = 4, las = 1 )
-        panLab( txt = labs[counter], x = 0.8, y = 0.9, cex = 1.2 )
+                 col = "grey60", lwd = 0.5 )
+        lines( x = 1984:2017, y = medDep[ sim, sIdx, ], lwd = 3, lty = 2 )
+        lines( x = 1984:2017, y = Fblob[ sim, sIdx, ], lty = 1, lwd = 3)
+
+        panLab( txt = labs[counter], x = 0.8, y = 0.9, cex = 2 )
       counter <- counter + 1
     }
   }
-  mtext( side = 2, outer = TRUE, text = expression(Relative~Biomass~B[t]/B[0]), cex = 1.5, line = 1.5 )
-  mtext( side = 1, outer = TRUE, text = "Year", cex = 1.5, line = 1.5 )
-  mtext( side = 4, outer = TRUE, text = "Harvest Rate", cex = 1.5, line = 1.5 )
+  mtext( side = 2, outer = TRUE, text = expression(Relative~Biomass~B[t]/B[0]), cex = 1.5, line = 3 )
+  mtext( side = 1, outer = TRUE, text = "Year", cex = 1.5, line = 3 )
+  mtext( side = 4, outer = TRUE, text = "Harvest Rate", cex = 1.5, line = 3 )
   if( save ) dev.off()
 }
 
@@ -3930,7 +3935,8 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
                               vars = c("Umsy","BnT","Bmsy","Dep","q_1","q_2"),
                               varLabels = expression(U[MSY], B[T], B[MSY], D[T], q[11], q[21]),
                               MPs = c("noJointPriors","qPriorOnly","UmsyPriorOnly","qUpriors" ),
-                              MPlabels = expression("None", q, r, q/r ) )                              
+                              MPlabels = expression("None", q, r, q/r ),
+                              bw = FALSE )                              
 {
   graphics.off()
   # First, create a directory to dump out all the plots
@@ -3969,9 +3975,9 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
   for( scenIdx in 1:length(scenarios) )
   {
     scenLabel <- scenarios[scenIdx]
-    scenPlotPath <- file.path(perfPlotPath,paste(scenLabel,".png",sep = ""))
-    png( file = scenPlotPath, width = 850, height = round(850*1.3/2) )
-    par(mfcol = c(length(vars), length(MPs) ), oma =c(4,4,4,4), mar = c(2,2,2,2),
+    scenPlotPath <- file.path(perfPlotPath,paste(scenLabel,".pdf",sep = ""))
+    pdf( file = scenPlotPath, width = 8.5, height = round(8.5*1.3/2) )
+    par(mfcol = c(length(vars), length(MPs) ), oma =c(6,6,6,7), mar = c(0,0,0,0),
         lab.cex = 1.5, cex.axis = 1.5 )
     # MPs are columns, and vars are rows
     # we are going row by row, so loop over vars first
@@ -4000,20 +4006,23 @@ dumpPerfMetrics <- function(  tabNameRoot = "pubBase", stockLabel = "Stock1",
                           ICtab = ICtab,
                           MREtab = MREtab,
                           MAREtab = MAREtab,
-                          axisLabs = FALSE )
+                          axisLabs = FALSE,
+                          bw = bw )
         mfg <- par("mfg")
         # Plot column header if in top row
         if(mfg[1] == 1)
-          mtext(side = 3, line = 2, text = MPlabels[mpIdx],cex = 2)
+          mtext(side = 3, line = 2, text = MPlabels[mpIdx],cex = 1.5)
         # Plot variable label in right hand margin
         if(mfg[2] == mfg[4])
-          mtext(side = 4, line = 2, text = varLabels[varIdx], cex = 2 )
+          mtext( side = 4, line = 1, text = varLabels[varIdx], cex = 1.5,
+                 las = 1 )
+        
       }
     }
-    mtext( side = 1, text = expression(Q(theta)), outer = T, line = 1, font = 2, cex = 1.5)
-    mtext( side = 2, text = "Density", outer = T, line = 1, font = 2, cex = 1.5 )
+    mtext( side = 1, text = expression(Q(theta)), outer = T, line = 4, font = 2, cex = 1.5)
+    mtext( side = 2, text = "Density", outer = T, line = 4, font = 2, cex = 1.5 )
     # mtext( side = 3, text = "AM Configuration", outer = T, line = 1, font = 2, cex = 1.2 )
-    mtext( side = 4, text = "Variable", outer = T, line = 1.5, font = 2, cex = 1.5 )
+    # mtext( side = 4, text = "Variable", outer = T, line = 1.5, font = 2, cex = 1.5 )
     dev.off()
   }
 
@@ -4027,7 +4036,8 @@ plotPerfMetrics <- function(  scenLabel = "base_1way", tabNameRoot = "pubBase",
                               PItab = NULL,
                               ICtab = NULL,
                               MREtab = NULL,
-                              MAREtab = NULL )
+                              MAREtab = NULL,
+                              bw = FALSE )
 {
   tablePath <- "./project/statistics"
 
@@ -4078,7 +4088,10 @@ plotPerfMetrics <- function(  scenLabel = "base_1way", tabNameRoot = "pubBase",
   ssVar <- paste("ss",variable, sep = "")
   msVar <- paste("ms",variable, sep = "")
 
-  cols <- brewer.pal(3, "Dark2")
+  if(!bw)
+    cols <- brewer.pal(3, "Dark2")
+  if(bw)
+    cols <- c("grey25","grey25")
 
 
   # get prediction integral values
@@ -4113,20 +4126,27 @@ plotPerfMetrics <- function(  scenLabel = "base_1way", tabNameRoot = "pubBase",
       mtext( side = 1, line = 2, text = "P(X|hat(x),se(X))")
       mtext( side = 2, line = 2, text = "Density")
     }
-    axis(side = 1)
-    axis(side = 2, las = 1)
+    mfg <- par("mfg")
+    if( mfg[2] == 1 )
+      axis( side = 2, las = 1, at = seq(0,2.5,by=.5))
+    # Plot axis if on the bottom row
+    if( mfg[1] == mfg[3] )
+      axis( side = 1 )
+
     box()
-    plot(ssPIhist, add =T, col = alpha(cols[1],alpha = .5), freq = FALSE)
-    plot(msPIhist, add =T, col = alpha(cols[2],alpha = .5), freq =FALSE)
-    lines(ssPIdens, col = cols[1], lwd = 3 )
-    lines(msPIdens, col = cols[2], lwd = 3 )
+    plot(ssPIhist, add =T, col = alpha(cols[1],alpha = .5), freq = FALSE,
+          angle = 45, density = 15, lwd = 2 )
+    plot(msPIhist, add =T, col = alpha(cols[2],alpha = .5), freq =FALSE,
+          lwd = 2 )
+    lines(ssPIdens, col = cols[1], lwd = 3, lty = 2 )
+    lines(msPIdens, col = cols[2], lwd = 3, lty = 1 )
     # Plot performance metrics
     rect( xleft = 0.68, xright = 1.2, ybottom = 1.85, ytop = 3.2,
           col = "white", border = "black" )
-    text( x = c(0.855,0.985), y = 2.9, label = c("SS","MS"), font = 2, cex = 1.5 )
-    text( x = c(0.74,0.855,0.985), y = 2.6, font = 2, label = c("IC", ssIC, msIC), cex = 1.5)
-    text( x = c(0.74,0.855,0.985), y = 2.3, font = 2, label = c("MARE", ssMARE, msMARE), cex = 1.5 )
-    text( x = c(0.74,0.855,0.985), y = 2.0, font = 2, label = c("MRE", ssMRE, msMRE), cex = 1.5 )
+    text( x = c(0.855,0.985), y = 2.9, label = c("SS","MS"), font = 2, cex = 1 )
+    text( x = c(0.74,0.855,0.985), y = 2.6, font = 2, label = c("IC", ssIC, msIC), cex = 1)
+    text( x = c(0.74,0.855,0.985), y = 2.3, font = 2, label = c("MARE", ssMARE, msMARE), cex = 1 )
+    text( x = c(0.74,0.855,0.985), y = 2.0, font = 2, label = c("MRE", ssMRE, msMRE), cex = 1 )
     box()
 
     # Plot number of tries
@@ -4165,7 +4185,7 @@ plotBCfit <- function(  sims=1, legend=FALSE,
                         MPtitles = FALSE,
                         labSize = 1.5, tickSize = 1.5, 
                         devLabels = TRUE, maxBt = c(80,40,40),
-                        saveName = "BCfit_largePE.png",
+                        saveName = "BCfit_largePE.pdf",
                         savePlot = FALSE )
 {
 
@@ -4189,7 +4209,7 @@ plotBCfit <- function(  sims=1, legend=FALSE,
   
   # Set up plot window
   if(savePlot)
-    png( file.path("./project/figs",saveName), width = 1100, height = 850 )
+    pdf( file.path("./project/figs",saveName), width = 11, height = 8.5 )
 
   par ( mfcol = c(nStocks,length(sims)+1), 
         mar = c(0,0,0,0), oma = c(5,5,4,2),
@@ -4731,9 +4751,9 @@ plotBCsimReps <- function(  sims=1, legend=FALSE,
   # Set up plot window
   for(rep in 1:100)
   {
-    saveFile <- paste(saveFileRoot,"_rep", rep,".png",sep = "")
-    png(saveFile, width = 1600, height = 900)
-    par ( mfcol = c(nStocks,length(sims)+1), mar = c(1,2,2,2), oma = c(4.5,4.5,2,0.5),
+    saveFile <- paste(saveFileRoot,"_rep", rep,".pdf",sep = "")
+    pdf( saveFile, width = 16, height = 9 )
+    par ( mfcol = c(nStocks,length(sims)+1), mar = c(0,0,0,0), oma = c(6.5,6.5,4,2.5),
           las = 1, cex.lab = labSize, cex.axis=tickSize, cex.main=labSize )
 
     if( MPtitles ) titles <- character( length = length(sims)+1 )
@@ -4869,7 +4889,15 @@ plotBCsimReps <- function(  sims=1, legend=FALSE,
           plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
                 ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
                 main = "" )
-            if( !is.null(titles) & s == 1 ) title( main = titles[simIdx] )
+            mfg <- par("mfg")
+            # Plot axes if asked for
+            if( mfg[1] == mfg[3] )
+              axis( side = 1, cex.axis = tickSize )
+            if( mfg[2] == 1 )
+              axis( side = 2, las = 1, cex.axis = tickSize )
+            box()
+            if( !is.null(titles) & s == 1 ) 
+              mtext( side = 3, text = titles[simIdx], font = 2, cex = 1.5 )
             # Plot confidence intervals
             if( CIs )
             {
@@ -4881,18 +4909,20 @@ plotBCsimReps <- function(  sims=1, legend=FALSE,
             rect( xleft = years-.4, xright = years+.4,
                   ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
             if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
-            axis( side = 2, las = 1, cex.axis = tickSize )
+            
           if (s == 2 & legend) 
             panLegend ( x=0.2,y=1,legTxt=legText,
                         col=legCol, lty = legLty, 
                         lwd = legLwd, pch = legPch, cex=c(2), bty="n" )
-            panLab( x = .2, y = .9, txt = specNames[s],
+            panLab( x = .25, y = .9, txt = specNames[s],
                     cex = labSize )
          
           # Add developer labels
           if( devLabels )
           {
-            if ( hpdSS[s] & !is.na(hpdSS[s]) ) panLab (x=0.9,y=0.9,txt="h",cex=1.1)
+            if( !is.na(hpdSS[s]) ) 
+              if( hpdSS[s] )
+                panLab (x=0.9,y=0.9,txt="h",cex=1.1)
           }
           # Add confidence intervals
           # Plot OM Bt
@@ -4918,12 +4948,18 @@ plotBCsimReps <- function(  sims=1, legend=FALSE,
         plot( x = c(fYear,max(years)), y = c(0,maxBt[s]), type = "n",
               ylim = c(0,maxBt[s]), ylab = "", axes=FALSE, xlab = "" ,
               main = "" )
-          if( !is.null(titles) & s == 1 ) title( main = titles[simIdx+1] )
+          mfg <- par("mfg")
+          # Plot axes if asked for
+          if( mfg[1] == mfg[3] )
+            axis( side = 1, cex.axis = tickSize )
+          if( mfg[2] == 1 )
+            axis( side = 2, las = 1, cex.axis = tickSize )
+          box()
+          if( !is.null(titles) & s == 1 ) 
+            mtext( side = 3, text = titles[simIdx+1], font = 2, cex = 1.5 )
           # plot catch
           rect( xleft = years-.4, xright = years+.4,
                 ybottom = 0, ytop = Ct[s,], col = "grey10", border = NA )
-          if(s == nS) axis( side = 1, las = 0, cex.axis = tickSize )
-          axis( side = 2, las = 1, cex.axis = tickSize )
         if (s == 2 & legend) 
           panLegend ( x=0.2,y=1,legTxt=legText,
                       col=legCol, lty = legLty, 
@@ -4934,7 +4970,8 @@ plotBCsimReps <- function(  sims=1, legend=FALSE,
         # Add developer labels
         if( devLabels )
         {
-          if ( hpdMS & !is.na(hpdMS) ) panLab (x=0.9,y=0.85,txt="h",cex=1.1)  
+          if ( hpdMS & !is.na(hpdMS) ) 
+            panLab (x=0.9,y=0.85,txt="h",cex=1.1)  
         }
         # Add confidence intervals
         if( CIs )
@@ -4956,13 +4993,15 @@ plotBCsimReps <- function(  sims=1, legend=FALSE,
 
         
       }
-      mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize)
-      mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 2, las = 0, cex = labSize )
+      mtext ( text = "Year", outer = TRUE, side = 1, padj = 1.5, cex = labSize,
+               line = 2.5)
+      mtext ( text = "Biomass (kt)", outer = TRUE, side = 2, line = 4, las = 0, cex = labSize )
       
     }
     if( devLabels )
       mtext ( text = c(stamp),side=1, outer = TRUE, 
-              at = c(0.9),padj=2,col="grey50",cex=0.8 )
+              at = c(0.9),padj=2,col="grey50",cex=0.8,
+              line = 3 )
     dev.off()
   }
 }
@@ -5535,7 +5574,7 @@ dumpStockPerf <- function(  simPath = file.path("./project/pubBase_2018-09-10/pr
   for( sIdx in 1:length(scenarios) )
   {
     scenLabel <- scenarios[sIdx]
-    plotFile <- file.path(plotPath, paste(scenLabel,".png",sep = "") )
+    plotFile <- file.path(plotPath, paste(scenLabel,".pdf",sep = "") )
 
     subTable <- simNumTable %>%
                 filter( scenario == scenLabel )
@@ -5544,7 +5583,7 @@ dumpStockPerf <- function(  simPath = file.path("./project/pubBase_2018-09-10/pr
     for( mIdx in 1:length(MPs))
       mpOrder[mIdx] <- subTable[which(subTable[,"mp"] == MPs[mIdx] ),"simNum"]
 
-    png(plotFile, width = 500, height = 800 )
+    pdf(plotFile, width = 5, height = 8 )
     plotStockPerfMultiSim(  pars = c("Umsy","BnT","dep","Bmsy","q_os"), 
                             sims = mpOrder, spec = 1, nSurv = 2,
                             devLabels = TRUE,
