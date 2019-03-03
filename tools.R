@@ -1038,7 +1038,7 @@ doBatchRun <- function( arg )
   require(tools)
   cat("Running batchjob:", arg[1],"\n")
   # source control script to load DLL
-  source("control.r")
+  # source("control.r")
   
   # runMSE with the batch file
   # add random delay to offset simFolder names
