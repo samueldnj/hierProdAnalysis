@@ -4,7 +4,7 @@ parameter value
 ctrl$scenarioName 'allSame'
 ctrl$mpLabel 'noJointPriors'
 ctrl$nReps 400
-ctrl$signifReps 100
+ctrl$signifReps 3
 ctrl$rSeed 2
 ctrl$fixProc FALSE
 ctrl$speciesNames paste('Stock',1:10,sep='')
