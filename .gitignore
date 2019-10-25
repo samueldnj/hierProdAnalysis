@@ -1,0 +1,5 @@
+# .gitignore file
+
+# Ignore temporary R files
+*.DS_Store
+*.Rapp.history
